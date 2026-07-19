@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/styles.css">
+  <script src="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/_ds_bundle.js"></script>
+  <script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+<dc-import name="Header" active="map" hint-size="100%,220px"></dc-import>
+<main style="max-width:1160px;margin:0 auto;padding:32px 24px 0">
+  <div style="display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--color-divider);padding-bottom:14px;flex-wrap:wrap">
+    <h1 style="margin:0;font-size:36px;text-transform:uppercase;letter-spacing:.02em">Карта рисков</h1>
+    <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Оперативная обстановка по регионам республики</span>
+    <span style="flex:1"></span>
+    <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Обновлено 18.07.2026, 14:00 · ЦУКС КЧС</span>
+  </div>
+
+  <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:16px 0">
+    <span style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Тип риска:</span>
+    <div role="group" aria-label="Фильтр по типу риска" style="display:flex;gap:6px;flex-wrap:wrap">
+      <sc-for list="{{ filters }}" as="f" hint-placeholder-count="5">
+        <button onClick="{{ f.select }}" aria-pressed="{{ f.pressed }}" class="btn" style="font-size:13px;padding:6px 14px;border:1px solid var(--color-divider);background:{{ f.bg }};color:{{ f.fg }}" style-hover="border-color:var(--color-accent)">{{ f.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:minmax(0,1.8fr) minmax(300px,1fr);gap:28px;align-items:start">
+    <div class="blueprint" style="padding:14px">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <x-import component="TjMap" from="./tj-map.jsx" regions="{{ mapRegions }}" height="{{ 520 }}" hint-size="100%,520px"></x-import>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;padding:12px 8px 4px;border-top:1px solid var(--color-divider);margin-top:12px;font-size:12px" aria-label="Легенда карты">
+        <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:color-mix(in srgb,var(--color-accent) 10%,transparent);border:1px solid var(--color-divider)"></span>Штатно</span>
+        <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:color-mix(in srgb,var(--hz-info) 30%,transparent);border:1px solid var(--color-divider)"></span>Информация</span>
+        <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:color-mix(in srgb,var(--hz-warning) 45%,transparent);border:1px solid var(--color-divider)"></span>Предупреждение</span>
+        <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:color-mix(in srgb,var(--hz-danger) 55%,transparent);border:1px solid var(--color-divider)"></span>Опасность</span>
+        <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:color-mix(in srgb,var(--hz-critical) 60%,transparent);border:1px solid var(--color-divider)"></span>Критично</span>
+      </div>
+    </div>
+
+    <aside style="min-width:0">
+      <h2 style="font-size:20px;text-transform:uppercase;letter-spacing:.02em;margin:0 0 4px">Активные события</h2>
+      <p style="font-size:12px;margin:0 0 8px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">{{ countLine }}</p>
+      <sc-if value="{{ hasIncidents }}" hint-placeholder-val="{{ true }}">
+        <div role="list">
+          <sc-for list="{{ incidents }}" as="i" hint-placeholder-count="4">
+            <a role="listitem" href="Alert.dc.html" style="display:block;padding:12px 0;border-bottom:1px solid var(--color-divider);text-decoration:none;color:inherit" style-hover="color:var(--color-accent-700)">
+              <span style="display:flex;gap:8px;align-items:center;font-size:11px"><span style="width:8px;height:8px;border-radius:50%;background:{{ i.color }};flex:none"></span><span style="color:color-mix(in srgb,var(--color-text) 55%,transparent);text-transform:uppercase;letter-spacing:.06em">{{ i.kind }} · {{ i.time }}</span></span>
+              <span style="display:block;font-family:var(--font-heading);font-weight:600;font-size:15.5px;line-height:1.25;margin-top:3px">{{ i.title }}</span>
+              <span style="display:block;font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent);margin-top:2px">{{ i.region }}</span>
+            </a>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ noIncidents }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:28px 16px;text-align:center;border:1px dashed var(--color-divider)">
+          <p style="font-family:var(--font-heading);font-weight:600;font-size:16px;margin:0 0 4px">Событий этого типа нет</p>
+          <p style="font-size:12.5px;margin:0;color:color-mix(in srgb,var(--color-text) 60%,transparent)">По выбранному типу риска активных событий не зарегистрировано.</p>
+        </div>
+      </sc-if>
+      <div class="blueprint" style="padding:16px;margin-top:20px;display:flex;flex-direction:column;gap:6px">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <h6 style="margin:0;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Как читать карту</h6>
+        <p style="margin:0;font-size:12.5px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 65%,transparent)">Цвет региона отражает наивысший уровень действующего предупреждения. Уровень всегда дублируется текстом и значком — не только цветом.</p>
+      </div>
+    </aside>
+  </div>
+</main>
+<dc-import name="Footer" hint-size="100%,420px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { kind: 'Все' };
+  incidents = [
+    { kind: 'Сель', level: 'warning', time: '18.07, 09:00', title: 'Селевая опасность в предгорных районах', region: 'Хатлонская область — Куляб, Восе, Дангара', regionKey: 'khatlon' },
+    { kind: 'Жара', level: 'info', time: '17.07, 16:00', title: 'Аномальная жара до +43 °C', region: 'Хатлонская область, РРП', regionKey: 'khatlon' },
+    { kind: 'Жара', level: 'info', time: '17.07, 16:00', title: 'Высокая пожарная опасность в степной зоне', region: 'РРП — Рудаки, Вахдат', regionKey: 'rrp' },
+    { kind: 'Камнепад', level: 'info', time: '16.07, 11:30', title: 'Камнепады на автодороге Хорог — Мургаб', region: 'ГБАО', regionKey: 'gbao' },
+  ];
+  renderVals() {
+    const kinds = ['Все', 'Сель', 'Жара', 'Камнепад', 'Лавина', 'Землетрясение'];
+    const { kind } = this.state;
+    const list = this.incidents.filter((i) => kind === 'Все' || i.kind === kind);
+    const color = { info: 'var(--hz-info)', warning: 'var(--hz-warning)', danger: 'var(--hz-danger)', critical: 'var(--hz-critical)' };
+    const rank = { none: 0, info: 1, warning: 2, danger: 3, critical: 4 };
+    const names = { dushanbe: 'г. Душанбе', sughd: 'Согдийская область', khatlon: 'Хатлонская область', rrp: 'РРП', gbao: 'ГБАО' };
+    const statusText = { none: 'Обстановка штатная', info: 'Информационное уведомление', warning: 'Действует предупреждение', danger: 'Опасная обстановка', critical: 'Критическая ситуация' };
+    const mapRegions = Object.keys(names).map((k) => {
+      const rs = list.filter((i) => i.regionKey === k);
+      const level = rs.reduce((top, i) => (rank[i.level] > rank[top] ? i.level : top), 'none');
+      return { key: k, name: names[k], level, count: rs.length,
+        countLabel: rs.length === 1 ? 'событие' : rs.length < 5 ? 'события' : 'событий',
+        statusText: statusText[level] };
+    });
+    return {
+      filters: kinds.map((c) => ({
+        label: c,
+        pressed: c === kind ? 'true' : 'false',
+        bg: c === kind ? 'var(--color-accent)' : 'transparent',
+        fg: c === kind ? 'var(--color-bg)' : 'var(--color-text)',
+        select: () => this.setState({ kind: c }),
+      })),
+      mapRegions,
+      incidents: list.map((i) => ({ ...i, color: color[i.level] })),
+      hasIncidents: list.length > 0,
+      noIncidents: list.length === 0,
+      countLine: list.length > 0 ? `${list.length} ${list.length === 1 ? 'событие' : list.length < 5 ? 'события' : 'событий'} · фильтр: ${kind}` : `фильтр: ${kind}`,
+    };
+  }
+}
+</script>
+</body>
+</html>

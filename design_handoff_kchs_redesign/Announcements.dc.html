@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/styles.css">
+  <script src="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/_ds_bundle.js"></script>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+<dc-import name="Header" active="" hint-size="100%,260px"></dc-import>
+<main style="max-width:1160px;margin:0 auto;padding:32px 24px 0">
+  <nav aria-label="Хлебные крошки" style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 55%,transparent);display:flex;gap:8px;align-items:center;margin-bottom:16px">
+    <a href="Home.dc.html" style="color:inherit;text-decoration:none">Главная</a><span>/</span>
+    <span aria-current="page" style="color:var(--color-text)">Объявления</span>
+  </nav>
+  <div style="display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--color-divider);padding-bottom:14px">
+    <h1 style="margin:0;font-size:36px;text-transform:uppercase;letter-spacing:.02em">Объявления</h1>
+    <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Вакансии государственной службы и тендеры</span>
+  </div>
+
+  <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:16px 0;border-bottom:1px solid var(--color-divider)">
+    <div role="group" aria-label="Тип объявления" style="display:flex;gap:6px;flex-wrap:wrap">
+      <sc-for list="{{ kinds }}" as="k" hint-placeholder-count="3">
+        <button onClick="{{ k.select }}" aria-pressed="{{ k.pressed }}" class="btn" style="font-size:13px;padding:6px 14px;border:1px solid var(--color-divider);background:{{ k.bg }};color:{{ k.fg }}" style-hover="border-color:var(--color-accent)">{{ k.label }}</button>
+      </sc-for>
+    </div>
+    <span style="flex:1"></span>
+    <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">{{ countLine }}</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:minmax(0,2.2fr) minmax(260px,1fr);gap:32px;align-items:start;margin-top:8px">
+    <div role="feed" aria-label="Список объявлений" style="min-width:0">
+      <sc-for list="{{ items }}" as="a" hint-placeholder-count="6">
+        <article style="display:flex;flex-direction:column;gap:8px;padding:20px 0;border-bottom:1px solid var(--color-divider)">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <span class="tag {{ a.tagClass }}">{{ a.kind }}</span>
+            <span class="tag" style="background:{{ a.statusBg }};color:{{ a.statusFg }};font-weight:600">{{ a.status }}</span>
+            <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 52%,transparent)">{{ a.org }}</span>
+            <span style="flex:1"></span>
+            <span style="font-size:12.5px;color:{{ a.deadlineColor }};font-weight:500">{{ a.deadline }}</span>
+          </div>
+          <h2 style="font-size:20px;margin:0;line-height:1.2"><a href="Contacts.dc.html" style="color:inherit;text-decoration:none" style-hover="color:var(--color-accent-700)">{{ a.title }}</a></h2>
+          <p style="margin:0;font-size:13.5px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 65%,transparent)">{{ a.desc }}</p>
+        </article>
+      </sc-for>
+    </div>
+    <aside style="display:flex;flex-direction:column;gap:20px">
+      <div class="blueprint" style="padding:18px;display:flex;flex-direction:column;gap:8px">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <h6 style="margin:0;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Как подать заявку</h6>
+        <p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 70%,transparent)">Анкета кандидата на вакансию и тендерные заявки подаются через <a href="Contacts.dc.html" style="color:var(--color-accent-700)">электронную приёмную</a> либо на бумажном носителе в отдел кадров Комитета. Подтверждение о получении направляется в режиме онлайн.</p>
+      </div>
+      <div class="blueprint" style="padding:18px;display:flex;flex-direction:column;gap:8px">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <h6 style="margin:0;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Требования к кандидатам</h6>
+        <p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 70%,transparent)">Квалификационные требования к должностям государственной службы и образцы документов — в <a href="Documents.dc.html" style="color:var(--color-accent-700)">каталоге документов</a>.</p>
+      </div>
+      <div class="blueprint" style="padding:18px;display:flex;flex-direction:column;gap:8px">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <h6 style="margin:0;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Вопросы по тендерам</h6>
+        <p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 70%,transparent)">Большинство тендеров проводится в рамках <a href="Projects.dc.html" style="color:var(--color-accent-700)">проектов и программ</a> Комитета. Отдел государственных закупок:<br><a href="tel:+992372215900" style="color:var(--color-accent-700)">+992 (37) 221-59-00</a> · tender@khf.tj</p>
+      </div>
+    </aside>
+  </div>
+</main>
+<dc-import name="Footer" hint-size="100%,420px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { kind: 'Все' };
+  items = [
+    { kind: 'Вакансия', status: 'Приём заявок', title: 'Спасатель аэромобильного отряда — г. Душанбе (2 должности)', org: 'Служба спасения, центральный аппарат', desc: 'Требования: возраст до 35 лет, физическая подготовка, готовность к командировкам. Обучение за счёт Комитета.', deadline: 'до 31.07.2026', open: true },
+    { kind: 'Вакансия', status: 'Приём заявок', title: 'Инженер отдела гражданской обороны — Управление по Согдийской области', org: 'Управление по Согдийской области, г. Худжанд', desc: 'Высшее техническое образование, опыт работы от 3 лет. Знание таджикского и русского языков обязательно.', deadline: 'до 25.07.2026', open: true },
+    { kind: 'Вакансия', status: 'Приём заявок', title: 'Оператор службы 112 — ЦУКС (сменный график)', org: 'Центр управления в кризисных ситуациях', desc: 'Приём и обработка экстренных вызовов. Владение таджикским и русским языками, стрессоустойчивость.', deadline: 'до 10.08.2026', open: true },
+    { kind: 'Тендер', status: 'Приём заявок', title: 'Закупка аварийно-спасательного инструмента для региональных управлений', org: 'Проект «Модернизация службы 112»', desc: 'Гидравлический инструмент, осветительное оборудование. Условия участия и формы заявок — в тендерной документации.', deadline: 'до 05.08.2026', open: true },
+    { kind: 'Тендер', status: 'Приём заявок', title: 'Поставка ГСМ для автопарка Комитета на второе полугодие 2026 года', org: 'Отдел государственных закупок', desc: 'Дизельное топливо и бензин АИ-92/95 с доставкой в региональные управления.', deadline: 'до 28.07.2026', open: true },
+    { kind: 'Тендер', status: 'Завершён', title: 'Капитальный ремонт учебного корпуса Учебного центра', org: 'Отдел государственных закупок', desc: 'Итоги подведены 30.06.2026. Победитель — ООО «Сохтмонсервис». Протокол опубликован в разделе документов.', deadline: 'итоги 30.06.2026', open: false },
+  ];
+  renderVals() {
+    const kindList = ['Все', 'Вакансии', 'Тендеры'];
+    const { kind } = this.state;
+    const items = this.items.filter((a) =>
+      kind === 'Все' || (kind === 'Вакансии' ? a.kind === 'Вакансия' : a.kind === 'Тендер'));
+    const n = items.length;
+    return {
+      kinds: kindList.map((c) => ({
+        label: c,
+        pressed: c === kind ? 'true' : 'false',
+        bg: c === kind ? 'var(--color-accent)' : 'transparent',
+        fg: c === kind ? 'var(--color-bg)' : 'var(--color-text)',
+        select: () => this.setState({ kind: c }),
+      })),
+      countLine: `${n} ${n === 1 ? 'объявление' : n < 5 ? 'объявления' : 'объявлений'}`,
+      items: items.map((a) => ({
+        ...a,
+        tagClass: a.kind === 'Вакансия' ? 'tag-accent' : 'tag-outline',
+        statusBg: a.open ? 'var(--hz-success-bg)' : 'var(--color-neutral-100)',
+        statusFg: a.open ? 'var(--hz-success)' : 'var(--color-neutral-800)',
+        deadlineColor: a.open ? 'var(--hz-warning)' : 'color-mix(in srgb, var(--color-text) 50%, transparent)',
+      })),
+    };
+  }
+}
+</script>
+</body>
+</html>

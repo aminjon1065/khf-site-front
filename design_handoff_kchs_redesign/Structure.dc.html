@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/styles.css">
+  <script src="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/_ds_bundle.js"></script>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+<dc-import name="Header" active="about" hint-size="100%,220px"></dc-import>
+<main style="max-width:1160px;margin:0 auto;padding:32px 24px 0">
+  <nav aria-label="Хлебные крошки" style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 55%,transparent);display:flex;gap:8px;align-items:center;margin-bottom:16px">
+    <a href="Home.dc.html" style="color:inherit;text-decoration:none">Главная</a><span>/</span>
+    <span>О нас</span><span>/</span>
+    <span aria-current="page" style="color:var(--color-text)">Структура</span>
+  </nav>
+  <div style="display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr);gap:32px;align-items:end;border-bottom:1px solid var(--color-divider);padding-bottom:20px">
+    <div>
+      <h1 style="margin:0 0 10px;font-size:36px;text-transform:uppercase;letter-spacing:.02em">Структура Комитета</h1>
+      <p style="margin:0;font-size:15px;line-height:1.6;max-width:64ch;color:color-mix(in srgb,var(--color-text) 70%,transparent)">Центральный аппарат, специализированные службы и региональные управления образуют единую государственную систему предупреждения и ликвидации чрезвычайных ситуаций.</p>
+    </div>
+    <div class="blueprint" style="padding:16px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <div><div style="font-family:var(--font-heading);font-weight:600;font-size:28px">1994</div><div style="font-size:11px;color:color-mix(in srgb,var(--color-text) 60%,transparent)">год образования</div></div>
+      <div><div style="font-family:var(--font-heading);font-weight:600;font-size:28px">68</div><div style="font-size:11px;color:color-mix(in srgb,var(--color-text) 60%,transparent)">подразделений по стране</div></div>
+    </div>
+  </div>
+
+  <section aria-label="Подразделения" style="margin-top:28px">
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px">
+      <div class="blueprint" style="padding:18px;background:var(--color-accent-900);grid-column:1 / -1;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <span style="font-family:var(--font-heading);font-weight:600;font-size:19px;color:#fff">Центральный аппарат</span>
+        <span style="font-size:13px;color:rgba(255,255,255,.75)">г. Душанбе · председатель, заместители, коллегия — <a href="Leadership.dc.html" style="color:#d6ebff">руководство →</a></span>
+      </div>
+      <sc-for list="{{ units }}" as="u" hint-placeholder-count="6">
+        <div class="blueprint" style="padding:16px;display:flex;flex-direction:column;gap:6px;min-width:0">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <span style="display:flex;align-items:baseline;gap:10px"><span style="font-family:var(--font-heading);font-weight:600;font-size:13px;color:color-mix(in srgb,var(--color-text) 40%,transparent)">{{ u.num }}</span><span style="font-family:var(--font-heading);font-weight:600;font-size:16.5px;line-height:1.2">{{ u.name }}</span></span>
+          <span style="font-size:12.5px;line-height:1.5;color:color-mix(in srgb,var(--color-text) 62%,transparent)">{{ u.desc }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <p style="font-size:12.5px;margin-top:14px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Региональные управления действуют в г. Душанбе, Согдийской и Хатлонской областях, ГБАО и районах республиканского подчинения — <a href="Contacts.dc.html" style="color:var(--color-accent-700)">контакты управлений</a>.</p>
+  </section>
+
+  <section aria-label="Направления деятельности" style="margin-top:44px">
+    <div style="display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--color-divider);padding-bottom:10px;margin-bottom:20px">
+      <h2 style="margin:0;font-size:23px;text-transform:uppercase;letter-spacing:.02em">Направления деятельности</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 40px">
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider);font-size:14px;line-height:1.55"><span style="color:var(--color-accent-700);font-family:var(--font-heading);font-weight:600">—</span>Мониторинг и прогнозирование чрезвычайных ситуаций, система раннего оповещения населения</div>
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider);font-size:14px;line-height:1.55"><span style="color:var(--color-accent-700);font-family:var(--font-heading);font-weight:600">—</span>Поисково-спасательные и аварийно-восстановительные работы</div>
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider);font-size:14px;line-height:1.55"><span style="color:var(--color-accent-700);font-family:var(--font-heading);font-weight:600">—</span>Гражданская оборона и подготовка населения к действиям при ЧС</div>
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider);font-size:14px;line-height:1.55"><span style="color:var(--color-accent-700);font-family:var(--font-heading);font-weight:600">—</span>Государственный надзор в области защиты от чрезвычайных ситуаций</div>
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider);font-size:14px;line-height:1.55"><span style="color:var(--color-accent-700);font-family:var(--font-heading);font-weight:600">—</span>Международное сотрудничество в области снижения риска бедствий</div>
+      <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider);font-size:14px;line-height:1.55"><span style="color:var(--color-accent-700);font-family:var(--font-heading);font-weight:600">—</span>Регистрация и сопровождение туристических групп в горных районах</div>
+    </div>
+  </section>
+</main>
+<dc-import name="Footer" hint-size="100%,420px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      units: [
+        ['Центр управления в кризисных ситуациях', 'Круглосуточный мониторинг обстановки, приём вызовов 112, координация реагирования'],
+        ['Служба спасения', 'Аэромобильный отряд, кинологические расчёты, водолазная и горная службы'],
+        ['Управление гражданской обороны', 'Планы ГО, эвакуационные мероприятия, защитные сооружения'],
+        ['Управление предупреждения ЧС', 'Прогнозирование рисков, селе- и лавиноопасные участки, надзор'],
+        ['Учебный центр', 'Подготовка спасателей и обучение населения действиям при ЧС'],
+        ['Управление международного сотрудничества', 'Программы с УСРБ ООН, ИНСАРАГ, партнёрами по региону'],
+      ].map((u, i) => ({ num: String(i + 1).padStart(2, '0'), name: u[0], desc: u[1] })),
+    };
+  }
+}
+</script>
+</body>
+</html>

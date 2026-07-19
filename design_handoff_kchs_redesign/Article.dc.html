@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/styles.css">
+  <script src="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/_ds_bundle.js"></script>
+  <script src="image-slot.js"></script>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+<dc-import name="Header" active="news" hint-size="100%,220px"></dc-import>
+<main style="max-width:1160px;margin:0 auto;padding:24px 24px 0">
+  <nav aria-label="Хлебные крошки" style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 55%,transparent);display:flex;gap:8px;align-items:center">
+    <a href="Home.dc.html" style="color:inherit;text-decoration:none">Главная</a><span>/</span>
+    <a href="News.dc.html" style="color:inherit;text-decoration:none">Новости</a><span>/</span>
+    <span aria-current="page" style="color:var(--color-text)">Учения «Замин-2026»</span>
+  </nav>
+
+  <div style="display:grid;grid-template-columns:minmax(0,1.9fr) minmax(260px,1fr);gap:36px;align-items:start;margin-top:24px">
+    <article style="min-width:0;max-width:72ch">
+      <span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700)">Учения · Пресс-служба КЧС</span>
+      <h1 style="font-size:34px;line-height:1.12;margin:10px 0 12px">В Хатлонской области завершены республиканские командно-штабные учения «Замин-2026»</h1>
+      <p style="font-size:16.5px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 78%,transparent);font-weight:500">Более 1 200 спасателей, подразделения гражданской обороны и представители международных организаций в течение трёх дней отрабатывали сценарии реагирования на разрушительное землетрясение.</p>
+      <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:color-mix(in srgb,var(--color-text) 55%,transparent);padding:12px 0;border-top:1px solid var(--color-divider);border-bottom:1px solid var(--color-divider);margin:14px 0 20px">
+        <span>17 июля 2026, 11:40</span><span>Пресс-центр КЧС</span>
+        <span style="flex:1"></span>
+        <button class="btn btn-ghost" style="font-size:12.5px" onClick="{{ share }}">{{ shareLabel }}</button>
+        <button class="btn btn-ghost" style="font-size:12.5px" onClick="{{ print }}">Версия для печати</button>
+      </div>
+      <figure class="blueprint duotone" style="height:340px;margin:0 0 8px">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <image-slot id="article-cover" shape="rect" placeholder="Фото: развёртывание полевого лагеря"></image-slot>
+      </figure>
+      <figcaption style="margin-bottom:20px">Развёртывание полевого лагеря сводного отряда в Дангаринском районе. Фото: пресс-служба КЧС</figcaption>
+      <p style="font-size:15px;line-height:1.7">По сценарию учений в Кулябской зоне произошло землетрясение магнитудой 7,0 с разрушением жилых зданий, объектов энергетики и перекрытием автодорог. В первые часы были развёрнуты подвижные пункты управления, полевой госпиталь и три лагеря для временного размещения населения.</p>
+      <p style="font-size:15px;line-height:1.7">К практическим действиям привлекались аэромобильный отряд «Центроспас», кинологические расчёты, инженерная техника региональных управлений, а также вертолёты авиационного звена Комитета. Впервые отрабатывалось взаимодействие с командой ИНСАРАГ по международной методологии поисково-спасательных работ.</p>
+      <blockquote class="blueprint" style="margin:24px 0;padding:18px 22px;font-size:16px;line-height:1.55;font-style:normal">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        «Учения подтвердили готовность группировки сил к реагированию на масштабные бедствия. Отдельные вопросы связи в горной местности будут решены до конца года», — отметил председатель Комитета.
+      </blockquote>
+      <p style="font-size:15px;line-height:1.7">За ходом учений наблюдали представители УСРБ ООН, Международной федерации обществ Красного Креста и Красного Полумесяца и делегации МЧС государств Центральной Азии. Итоги будут учтены при корректировке республиканского плана действий по защите населения.</p>
+      <div style="margin-top:24px">
+        <h6 style="color:color-mix(in srgb,var(--color-text) 55%,transparent)">Материалы</h6>
+        <a href="Documents.dc.html" style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--color-divider);text-decoration:none;color:inherit" style-hover="color:var(--color-accent-700)">
+          <span class="tag tag-neutral">PDF</span><span style="font-size:13.5px;flex:1">Пресс-релиз об итогах учений «Замин-2026»</span><span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">0,2 МБ</span>
+        </a>
+      </div>
+    </article>
+
+    <aside style="display:flex;flex-direction:column;gap:20px">
+      <div>
+        <h6 style="margin:0 0 10px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Читайте также</h6>
+        <a href="Article.dc.html" style="display:block;padding:10px 0;border-bottom:1px solid var(--color-divider);text-decoration:none;color:inherit" style-hover="color:var(--color-accent-700)">
+          <span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 50%,transparent);text-transform:uppercase;letter-spacing:.06em">Международное · 16.07</span>
+          <span style="display:block;font-family:var(--font-heading);font-weight:600;font-size:15.5px;line-height:1.25;margin-top:3px">Программа снижения риска бедствий на 2026–2030 годы подписана с УСРБ ООН</span>
+        </a>
+        <a href="Article.dc.html" style="display:block;padding:10px 0;border-bottom:1px solid var(--color-divider);text-decoration:none;color:inherit" style-hover="color:var(--color-accent-700)">
+          <span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 50%,transparent);text-transform:uppercase;letter-spacing:.06em">Оперативно · 16.07</span>
+          <span style="display:block;font-family:var(--font-heading);font-weight:600;font-size:15.5px;line-height:1.25;margin-top:3px">Спасатели эвакуировали группу альпинистов со склона пика Исмоили Сомони</span>
+        </a>
+        <a href="Article.dc.html" style="display:block;padding:10px 0;text-decoration:none;color:inherit" style-hover="color:var(--color-accent-700)">
+          <span style="font-size:11px;color:color-mix(in srgb,var(--color-text) 50%,transparent);text-transform:uppercase;letter-spacing:.06em">Техника · 12.07</span>
+          <span style="display:block;font-family:var(--font-heading);font-weight:600;font-size:15.5px;line-height:1.25;margin-top:3px">Региональные управления получили 18 единиц новой техники</span>
+        </a>
+      </div>
+      <div class="blueprint" style="padding:18px;display:flex;flex-direction:column;gap:8px">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <h6 style="margin:0;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Официальный источник</h6>
+        <p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 70%,transparent)">Материал подготовлен пресс-службой КЧС. При использовании ссылка на khf.tj обязательна.</p>
+      </div>
+    </aside>
+  </div>
+</main>
+<dc-import name="Footer" hint-size="100%,420px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { copied: false };
+  renderVals() {
+    return {
+      shareLabel: this.state.copied ? 'Скопировано' : 'Поделиться',
+      share: () => {
+        navigator.clipboard && navigator.clipboard.writeText(location.href).catch(() => {});
+        this.setState({ copied: true });
+        setTimeout(() => this.setState({ copied: false }), 2000);
+      },
+      print: () => window.print(),
+    };
+  }
+}
+</script>
+</body>
+</html>

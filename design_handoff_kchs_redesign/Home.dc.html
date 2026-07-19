@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/styles.css">
+  <script src="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/_ds_bundle.js"></script>
+  <script src="image-slot.js"></script>
+  <script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
+  <style>
+    @keyframes critPulse { 0%,100%{opacity:1} 50%{opacity:.55} }
+    @media (prefers-reduced-motion: reduce){ .crit-dot{animation:none !important} }
+  </style>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+<dc-import name="Header" active="home" hint-size="100%,220px"></dc-import>
+
+<sc-if value="{{ isCritical }}" hint-placeholder-val="{{ false }}">
+  <section aria-label="Критическое предупреждение" style="background:var(--hz-critical);color:#fff">
+    <div style="max-width:1160px;margin:0 auto;padding:28px 24px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <span class="crit-dot" style="width:12px;height:12px;background:#fff;border-radius:50%;animation:critPulse 2.4s ease-in-out infinite"></span>
+        <span style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700">Красный уровень · Критическая ситуация</span>
+        <span style="font-size:12px;opacity:.85">Обновлено 18.07.2026, 14:20 · Источник: ЦУКС КЧС</span>
+      </div>
+      <h1 style="font-size:34px;margin:0;color:#fff">Сель и подтопления в Хатлонской области — районы Куляб и Восе</h1>
+      <p style="margin:0;max-width:760px;font-size:16px;line-height:1.5">Из-за интенсивных ливневых дождей сошли селевые потоки. Ведётся эвакуация населения из прибрежных кишлаков. Не приближайтесь к руслам рек и селеотводным каналам.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a href="Guide.dc.html" class="btn" style="background:#fff;color:var(--hz-critical);border-color:#fff;font-size:15px;padding:10px 20px">Что делать при селе</a>
+        <a href="Alert.dc.html" class="btn" style="color:#fff;border-color:rgba(255,255,255,.6);font-size:15px;padding:10px 20px">Подробности и карта</a>
+        <a href="tel:112" class="btn" style="color:#fff;border-color:rgba(255,255,255,.6);font-size:15px;padding:10px 20px">Вызов 112</a>
+      </div>
+    </div>
+  </section>
+</sc-if>
+<sc-if value="{{ isWarning }}" hint-placeholder-val="{{ true }}">
+  <section aria-label="Действующее предупреждение" style="background:var(--hz-warning-bg);border-bottom:1px solid var(--color-divider)">
+    <div style="max-width:1160px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--hz-warning)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><path d="M12 9v4M12 17h.01"></path></svg>
+      <span class="tag" style="background:var(--hz-warning);color:var(--color-bg);font-weight:700;letter-spacing:.08em;text-transform:uppercase">Оранжевый уровень</span>
+      <span style="font-size:14px;flex:1;min-width:260px"><strong>Селевая опасность — Хатлонская область.</strong> До 20 июля возможен сход селей в предгорных районах. Избегайте русел рек.</span>
+      <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">18.07.2026, 09:00</span>
+      <a href="Alert.dc.html" class="btn btn-secondary" style="font-size:13px">Подробнее</a>
+    </div>
+  </section>
+</sc-if>
+<sc-if value="{{ isCalm }}" hint-placeholder-val="{{ false }}">
+  <section aria-label="Оперативный статус" style="border-bottom:1px solid var(--color-divider)">
+    <div style="max-width:1160px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px">
+      <span style="width:9px;height:9px;border-radius:50%;background:var(--hz-success)"></span>
+      <span><strong>Чрезвычайных предупреждений нет.</strong> Обстановка на территории республики штатная.</span>
+      <span style="flex:1"></span>
+      <span style="color:color-mix(in srgb,var(--color-text) 50%,transparent)">Обновлено 18.07.2026, 14:00</span>
+      <a href="Map.dc.html" style="color:var(--color-accent-700)">Карта рисков</a>
+    </div>
+  </section>
+</sc-if>
+
+<main id="main" style="max-width:1160px;margin:0 auto;padding:36px 24px 0">
+
+  <section aria-label="Главное" style="display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:28px;align-items:stretch">
+    <div class="blueprint" role="group" aria-roledescription="карусель" aria-label="Главные новости" style="position:relative;overflow:visible;min-width:0" onMouseEnter="{{ pause }}" onMouseLeave="{{ resume }}">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <div style="overflow:hidden;height:100%">
+        <div style="display:flex;height:100%;transform:{{ slideX }};transition:transform .5s ease;will-change:transform">
+          <article style="flex:none;width:100%;display:grid;grid-template-columns:minmax(0,1fr) 42%;min-height:430px">
+            <div style="padding:26px 28px;display:flex;flex-direction:column;justify-content:center;gap:12px;min-width:0">
+              <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700)">Официально · 17 июля 2026</div>
+              <h2 style="font-size:27px;margin:0;line-height:1.15"><a href="Article.dc.html" style="color:inherit;text-decoration:none">В Хатлонской области завершены командно-штабные учения «Замин-2026»</a></h2>
+              <p style="margin:0;font-size:14px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 72%,transparent)">Более 1 200 спасателей и представители международных организаций отработали сценарии реагирования на землетрясение магнитудой 7,0.</p>
+              <a href="Article.dc.html" class="btn btn-secondary" style="align-self:flex-start;margin-top:6px">Читать полностью</a>
+            </div>
+            <div class="duotone" style="min-height:100%">
+              <image-slot id="home-lead" shape="rect" placeholder="Фото: командно-штабные учения"></image-slot>
+            </div>
+          </article>
+          <article style="flex:none;width:100%;display:grid;grid-template-columns:minmax(0,1fr) 42%;min-height:430px">
+            <div style="padding:26px 28px;display:flex;flex-direction:column;justify-content:center;gap:12px;min-width:0">
+              <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700)">Спасательные операции · 16 июля 2026</div>
+              <h2 style="font-size:27px;margin:0;line-height:1.15"><a href="Article.dc.html" style="color:inherit;text-decoration:none">Спасатели эвакуировали группу альпинистов со склона пика Исмоили Сомони</a></h2>
+              <p style="margin:0;font-size:14px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 72%,transparent)">Вертолёт КЧС снял семерых альпинистов с высоты 5 900 метров после резкого ухудшения погоды. Пострадавших нет.</p>
+              <a href="Article.dc.html" class="btn btn-secondary" style="align-self:flex-start;margin-top:6px">Читать полностью</a>
+            </div>
+            <div class="duotone" style="min-height:100%">
+              <image-slot id="home-slide-2" shape="rect" placeholder="Фото: вертолёт КЧС над Памиром"></image-slot>
+            </div>
+          </article>
+          <article style="flex:none;width:100%;display:grid;grid-template-columns:minmax(0,1fr) 42%;min-height:430px">
+            <div style="padding:26px 28px;display:flex;flex-direction:column;justify-content:center;gap:12px;min-width:0">
+              <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700)">Сотрудничество · 16 июля 2026</div>
+              <h2 style="font-size:27px;margin:0;line-height:1.15"><a href="Article.dc.html" style="color:inherit;text-decoration:none">Таджикистан и УСРБ ООН подписали программу снижения риска бедствий на 2026–2030 годы</a></h2>
+              <p style="margin:0;font-size:14px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 72%,transparent)">Документ предусматривает модернизацию систем раннего оповещения и обучение специалистов в регионах.</p>
+              <a href="Article.dc.html" class="btn btn-secondary" style="align-self:flex-start;margin-top:6px">Читать полностью</a>
+            </div>
+            <div class="duotone" style="min-height:100%">
+              <image-slot id="home-slide-3" shape="rect" placeholder="Фото: подписание программы"></image-slot>
+            </div>
+          </article>
+        </div>
+      </div>
+      <div style="position:absolute;left:28px;bottom:18px;display:flex;align-items:center;gap:10px">
+        <button onClick="{{ prevSlide }}" aria-label="Предыдущий слайд" class="btn btn-icon btn-secondary" style="width:30px;height:30px;background:var(--color-bg)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+        </button>
+        <button onClick="{{ goTo0 }}" aria-label="Слайд 1" style="width:22px;height:4px;border:none;cursor:pointer;padding:0;background:{{ dot0 }}"></button>
+        <button onClick="{{ goTo1 }}" aria-label="Слайд 2" style="width:22px;height:4px;border:none;cursor:pointer;padding:0;background:{{ dot1 }}"></button>
+        <button onClick="{{ goTo2 }}" aria-label="Слайд 3" style="width:22px;height:4px;border:none;cursor:pointer;padding:0;background:{{ dot2 }}"></button>
+        <button onClick="{{ nextSlide }}" aria-label="Следующий слайд" class="btn btn-icon btn-secondary" style="width:30px;height:30px;background:var(--color-bg)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+        </button>
+      </div>
+    </div>
+    <a href="https://president.tj" target="_blank" rel="noopener" class="blueprint" aria-label="Президент Республики Таджикистан — president.tj" style="display:flex;flex-direction:column;text-decoration:none;color:inherit;min-width:0" style-hover="background:color-mix(in srgb,var(--color-accent) 7%,transparent)">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <span style="display:block;flex:1;min-height:240px">
+        <image-slot id="president-photo" shape="rect" src="assets/president.jpg" fit="cover" placeholder="Фото Президента"></image-slot>
+      </span>
+      <span style="padding:14px 16px 16px;display:flex;flex-direction:column;gap:4px">
+        <span style="font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700)">Лидер нации</span>
+        <span style="font-family:var(--font-heading);font-weight:600;font-size:19px;line-height:1.15">Эмомали Рахмон</span>
+        <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 60%,transparent)">Президент Республики Таджикистан · president.tj ↗</span>
+        <span style="border-top:1px solid var(--color-divider);margin-top:8px;padding-top:8px;font-size:12px;line-height:1.5;color:color-mix(in srgb,var(--color-text) 62%,transparent)">«Защита жизни и здоровья человека — священный долг государства»</span>
+      </span>
+    </a>
+  </section>
+
+  <section aria-label="Оперативная сводка" class="blueprint" style="margin-top:24px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:12px 20px">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <h6 style="margin:0;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Оперативная сводка · 18.07</h6>
+    <span style="display:inline-flex;align-items:baseline;gap:8px"><span style="font-family:var(--font-heading);font-weight:600;font-size:24px;color:var(--hz-danger)">2</span><span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 60%,transparent)">активных события</span></span>
+    <span style="display:inline-flex;align-items:baseline;gap:8px"><span style="font-family:var(--font-heading);font-weight:600;font-size:24px;color:var(--hz-warning)">3</span><span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 60%,transparent)">под контролем</span></span>
+    <span style="display:inline-flex;align-items:baseline;gap:8px"><span style="font-family:var(--font-heading);font-weight:600;font-size:24px;color:var(--hz-success)">14</span><span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 60%,transparent)">завершено за месяц</span></span>
+    <span style="flex:1"></span>
+    <a href="Map.dc.html" style="font-size:13px;color:var(--color-accent-700)">Карта рисков →</a>
+  </section>
+
+  <section aria-label="Быстрые действия" style="margin-top:52px">
+    <div style="display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--color-divider);padding-bottom:10px;margin-bottom:20px">
+      <h3 style="margin:0;font-size:24px;text-transform:uppercase;letter-spacing:.02em">Что делать в чрезвычайной ситуации</h3>
+      <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">01 / Инструкции</span>
+      <span style="flex:1"></span>
+      <a href="Guides.dc.html" style="font-size:13px;color:var(--color-accent-700)">Все инструкции →</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:auto auto;gap:14px">
+      <a href="Guide.dc.html" class="blueprint" style="grid-row:span 2;display:flex;flex-direction:column;gap:10px;padding:20px;text-decoration:none;color:inherit;background:var(--color-accent-900)" style-hover="background:var(--color-accent-800)">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#d6ebff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m2 12 5.25 5 2.625-5H8.75l2.625-5L14 12h-1.125l2.625 5L21 12"></path><path d="M12 2v3M4.22 4.22l2.12 2.12M17.66 6.34l2.12-2.12"></path></svg>
+        <span style="font-family:var(--font-heading);font-weight:600;font-size:22px;line-height:1.15;color:#fff">Землетрясение</span>
+        <span style="font-size:13px;line-height:1.5;color:rgba(255,255,255,.75)">Пошаговые действия до, во время и после подземных толчков. Таджикистан — зона сейсмичности 8–9 баллов.</span>
+        <span style="margin-top:auto;font-size:13px;color:#d6ebff">Открыть инструкцию →</span>
+      </a>
+      <a href="Guide.dc.html" class="blueprint" style="display:flex;gap:12px;padding:16px;text-decoration:none;color:inherit;align-items:flex-start" style-hover="background:color-mix(in srgb,var(--color-accent) 7%,transparent)">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path></svg>
+        <span><span style="display:block;font-family:var(--font-heading);font-weight:600;font-size:17px">Сель и наводнение</span><span style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Как действовать при угрозе селевого потока</span></span>
+      </a>
+      <a href="Guide.dc.html" class="blueprint" style="display:flex;gap:12px;padding:16px;text-decoration:none;color:inherit;align-items:flex-start" style-hover="background:color-mix(in srgb,var(--color-accent) 7%,transparent)">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1M12 12h.01M12 12a4 4 0 0 1 4 4v5H8v-5a4 4 0 0 1 4-4Z"></path><path d="M4 21h16"></path></svg>
+        <span><span style="display:block;font-family:var(--font-heading);font-weight:600;font-size:17px">Первая помощь</span><span style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Базовые приёмы до прибытия медиков</span></span>
+      </a>
+      <a href="Map.dc.html" class="blueprint" style="display:flex;gap:12px;padding:16px;text-decoration:none;color:inherit;align-items:flex-start" style-hover="background:color-mix(in srgb,var(--color-accent) 7%,transparent)">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"></path><path d="M15 5.764v15M9 3.236v15"></path></svg>
+        <span><span style="display:block;font-family:var(--font-heading);font-weight:600;font-size:17px">Карта рисков</span><span style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Обстановка по регионам республики</span></span>
+      </a>
+      <a href="Contacts.dc.html" class="blueprint" style="display:flex;gap:12px;padding:16px;text-decoration:none;color:inherit;align-items:flex-start" style-hover="background:color-mix(in srgb,var(--color-accent) 7%,transparent)">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92Z"></path></svg>
+        <span><span style="display:block;font-family:var(--font-heading);font-weight:600;font-size:17px">Экстренные телефоны</span><span style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">112, региональные управления, приёмная</span></span>
+      </a>
+      <a href="Contacts.dc.html" class="blueprint" style="display:flex;gap:12px;padding:16px;text-decoration:none;color:inherit;align-items:flex-start" style-hover="background:color-mix(in srgb,var(--color-accent) 7%,transparent)">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path><path d="M12 8v4M12 15h.01"></path></svg>
+        <span><span style="display:block;font-family:var(--font-heading);font-weight:600;font-size:17px">Сообщить о происшествии</span><span style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Электронная приёмная граждан</span></span>
+      </a>
+    </div>
+  </section>
+
+  <section aria-label="Карта предупреждений" style="margin-top:52px">
+    <div style="display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--color-divider);padding-bottom:10px;margin-bottom:20px">
+      <h3 style="margin:0;font-size:24px;text-transform:uppercase;letter-spacing:.02em">Обстановка по регионам</h3>
+      <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">02 / Карта</span>
+      <span style="flex:1"></span>
+      <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Обновлено 18.07.2026, 14:00</span>
+    </div>
+    <div style="display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);gap:28px;align-items:start">
+      <div class="blueprint" style="padding:12px">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <x-import component="TjMap" from="./tj-map.jsx" regions="{{ mapRegions }}" height="{{ 440 }}" hint-size="100%,440px"></x-import>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;padding:10px 8px 4px;border-top:1px solid var(--color-divider);margin-top:10px;font-size:12px" aria-label="Легенда карты">
+          <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:color-mix(in srgb,var(--color-accent) 10%,transparent);border:1px solid var(--color-divider)"></span>Штатно</span>
+          <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:color-mix(in srgb,var(--hz-info) 30%,transparent);border:1px solid var(--color-divider)"></span>Информация</span>
+          <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:color-mix(in srgb,var(--hz-warning) 45%,transparent);border:1px solid var(--color-divider)"></span>Предупреждение</span>
+          <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:color-mix(in srgb,var(--hz-danger) 55%,transparent);border:1px solid var(--color-divider)"></span>Опасность</span>
+          <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:12px;height:12px;background:color-mix(in srgb,var(--hz-critical) 60%,transparent);border:1px solid var(--color-divider)"></span>Критично</span>
+        </div>
+      </div>
+      <div role="list" aria-label="Обстановка по регионам — список" style="display:flex;flex-direction:column">
+        <sc-for list="{{ regionRows }}" as="r" hint-placeholder-count="5">
+          <div role="listitem" style="display:flex;align-items:center;gap:10px;padding:12px 2px;border-bottom:1px solid var(--color-divider)">
+            <span style="width:9px;height:9px;border-radius:50%;background:{{ r.color }};flex:none"></span>
+            <span style="flex:1;min-width:0"><span style="display:block;font-family:var(--font-heading);font-weight:600;font-size:15px">{{ r.name }}</span><span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ r.statusText }}</span></span>
+            <span class="tag tag-neutral" style="flex:none">{{ r.badge }}</span>
+          </div>
+        </sc-for>
+        <a href="Map.dc.html" class="btn btn-secondary" style="margin-top:14px;align-self:flex-start">Открыть полную карту</a>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Последние предупреждения" style="margin-top:52px">
+    <div style="display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--color-divider);padding-bottom:10px;margin-bottom:20px">
+      <h3 style="margin:0;font-size:24px;text-transform:uppercase;letter-spacing:.02em">Предупреждения</h3>
+      <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">03 / Оповещение</span>
+      <span style="flex:1"></span>
+      <a href="Alert.dc.html" style="font-size:13px;color:var(--color-accent-700)">Все предупреждения →</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+      <a href="Alert.dc.html" class="blueprint" style="display:flex;flex-direction:column;gap:8px;padding:18px;text-decoration:none;color:inherit;border-top:3px solid var(--hz-warning)" style-hover="background:color-mix(in srgb,var(--color-accent) 6%,transparent)">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <div style="display:flex;gap:8px;align-items:center"><span class="tag" style="background:var(--hz-warning-bg);color:var(--hz-warning);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Предупреждение</span><span style="font-size:11.5px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Действует</span></div>
+        <span style="font-family:var(--font-heading);font-weight:600;font-size:19px;line-height:1.2">Селевая опасность в предгорных районах</span>
+        <span style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Хатлонская область · 18.07.2026, 09:00</span>
+        <span style="font-size:13px;line-height:1.5;color:color-mix(in srgb,var(--color-text) 72%,transparent)">Ливневые дожди повышают риск схода селей. Не оставляйте транспорт в руслах и поймах рек.</span>
+      </a>
+      <a href="Alert.dc.html" class="blueprint" style="display:flex;flex-direction:column;gap:8px;padding:18px;text-decoration:none;color:inherit;border-top:3px solid var(--hz-info)" style-hover="background:color-mix(in srgb,var(--color-accent) 6%,transparent)">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <div style="display:flex;gap:8px;align-items:center"><span class="tag" style="background:var(--hz-info-bg);color:var(--hz-info);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Информация</span><span style="font-size:11.5px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Действует</span></div>
+        <span style="font-family:var(--font-heading);font-weight:600;font-size:19px;line-height:1.2">Жара до +43 °C в южных районах</span>
+        <span style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Хатлон, РРП · 17.07.2026, 16:00</span>
+        <span style="font-size:13px;line-height:1.5;color:color-mix(in srgb,var(--color-text) 72%,transparent)">Ограничьте пребывание на солнце с 11:00 до 17:00, пейте больше воды, следите за пожилыми людьми.</span>
+      </a>
+      <a href="Alert.dc.html" class="blueprint" style="display:flex;flex-direction:column;gap:8px;padding:18px;text-decoration:none;color:inherit;border-top:3px solid var(--hz-success)" style-hover="background:color-mix(in srgb,var(--color-accent) 6%,transparent)">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <div style="display:flex;gap:8px;align-items:center"><span class="tag" style="background:var(--hz-success-bg);color:var(--hz-success);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Завершено</span><span style="font-size:11.5px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">14.07.2026</span></div>
+        <span style="font-family:var(--font-heading);font-weight:600;font-size:19px;line-height:1.2">Паводок на реке Зеравшан</span>
+        <span style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Согдийская область · 10–14.07.2026</span>
+        <span style="font-size:13px;line-height:1.5;color:color-mix(in srgb,var(--color-text) 72%,transparent)">Уровень воды вернулся к сезонной норме. Восстановительные работы завершены.</span>
+      </a>
+    </div>
+  </section>
+
+  <section aria-label="Новости" style="margin-top:52px">
+    <div style="display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--color-divider);padding-bottom:10px;margin-bottom:20px">
+      <h3 style="margin:0;font-size:24px;text-transform:uppercase;letter-spacing:.02em">Новости и заявления</h3>
+      <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">04 / Пресс-служба</span>
+      <span style="flex:1"></span>
+      <a href="News.dc.html" style="font-size:13px;color:var(--color-accent-700)">Все новости →</a>
+    </div>
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px">
+      <a href="Article.dc.html" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:12px">
+        <span class="blueprint duotone" style="display:block;height:220px">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <image-slot id="home-news-1" shape="rect" placeholder="Фото: вертолёт КЧС над Памиром"></image-slot>
+        </span>
+        <span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700)">Спасательные операции · 16 июля</span>
+        <span style="font-family:var(--font-heading);font-weight:600;font-size:21px;line-height:1.2">Спасатели эвакуировали группу альпинистов со склона пика Исмоили Сомони</span>
+      </a>
+      <div style="display:flex;flex-direction:column">
+        <a href="Article.dc.html" style="text-decoration:none;color:inherit;padding:0 0 14px;border-bottom:1px solid var(--color-divider)" style-hover="color:var(--color-accent-700)">
+          <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Гражданская оборона · 15 июля</span>
+          <span style="display:block;font-family:var(--font-heading);font-weight:600;font-size:17px;line-height:1.25;margin-top:4px">Утверждён план мероприятий месячника гражданской обороны</span>
+        </a>
+        <a href="Article.dc.html" style="text-decoration:none;color:inherit;padding:14px 0;border-bottom:1px solid var(--color-divider)" style-hover="color:var(--color-accent-700)">
+          <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Международное · 14 июля</span>
+          <span style="display:block;font-family:var(--font-heading);font-weight:600;font-size:17px;line-height:1.25;margin-top:4px">Делегация КЧС приняла участие в региональном форуме по снижению риска бедствий в Алматы</span>
+        </a>
+        <a href="Article.dc.html" style="text-decoration:none;color:inherit;padding:14px 0;border-bottom:1px solid var(--color-divider)" style-hover="color:var(--color-accent-700)">
+          <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Техника · 12 июля</span>
+          <span style="display:block;font-family:var(--font-heading);font-weight:600;font-size:17px;line-height:1.25;margin-top:4px">Региональные управления получили 18 единиц новой аварийно-спасательной техники</span>
+        </a>
+        <a href="Article.dc.html" style="text-decoration:none;color:inherit;padding:14px 0" style-hover="color:var(--color-accent-700)">
+          <span style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Обучение · 11 июля</span>
+          <span style="display:block;font-family:var(--font-heading);font-weight:600;font-size:17px;line-height:1.25;margin-top:4px">Более 4 000 жителей ГБАО прошли обучение действиям при лавинной опасности</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Ключевые показатели" style="margin-top:52px">
+    <div class="blueprint" style="display:grid;grid-template-columns:repeat(4,1fr);padding:8px 0">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <div style="padding:18px 22px;border-right:1px solid var(--color-divider)">
+        <div style="font-family:var(--font-heading);font-weight:600;font-size:34px">247</div>
+        <div style="font-size:12.5px;line-height:1.4;color:color-mix(in srgb,var(--color-text) 62%,transparent)">спасательных операций<br>с начала 2026 года</div>
+      </div>
+      <div style="padding:18px 22px;border-right:1px solid var(--color-divider)">
+        <div style="font-family:var(--font-heading);font-weight:600;font-size:34px">1 318</div>
+        <div style="font-size:12.5px;line-height:1.4;color:color-mix(in srgb,var(--color-text) 62%,transparent)">человек спасено<br>за январь–июнь 2026</div>
+      </div>
+      <div style="padding:18px 22px;border-right:1px solid var(--color-divider)">
+        <div style="font-family:var(--font-heading);font-weight:600;font-size:34px">86 500</div>
+        <div style="font-size:12.5px;line-height:1.4;color:color-mix(in srgb,var(--color-text) 62%,transparent)">граждан прошли обучение<br>по гражданской обороне</div>
+      </div>
+      <div style="padding:18px 22px">
+        <div style="font-family:var(--font-heading);font-weight:600;font-size:34px">68</div>
+        <div style="font-size:12.5px;line-height:1.4;color:color-mix(in srgb,var(--color-text) 62%,transparent)">городских и районных<br>подразделений КЧС</div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Официальная информация" style="margin-top:52px;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,1fr);gap:28px">
+    <div>
+      <div style="display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--color-divider);padding-bottom:10px;margin-bottom:8px">
+        <h3 style="margin:0;font-size:24px;text-transform:uppercase;letter-spacing:.02em">Официальные документы</h3>
+        <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">05 / Документы</span>
+        <span style="flex:1"></span>
+        <a href="Documents.dc.html" style="font-size:13px;color:var(--color-accent-700)">Каталог →</a>
+      </div>
+      <a href="Documents.dc.html" style="display:flex;gap:12px;align-items:center;padding:12px 2px;border-bottom:1px solid var(--color-divider);text-decoration:none;color:inherit" style-hover="color:var(--color-accent-700)">
+        <span class="tag tag-neutral" style="flex:none">Закон</span>
+        <span style="flex:1;font-size:14px">Закон РТ «О защите населения и территорий от чрезвычайных ситуаций природного и техногенного характера»</span>
+        <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent);flex:none">PDF · 0,4 МБ</span>
+      </a>
+      <a href="Documents.dc.html" style="display:flex;gap:12px;align-items:center;padding:12px 2px;border-bottom:1px solid var(--color-divider);text-decoration:none;color:inherit" style-hover="color:var(--color-accent-700)">
+        <span class="tag tag-neutral" style="flex:none">Постановление</span>
+        <span style="flex:1;font-size:14px">Национальная стратегия снижения риска бедствий на 2026–2030 годы</span>
+        <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent);flex:none">PDF · 2,1 МБ</span>
+      </a>
+      <a href="Documents.dc.html" style="display:flex;gap:12px;align-items:center;padding:12px 2px;border-bottom:1px solid var(--color-divider);text-decoration:none;color:inherit" style-hover="color:var(--color-accent-700)">
+        <span class="tag tag-neutral" style="flex:none">Отчёт</span>
+        <span style="flex:1;font-size:14px">Отчёт о деятельности Комитета за первое полугодие 2026 года</span>
+        <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent);flex:none">PDF · 1,3 МБ</span>
+      </a>
+      <div id="announcements" style="display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--color-divider);padding-bottom:10px;margin:28px 0 8px">
+        <h3 style="margin:0;font-size:24px;text-transform:uppercase;letter-spacing:.02em">Объявления</h3>
+        <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">06 / Вакансии и тендеры</span>
+        <span style="flex:1"></span>
+        <a href="Announcements.dc.html" style="font-size:13px;color:var(--color-accent-700)">Все объявления →</a>
+      </div>
+      <a href="Announcements.dc.html" style="display:flex;gap:12px;align-items:center;padding:12px 2px;border-bottom:1px solid var(--color-divider);text-decoration:none;color:inherit" style-hover="color:var(--color-accent-700)">
+        <span class="tag tag-accent" style="flex:none">Вакансия</span>
+        <span style="flex:1;font-size:14px">Спасатель аэромобильного отряда — г. Душанбе, 2 должности</span>
+        <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent);flex:none">до 31.07.2026</span>
+      </a>
+      <a href="Announcements.dc.html" style="display:flex;gap:12px;align-items:center;padding:12px 2px;border-bottom:1px solid var(--color-divider);text-decoration:none;color:inherit" style-hover="color:var(--color-accent-700)">
+        <span class="tag tag-accent" style="flex:none">Вакансия</span>
+        <span style="flex:1;font-size:14px">Инженер отдела гражданской обороны — Управление по Согдийской области</span>
+        <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent);flex:none">до 25.07.2026</span>
+      </a>
+      <a href="Announcements.dc.html" style="display:flex;gap:12px;align-items:center;padding:12px 2px;border-bottom:1px solid var(--color-divider);text-decoration:none;color:inherit" style-hover="color:var(--color-accent-700)">
+        <span class="tag tag-outline" style="flex:none">Тендер</span>
+        <span style="flex:1;font-size:14px">Закупка аварийно-спасательного инструмента для региональных управлений — приём заявок</span>
+        <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent);flex:none">до 05.08.2026</span>
+      </a>
+    </div>
+    <div style="align-self:start;min-width:0">
+      <div style="display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--color-divider);padding-bottom:10px;margin-bottom:8px">
+        <h3 style="margin:0;font-size:24px;text-transform:uppercase;letter-spacing:.02em">Проекты</h3>
+        <span style="flex:1"></span>
+        <a href="Projects.dc.html" style="font-size:13px;color:var(--color-accent-700)">Все проекты →</a>
+      </div>
+      <a href="Project.dc.html" class="blueprint" style="display:flex;flex-direction:column;gap:6px;padding:16px;text-decoration:none;color:inherit;margin-top:14px" style-hover="background:color-mix(in srgb,var(--color-accent) 7%,transparent)">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <span style="display:flex;gap:8px;align-items:center"><span class="tag" style="background:var(--hz-success-bg);color:var(--hz-success);font-weight:600;font-size:10px">Реализуется</span><span style="font-size:11.5px;color:color-mix(in srgb,var(--color-text) 52%,transparent)">2026–2030</span></span>
+        <span style="font-family:var(--font-heading);font-weight:600;font-size:16.5px;line-height:1.25">Модернизация системы раннего оповещения населения</span>
+        <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">УСРБ ООН, Всемирный банк · 18,4 млн долл.</span>
+      </a>
+      <a href="Projects.dc.html" class="blueprint" style="display:flex;flex-direction:column;gap:6px;padding:16px;text-decoration:none;color:inherit;margin-top:14px" style-hover="background:color-mix(in srgb,var(--color-accent) 7%,transparent)">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <span style="display:flex;gap:8px;align-items:center"><span class="tag" style="background:var(--hz-success-bg);color:var(--hz-success);font-weight:600;font-size:10px">Реализуется</span><span style="font-size:11.5px;color:color-mix(in srgb,var(--color-text) 52%,transparent)">2025–2027</span></span>
+        <span style="font-family:var(--font-heading);font-weight:600;font-size:16.5px;line-height:1.25">Модернизация единой службы спасения 112</span>
+        <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">Европейский союз · 6,2 млн евро</span>
+      </a>
+    </div>
+  </section>
+
+</main>
+<dc-import name="Footer" hint-size="100%,420px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;alertState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;warning&quot;,&quot;options&quot;:[&quot;calm&quot;,&quot;warning&quot;,&quot;critical&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Режим оповещения&quot;}}">
+class Component extends DCLogic {
+  state = { slide: 0 };
+  componentDidMount() {
+    this.paused = false;
+    const rm = window.matchMedia('(prefers-reduced-motion: reduce)');
+    this.timer = setInterval(() => {
+      if (!this.paused && !rm.matches) this.setState((s) => ({ slide: (s.slide + 1) % 3 }));
+    }, 7000);
+  }
+  componentWillUnmount() { clearInterval(this.timer); }
+  renderVals() {
+    const slide = this.state.slide;
+    const dot = (i) => (i === slide ? 'var(--color-accent)' : 'color-mix(in srgb, var(--color-text) 25%, transparent)');
+    const st = this.props.alertState ?? 'warning';
+    const critical = st === 'critical';
+    const warning = st === 'warning';
+    const levels = critical
+      ? { khatlon: 'critical', rrp: 'warning', sughd: 'info', gbao: 'none', dushanbe: 'none' }
+      : warning
+        ? { khatlon: 'warning', rrp: 'info', sughd: 'none', gbao: 'info', dushanbe: 'none' }
+        : { khatlon: 'none', rrp: 'none', sughd: 'none', gbao: 'none', dushanbe: 'none' };
+    const meta = {
+      dushanbe: 'г. Душанбе', sughd: 'Согдийская область', khatlon: 'Хатлонская область',
+      rrp: 'Районы республиканского подчинения', gbao: 'ГБАО',
+    };
+    const statusText = {
+      none: 'Обстановка штатная', info: 'Информационное уведомление',
+      warning: 'Действует предупреждение', danger: 'Опасная обстановка', critical: 'Критическая ситуация',
+    };
+    const badge = { none: 'штатно', info: 'инфо', warning: 'внимание', danger: 'опасно', critical: 'критично' };
+    const color = {
+      none: 'var(--hz-success)', info: 'var(--hz-info)', warning: 'var(--hz-warning)',
+      danger: 'var(--hz-danger)', critical: 'var(--hz-critical)',
+    };
+    const counts = critical
+      ? { khatlon: 4, rrp: 2, sughd: 1, gbao: 0, dushanbe: 0 }
+      : warning ? { khatlon: 2, rrp: 1, sughd: 0, gbao: 1, dushanbe: 0 }
+      : { khatlon: 0, rrp: 0, sughd: 0, gbao: 0, dushanbe: 0 };
+    const keys = ['dushanbe', 'sughd', 'khatlon', 'rrp', 'gbao'];
+    const mapRegions = keys.map((k) => ({
+      key: k, name: meta[k], level: levels[k], count: counts[k],
+      countLabel: counts[k] === 1 ? 'событие' : counts[k] < 5 ? 'события' : 'событий',
+      statusText: statusText[levels[k]],
+    }));
+    const regionRows = mapRegions.map((r) => ({
+      name: r.name, statusText: r.statusText, badge: badge[r.level], color: color[r.level],
+    }));
+    return {
+      isCalm: st === 'calm', isWarning: warning, isCritical: critical,
+      mapRegions, regionRows,
+      slideX: `translateX(-${slide * 100}%)`,
+      dot0: dot(0), dot1: dot(1), dot2: dot(2),
+      goTo0: () => this.setState({ slide: 0 }),
+      goTo1: () => this.setState({ slide: 1 }),
+      goTo2: () => this.setState({ slide: 2 }),
+      prevSlide: () => this.setState((s) => ({ slide: (s.slide + 2) % 3 })),
+      nextSlide: () => this.setState((s) => ({ slide: (s.slide + 1) % 3 })),
+      pause: () => { this.paused = true; },
+      resume: () => { this.paused = false; },
+    };
+  }
+}
+</script>
+</body>
+</html>

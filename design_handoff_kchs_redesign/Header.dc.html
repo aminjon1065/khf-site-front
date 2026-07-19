@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/styles.css">
+  <script src="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/_ds_bundle.js"></script>
+  <style>
+    :root{
+      --hz-success:#2f7d5a; --hz-success-bg:#e0efe7;
+      --hz-info:#416180; --hz-info-bg:#e3edf6;
+      --hz-warning:#96660f; --hz-warning-bg:#f5e9d2;
+      --hz-danger:#ac4d10; --hz-danger-bg:#f7e4d3;
+      --hz-critical:#a8231b; --hz-critical-bg:#f8ddda;
+      --hz-critical-strong:#8c1d16;
+    }
+    [data-theme="dark"]{
+      --color-bg:#15181b; --color-surface:#1e2226; --color-text:#e4e7ea;
+      --color-divider:color-mix(in srgb,#e4e7ea 16%,transparent);
+      --color-accent:#8fb2d4; --color-accent-600:#a4c2de; --color-accent-700:#bdd3e8;
+      --color-accent-100:#243546; --color-accent-800:#c8dcee;
+      --color-neutral-100:#23272b; --color-neutral-800:#cfd4d9;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.5); --shadow-md:0 3px 10px rgba(0,0,0,.5); --shadow-lg:0 12px 32px rgba(0,0,0,.6);
+      --hz-success:#6dbb96; --hz-success-bg:#1c2f26;
+      --hz-info:#8fb2d4; --hz-info-bg:#20303f;
+      --hz-warning:#d9a744; --hz-warning-bg:#332a17;
+      --hz-danger:#e0824a; --hz-danger-bg:#38251678;
+      --hz-critical:#e26a60; --hz-critical-bg:#3a1d1a;
+      --hz-critical-strong:#ef8a82;
+    }
+    html{background:var(--color-bg)}
+    /* Спокойный режим карточек: без blueprint-крестиков, мягкие рамки */
+    .blueprint .corner{display:none}
+    .blueprint{border:1px solid var(--color-divider);background:var(--color-surface,transparent);box-shadow:var(--shadow-sm)}
+    [data-theme="dark"] .blueprint{background:var(--color-surface)}
+    [data-theme="dark"] .ico-moon{display:none}
+    html:not([data-theme="dark"]) .ico-sun{display:none}
+    .knav a{color:var(--color-text);text-decoration:none;font-size:14px;padding:9px 13px;border-bottom:2px solid transparent;display:inline-block}
+    .knav a:hover{color:var(--color-accent-700);background:color-mix(in srgb,var(--color-accent) 8%,transparent)}
+    .knav a[aria-current="page"]{color:var(--color-accent-700);border-bottom-color:var(--color-accent);font-weight:500}
+    .knav-links{display:contents}
+    .hdr-burger{display:none}
+    /* ——— Выдвижное мобильное меню ——— */
+    .mnav-backdrop{position:fixed;inset:0;z-index:90;background:rgba(10,14,18,.5)}
+    .mnav{position:fixed;top:0;right:0;bottom:0;z-index:95;width:min(340px,90vw);background:var(--color-bg);box-shadow:var(--shadow-lg);display:flex;flex-direction:column;overflow-y:auto}
+    .mnav a{color:var(--color-text);text-decoration:none}
+    .mnav .mnav-link{display:flex;align-items:center;min-height:48px;padding:0 20px;font-family:var(--font-heading);font-weight:500;font-size:17px;border-bottom:1px solid var(--color-divider)}
+    .mnav .mnav-link:hover{color:var(--color-accent-700);background:color-mix(in srgb,var(--color-accent) 8%,transparent)}
+    .mnav .mnav-sub{min-height:42px;font-size:15px;padding-left:34px;color:color-mix(in srgb,var(--color-text) 78%,transparent)}
+    @media (min-width:921px){.mnav,.mnav-backdrop{display:none}}
+    /* ——— Мобильная версия ——— */
+    @media (max-width:920px){
+      header > div[style]{padding-left:16px !important;padding-right:16px !important}
+      .m-hide{display:none !important}
+      .hdr-title{font-size:15.5px !important}
+      .hdr-logo{height:44px !important}
+      .knav{display:none}
+      /* Одна компактная строка: лого слева, 112 и бургер справа, без переноса */
+      .hdr-row{flex-wrap:nowrap !important;gap:10px !important;padding-top:10px !important;padding-bottom:10px !important}
+      .hdr-row > a[href^="tel:112"]{padding:9px 13px !important;font-size:15px !important;margin-left:auto}
+      .hdr-brand{min-width:0;flex:1 1 auto}
+      .hdr-brand > span{min-width:0}
+      .hdr-title{font-size:14.5px !important;white-space:normal}
+      .hdr-sub{display:none}
+      .hdr-burger{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;background:transparent;border:1px solid var(--color-divider);color:var(--color-text);cursor:pointer;flex:none}
+      /* Контент: сетки в одну колонку */
+      main[style]{padding-left:16px !important;padding-right:16px !important}
+      main [style*="grid-template-columns"]{grid-template-columns:1fr !important}
+      main [style*="repeat(4, 1fr)"]{grid-template-columns:repeat(2,1fr) !important}
+      main [style*="repeat(4, minmax"]{grid-template-columns:repeat(2,1fr) !important}
+      main [style*="grid-template-columns: 110px"]{gap:6px !important}
+      main [style*=" 42%"]{grid-template-columns:1fr !important;min-height:0 !important}
+      main [style*=" 42%"] > .duotone{min-height:210px !important;order:-1}
+      main article[style*=" 42%"] > div:first-child{padding:18px 18px 60px !important}
+      h1[style]{font-size:clamp(25px,7.5vw,34px) !important}
+      .table{display:block;overflow-x:auto}
+      footer [style*="grid-template-columns"]{grid-template-columns:1fr 1fr !important}
+    }
+    @media (max-width:560px){
+      footer [style*="grid-template-columns"]{grid-template-columns:1fr !important}
+      main [style*="repeat(4, 1fr)"]{grid-template-columns:1fr !important}
+      main [style*="repeat(4, minmax"]{grid-template-columns:1fr !important}
+    }
+  </style>
+</helmet>
+<header style="border-bottom:1px solid var(--color-divider)">
+  <div style="border-bottom:1px solid var(--color-divider)">
+    <div style="max-width:1160px;margin:0 auto;padding:6px 24px;display:flex;align-items:center;gap:12px;font-size:12px;color:color-mix(in srgb,var(--color-text) 65%,transparent)">
+      <img src="assets/flag-tj.png" alt="Флаг Республики Таджикистан" style="height:13px;width:auto;border:1px solid var(--color-divider)">
+      <img src="assets/emblem-tj.png" alt="Герб Республики Таджикистан" style="height:18px;width:auto">
+      <a href="Symbols.dc.html" style="letter-spacing:.04em;text-transform:uppercase;font-size:11px;color:inherit;text-decoration:none" style-hover="color:var(--color-accent-700)">Государственные символы</a>
+      <span style="flex:1"></span>
+      <a class="m-hide" href="Sitemap.dc.html" style="color:inherit;text-decoration:none;padding:4px 6px" style-hover="color:var(--color-accent-700)">Карта сайта</a>
+      <a class="m-hide" href="Structure.dc.html" style="color:inherit;text-decoration:none;padding:4px 6px" style-hover="color:var(--color-accent-700)">Подразделения</a>
+      <button onClick="{{ toggleTheme }}" aria-label="Переключить тему" title="Светлая / тёмная тема" style="display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid transparent;color:inherit;cursor:pointer;padding:4px 6px;font:inherit" style-hover="color:var(--color-accent-700)">
+        <svg class="ico-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>
+        <svg class="ico-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+      </button>
+      <span class="seg" role="group" aria-label="Забон / Язык">
+        <label class="seg-opt" style="padding:3px 10px;font-size:12px"><input type="radio" name="lang" checked onClick="{{ setRu }}">РУ</label>
+        <label class="seg-opt" style="padding:3px 10px;font-size:12px"><input type="radio" name="lang" onClick="{{ setTj }}">ТҶ</label>
+        <label class="seg-opt" style="padding:3px 10px;font-size:12px"><input type="radio" name="lang" onClick="{{ setEn }}">EN</label>
+      </span>
+    </div>
+  </div>
+  <sc-if value="{{ tjNote }}" hint-placeholder-val="{{ false }}">
+    <div style="background:var(--hz-info-bg);color:var(--hz-info);font-size:12px;padding:5px 24px;text-align:center">Тарҷумаи тоҷикӣ дар CMS пешбинӣ шудааст — ин демо бо забони русӣ нишон дода мешавад.</div>
+  </sc-if>
+  <sc-if value="{{ enNote }}" hint-placeholder-val="{{ false }}">
+    <div style="background:var(--hz-info-bg);color:var(--hz-info);font-size:12px;padding:5px 24px;text-align:center">The English version is available in the CMS for international partners — this demo is shown in Russian.</div>
+  </sc-if>
+  <div class="hdr-row" style="max-width:1160px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <a class="hdr-brand" href="Home.dc.html" style="display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;min-width:0">
+      <img class="hdr-logo" src="assets/logo-kchs-ru.webp" alt="Эмблема КЧС Республики Таджикистан" style="height:56px;width:auto">
+      <span style="display:block">
+        <span class="hdr-title" style="display:block;font-family:var(--font-heading);font-weight:600;font-size:19px;line-height:1.15;letter-spacing:.01em;text-transform:uppercase">Комитет по чрезвычайным ситуациям<br>и гражданской обороне</span>
+        <span class="hdr-sub" style="display:block;font-size:12px;margin-top:3px;color:color-mix(in srgb,var(--color-text) 60%,transparent)">при Правительстве Республики Таджикистан</span>
+      </span>
+    </a>
+    <span style="flex:1"></span>
+    <span class="m-hide" style="text-align:right;font-size:12px;line-height:1.4;color:color-mix(in srgb,var(--color-text) 60%,transparent)">Единый телефон доверия<br><a href="tel:+992372215900" style="color:var(--color-accent-700);text-decoration:none;font-weight:500;font-size:13px">+992 (37) 221-59-00</a></span>
+    <a href="tel:112" class="blueprint" aria-label="Экстренный вызов 112" style="display:inline-flex;align-items:center;gap:8px;background:var(--hz-critical);color:#fff;padding:10px 18px;font-family:var(--font-heading);font-weight:600;font-size:16px;text-decoration:none;letter-spacing:.03em" style-hover="background:var(--hz-critical-strong)">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92Z"></path></svg>
+      112
+    </a>
+    <button class="hdr-burger" onClick="{{ toggleNav }}" aria-expanded="{{ navOpenAttr }}" aria-label="Открыть меню">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+    </button>
+  </div>
+  <nav class="knav" aria-label="Основная навигация" style="border-top:1px solid var(--color-divider)">
+    <div style="max-width:1160px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:2px;flex-wrap:wrap">
+      <span class="knav-links" id="knav-links">
+      <a href="Home.dc.html" aria-current="{{ cur.home }}">Главная</a>
+      <span style="position:relative;display:inline-block">
+        <button onClick="{{ toggleAbout }}" aria-expanded="{{ aboutOpenAttr }}" aria-haspopup="true" style="color:{{ aboutColor }};background:transparent;border:none;border-bottom:2px solid {{ aboutBorder }};cursor:pointer;font:inherit;font-size:14px;padding:9px 13px;display:inline-flex;align-items:center;gap:5px" style-hover="color:var(--color-accent-700);background:color-mix(in srgb,var(--color-accent) 8%,transparent)">
+          О нас
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+        </button>
+        <sc-if value="{{ aboutOpen }}" hint-placeholder-val="{{ false }}">
+          <span role="menu" style="position:absolute;top:100%;left:0;z-index:50;min-width:200px;background:var(--color-bg);border:1px solid var(--color-divider);box-shadow:var(--shadow-md);display:flex;flex-direction:column;padding:4px 0">
+            <a role="menuitem" href="Leadership.dc.html" style="border-bottom:none;padding:8px 14px">Руководство</a>
+            <a role="menuitem" href="Structure.dc.html" style="border-bottom:none;padding:8px 14px">Структура</a>
+          </span>
+        </sc-if>
+      </span>
+      <a href="News.dc.html" aria-current="{{ cur.news }}">Новости</a>
+      <a href="Guides.dc.html" aria-current="{{ cur.guides }}">Безопасность</a>
+      <a href="Map.dc.html" aria-current="{{ cur.map }}">Карта рисков</a>
+      <a href="Documents.dc.html" aria-current="{{ cur.documents }}">Документы</a>
+      <a href="Contacts.dc.html" aria-current="{{ cur.contacts }}">Контакты</a>
+      <span style="flex:1"></span>
+      <a href="Sos.dc.html" style="display:inline-flex;align-items:center;gap:7px;background:transparent;border:1px solid var(--color-accent);border-bottom:1px solid var(--color-accent);color:var(--color-accent-700);font-family:var(--font-heading);font-weight:600;font-size:13.5px;padding:6px 14px;margin-right:10px" style-hover="background:color-mix(in srgb,var(--color-accent) 10%,transparent)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"></rect><path d="M12 18h.01"></path></svg>
+        Приложение SOS
+      </a>
+      <form role="search" style="display:flex;align-items:center;gap:6px;padding:4px 0">
+        <input class="input" type="search" placeholder="Поиск по порталу" aria-label="Поиск по порталу" style="min-height:30px;width:190px;font-size:13px">
+      </form>
+      </span>
+    </div>
+  </nav>
+  <sc-if value="{{ navOpen }}" hint-placeholder-val="{{ false }}">
+    <div class="mnav-backdrop" onClick="{{ closeNav }}"></div>
+    <div class="mnav" role="dialog" aria-modal="true" aria-label="Меню">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px 14px 20px;border-bottom:1px solid var(--color-divider)">
+        <img src="assets/logo-kchs-ru.webp" alt="" style="height:34px;width:auto">
+        <span style="font-family:var(--font-heading);font-weight:600;font-size:15px;text-transform:uppercase;flex:1">Меню</span>
+        <button onClick="{{ closeNav }}" aria-label="Закрыть меню" style="display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;background:transparent;border:1px solid var(--color-divider);color:var(--color-text);cursor:pointer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div style="padding:14px 20px;border-bottom:1px solid var(--color-divider)">
+        <input class="input" type="search" placeholder="Поиск по порталу" aria-label="Поиск по порталу" style="width:100%;min-height:44px;font-size:15px">
+      </div>
+      <nav aria-label="Мобильная навигация" style="display:flex;flex-direction:column">
+        <a class="mnav-link" href="Home.dc.html">Главная</a>
+        <span style="display:flex;align-items:center;min-height:40px;padding:10px 20px 0;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 50%,transparent)">О нас</span>
+        <a class="mnav-link mnav-sub" href="Leadership.dc.html">Руководство</a>
+        <a class="mnav-link mnav-sub" href="Structure.dc.html">Структура</a>
+        <a class="mnav-link mnav-sub" href="Symbols.dc.html">Государственные символы</a>
+        <a class="mnav-link" href="News.dc.html">Новости</a>
+        <a class="mnav-link" href="Guides.dc.html">Безопасность</a>
+        <a class="mnav-link" href="Map.dc.html">Карта рисков</a>
+        <a class="mnav-link" href="Documents.dc.html">Документы</a>
+        <a class="mnav-link" href="Projects.dc.html">Проекты</a>
+        <a class="mnav-link" href="Announcements.dc.html">Объявления</a>
+        <a class="mnav-link" href="Contacts.dc.html">Контакты</a>
+        <a class="mnav-link" href="Sos.dc.html" style="color:var(--color-accent-700)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin-right:9px"><rect x="5" y="2" width="14" height="20" rx="2"></rect><path d="M12 18h.01"></path></svg>
+          Приложение SOS
+        </a>
+      </nav>
+      <div style="margin-top:auto;padding:18px 20px;border-top:1px solid var(--color-divider);display:flex;flex-direction:column;gap:10px">
+        <a href="tel:112" style="display:flex;align-items:center;justify-content:center;gap:8px;background:var(--hz-critical);color:#fff;min-height:48px;font-family:var(--font-heading);font-weight:600;font-size:17px;letter-spacing:.03em">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92Z"></path></svg>
+          112 — экстренный вызов
+        </a>
+        <span style="font-size:12.5px;text-align:center;color:color-mix(in srgb,var(--color-text) 60%,transparent)">Телефон доверия: <a href="tel:+992372215900" style="color:var(--color-accent-700)">+992 (37) 221-59-00</a></span>
+      </div>
+    </div>
+  </sc-if>
+</header>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:260},&quot;active&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;home&quot;,&quot;options&quot;:[&quot;home&quot;,&quot;about&quot;,&quot;news&quot;,&quot;guides&quot;,&quot;map&quot;,&quot;documents&quot;,&quot;contacts&quot;,&quot;&quot;],&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { tjNote: false, enNote: false, aboutOpen: false, navOpen: false };
+  componentDidMount() {
+    const saved = localStorage.getItem('kchs-theme');
+    if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  }
+  renderVals() {
+    const active = this.props.active ?? '';
+    const cur = {};
+    if (active) cur[active] = 'page';
+    return {
+      cur,
+      tjNote: this.state.tjNote,
+      enNote: this.state.enNote,
+      setTj: () => this.setState({ tjNote: true, enNote: false }),
+      setEn: () => this.setState({ enNote: true, tjNote: false }),
+      setRu: () => this.setState({ tjNote: false, enNote: false }),
+      aboutOpen: this.state.aboutOpen,
+      aboutOpenAttr: this.state.aboutOpen ? 'true' : 'false',
+      aboutColor: active === 'about' ? 'var(--color-accent-700)' : 'var(--color-text)',
+      aboutBorder: active === 'about' ? 'var(--color-accent)' : 'transparent',
+      toggleAbout: () => this.setState((s) => ({ aboutOpen: !s.aboutOpen })),
+      navOpen: this.state.navOpen,
+      navOpenAttr: this.state.navOpen ? 'true' : 'false',
+      toggleNav: () => this.setState((s) => ({ navOpen: !s.navOpen })),
+      closeNav: () => this.setState({ navOpen: false }),
+      toggleTheme: () => {
+        const el = document.documentElement;
+        const dark = el.getAttribute('data-theme') === 'dark';
+        if (dark) { el.removeAttribute('data-theme'); localStorage.setItem('kchs-theme', 'light'); }
+        else { el.setAttribute('data-theme', 'dark'); localStorage.setItem('kchs-theme', 'dark'); }
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

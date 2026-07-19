@@ -1,26 +1,365 @@
 @import "tailwindcss";
 
+/* ════════════════════════════════════════════════════════════════════════
+   КЧС Таджикистана — дизайн-система «Industry» (GovTech-редизайн).
+   Токены и компонентные классы портированы из design_handoff_kchs_redesign/
+   (_ds_styles.css + helmet-стили Header/Footer). Источник истины — этот файл.
+   Шрифты подключены через next/font (см. app/layout.tsx).
+   ════════════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* Кастомный брейкпоинт: шапка и крупные сетки схлопываются в мобильный
+     режим при ≤920px (навигация появляется с 921px). */
+  --breakpoint-hnav: 921px;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-bg: #f2f2f3;
+  --color-surface: #e9e9ea;
+  --color-text: #1d1f20;
+  --color-accent: #5980a6;
+  --color-accent-2: #728fab;
+  --color-divider: color-mix(in srgb, #1d1f20 16%, transparent);
+
+  /* Тональные шкалы — единая шкала светлоты OKLCH. */
+  --color-neutral-100: #f5f5f8;
+  --color-neutral-200: #e7e7ea;
+  --color-neutral-300: #d4d4d7;
+  --color-neutral-400: #b7b7ba;
+  --color-neutral-500: #98989b;
+  --color-neutral-600: #7a7a7d;
+  --color-neutral-700: #5d5d60;
+  --color-neutral-800: #424244;
+  --color-neutral-900: #2b2b2d;
+
+  --color-accent-100: #eef6ff;
+  --color-accent-200: #d6ebff;
+  --color-accent-300: #b5d9fd;
+  --color-accent-400: #94bce3;
+  --color-accent-500: #749dc4;
+  --color-accent-600: #597ea3;
+  --color-accent-700: #416180;
+  --color-accent-800: #2c455d;
+  --color-accent-900: #1d2d3d;
+
+  --color-accent-2-100: #eef6ff;
+  --color-accent-2-200: #d6ebff;
+  --color-accent-2-300: #bdd8f2;
+  --color-accent-2-400: #9ebbd8;
+  --color-accent-2-500: #7e9cb8;
+  --color-accent-2-600: #627d98;
+  --color-accent-2-700: #486077;
+  --color-accent-2-800: #314457;
+  --color-accent-2-900: #1f2d3a;
+
+  --font-heading: var(--font-barlow-condensed), "Barlow Condensed", system-ui, sans-serif;
+  --font-heading-weight: 600;
+  --font-body: var(--font-barlow), "Barlow", system-ui, sans-serif;
+
+  --space-1: 3.4px;
+  --space-2: 6.8px;
+  --space-3: 10.2px;
+  --space-4: 13.6px;
+  --space-6: 20.4px;
+  --space-8: 27.2px;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 7px;
+
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #2b2b2d 14%, transparent);
+  --shadow-md: 0 3px 10px color-mix(in srgb, #2b2b2d 16%, transparent);
+  --shadow-lg: 0 12px 32px color-mix(in srgb, #2b2b2d 22%, transparent);
+
+  /* Семантическая шкала опасности (светлая). */
+  --hz-success: #2f7d5a;
+  --hz-success-bg: #e0efe7;
+  --hz-info: #416180;
+  --hz-info-bg: #e3edf6;
+  --hz-warning: #96660f;
+  --hz-warning-bg: #f5e9d2;
+  --hz-danger: #ac4d10;
+  --hz-danger-bg: #f7e4d3;
+  --hz-critical: #a8231b;
+  --hz-critical-bg: #f8ddda;
+  --hz-critical-strong: #8c1d16;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+[data-theme="dark"] {
+  --color-bg: #15181b;
+  --color-surface: #1e2226;
+  --color-text: #e4e7ea;
+  --color-divider: color-mix(in srgb, #e4e7ea 16%, transparent);
+  --color-accent: #8fb2d4;
+  --color-accent-600: #a4c2de;
+  --color-accent-700: #bdd3e8;
+  --color-accent-100: #243546;
+  --color-accent-800: #c8dcee;
+  --color-neutral-100: #23272b;
+  --color-neutral-200: #2a2f34;
+  --color-neutral-800: #cfd4d9;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 3px 10px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+  --hz-success: #6dbb96;
+  --hz-success-bg: #1c2f26;
+  --hz-info: #8fb2d4;
+  --hz-info-bg: #20303f;
+  --hz-warning: #d9a744;
+  --hz-warning-bg: #332a17;
+  --hz-danger: #e0824a;
+  --hz-danger-bg: #38251678;
+  --hz-critical: #e26a60;
+  --hz-critical-bg: #3a1d1a;
+  --hz-critical-strong: #ef8a82;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html {
+  background: var(--color-bg);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
   }
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.55;
+    font-weight: 400;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    margin: 0 0 var(--space-2);
+  }
+  h1 { font-size: 42px; }
+  h2 { font-size: 32px; }
+  h3 { font-size: 25px; }
+  h4 { font-size: 20px; }
+  h5 { font-size: 16px; }
+  h6 { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
+  p { margin: 0 0 var(--space-3); }
+  a { color: var(--color-accent); text-underline-offset: 3px; }
+  img { display: block; max-width: 100%; }
+  figure { margin: 0; }
+  figcaption {
+    font-size: 11px;
+    margin-top: var(--space-1);
+    color: color-mix(in srgb, var(--color-text) 55%, transparent);
+  }
+  :focus { outline: none; }
+  :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+  ::selection { background: color-mix(in srgb, var(--color-accent) 30%, transparent); }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .text-muted { color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+
+  /* — карточка-«blueprint»: спокойный режим без крестиков по углам,
+       тонкая рамка + мягкая тень (решение заказчика). — */
+  .blueprint {
+    position: relative;
+    border: 1px solid var(--color-divider);
+    border-radius: 0;
+    background: var(--color-surface);
+    box-shadow: var(--shadow-sm);
+  }
+  .blueprint > .corner { display: none; }
+
+  .duotone { position: relative; overflow: hidden; }
+  .duotone::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: var(--color-accent);
+    mix-blend-mode: color;
+  }
+
+  /* — линейки — */
+  .hr { height: 1px; border: 0; margin: var(--space-4) 0; background: var(--color-divider); }
+
+  /* — кнопки — */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    cursor: pointer; text-decoration: none;
+    font-family: var(--font-heading); font-weight: var(--font-heading-weight);
+    font-size: 14px; line-height: 1.2; color: var(--color-text);
+    background: transparent; border: 1px solid var(--color-divider);
+    padding: var(--space-2) calc(var(--space-3) * 1.2);
+    border-radius: 0;
+  }
+  .btn svg { display: block; }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-primary { background: var(--color-accent); color: var(--color-bg); border-color: var(--color-accent); }
+  .btn-primary:hover { background: var(--color-accent-600); }
+  .btn-primary:active { background: var(--color-accent-700); }
+  .btn-secondary { border-color: var(--color-divider); }
+  .btn-secondary:hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+  .btn-secondary:active { background: color-mix(in srgb, var(--color-text) 14%, transparent); }
+  .btn-ghost { color: var(--color-accent); padding-inline: var(--space-1); border-color: transparent; }
+  .btn-ghost:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
+  .btn-ghost:active { background: color-mix(in srgb, var(--color-accent) 18%, transparent); }
+  .btn-icon { width: 36px; height: 36px; padding: 0; }
+  .btn-block { width: 100%; margin-top: var(--space-2); }
+
+  /* — формы — */
+  .field > label {
+    display: block; font-size: 12px; margin-bottom: 5px;
+    color: color-mix(in srgb, var(--color-text) 70%, transparent);
+  }
+  .input {
+    width: 100%; min-height: 36px; padding: 6px 10px; font: inherit;
+    font-size: 14px; color: var(--color-text); caret-color: var(--color-accent);
+    background: var(--color-surface);
+    border: 1px solid var(--color-divider); border-radius: 0;
+  }
+  .input:hover { border-color: color-mix(in srgb, var(--color-text) 45%, transparent); }
+  .input:focus-visible { border-color: var(--color-accent); outline-offset: 0; }
+  textarea.input { min-height: 90px; resize: vertical; }
+  .radio { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
+  .radio input, .seg-opt input {
+    position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none;
+  }
+  .radio .dot {
+    width: 16px; height: 16px; flex: none; border-radius: 50%;
+    border: 1.5px solid var(--color-divider);
+  }
+  .radio:hover .dot { border-color: var(--color-accent); }
+  .radio input:checked + .dot {
+    border-color: var(--color-accent); background: var(--color-accent);
+    box-shadow: inset 0 0 0 4px var(--color-bg);
+  }
+  .radio input:focus-visible + .dot { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+  .seg {
+    display: inline-flex; overflow: hidden;
+    border: 1px solid var(--color-divider); border-radius: 0;
+  }
+  .seg-opt {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 12px; font-size: 13px; cursor: pointer;
+  }
+  .seg-opt + .seg-opt { border-left: 1px solid var(--color-divider); }
+  .seg-opt:has(input:checked) { background: var(--color-accent); color: var(--color-bg); }
+  .seg-opt:not(:has(input:checked)):hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
+  .seg-opt:has(input:focus-visible) { outline: 2px solid var(--color-accent); outline-offset: -2px; }
+
+  /* — карточки-«card» — */
+  .card {
+    display: flex; flex-direction: column; gap: var(--space-2);
+    padding: var(--space-3); border-radius: 0;
+    background: transparent; border: 1px solid var(--color-divider);
+  }
+  .card-kicker { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); }
+  .card-title { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: 17px; line-height: 1.2; }
+  .card-body { margin: 0; font-size: 13px; opacity: 0.8; flex: 1; }
+  .card-meta {
+    display: flex; align-items: center; gap: 6px; font-size: 11px;
+    color: color-mix(in srgb, var(--color-text) 50%, transparent);
+  }
+  .elev-sm { box-shadow: var(--shadow-sm); }
+  .elev-md { box-shadow: var(--shadow-md); }
+  .elev-lg { box-shadow: var(--shadow-lg); }
+
+  /* — теги — */
+  .tag {
+    display: inline-flex; align-items: center; font-size: 11px;
+    letter-spacing: 0.02em; padding: 3px 10px; border-radius: calc(var(--radius-md) * 0.75);
+  }
+  .tag-accent { background: var(--color-accent-100); color: var(--color-accent-800); }
+  .tag-accent-2 { background: var(--color-accent-2-100); color: var(--color-accent-2-800); }
+  .tag-neutral { background: var(--color-neutral-100); color: var(--color-neutral-800); }
+  .tag-outline { border: 1px solid var(--color-accent); color: var(--color-accent); }
+
+  /* — таблицы — */
+  .table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .table th {
+    text-align: left; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-text) 60%, transparent);
+    padding: var(--space-2); border-bottom: 1px solid var(--color-divider);
+  }
+  .table td { padding: var(--space-2); border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
+  .table tbody tr:hover { background: color-mix(in srgb, var(--color-text) 4%, transparent); }
+
+  /* — диалог — */
+  .dialog-backdrop {
+    position: fixed; inset: 0; display: grid; place-items: center; padding: var(--space-4);
+    background: color-mix(in srgb, var(--color-neutral-900) 50%, transparent);
+  }
+  .dialog {
+    width: min(440px, 100%); display: flex; flex-direction: column; gap: var(--space-3);
+    padding: var(--space-4); border-radius: 0;
+    background: var(--color-surface); box-shadow: var(--shadow-lg);
+  }
+  .dialog-title { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: 20px; }
+  .dialog-body { font-size: 14px; opacity: 0.85; }
+  .dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-2); }
+
+  /* ── Шапка: основная навигация ── */
+  .knav a {
+    color: var(--color-text); text-decoration: none; font-size: 14px;
+    padding: 9px 13px; border-bottom: 2px solid transparent; display: inline-block;
+  }
+  .knav a:hover { color: var(--color-accent-700); background: color-mix(in srgb, var(--color-accent) 8%, transparent); }
+  .knav a[aria-current="page"] { color: var(--color-accent-700); border-bottom-color: var(--color-accent); font-weight: 500; }
+
+  /* ── Служебные ссылки шапки (hover) ── */
+  .toplink:hover { color: var(--color-accent-700) !important; }
+  .call-112:hover { background: var(--hz-critical-strong) !important; }
+  .sos-outline:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
+
+  /* ── Выдвижное мобильное меню ── */
+  .mnav-backdrop { position: fixed; inset: 0; z-index: 90; background: rgba(10, 14, 18, 0.5); }
+  .mnav {
+    position: fixed; top: 0; right: 0; bottom: 0; z-index: 95;
+    width: min(340px, 90vw); background: var(--color-bg); box-shadow: var(--shadow-lg);
+    display: flex; flex-direction: column; overflow-y: auto;
+  }
+  .mnav a { color: var(--color-text); text-decoration: none; }
+  .mnav .mnav-link {
+    display: flex; align-items: center; min-height: 48px; padding: 0 20px;
+    font-family: var(--font-heading); font-weight: 500; font-size: 17px;
+    border-bottom: 1px solid var(--color-divider);
+  }
+  .mnav .mnav-link:hover { color: var(--color-accent-700); background: color-mix(in srgb, var(--color-accent) 8%, transparent); }
+  .mnav .mnav-sub { min-height: 42px; font-size: 15px; padding-left: 34px; color: color-mix(in srgb, var(--color-text) 78%, transparent); }
+
+  /* ── Подвал ── */
+  .kfoot a { color: color-mix(in srgb, var(--color-text) 72%, transparent); text-decoration: none; font-size: 13px; line-height: 1.5; }
+  .kfoot a:hover { color: var(--color-accent-700); text-decoration: underline; text-underline-offset: 3px; }
+
+  /* ── Ссылка-хайлайт по hover для карточек/строк ── */
+  .row-link:hover { color: var(--color-accent-700); }
+  .surface-hover:hover { background: color-mix(in srgb, var(--color-accent) 7%, transparent); }
+  .surface-hover-6:hover { background: color-mix(in srgb, var(--color-accent) 6%, transparent); }
+  .accent-900-hover:hover { background: var(--color-accent-800); }
+}
+
+/* Переключатель темы: показываем нужную иконку. */
+[data-theme="dark"] .ico-moon { display: none; }
+html:not([data-theme="dark"]) .ico-sun { display: none; }
+
+/* skip-to-content */
+.skip-link {
+  position: fixed; top: 8px; left: 8px; z-index: 200;
+  transform: translateY(-150%); transition: transform 0.15s;
+  background: var(--color-accent); color: var(--color-bg);
+  padding: 8px 14px; font-family: var(--font-heading); font-weight: 600; font-size: 14px;
+}
+.skip-link:focus-visible { transform: translateY(0); }
+
+/* Пульс критического баннера — плавный, без мигания. */
+@keyframes critPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+.crit-dot { animation: critPulse 2.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .crit-dot { animation: none !important; }
+  .no-motion-reduce { transition: none !important; }
 }

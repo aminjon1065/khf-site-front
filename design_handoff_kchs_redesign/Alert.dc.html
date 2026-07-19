@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/styles.css">
+  <script src="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/_ds_bundle.js"></script>
+  <script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+<dc-import name="Header" active="" hint-size="100%,220px"></dc-import>
+<main style="max-width:1160px;margin:0 auto;padding:24px 24px 0">
+  <nav aria-label="Хлебные крошки" style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 55%,transparent);display:flex;gap:8px;align-items:center">
+    <a href="Home.dc.html" style="color:inherit;text-decoration:none">Главная</a><span>/</span>
+    <a href="Home.dc.html" style="color:inherit;text-decoration:none">Предупреждения</a><span>/</span>
+    <span aria-current="page" style="color:var(--color-text)">Селевая опасность в Хатлонской области</span>
+  </nav>
+
+  <section aria-label="Предупреждение" class="blueprint" style="margin-top:20px;border-top:4px solid var(--hz-warning);padding:24px 26px;display:flex;flex-direction:column;gap:14px">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <span class="tag" style="background:var(--hz-warning);color:var(--color-bg);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:12px;padding:5px 12px">Оранжевый уровень</span>
+      <span class="tag" style="background:var(--hz-warning-bg);color:var(--hz-warning);font-weight:600">Действует</span>
+      <span class="tag tag-neutral">Сель · Паводок</span>
+      <span style="flex:1"></span>
+      <button class="btn btn-secondary" style="font-size:12.5px" onClick="{{ share }}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98"></path></svg>
+        {{ shareLabel }}
+      </button>
+    </div>
+    <h1 style="font-size:32px;margin:0;line-height:1.12">Селевая опасность в предгорных районах Хатлонской области</h1>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;font-size:13px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">
+      <span><strong style="color:var(--color-text)">Опубликовано:</strong> 18.07.2026, 09:00</span>
+      <span><strong style="color:var(--color-text)">Действует до:</strong> 20.07.2026, 20:00 (прогноз)</span>
+      <span><strong style="color:var(--color-text)">Регионы:</strong> Хатлонская область — Куляб, Восе, Дангара, Темурмалик</span>
+      <span><strong style="color:var(--color-text)">Источник:</strong> ЦУКС КЧС · Агентство по гидрометеорологии</span>
+    </div>
+  </section>
+
+  <div style="display:grid;grid-template-columns:minmax(0,1.7fr) minmax(280px,1fr);gap:28px;margin-top:28px;align-items:start">
+    <div style="min-width:0">
+      <section aria-label="Что делать сейчас" class="blueprint" style="padding:22px 24px;background:color-mix(in srgb,var(--hz-warning) 8%,transparent)">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <h2 style="font-size:22px;margin:0 0 14px;text-transform:uppercase;letter-spacing:.02em">Что делать сейчас</h2>
+        <ol style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px">
+          <li style="display:flex;gap:14px;align-items:flex-start"><span style="font-family:var(--font-heading);font-weight:600;font-size:20px;color:var(--hz-warning);min-width:28px">01</span><span style="font-size:14.5px;line-height:1.5">Не приближайтесь к руслам рек, селеотводным каналам и оврагам. Не оставляйте там транспорт и имущество.</span></li>
+          <li style="display:flex;gap:14px;align-items:flex-start"><span style="font-family:var(--font-heading);font-weight:600;font-size:20px;color:var(--hz-warning);min-width:28px">02</span><span style="font-size:14.5px;line-height:1.5">Услышав шум приближающегося потока — немедленно поднимитесь на возвышенность, не менее 50–100 метров от русла.</span></li>
+          <li style="display:flex;gap:14px;align-items:flex-start"><span style="font-family:var(--font-heading);font-weight:600;font-size:20px;color:var(--hz-warning);min-width:28px">03</span><span style="font-size:14.5px;line-height:1.5">Подготовьте документы, лекарства и запас воды. Предупредите соседей, помогите пожилым и детям.</span></li>
+          <li style="display:flex;gap:14px;align-items:flex-start"><span style="font-family:var(--font-heading);font-weight:600;font-size:20px;color:var(--hz-warning);min-width:28px">04</span><span style="font-size:14.5px;line-height:1.5">При непосредственной угрозе звоните <a href="tel:112" style="color:var(--hz-danger);font-weight:700">112</a> и следуйте указаниям спасателей и местных штабов ГО.</span></li>
+        </ol>
+        <a href="Guide.dc.html" class="btn btn-secondary" style="margin-top:16px">Полная инструкция «Действия при селе»</a>
+      </section>
+
+      <section aria-label="Официальное описание" style="margin-top:28px;max-width:70ch">
+        <h2 style="font-size:22px;text-transform:uppercase;letter-spacing:.02em">Официальная информация</h2>
+        <p style="font-size:15px;line-height:1.65">По данным Агентства по гидрометеорологии при Правительстве Республики Таджикистан, 18–20 июля на территории Хатлонской области ожидаются интенсивные ливневые дожди с грозами. Количество осадков может достигать 40–60 мм за 12 часов, что создаёт высокую вероятность формирования селевых потоков на реках Яхсу, Кызылсу и их притоках.</p>
+        <p style="font-size:15px;line-height:1.65">Комитет по чрезвычайным ситуациям и гражданской обороне перевёл силы и средства Кулябской зоны в режим повышенной готовности. Организовано круглосуточное дежурство оперативных групп, проверены системы оповещения населения в 47 джамоатах.</p>
+        <p style="font-size:15px;line-height:1.65">Руководителям хозяйств рекомендовано ограничить выпас скота в поймах рек и приостановить полевые работы на селеопасных участках до стабилизации обстановки.</p>
+      </section>
+
+      <section aria-label="История обновлений" style="margin-top:28px">
+        <h2 style="font-size:22px;text-transform:uppercase;letter-spacing:.02em">История обновлений</h2>
+        <div style="display:flex;flex-direction:column;border-left:1px solid var(--color-divider)">
+          <div style="padding:10px 0 10px 20px;position:relative"><span style="position:absolute;left:-4.5px;top:16px;width:8px;height:8px;border-radius:50%;background:var(--hz-warning)"></span><span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">18.07.2026, 09:00</span><p style="margin:2px 0 0;font-size:14px">Объявлен оранжевый уровень опасности. Зона действия расширена на Дангаринский район.</p></div>
+          <div style="padding:10px 0 10px 20px;position:relative"><span style="position:absolute;left:-4.5px;top:16px;width:8px;height:8px;border-radius:50%;background:var(--hz-info)"></span><span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">17.07.2026, 18:30</span><p style="margin:2px 0 0;font-size:14px">Штормовое предупреждение гидрометеослужбы: ливневые дожди в предгорьях Хатлона.</p></div>
+        </div>
+      </section>
+    </div>
+
+    <aside style="display:flex;flex-direction:column;gap:20px;min-width:0">
+      <div class="blueprint" style="padding:12px">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <h6 style="margin:4px 6px 8px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Зона действия</h6>
+        <x-import component="TjMap" from="./tj-map.jsx" regions="{{ mapRegions }}" height="{{ 300 }}" show-labels="{{ false }}" hint-size="100%,300px"></x-import>
+        <p style="font-size:12px;margin:8px 6px 4px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Хатлонская область — предгорные районы Кулябской зоны</p>
+      </div>
+      <div class="blueprint" style="padding:18px;display:flex;flex-direction:column;gap:8px">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <h6 style="margin:0;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Экстренная помощь</h6>
+        <a href="tel:112" style="font-family:var(--font-heading);font-weight:600;font-size:26px;color:var(--hz-critical);text-decoration:none">112</a>
+        <span style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Управление КЧС по Хатлонской области:<br><a href="tel:+992332221234" style="color:var(--color-accent-700)">+992 (3322) 2-12-34</a></span>
+      </div>
+      <div>
+        <h6 style="margin:0 0 10px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Связанные предупреждения</h6>
+        <a href="Alert.dc.html" style="display:block;padding:10px 0;border-bottom:1px solid var(--color-divider);text-decoration:none;color:inherit" style-hover="color:var(--color-accent-700)">
+          <span style="display:flex;gap:8px;align-items:center;font-size:11px"><span style="width:8px;height:8px;border-radius:50%;background:var(--hz-info)"></span><span style="color:color-mix(in srgb,var(--color-text) 55%,transparent)">ИНФОРМАЦИЯ · 17.07</span></span>
+          <span style="display:block;font-family:var(--font-heading);font-weight:600;font-size:15px;margin-top:3px">Жара до +43 °C в южных районах</span>
+        </a>
+        <a href="Alert.dc.html" style="display:block;padding:10px 0;border-bottom:1px solid var(--color-divider);text-decoration:none;color:inherit" style-hover="color:var(--color-accent-700)">
+          <span style="display:flex;gap:8px;align-items:center;font-size:11px"><span style="width:8px;height:8px;border-radius:50%;background:var(--hz-success)"></span><span style="color:color-mix(in srgb,var(--color-text) 55%,transparent)">ЗАВЕРШЕНО · 14.07</span></span>
+          <span style="display:block;font-family:var(--font-heading);font-weight:600;font-size:15px;margin-top:3px">Паводок на реке Зеравшан</span>
+        </a>
+      </div>
+    </aside>
+  </div>
+</main>
+<dc-import name="Footer" hint-size="100%,420px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { copied: false };
+  renderVals() {
+    return {
+      shareLabel: this.state.copied ? 'Ссылка скопирована' : 'Поделиться',
+      share: () => {
+        navigator.clipboard && navigator.clipboard.writeText(location.href).catch(() => {});
+        this.setState({ copied: true });
+        setTimeout(() => this.setState({ copied: false }), 2000);
+      },
+      mapRegions: [
+        { key: 'khatlon', name: 'Хатлонская область', level: 'warning', count: 0, statusText: 'Действует предупреждение' },
+        { key: 'dushanbe', name: 'г. Душанбе', level: 'none', count: 0, statusText: 'Штатно' },
+        { key: 'sughd', name: 'Согдийская область', level: 'none', count: 0, statusText: 'Штатно' },
+        { key: 'rrp', name: 'РРП', level: 'none', count: 0, statusText: 'Штатно' },
+        { key: 'gbao', name: 'ГБАО', level: 'none', count: 0, statusText: 'Штатно' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

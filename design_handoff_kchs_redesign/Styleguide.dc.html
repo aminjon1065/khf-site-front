@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/styles.css">
+  <script src="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/_ds_bundle.js"></script>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+<dc-import name="Header" active="" hint-size="100%,220px"></dc-import>
+<main style="max-width:1160px;margin:0 auto;padding:32px 24px 0">
+  <div style="border-bottom:1px solid var(--color-divider);padding-bottom:14px">
+    <h1 style="margin:0;font-size:36px;text-transform:uppercase;letter-spacing:.02em">Дизайн-система портала</h1>
+    <p style="margin:8px 0 0;font-size:14px;max-width:70ch;color:color-mix(in srgb,var(--color-text) 65%,transparent)">Базовая система — Industry (Barlow Condensed / Barlow, blueprint-фреймы, стальной акцент). Поверх неё определена семантическая шкала уровней опасности. Все значения — токены; тёмная тема переключается в шапке.</p>
+  </div>
+
+  <section aria-label="Цвета" style="margin-top:32px">
+    <h2 style="font-size:23px;text-transform:uppercase;letter-spacing:.02em;border-bottom:1px solid var(--color-divider);padding-bottom:8px">01 · Семантические цвета</h2>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:16px">
+      <div class="blueprint" style="padding:0"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <div style="height:64px;background:var(--hz-success)"></div>
+        <div style="padding:10px 12px"><strong style="font-family:var(--font-heading);font-size:14px;display:block">Штатно / Завершено</strong><code style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">--hz-success</code></div>
+      </div>
+      <div class="blueprint" style="padding:0"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <div style="height:64px;background:var(--hz-info)"></div>
+        <div style="padding:10px 12px"><strong style="font-family:var(--font-heading);font-size:14px;display:block">Информация</strong><code style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">--hz-info</code></div>
+      </div>
+      <div class="blueprint" style="padding:0"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <div style="height:64px;background:var(--hz-warning)"></div>
+        <div style="padding:10px 12px"><strong style="font-family:var(--font-heading);font-size:14px;display:block">Предупреждение</strong><code style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">--hz-warning</code></div>
+      </div>
+      <div class="blueprint" style="padding:0"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <div style="height:64px;background:var(--hz-danger)"></div>
+        <div style="padding:10px 12px"><strong style="font-family:var(--font-heading);font-size:14px;display:block">Опасность</strong><code style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">--hz-danger</code></div>
+      </div>
+      <div class="blueprint" style="padding:0"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <div style="height:64px;background:var(--hz-critical)"></div>
+        <div style="padding:10px 12px"><strong style="font-family:var(--font-heading);font-size:14px;display:block">Критично</strong><code style="font-size:11px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">--hz-critical</code></div>
+      </div>
+    </div>
+    <p style="font-size:12.5px;margin-top:12px;color:color-mix(in srgb,var(--color-text) 60%,transparent)">Красный зарезервирован за опасностью и номером 112 — как декоративный цвет не используется. Уровень всегда дублируется текстом и значком.</p>
+  </section>
+
+  <section aria-label="Типографика" style="margin-top:36px">
+    <h2 style="font-size:23px;text-transform:uppercase;letter-spacing:.02em;border-bottom:1px solid var(--color-divider);padding-bottom:8px">02 · Типографика</h2>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px">
+      <div style="display:flex;align-items:baseline;gap:18px;border-bottom:1px solid var(--color-divider);padding-bottom:10px"><span style="font-size:11px;width:120px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">H1 · 36px</span><span style="font-family:var(--font-heading);font-weight:600;font-size:36px;text-transform:uppercase">Карта рисков</span></div>
+      <div style="display:flex;align-items:baseline;gap:18px;border-bottom:1px solid var(--color-divider);padding-bottom:10px"><span style="font-size:11px;width:120px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">H2 · 23px</span><span style="font-family:var(--font-heading);font-weight:600;font-size:23px;text-transform:uppercase">Обстановка по регионам</span></div>
+      <div style="display:flex;align-items:baseline;gap:18px;border-bottom:1px solid var(--color-divider);padding-bottom:10px"><span style="font-size:11px;width:120px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Заголовок карточки · 17px</span><span style="font-family:var(--font-heading);font-weight:600;font-size:17px">Селевая опасность в предгорных районах</span></div>
+      <div style="display:flex;align-items:baseline;gap:18px;border-bottom:1px solid var(--color-divider);padding-bottom:10px"><span style="font-size:11px;width:120px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Текст · 15px</span><span style="font-size:15px;max-width:60ch">Barlow — основной текст: хорошая поддержка кириллицы, спокойная плотность, читается на мобильных.</span></div>
+      <div style="display:flex;align-items:baseline;gap:18px"><span style="font-size:11px;width:120px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Overline · 11px</span><span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700)">Официально · Пресс-служба</span></div>
+    </div>
+  </section>
+
+  <section aria-label="Кнопки и бейджи" style="margin-top:36px">
+    <h2 style="font-size:23px;text-transform:uppercase;letter-spacing:.02em;border-bottom:1px solid var(--color-divider);padding-bottom:8px">03 · Кнопки и бейджи</h2>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:16px">
+      <button class="btn btn-primary">Основное действие</button>
+      <button class="btn btn-secondary">Второстепенное</button>
+      <button class="btn btn-ghost">Ссылка-действие</button>
+      <button class="btn btn-primary" disabled>Недоступно</button>
+      <a href="tel:112" class="blueprint" style="display:inline-flex;align-items:center;gap:8px;background:var(--hz-critical);color:#fff;padding:10px 18px;font-family:var(--font-heading);font-weight:600;font-size:16px;text-decoration:none"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>112 — экстренный вызов</a>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px">
+      <span class="tag" style="background:var(--hz-success-bg);color:var(--hz-success);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Завершено</span>
+      <span class="tag" style="background:var(--hz-info-bg);color:var(--hz-info);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Информация</span>
+      <span class="tag" style="background:var(--hz-warning-bg);color:var(--hz-warning);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Предупреждение</span>
+      <span class="tag" style="background:var(--hz-critical);color:#fff;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Критично</span>
+      <span class="tag tag-neutral">Регион · Хатлон</span>
+      <span class="tag tag-outline">Сель · Паводок</span>
+    </div>
+  </section>
+
+  <section aria-label="Оповещения" style="margin-top:36px">
+    <h2 style="font-size:23px;text-transform:uppercase;letter-spacing:.02em;border-bottom:1px solid var(--color-divider);padding-bottom:8px">04 · Состояния оповещения</h2>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border:1px solid var(--color-divider);font-size:13px"><span style="width:9px;height:9px;border-radius:50%;background:var(--hz-success)"></span><strong>Спокойный режим.</strong> Тонкая строка статуса, не отвлекает от контента.</div>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--hz-warning-bg);font-size:13.5px"><span class="tag" style="background:var(--hz-warning);color:var(--color-bg);font-weight:700;text-transform:uppercase">Оранжевый</span><span><strong>Предупреждение.</strong> Полоса под шапкой: уровень, тип, регион, срок, действие.</span></div>
+      <div style="padding:16px 18px;background:var(--hz-critical);color:#fff"><span style="font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:700">Красный уровень</span><p style="margin:4px 0 0;font-family:var(--font-heading);font-weight:600;font-size:20px;color:#fff">Критический режим: блок занимает верх страницы, новости уступают место инструкциям.</p></div>
+    </div>
+  </section>
+
+  <section aria-label="Формы и состояния" style="margin-top:36px;display:grid;grid-template-columns:1fr 1fr;gap:28px">
+    <div>
+      <h2 style="font-size:23px;text-transform:uppercase;letter-spacing:.02em;border-bottom:1px solid var(--color-divider);padding-bottom:8px">05 · Формы</h2>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;max-width:380px">
+        <div class="field"><label for="sg-in">Электронная почта</label><input id="sg-in" class="input" type="email" placeholder="name@example.tj"></div>
+        <div class="field"><label for="sg-err" style="color:var(--hz-critical)">Поле с ошибкой</label><input id="sg-err" class="input" style="border-color:var(--hz-critical)" aria-invalid="true" value="112"><span role="alert" style="font-size:11.5px;color:var(--hz-critical);margin-top:4px;display:block">Укажите почту в формате name@example.tj — на неё придёт номер обращения.</span></div>
+      </div>
+    </div>
+    <div>
+      <h2 style="font-size:23px;text-transform:uppercase;letter-spacing:.02em;border-bottom:1px solid var(--color-divider);padding-bottom:8px">06 · Пустые состояния</h2>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
+        <div style="padding:20px;text-align:center;border:1px dashed var(--color-divider)"><p style="font-family:var(--font-heading);font-weight:600;font-size:15px;margin:0 0 2px">Ничего не найдено</p><p style="font-size:12.5px;margin:0;color:color-mix(in srgb,var(--color-text) 60%,transparent)">Подсказка, как изменить запрос + кнопка сброса.</p></div>
+        <div aria-busy="true" style="padding:20px;text-align:center;border:1px solid var(--color-divider);font-size:12.5px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Загрузка карты… (skeleton/спиннер, без сдвигов макета)</div>
+      </div>
+    </div>
+  </section>
+</main>
+<dc-import name="Footer" hint-size="100%,420px"></dc-import>
+</div>
+</x-dc>
+</body>
+</html>

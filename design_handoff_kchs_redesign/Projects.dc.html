@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/styles.css">
+  <script src="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/_ds_bundle.js"></script>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+<dc-import name="Header" active="" hint-size="100%,260px"></dc-import>
+<main style="max-width:1160px;margin:0 auto;padding:32px 24px 0">
+  <nav aria-label="Хлебные крошки" style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 55%,transparent);display:flex;gap:8px;align-items:center;margin-bottom:16px">
+    <a href="Home.dc.html" style="color:inherit;text-decoration:none">Главная</a><span>/</span>
+    <span aria-current="page" style="color:var(--color-text)">Проекты</span>
+  </nav>
+  <div style="border-bottom:1px solid var(--color-divider);padding-bottom:14px">
+    <h1 style="margin:0 0 8px;font-size:36px;text-transform:uppercase;letter-spacing:.02em">Проекты и программы</h1>
+    <p style="margin:0;font-size:14.5px;line-height:1.6;max-width:70ch;color:color-mix(in srgb,var(--color-text) 70%,transparent)">Государственные программы и проекты технической помощи, заказчиком или исполнителем которых является Комитет: цели, сроки, источники финансирования и ход реализации. Закупки и тендеры проводятся в рамках этих проектов.</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:24px">
+    <sc-for list="{{ projects }}" as="p" hint-placeholder-count="4">
+      <a href="Project.dc.html" class="blueprint" style="display:flex;flex-direction:column;gap:10px;padding:22px;text-decoration:none;color:inherit;min-width:0" style-hover="background:color-mix(in srgb,var(--color-accent) 7%,transparent)">
+        <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span style="font-family:var(--font-heading);font-weight:600;font-size:13px;color:color-mix(in srgb,var(--color-text) 40%,transparent)">{{ p.num }}</span>
+          <span class="tag" style="background:{{ p.statusBg }};color:{{ p.statusFg }};font-weight:600">{{ p.status }}</span>
+          <span class="tag tag-neutral">{{ p.years }}</span>
+        </div>
+        <span style="font-family:var(--font-heading);font-weight:600;font-size:21px;line-height:1.2">{{ p.title }}</span>
+        <span style="font-size:13.5px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 65%,transparent)">{{ p.desc }}</span>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;border-top:1px solid var(--color-divider);padding-top:10px;margin-top:auto;font-size:12px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">
+          <span><strong style="color:var(--color-text)">Партнёр:</strong> {{ p.partner }}</span>
+          <span><strong style="color:var(--color-text)">Бюджет:</strong> {{ p.budget }}</span>
+        </div>
+      </a>
+    </sc-for>
+  </div>
+
+  <section aria-label="Связанные разделы" class="blueprint" style="margin-top:32px;padding:18px 20px;display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <p style="margin:0;font-size:13.5px;line-height:1.55;flex:1;min-width:260px;color:color-mix(in srgb,var(--color-text) 70%,transparent)">Закупки товаров и услуг в рамках проектов проводятся на конкурсной основе. Действующие тендеры публикуются в разделе объявлений.</p>
+    <a href="Announcements.dc.html" class="btn btn-secondary">Тендеры и объявления</a>
+    <a href="Documents.dc.html" class="btn btn-ghost">Отчёты по проектам →</a>
+  </section>
+</main>
+<dc-import name="Footer" hint-size="100%,420px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const st = (s) => s === 'Реализуется'
+      ? { statusBg: 'var(--hz-success-bg)', statusFg: 'var(--hz-success)' }
+      : s === 'Подготовка'
+        ? { statusBg: 'var(--hz-info-bg)', statusFg: 'var(--hz-info)' }
+        : { statusBg: 'var(--color-neutral-100)', statusFg: 'var(--color-neutral-800)' };
+    return {
+      projects: [
+        { title: 'Модернизация системы раннего оповещения населения', status: 'Реализуется', years: '2026–2030', partner: 'УСРБ ООН, Всемирный банк', budget: '18,4 млн долл. США', desc: 'Сирены и ячейковое вещание в 47 селеопасных джамоатах, интеграция с гидрометеослужбой и службой 112.' },
+        { title: 'Снижение риска бедствий в бассейне реки Пяндж', status: 'Реализуется', years: '2024–2028', partner: 'Фонд Ага Хана, Правительство Швейцарии', budget: '9,6 млн долл. США', desc: 'Берегоукрепление, селеотводные каналы и обучение добровольных команд реагирования в 60 кишлаках ГБАО и Хатлона.' },
+        { title: 'Модернизация единой службы спасения 112', status: 'Реализуется', years: '2025–2027', partner: 'Европейский союз', budget: '6,2 млн евро', desc: 'Новый центр обработки вызовов, цифровая радиосвязь и аварийно-спасательный инструмент для региональных управлений.' },
+        { title: 'Сейсмоустойчивость школ и больниц', status: 'Подготовка', years: '2027–2031', partner: 'Всемирный банк, JICA', budget: 'оценка — 25 млн долл. США', desc: 'Обследование и усиление 120 социальных объектов в зонах сейсмичности 8–9 баллов, типовые проекты безопасных школ.' },
+      ].map((p, i) => ({ ...p, ...st(p.status), num: String(i + 1).padStart(2, '0') })),
+    };
+  }
+}
+</script>
+</body>
+</html>

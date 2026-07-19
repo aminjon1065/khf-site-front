@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/styles.css">
+  <script src="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/_ds_bundle.js"></script>
+  <script src="image-slot.js"></script>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+<dc-import name="Header" active="news" hint-size="100%,220px"></dc-import>
+<main style="max-width:1160px;margin:0 auto;padding:32px 24px 0">
+  <div style="display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--color-divider);padding-bottom:14px">
+    <h1 style="margin:0;font-size:36px;text-transform:uppercase;letter-spacing:.02em">Новости и заявления</h1>
+    <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Пресс-служба КЧС</span>
+  </div>
+
+  <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:16px 0;border-bottom:1px solid var(--color-divider)">
+    <div role="group" aria-label="Категории" style="display:flex;gap:6px;flex-wrap:wrap">
+      <sc-for list="{{ categories }}" as="c" hint-placeholder-count="5">
+        <button onClick="{{ c.select }}" aria-pressed="{{ c.pressed }}" class="btn" style="font-size:13px;padding:6px 14px;border:1px solid var(--color-divider);background:{{ c.bg }};color:{{ c.fg }}" style-hover="border-color:var(--color-accent)">{{ c.label }}</button>
+      </sc-for>
+    </div>
+    <span style="flex:1"></span>
+    <input class="input" type="search" placeholder="Поиск по новостям" aria-label="Поиск по новостям" style="width:240px;min-height:34px;font-size:13px" onInput="{{ onSearch }}">
+  </div>
+
+  <sc-if value="{{ hasResults }}" hint-placeholder-val="{{ true }}">
+    <div style="display:grid;grid-template-columns:minmax(0,2.2fr) minmax(260px,1fr);gap:32px;align-items:start;margin-top:8px">
+      <div role="feed" aria-label="Список новостей" style="min-width:0">
+        <sc-for list="{{ posts }}" as="p" hint-placeholder-count="6">
+          <article style="display:grid;grid-template-columns:110px minmax(0,1fr);gap:18px;padding:20px 0;border-bottom:1px solid var(--color-divider)">
+            <div style="font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent);line-height:1.5">{{ p.date }}<span style="display:block;color:var(--color-accent-700);text-transform:uppercase;letter-spacing:.06em;font-size:10.5px;margin-top:4px">{{ p.category }}</span></div>
+            <div style="min-width:0">
+              <h2 style="font-size:21px;margin:0 0 6px;line-height:1.2"><a href="Article.dc.html" style="color:inherit;text-decoration:none" style-hover="color:var(--color-accent-700)">{{ p.title }}</a></h2>
+              <p style="margin:0;font-size:13.5px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 65%,transparent)">{{ p.excerpt }}</p>
+            </div>
+          </article>
+        </sc-for>
+        <nav aria-label="Страницы" style="display:flex;gap:6px;padding:20px 0;align-items:center">
+          <span class="btn" aria-current="page" style="background:var(--color-accent);color:var(--color-bg);border-color:var(--color-accent);min-width:36px">1</span>
+          <a href="News.dc.html" class="btn btn-secondary" style="min-width:36px">2</a>
+          <a href="News.dc.html" class="btn btn-secondary" style="min-width:36px">3</a>
+          <a href="News.dc.html" class="btn btn-secondary">Следующая →</a>
+        </nav>
+      </div>
+      <aside style="display:flex;flex-direction:column;gap:20px">
+        <div class="blueprint duotone" style="height:170px">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <image-slot id="news-side" shape="rect" placeholder="Фото пресс-службы"></image-slot>
+        </div>
+        <div class="blueprint" style="padding:18px;display:flex;flex-direction:column;gap:8px">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <h6 style="margin:0;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Для СМИ</h6>
+          <p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 70%,transparent)">Аккредитация журналистов и официальные комментарии — через пресс-службу Комитета.</p>
+          <a href="Contacts.dc.html" style="font-size:13px;color:var(--color-accent-700)">press@khf.tj →</a>
+        </div>
+        <div class="blueprint" style="padding:18px;display:flex;flex-direction:column;gap:8px">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <h6 style="margin:0;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Подписка на оповещения</h6>
+          <p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 70%,transparent)">Получайте предупреждения о ЧС по вашему региону.</p>
+          <input class="input" type="email" placeholder="Электронная почта" aria-label="Электронная почта" style="font-size:13px">
+          <button class="btn btn-primary btn-block">Подписаться</button>
+        </div>
+      </aside>
+    </div>
+  </sc-if>
+  <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:64px 24px;text-align:center">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="color-mix(in srgb,var(--color-text) 40%,transparent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 12px" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+      <p style="font-family:var(--font-heading);font-weight:600;font-size:19px;margin:0 0 6px">Ничего не найдено</p>
+      <p style="font-size:13.5px;margin:0 0 16px;color:color-mix(in srgb,var(--color-text) 60%,transparent)">Попробуйте изменить запрос или выбрать другую категорию.</p>
+      <button class="btn btn-secondary" onClick="{{ reset }}">Сбросить фильтры</button>
+    </div>
+  </sc-if>
+</main>
+<dc-import name="Footer" hint-size="100%,420px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { cat: 'Все', q: '' };
+  posts = [
+    { date: '17 июля 2026', category: 'Учения', title: 'В Хатлонской области завершены республиканские командно-штабные учения «Замин-2026»', excerpt: 'Более 1 200 спасателей и представители международных организаций отработали сценарии реагирования на землетрясение магнитудой 7,0.' },
+    { date: '16 июля 2026', category: 'Международное', title: 'Таджикистан и УСРБ ООН подписали программу снижения риска бедствий на 2026–2030 годы', excerpt: 'Документ предусматривает модернизацию систем раннего оповещения и обучение специалистов в регионах.' },
+    { date: '16 июля 2026', category: 'Оперативно', title: 'Спасатели эвакуировали группу альпинистов со склона пика Исмоили Сомони', excerpt: 'Вертолёт КЧС снял семерых альпинистов с высоты 5 900 метров после резкого ухудшения погоды. Пострадавших нет.' },
+    { date: '15 июля 2026', category: 'Профилактика', title: 'В школах Согдийской области прошли занятия по действиям при землетрясении', excerpt: 'Тренировки охватили 214 школ; отработана эвакуация более 60 тысяч учащихся.' },
+    { date: '15 июля 2026', category: 'Гражданская оборона', title: 'Утверждён план мероприятий месячника гражданской обороны', excerpt: 'Месячник пройдёт с 1 по 30 сентября во всех городах и районах республики.' },
+    { date: '14 июля 2026', category: 'Международное', title: 'Делегация КЧС приняла участие в региональном форуме по снижению риска бедствий в Алматы', excerpt: 'Обсуждены трансграничное реагирование и обмен данными гидрометеослужб Центральной Азии.' },
+    { date: '12 июля 2026', category: 'Техника', title: 'Региональные управления получили 18 единиц новой аварийно-спасательной техники', excerpt: 'Автоцистерны и аварийно-спасательные автомобили направлены в Хатлонскую область и ГБАО.' },
+    { date: '11 июля 2026', category: 'Профилактика', title: 'Более 4 000 жителей ГБАО прошли обучение действиям при лавинной опасности', excerpt: 'Занятия провели инструкторы Комитета совместно с Агентством Ага Хана по Хабитат.' },
+    { date: '10 июля 2026', category: 'Оперативно', title: 'Ликвидированы последствия паводка на реке Зеравшан', excerpt: 'Восстановлено движение на автодороге Айни — Пенджикент, расчищены ирригационные каналы.' },
+  ];
+  renderVals() {
+    const cats = ['Все', 'Оперативно', 'Учения', 'Международное', 'Профилактика', 'Техника'];
+    const { cat, q } = this.state;
+    const posts = this.posts.filter((p) =>
+      (cat === 'Все' || p.category === cat) &&
+      (!q || (p.title + ' ' + p.excerpt).toLowerCase().includes(q.toLowerCase())));
+    return {
+      categories: cats.map((c) => ({
+        label: c,
+        pressed: c === cat ? 'true' : 'false',
+        bg: c === cat ? 'var(--color-accent)' : 'transparent',
+        fg: c === cat ? 'var(--color-bg)' : 'var(--color-text)',
+        select: () => this.setState({ cat: c }),
+      })),
+      onSearch: (e) => this.setState({ q: e.target.value }),
+      posts,
+      hasResults: posts.length > 0,
+      noResults: posts.length === 0,
+      reset: () => this.setState({ cat: 'Все', q: '' }),
+    };
+  }
+}
+</script>
+</body>
+</html>

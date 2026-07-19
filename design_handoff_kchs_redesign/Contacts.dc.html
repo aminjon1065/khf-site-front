@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/styles.css">
+  <script src="_ds/industry-43190629-3e7b-45a2-b26c-20bf0ce47f77/_ds_bundle.js"></script>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+<dc-import name="Header" active="contacts" hint-size="100%,220px"></dc-import>
+<main style="max-width:1160px;margin:0 auto;padding:32px 24px 0">
+  <div style="display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--color-divider);padding-bottom:14px">
+    <h1 style="margin:0;font-size:36px;text-transform:uppercase;letter-spacing:.02em">Контакты</h1>
+    <span style="font-size:12px;color:color-mix(in srgb,var(--color-text) 50%,transparent)">Центральный аппарат и региональные управления</span>
+  </div>
+
+  <section aria-label="Экстренная помощь" style="margin-top:24px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+    <div class="blueprint" style="padding:20px;border-top:3px solid var(--hz-critical)">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <h6 style="margin:0 0 6px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Угроза жизни</h6>
+      <a href="tel:112" style="font-family:var(--font-heading);font-weight:600;font-size:34px;color:var(--hz-critical);text-decoration:none">112</a>
+      <p style="margin:6px 0 0;font-size:12.5px;line-height:1.5;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Единая служба спасения. Круглосуточно, бесплатно, работает без SIM-карты.</p>
+    </div>
+    <div class="blueprint" style="padding:20px">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <h6 style="margin:0 0 6px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Телефон доверия</h6>
+      <a href="tel:+992372215900" style="font-family:var(--font-heading);font-weight:600;font-size:22px;color:var(--color-accent-700);text-decoration:none">+992 (37) 221-59-00</a>
+      <p style="margin:6px 0 0;font-size:12.5px;line-height:1.5;color:color-mix(in srgb,var(--color-text) 62%,transparent)">Вопросы, не требующие экстренного реагирования; сообщения о нарушениях.</p>
+    </div>
+    <div class="blueprint" style="padding:20px">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <h6 style="margin:0 0 6px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">Центральный аппарат</h6>
+      <p style="margin:0;font-size:13.5px;line-height:1.6">734018, г. Душанбе, ул. Лохути, 26<br><a href="mailto:info@khf.tj" style="color:var(--color-accent-700)">info@khf.tj</a> · пн–пт, 08:00–17:00</p>
+    </div>
+  </section>
+
+  <div style="display:grid;grid-template-columns:minmax(0,1.7fr) minmax(300px,1fr);gap:32px;align-items:start;margin-top:40px">
+    <section aria-label="Региональные управления" style="min-width:0">
+      <div style="display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--color-divider);padding-bottom:10px;margin-bottom:6px">
+        <h2 style="margin:0;font-size:23px;text-transform:uppercase;letter-spacing:.02em">Региональные управления</h2>
+      </div>
+      <sc-for list="{{ offices }}" as="o" hint-placeholder-count="5">
+        <div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);gap:14px;padding:16px 2px;border-bottom:1px solid var(--color-divider);align-items:baseline">
+          <div><span style="font-family:var(--font-heading);font-weight:600;font-size:17px;display:block">{{ o.name }}</span><span style="font-size:12.5px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ o.head }}</span></div>
+          <div style="font-size:13px;line-height:1.5;color:color-mix(in srgb,var(--color-text) 70%,transparent)">{{ o.address }}</div>
+          <div style="font-size:13px;line-height:1.5"><a href="tel:{{ o.telHref }}" style="color:var(--color-accent-700);text-decoration:none">{{ o.tel }}</a><span style="display:block;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ o.email }}</span></div>
+        </div>
+      </sc-for>
+    </section>
+
+    <aside class="blueprint" style="padding:22px;display:flex;flex-direction:column;gap:12px">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <h2 style="margin:0;font-size:21px;text-transform:uppercase;letter-spacing:.02em">Электронная приёмная</h2>
+      <p style="margin:0;font-size:13px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 65%,transparent)">Обращения рассматриваются в порядке, установленном Законом РТ «Об обращениях физических и юридических лиц». Срок ответа — до 15 рабочих дней.</p>
+      <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:14px;background:var(--hz-success-bg);color:var(--hz-success);font-size:13.5px;line-height:1.5"><strong>Обращение отправлено.</strong> Номер для отслеживания: КЧС-2026-08412. Копия направлена на указанную почту.</div>
+      </sc-if>
+      <sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
+        <div class="field"><label for="f-name">ФИО <span aria-hidden="true" style="color:var(--hz-critical)">*</span></label><input id="f-name" class="input" type="text" autocomplete="name"></div>
+        <div class="field"><label for="f-email">Электронная почта <span aria-hidden="true" style="color:var(--hz-critical)">*</span></label><input id="f-email" class="input" type="email" autocomplete="email"><span style="font-size:11.5px;color:color-mix(in srgb,var(--color-text) 50%,transparent);display:block;margin-top:4px">На неё придёт номер обращения и ответ</span></div>
+        <div class="field"><label for="f-topic">Тема</label>
+          <select id="f-topic" class="input" style="appearance:auto">
+            <option>Вопрос о деятельности Комитета</option>
+            <option>Сообщение о нарушении</option>
+            <option>Предложение</option>
+            <option>Жалоба</option>
+          </select>
+        </div>
+        <div class="field"><label for="f-text">Текст обращения <span aria-hidden="true" style="color:var(--hz-critical)">*</span></label><textarea id="f-text" class="input"></textarea></div>
+        <label class="radio" style="align-items:flex-start;font-size:12.5px;line-height:1.45"><input type="checkbox" onChange="{{ toggleConsent }}"><span class="dot" style="border-radius:2px;margin-top:2px"></span>Я согласен(на) на обработку персональных данных в соответствии с законодательством Республики Таджикистан</label>
+        <sc-if value="{{ error }}" hint-placeholder-val="{{ false }}">
+          <div role="alert" style="font-size:12.5px;color:var(--hz-critical)">Подтвердите согласие на обработку персональных данных — без него обращение не может быть принято.</div>
+        </sc-if>
+        <button class="btn btn-primary btn-block blueprint" onClick="{{ submit }}" style="padding:10px">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          Отправить обращение
+        </button>
+      </sc-if>
+    </aside>
+  </div>
+</main>
+<dc-import name="Footer" hint-size="100%,420px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { sent: false, consent: false, error: false };
+  renderVals() {
+    return {
+      offices: [
+        { name: 'г. Душанбе', head: 'Управление по г. Душанбе', address: 'ул. Н. Карабаева, 54', tel: '+992 (37) 233-18-05', telHref: '+992372331805', email: 'dushanbe@khf.tj' },
+        { name: 'Согдийская область', head: 'Управление по Согдийской области', address: 'г. Худжанд, ул. Камола Худжанди, 120', tel: '+992 (3422) 6-44-71', telHref: '+992342264471', email: 'sughd@khf.tj' },
+        { name: 'Хатлонская область', head: 'Управление по Хатлонской области', address: 'г. Бохтар, ул. Айни, 47', tel: '+992 (3222) 2-38-90', telHref: '+992322223890', email: 'khatlon@khf.tj' },
+        { name: 'ГБАО', head: 'Управление по ГБАО', address: 'г. Хорог, ул. Ленина, 18', tel: '+992 (3522) 2-25-13', telHref: '+992352222513', email: 'gbao@khf.tj' },
+        { name: 'РРП', head: 'Управление по районам республиканского подчинения', address: 'г. Вахдат, ул. Исмоили Сомони, 9', tel: '+992 (3136) 2-27-44', telHref: '+992313622744', email: 'rrp@khf.tj' },
+      ],
+      sent: this.state.sent,
+      notSent: !this.state.sent,
+      error: this.state.error,
+      toggleConsent: (e) => this.setState({ consent: e.target.checked, error: false }),
+      submit: () => {
+        if (!this.state.consent) { this.setState({ error: true }); return; }
+        this.setState({ sent: true });
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Дизайн-референсы (не исходники приложения).
+    "design_handoff_kchs_redesign/**",
   ]),
 ]);
 
