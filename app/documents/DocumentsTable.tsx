@@ -3,22 +3,30 @@
 import { useMemo, useState } from "react";
 import { Download } from "lucide-react";
 import { muted } from "@/components/public/ui";
+import type { ApiDocument } from "@/lib/api";
 import type { DocumentsContent } from "./content";
 
 /**
  * Клиентская таблица документов: фильтр по типу (кнопки с aria-pressed) и
- * поиск по названию/номеру. Фильтрация выполняется на клиенте; при пустом
- * результате показывается состояние «ничего не найдено» с кнопкой сброса.
+ * поиск по названию/номеру. Данные (docs) приходят из CMS; типы фильтра
+ * выводятся из реальных данных. Пустой результат — состояние со сбросом.
  */
 export default function DocumentsTable({
   content,
+  docs,
 }: {
   content: DocumentsContent;
+  docs: ApiDocument[];
 }) {
-  const { types, allType, search, columns, downloadAria, empty, docs } =
-    content;
+  const { allType, search, columns, downloadAria, empty } = content;
   const [type, setType] = useState(allType);
   const [q, setQ] = useState("");
+
+  // Типы фильтра — из реальных данных CMS (плюс «Все»).
+  const types = useMemo<string[]>(() => {
+    const present = Array.from(new Set(docs.map((d) => d.type)));
+    return [allType, ...present];
+  }, [docs, allType]);
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -84,35 +92,51 @@ export default function DocumentsTable({
                 <th>{columns.title}</th>
                 <th style={{ width: 110 }}>{columns.number}</th>
                 <th style={{ width: 110 }}>{columns.date}</th>
-                <th style={{ width: 80 }}>{columns.lang}</th>
-                <th style={{ width: 110 }}>{columns.file}</th>
+                <th style={{ width: 90 }}>{columns.lang}</th>
+                <th style={{ width: 130 }}>{columns.file}</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((d) => (
-                <tr key={`${d.type}-${d.title}`}>
+                <tr key={d.id}>
                   <td>
                     <span className="tag tag-neutral">{d.type}</span>
                   </td>
                   <td className="text-sm leading-[1.4]">{d.title}</td>
                   <td className="text-[13px]" style={{ color: muted(60) }}>
-                    {d.number}
+                    {d.number ?? "—"}
                   </td>
                   <td className="text-[13px]" style={{ color: muted(60) }}>
-                    {d.date}
+                    {d.date ?? "—"}
                   </td>
                   <td className="text-[13px]" style={{ color: muted(60) }}>
-                    {d.lang}
+                    {d.lang || "—"}
                   </td>
                   <td>
-                    <a
-                      href={d.href ?? "#"}
-                      className="btn btn-ghost text-[12.5px]"
-                      aria-label={`${downloadAria}: ${d.title}`}
-                    >
-                      <Download size={14} strokeWidth={1.5} aria-hidden="true" />
-                      {d.size}
-                    </a>
+                    {d.href ? (
+                      <a
+                        href={d.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        download
+                        className="btn btn-ghost text-[12.5px]"
+                        aria-label={`${downloadAria}: ${d.title}`}
+                      >
+                        <Download
+                          size={14}
+                          strokeWidth={1.5}
+                          aria-hidden="true"
+                        />
+                        {d.size}
+                      </a>
+                    ) : (
+                      <span
+                        className="text-[12.5px]"
+                        style={{ color: muted(45) }}
+                      >
+                        —
+                      </span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -124,17 +148,10 @@ export default function DocumentsTable({
           <p className="m-0 mb-1.5 text-[19px] font-semibold [font-family:var(--font-heading)]">
             {empty.title}
           </p>
-          <p
-            className="m-0 mb-4 text-[13.5px]"
-            style={{ color: muted(60) }}
-          >
+          <p className="m-0 mb-4 text-[13.5px]" style={{ color: muted(60) }}>
             {empty.text}
           </p>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={reset}
-          >
+          <button type="button" className="btn btn-secondary" onClick={reset}>
             {empty.reset}
           </button>
         </div>

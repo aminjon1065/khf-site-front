@@ -1,12 +1,27 @@
 import PageShell from "@/components/public/PageShell";
 import { muted } from "@/components/public/ui";
+import { fetchRegionsDirectory } from "@/lib/api";
 import { contacts } from "./content";
 import ContactForm from "./ContactForm";
 
 export const metadata = { title: "Контакты" };
 
-export default function ContactsPage() {
+export default async function ContactsPage() {
   const { emergency, offices, reception } = contacts;
+
+  // Региональные управления приходят из CMS; при недоступности — статичный список.
+  const directory = await fetchRegionsDirectory();
+  const officeRows =
+    directory.length > 0
+      ? directory.map((o) => ({
+          name: o.name,
+          head: o.head,
+          address: o.address,
+          tel: o.phone ?? "",
+          telHref: o.phone_href ?? "",
+          email: o.email ?? "",
+        }))
+      : offices.rows;
 
   return (
     <PageShell active="contacts">
@@ -80,9 +95,9 @@ export default function ContactsPage() {
           <div className="mb-1.5 flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[10px]">
             <h2 className="m-0 text-[23px] uppercase tracking-[.02em]">{offices.title}</h2>
           </div>
-          {offices.rows.map((o) => (
+          {officeRows.map((o) => (
             <div
-              key={o.email}
+              key={o.email || o.name}
               className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)] items-baseline gap-[14px] border-b border-[var(--color-divider)] px-0.5 py-4 max-[560px]:grid-cols-1"
             >
               <div>

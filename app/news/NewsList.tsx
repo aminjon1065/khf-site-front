@@ -14,21 +14,35 @@ import { news } from "./content";
  * поиск, пагинация и empty-state. Правая колонка (aside) приходит с сервера
  * как готовая разметка и показывается только когда есть результаты.
  */
-export default function NewsList({ aside }: { aside: ReactNode }) {
+export default function NewsList({
+  aside,
+  posts,
+}: {
+  aside: ReactNode;
+  posts: NewsItem[];
+}) {
   const { filter, feed, pagination, empty } = news;
   const [cat, setCat] = useState<string>(filter.allCategory);
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
 
+  // Категории берём из реальных данных CMS (плюс «Все»), а не из статики.
+  const categories = useMemo<string[]>(() => {
+    const present = Array.from(
+      new Set(posts.map((p) => p.category).filter(Boolean)),
+    );
+    return [filter.allCategory, ...present];
+  }, [posts, filter.allCategory]);
+
   const results = useMemo<NewsItem[]>(() => {
     const needle = q.trim().toLowerCase();
-    return news.posts.filter(
+    return posts.filter(
       (p) =>
         (cat === filter.allCategory || p.category === cat) &&
         (!needle ||
           `${p.title} ${p.excerpt ?? ""}`.toLowerCase().includes(needle)),
     );
-  }, [cat, q, filter.allCategory]);
+  }, [posts, cat, q, filter.allCategory]);
 
   const totalPages = Math.max(1, Math.ceil(results.length / feed.pageSize));
   const current = Math.min(page, totalPages);
@@ -60,7 +74,7 @@ export default function NewsList({ aside }: { aside: ReactNode }) {
           aria-label={filter.groupAria}
           className="flex flex-wrap gap-1.5"
         >
-          {filter.categories.map((c) => {
+          {categories.map((c) => {
             const pressed = c === cat;
             return (
               <button

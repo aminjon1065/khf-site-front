@@ -1,10 +1,14 @@
 import Link from "next/link";
 import PageShell from "@/components/public/PageShell";
 import { ImageSlot, muted } from "@/components/public/ui";
+import { fetchNews } from "@/lib/api";
 import { news } from "./content";
 import NewsList from "./NewsList";
 
 export const metadata = { title: news.metaTitle };
+
+// ISR: страница пересобирается не чаще раза в минуту, данные — из CMS.
+export const revalidate = 60;
 
 /** Правая колонка: фото пресс-службы (duotone) + блоки для СМI и подписки. */
 function NewsAside() {
@@ -52,7 +56,9 @@ function NewsAside() {
   );
 }
 
-export default function NewsPage() {
+export default async function NewsPage() {
+  const { data: posts } = await fetchNews({ perPage: 50 });
+
   return (
     <PageShell
       active="news"
@@ -67,7 +73,7 @@ export default function NewsPage() {
         </span>
       </div>
 
-      <NewsList aside={<NewsAside />} />
+      <NewsList aside={<NewsAside />} posts={posts} />
     </PageShell>
   );
 }

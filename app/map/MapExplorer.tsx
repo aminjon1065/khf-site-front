@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import TjRiskMap from "@/components/public/TjRiskMap";
 import { muted } from "@/components/public/ui";
-import { routes } from "@/lib/routes";
 import {
   regionOrder,
   regionName,
@@ -14,8 +13,21 @@ import {
   legendItems,
   countLabel,
 } from "@/lib/levels";
-import type { AlertLevel, RegionStatus } from "@/lib/types";
-import { map, type RiskFilter } from "./content";
+import type { AlertLevel, RegionKey, RegionStatus } from "@/lib/types";
+import { map } from "./content";
+
+/** Активное событие карты, построенное из предупреждения CMS. */
+export interface LiveIncident {
+  kind: string;
+  level: AlertLevel;
+  time: string;
+  title: string;
+  region: string;
+  regionKey: RegionKey;
+  slug: string;
+}
+
+const ALL = "Все";
 
 // Ранг уровней для выбора наивысшего уровня региона из его событий.
 const rank: Record<AlertLevel, number> = {
@@ -28,15 +40,22 @@ const rank: Record<AlertLevel, number> = {
 
 /**
  * Интерактивная часть страницы карты: фильтр по типу риска (aria-pressed),
- * SVG-карта регионов и доступный список событий-альтернатива. Один источник
- * состояния (`kind`) управляет и заливкой карты, и списком, и счётчиком.
+ * SVG-карта регионов и доступный список событий. Данные (incidents) приходят
+ * из CMS; фильтр управляет и заливкой карты, и списком, и счётчиком.
  */
-export default function MapExplorer() {
-  const [kind, setKind] = useState<RiskFilter>(map.allKind);
+export default function MapExplorer({
+  incidents,
+}: {
+  incidents: LiveIncident[];
+}) {
+  const [kind, setKind] = useState<string>(ALL);
 
-  const list = map.incidents.filter(
-    (i) => kind === map.allKind || i.kind === kind
+  const kinds = useMemo<string[]>(
+    () => [ALL, ...Array.from(new Set(incidents.map((i) => i.kind)))],
+    [incidents],
   );
+
+  const list = incidents.filter((i) => kind === ALL || i.kind === kind);
 
   // Уровень и число событий по каждому региону из отфильтрованного списка.
   const mapRegions: RegionStatus[] = regionOrder.map((k) => {
@@ -74,7 +93,7 @@ export default function MapExplorer() {
           aria-label={map.filterGroupAria}
           className="flex flex-wrap gap-1.5"
         >
-          {map.kinds.map((c) => {
+          {kinds.map((c) => {
             const active = c === kind;
             return (
               <button
@@ -127,8 +146,8 @@ export default function MapExplorer() {
             <div role="list" aria-label={map.incidentsListAria}>
               {list.map((i, idx) => (
                 <Link
-                  key={`${i.title}-${idx}`}
-                  href={routes.alert}
+                  key={`${i.slug}-${idx}`}
+                  href={`/alerts/${i.slug}`}
                   role="listitem"
                   className="row-link block border-b border-[var(--color-divider)] py-3"
                   style={{ textDecoration: "none", color: "inherit" }}

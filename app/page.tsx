@@ -4,16 +4,20 @@ import PageShell from "@/components/public/PageShell";
 import { SectionHeader, ImageSlot, muted } from "@/components/public/ui";
 import NewsSlider from "@/components/public/NewsSlider";
 import TjRiskMap from "@/components/public/TjRiskMap";
+import { fetchHome, type ApiAlert } from "@/lib/api";
 import { home } from "@/lib/copy/home";
 import { routes } from "@/lib/routes";
-import { regionsForState, regionRowsForState } from "@/lib/data/regions";
-import { legendItems, levelMapFill } from "@/lib/levels";
-import type { AlertState } from "@/lib/types";
+import {
+  legendItems,
+  levelBadge,
+  levelDotColor,
+  levelMapFill,
+} from "@/lib/levels";
+import type { AlertLevel, RegionStatus } from "@/lib/types";
 
-// Глобальный режим оповещения (демо). В проде — из CMS/API уведомлений.
-const alertState: AlertState = "warning";
+export const revalidate = 60;
 
-/** Иконка малой плитки «быстрых действий» (stroke accent-700, 22×22). */
+/** Иконка малой плитки «быстрых действий». */
 function QuickIcon({ name }: { name: string }) {
   const common = {
     width: 22,
@@ -67,9 +71,17 @@ function QuickIcon({ name }: { name: string }) {
   }
 }
 
-function AlertBanner() {
-  if (alertState === "critical") {
+/** Верхний баннер обстановки — состояние приходит из CMS. */
+function AlertBanner({
+  state,
+  top,
+}: {
+  state: "calm" | "warning" | "critical";
+  top?: ApiAlert;
+}) {
+  if (state === "critical") {
     const c = home.critical;
+    const href = top ? `/alerts/${top.slug}` : routes.alert;
     return (
       <section
         aria-label="Критическое предупреждение"
@@ -78,35 +90,47 @@ function AlertBanner() {
         <div className="mx-auto flex w-full max-w-[1160px] flex-col gap-[14px] px-6 py-7 max-[920px]:px-4">
           <div className="flex flex-wrap items-center gap-3">
             <span className="crit-dot h-3 w-3 rounded-full" style={{ background: "#fff" }} />
-            <span className="text-[11px] font-bold uppercase tracking-[.12em]">{c.kicker}</span>
-            <span className="text-xs opacity-85">{c.updated}</span>
+            <span className="text-[11px] font-bold uppercase tracking-[.12em]">
+              {top?.level_label ?? c.kicker}
+            </span>
+            {top?.datetime && <span className="text-xs opacity-85">{top.datetime}</span>}
           </div>
           <h1 className="m-0 text-[34px]" style={{ color: "#fff" }}>
-            {c.title}
+            {top?.title ?? c.title}
           </h1>
-          <p className="m-0 max-w-[760px] text-base leading-[1.5]">{c.text}</p>
+          <p className="m-0 max-w-[760px] text-base leading-[1.5]">
+            {top?.summary ?? c.text}
+          </p>
           <div className="flex flex-wrap gap-3">
-            {c.actions.map((a) => (
-              <Link
-                key={a.label}
-                href={a.href}
-                className="btn px-5 py-2.5 text-[15px]"
-                style={
-                  "primary" in a && a.primary
-                    ? { background: "#fff", color: "var(--hz-critical)", borderColor: "#fff" }
-                    : { color: "#fff", borderColor: "rgba(255,255,255,.6)" }
-                }
-              >
-                {a.label}
-              </Link>
-            ))}
+            <Link
+              href={routes.guides}
+              className="btn px-5 py-2.5 text-[15px]"
+              style={{ background: "#fff", color: "var(--hz-critical)", borderColor: "#fff" }}
+            >
+              Что делать
+            </Link>
+            <Link
+              href={href}
+              className="btn px-5 py-2.5 text-[15px]"
+              style={{ color: "#fff", borderColor: "rgba(255,255,255,.6)" }}
+            >
+              Подробности и карта
+            </Link>
+            <a
+              href="tel:112"
+              className="btn px-5 py-2.5 text-[15px]"
+              style={{ color: "#fff", borderColor: "rgba(255,255,255,.6)" }}
+            >
+              Вызов 112
+            </a>
           </div>
         </div>
       </section>
     );
   }
-  if (alertState === "warning") {
+  if (state === "warning") {
     const w = home.warning;
+    const href = top ? `/alerts/${top.slug}` : routes.alert;
     return (
       <section
         aria-label="Действующее предупреждение"
@@ -124,16 +148,18 @@ function AlertBanner() {
             className="tag font-bold uppercase tracking-[.08em]"
             style={{ background: "var(--hz-warning)", color: "var(--color-bg)" }}
           >
-            {w.levelLabel}
+            {top?.level_label ?? w.levelLabel}
           </span>
           <span className="min-w-[260px] flex-1 text-sm">
-            <strong>{w.strong}</strong>
-            {w.text}
+            <strong>{top?.title ?? w.strong}</strong>
+            {top ? "" : w.text}
           </span>
-          <span className="text-xs" style={{ color: muted(55) }}>
-            {w.time}
-          </span>
-          <Link href={w.moreHref} className="btn btn-secondary text-[13px]">
+          {(top?.datetime ?? w.time) && (
+            <span className="text-xs" style={{ color: muted(55) }}>
+              {top?.datetime ?? w.time}
+            </span>
+          )}
+          <Link href={href} className="btn btn-secondary text-[13px]">
             {w.more}
           </Link>
         </div>
@@ -150,7 +176,6 @@ function AlertBanner() {
           {c.text}
         </span>
         <span className="flex-1" />
-        <span style={{ color: muted(50) }}>{c.updated}</span>
         <Link href={routes.map} style={{ color: "var(--color-accent-700)" }}>
           {c.mapLink}
         </Link>
@@ -159,13 +184,32 @@ function AlertBanner() {
   );
 }
 
-export default function HomePage() {
-  const regions = regionsForState(alertState);
-  const regionRows = regionRowsForState(alertState);
+function tagBg(level: AlertLevel): string {
+  return `color-mix(in srgb, ${levelDotColor[level]} 14%, transparent)`;
+}
+
+export default async function HomePage() {
+  const data = await fetchHome();
+  const isOn = (type: string) => data.blocks.some((b) => b.type === type);
+  const top = data.alerts.items[0];
+
+  const regions: RegionStatus[] = data.alerts.regions.map((r) => ({
+    key: r.key as RegionStatus["key"],
+    name: r.name,
+    level: r.level,
+    count: r.count,
+    statusText: r.statusText,
+  }));
+
+  const featured = data.news[0];
+  const newsList = data.news.slice(1, 5);
   const p = home.president;
 
   return (
-    <PageShell active="home" topSlot={<AlertBanner />}>
+    <PageShell
+      active="home"
+      topSlot={<AlertBanner state={data.alerts.state} top={top} />}
+    >
       {/* Главное: слайдер + карточка Президента */}
       <section
         aria-label="Главное"
@@ -204,33 +248,6 @@ export default function HomePage() {
             </span>
           </span>
         </a>
-      </section>
-
-      {/* Оперативная сводка */}
-      <section
-        aria-label="Оперативная сводка"
-        className="blueprint mt-6 flex flex-wrap items-center gap-6 px-5 py-3"
-      >
-        <h6 className="m-0" style={{ color: muted(55) }}>
-          {home.ops.title}
-        </h6>
-        {home.ops.items.map((it) => (
-          <span key={it.label} className="inline-flex items-baseline gap-2">
-            <span
-              className="text-2xl font-semibold [font-family:var(--font-heading)]"
-              style={{ color: it.color }}
-            >
-              {it.n}
-            </span>
-            <span className="text-xs" style={{ color: muted(60) }}>
-              {it.label}
-            </span>
-          </span>
-        ))}
-        <span className="flex-1" />
-        <Link href={routes.map} className="text-[13px]" style={{ color: "var(--color-accent-700)" }}>
-          {home.ops.mapLink}
-        </Link>
       </section>
 
       {/* Быстрые действия */}
@@ -292,150 +309,169 @@ export default function HomePage() {
       </section>
 
       {/* Обстановка по регионам */}
-      <section aria-label="Карта предупреждений" className="mt-[52px]">
-        <SectionHeader
-          title={home.regionSection.title}
-          index={home.regionSection.index}
-          right={
-            <span className="text-xs" style={{ color: muted(50) }}>
-              {home.regionSection.updated}
-            </span>
-          }
-        />
-        <div className="grid grid-cols-[minmax(0,1.7fr)_minmax(280px,1fr)] items-start gap-7 max-[920px]:grid-cols-1">
-          <div className="blueprint p-3">
-            <TjRiskMap regions={regions} height={440} />
-            <div
-              className="mt-2.5 flex flex-wrap gap-4 border-t border-[var(--color-divider)] px-2 pb-1 pt-2.5 text-xs"
-              aria-label="Легенда карты"
-            >
-              {legendItems.map((l) => (
-                <span key={l.level} className="inline-flex items-center gap-1.5">
+      {isOn("regions_map") && (
+        <section aria-label="Карта предупреждений" className="mt-[52px]">
+          <SectionHeader
+            title={home.regionSection.title}
+            index={home.regionSection.index}
+          />
+          <div className="grid grid-cols-[minmax(0,1.7fr)_minmax(280px,1fr)] items-start gap-7 max-[920px]:grid-cols-1">
+            <div className="blueprint p-3">
+              <TjRiskMap regions={regions} height={440} />
+              <div
+                className="mt-2.5 flex flex-wrap gap-4 border-t border-[var(--color-divider)] px-2 pb-1 pt-2.5 text-xs"
+                aria-label="Легенда карты"
+              >
+                {legendItems.map((l) => (
+                  <span key={l.level} className="inline-flex items-center gap-1.5">
+                    <span
+                      className="h-3 w-3 border border-[var(--color-divider)]"
+                      style={{ background: levelMapFill[l.level] }}
+                    />
+                    {l.label}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div role="list" aria-label="Обстановка по регионам — список" className="flex flex-col">
+              {regions.map((r) => (
+                <div
+                  key={r.key}
+                  role="listitem"
+                  className="flex items-center gap-2.5 border-b border-[var(--color-divider)] px-0.5 py-3"
+                >
                   <span
-                    className="h-3 w-3 border border-[var(--color-divider)]"
-                    style={{ background: levelMapFill[l.level] }}
+                    className="h-[9px] w-[9px] flex-none rounded-full"
+                    style={{ background: levelDotColor[r.level] }}
                   />
-                  {l.label}
-                </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[15px] font-semibold [font-family:var(--font-heading)]">
+                      {r.name}
+                    </span>
+                    <span className="text-xs" style={{ color: muted(58) }}>
+                      {r.statusText}
+                    </span>
+                  </span>
+                  <span className="tag tag-neutral flex-none">
+                    {levelBadge[r.level]}
+                  </span>
+                </div>
+              ))}
+              <Link href={routes.map} className="btn btn-secondary mt-[14px] self-start">
+                {home.regionSection.openFull}
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Предупреждения */}
+      {isOn("active_alerts") && data.alerts.items.length > 0 && (
+        <section aria-label="Последние предупреждения" className="mt-[52px]">
+          <SectionHeader
+            title={home.warnings.title}
+            index={home.warnings.index}
+            link={{ label: home.warnings.allLink, href: routes.alert }}
+          />
+          <div className="grid grid-cols-3 gap-[14px] max-[920px]:grid-cols-1">
+            {data.alerts.items.map((a) => {
+              const color = levelDotColor[a.level as AlertLevel];
+              return (
+                <Link
+                  key={a.slug}
+                  href={`/alerts/${a.slug}`}
+                  className="blueprint surface-hover-6 flex flex-col gap-2 p-[18px]"
+                  style={{ textDecoration: "none", color: "inherit", borderTop: `3px solid ${color}` }}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="tag font-bold uppercase tracking-[.06em]"
+                      style={{ background: tagBg(a.level as AlertLevel), color }}
+                    >
+                      {a.hazard_label}
+                    </span>
+                    <span className="text-[11.5px]" style={{ color: muted(50) }}>
+                      {a.status}
+                    </span>
+                  </div>
+                  <span className="text-[19px] font-semibold leading-[1.2] [font-family:var(--font-heading)]">
+                    {a.title}
+                  </span>
+                  <span className="text-[12.5px]" style={{ color: muted(62) }}>
+                    {a.region}
+                    {a.datetime ? ` · ${a.datetime}` : ""}
+                  </span>
+                  <span className="text-[13px] leading-[1.5]" style={{ color: muted(72) }}>
+                    {a.summary}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* Новости */}
+      {isOn("latest_news") && featured && (
+        <section aria-label="Новости" className="mt-[52px]">
+          <SectionHeader
+            title={home.news.title}
+            index={home.news.index}
+            link={{ label: home.news.allLink, href: routes.news }}
+          />
+          <div className="grid grid-cols-2 gap-7 max-[920px]:grid-cols-1">
+            <Link
+              href={`/news/${featured.slug}`}
+              className="flex flex-col gap-3"
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <span className="blueprint duotone block h-[220px]">
+                {featured.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={featured.image}
+                    alt={featured.title}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <ImageSlot label={home.news.featured.photoLabel} />
+                )}
+              </span>
+              <span
+                className="text-[11px] uppercase tracking-[.1em]"
+                style={{ color: "var(--color-accent-700)" }}
+              >
+                {[featured.category, featured.date].filter(Boolean).join(" · ")}
+              </span>
+              <span className="text-[21px] font-semibold leading-[1.2] [font-family:var(--font-heading)]">
+                {featured.title}
+              </span>
+            </Link>
+            <div className="flex flex-col">
+              {newsList.map((it, i) => (
+                <Link
+                  key={it.slug}
+                  href={`/news/${it.slug}`}
+                  className="row-link border-b border-[var(--color-divider)]"
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                    padding: i === 0 ? "0 0 14px" : "14px 0",
+                    borderBottom: i === newsList.length - 1 ? "none" : undefined,
+                  }}
+                >
+                  <span className="text-[11px] uppercase tracking-[.08em]" style={{ color: muted(50) }}>
+                    {[it.category, it.date].filter(Boolean).join(" · ")}
+                  </span>
+                  <span className="mt-1 block text-[17px] font-semibold leading-[1.25] [font-family:var(--font-heading)]">
+                    {it.title}
+                  </span>
+                </Link>
               ))}
             </div>
           </div>
-          <div role="list" aria-label="Обстановка по регионам — список" className="flex flex-col">
-            {regionRows.map((r) => (
-              <div
-                key={r.name}
-                role="listitem"
-                className="flex items-center gap-2.5 border-b border-[var(--color-divider)] px-0.5 py-3"
-              >
-                <span className="h-[9px] w-[9px] flex-none rounded-full" style={{ background: r.color }} />
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[15px] font-semibold [font-family:var(--font-heading)]">
-                    {r.name}
-                  </span>
-                  <span className="text-xs" style={{ color: muted(58) }}>
-                    {r.statusText}
-                  </span>
-                </span>
-                <span className="tag tag-neutral flex-none">{r.badge}</span>
-              </div>
-            ))}
-            <Link href={routes.map} className="btn btn-secondary mt-[14px] self-start">
-              {home.regionSection.openFull}
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Предупреждения */}
-      <section aria-label="Последние предупреждения" className="mt-[52px]">
-        <SectionHeader
-          title={home.warnings.title}
-          index={home.warnings.index}
-          link={{ label: home.warnings.allLink, href: routes.alert }}
-        />
-        <div className="grid grid-cols-3 gap-[14px] max-[920px]:grid-cols-1">
-          {home.warnings.cards.map((c) => (
-            <Link
-              key={c.title}
-              href={routes.alert}
-              className="blueprint surface-hover-6 flex flex-col gap-2 p-[18px]"
-              style={{ textDecoration: "none", color: "inherit", borderTop: `3px solid ${c.border}` }}
-            >
-              <div className="flex items-center gap-2">
-                <span
-                  className="tag font-bold uppercase tracking-[.06em]"
-                  style={{ background: c.tagBg, color: c.tagFg }}
-                >
-                  {c.tag}
-                </span>
-                <span className="text-[11.5px]" style={{ color: muted(50) }}>
-                  {c.status}
-                </span>
-              </div>
-              <span className="text-[19px] font-semibold leading-[1.2] [font-family:var(--font-heading)]">
-                {c.title}
-              </span>
-              <span className="text-[12.5px]" style={{ color: muted(62) }}>
-                {c.meta}
-              </span>
-              <span className="text-[13px] leading-[1.5]" style={{ color: muted(72) }}>
-                {c.text}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Новости */}
-      <section aria-label="Новости" className="mt-[52px]">
-        <SectionHeader
-          title={home.news.title}
-          index={home.news.index}
-          link={{ label: home.news.allLink, href: routes.news }}
-        />
-        <div className="grid grid-cols-2 gap-7 max-[920px]:grid-cols-1">
-          <Link
-            href={home.news.featured.href}
-            className="flex flex-col gap-3"
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <span className="blueprint duotone block h-[220px]">
-              <ImageSlot label={home.news.featured.photoLabel} />
-            </span>
-            <span
-              className="text-[11px] uppercase tracking-[.1em]"
-              style={{ color: "var(--color-accent-700)" }}
-            >
-              {home.news.featured.kicker}
-            </span>
-            <span className="text-[21px] font-semibold leading-[1.2] [font-family:var(--font-heading)]">
-              {home.news.featured.title}
-            </span>
-          </Link>
-          <div className="flex flex-col">
-            {home.news.list.map((it, i) => (
-              <Link
-                key={it.title}
-                href={it.href}
-                className="row-link border-b border-[var(--color-divider)]"
-                style={{
-                  textDecoration: "none",
-                  color: "inherit",
-                  padding: i === 0 ? "0 0 14px" : "14px 0",
-                  borderBottom: i === home.news.list.length - 1 ? "none" : undefined,
-                }}
-              >
-                <span className="text-[11px] uppercase tracking-[.08em]" style={{ color: muted(50) }}>
-                  {it.kicker}
-                </span>
-                <span className="mt-1 block text-[17px] font-semibold leading-[1.25] [font-family:var(--font-heading)]">
-                  {it.title}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Ключевые показатели */}
       <section aria-label="Ключевые показатели" className="mt-[52px]">
@@ -468,77 +504,94 @@ export default function HomePage() {
         className="mt-[52px] grid grid-cols-[minmax(0,1.6fr)_minmax(280px,1fr)] gap-7 max-[920px]:grid-cols-1"
       >
         <div>
-          <SectionHeader
-            title={home.documents.title}
-            index={home.documents.index}
-            link={{ label: home.documents.allLink, href: routes.documents }}
-          />
-          {home.documents.rows.map((d) => (
-            <Link
-              key={d.title}
-              href={routes.documents}
-              className="row-link flex items-center gap-3 border-b border-[var(--color-divider)] px-0.5 py-3"
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <span className="tag tag-neutral flex-none">{d.tag}</span>
-              <span className="flex-1 text-sm">{d.title}</span>
-              <span className="flex-none text-xs" style={{ color: muted(50) }}>
-                {d.size}
-              </span>
-            </Link>
-          ))}
-
-          <SectionHeader
-            id="announcements"
-            title={home.announcements.title}
-            index={home.announcements.index}
-            link={{ label: home.announcements.allLink, href: routes.announcements }}
-          />
-          {home.announcements.rows.map((a) => (
-            <Link
-              key={a.title}
-              href={routes.announcements}
-              className="row-link flex items-center gap-3 border-b border-[var(--color-divider)] px-0.5 py-3"
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <span className={`tag ${a.tagClass} flex-none`}>{a.tag}</span>
-              <span className="flex-1 text-sm">{a.title}</span>
-              <span className="flex-none text-xs" style={{ color: muted(50) }}>
-                {a.deadline}
-              </span>
-            </Link>
-          ))}
-        </div>
-
-        <div className="min-w-0 self-start">
-          <SectionHeader title={home.projects.title} link={{ label: home.projects.allLink, href: routes.projects }} />
-          {home.projects.cards.map((pr) => (
-            <Link
-              key={pr.title}
-              href={pr.href}
-              className="blueprint surface-hover mt-[14px] flex flex-col gap-1.5 p-4"
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <span className="flex items-center gap-2">
-                <span
-                  className="tag text-[10px] font-semibold"
-                  style={{ background: "var(--hz-success-bg)", color: "var(--hz-success)" }}
+          {isOn("documents") && data.documents.length > 0 && (
+            <>
+              <SectionHeader
+                title={home.documents.title}
+                index={home.documents.index}
+                link={{ label: home.documents.allLink, href: routes.documents }}
+              />
+              {data.documents.map((d) => (
+                <Link
+                  key={d.id}
+                  href={d.href ?? routes.documents}
+                  className="row-link flex items-center gap-3 border-b border-[var(--color-divider)] px-0.5 py-3"
+                  style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  {pr.status}
-                </span>
-                <span className="text-[11.5px]" style={{ color: muted(52) }}>
-                  {pr.years}
-                </span>
-              </span>
-              <span className="text-[16.5px] font-semibold leading-[1.25] [font-family:var(--font-heading)]">
-                {pr.title}
-              </span>
-              <span className="text-xs" style={{ color: muted(58) }}>
-                {pr.meta}
-              </span>
-            </Link>
-          ))}
+                  <span className="tag tag-neutral flex-none">{d.type}</span>
+                  <span className="flex-1 text-sm">{d.title}</span>
+                  <span className="flex-none text-xs" style={{ color: muted(50) }}>
+                    {d.size ?? ""}
+                  </span>
+                </Link>
+              ))}
+            </>
+          )}
+
+          {isOn("announcements") && data.announcements.length > 0 && (
+            <>
+              <SectionHeader
+                id="announcements"
+                title={home.announcements.title}
+                index={home.announcements.index}
+                link={{ label: home.announcements.allLink, href: routes.announcements }}
+              />
+              {data.announcements.map((a) => (
+                <Link
+                  key={a.title}
+                  href={routes.announcements}
+                  className="row-link flex items-center gap-3 border-b border-[var(--color-divider)] px-0.5 py-3"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <span
+                    className={`tag ${a.kind === "vacancy" ? "tag-accent" : "tag-outline"} flex-none`}
+                  >
+                    {a.kind_label}
+                  </span>
+                  <span className="flex-1 text-sm">{a.title}</span>
+                  <span className="flex-none text-xs" style={{ color: muted(50) }}>
+                    {a.deadline}
+                  </span>
+                </Link>
+              ))}
+            </>
+          )}
         </div>
+
+        {isOn("projects") && data.projects.length > 0 && (
+          <div className="min-w-0 self-start">
+            <SectionHeader
+              title={home.projects.title}
+              link={{ label: home.projects.allLink, href: routes.projects }}
+            />
+            {data.projects.map((pr) => (
+              <Link
+                key={pr.slug}
+                href={`/projects/${pr.slug}`}
+                className="blueprint surface-hover mt-[14px] flex flex-col gap-1.5 p-4"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <span className="flex items-center gap-2">
+                  <span
+                    className="tag text-[10px] font-semibold"
+                    style={{ background: "var(--hz-success-bg)", color: "var(--hz-success)" }}
+                  >
+                    {pr.status}
+                  </span>
+                  <span className="text-[11.5px]" style={{ color: muted(52) }}>
+                    {pr.years}
+                  </span>
+                </span>
+                <span className="text-[16.5px] font-semibold leading-[1.25] [font-family:var(--font-heading)]">
+                  {pr.title}
+                </span>
+                <span className="text-xs" style={{ color: muted(58) }}>
+                  {[pr.partner, pr.budget].filter(Boolean).join(" · ")}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
       </section>
     </PageShell>
   );

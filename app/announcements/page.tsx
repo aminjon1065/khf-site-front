@@ -2,10 +2,14 @@ import { Fragment } from "react";
 import Link from "next/link";
 import PageShell from "@/components/public/PageShell";
 import { Breadcrumbs, muted } from "@/components/public/ui";
+import { fetchAnnouncements } from "@/lib/api";
 import AnnouncementsFilter from "./AnnouncementsFilter";
 import { announcementsContent as c, type InfoSegment } from "./content";
 
 export const metadata = { title: "Объявления" };
+
+// ISR: список объявлений перечитывается из CMS не чаще раза в минуту.
+export const revalidate = 60;
 
 /** Сегмент-ссылка в карточке-подсказке: внутренняя (Link) или tel:/mailto: (<a>). */
 function InfoLink({ seg }: { seg: InfoSegment }) {
@@ -48,7 +52,9 @@ function Aside() {
   );
 }
 
-export default function AnnouncementsPage() {
+export default async function AnnouncementsPage() {
+  const data = await fetchAnnouncements();
+
   return (
     <PageShell active="">
       <Breadcrumbs items={c.breadcrumbs} />
@@ -59,7 +65,7 @@ export default function AnnouncementsPage() {
         </span>
       </div>
 
-      <AnnouncementsFilter>
+      <AnnouncementsFilter data={data}>
         <Aside />
       </AnnouncementsFilter>
     </PageShell>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { muted } from "@/components/public/ui";
+import type { ApiAnnouncement } from "@/lib/api";
 import { routes } from "@/lib/routes";
 import {
   announcementsContent as c,
@@ -15,12 +16,18 @@ import {
 
 /**
  * Клиентский фильтр объявлений (Все / Вакансии / Тендеры) + лента.
- * Кнопки используют aria-pressed; счётчик и лента пересчитываются при выборе.
+ * Данные (data) приходят из CMS; фильтр и счётчик — на клиенте.
  * Боковая колонка-подсказка приходит из серверного компонента как children.
  */
-export default function AnnouncementsFilter({ children }: { children: ReactNode }) {
+export default function AnnouncementsFilter({
+  children,
+  data,
+}: {
+  children: ReactNode;
+  data: ApiAnnouncement[];
+}) {
   const [active, setActive] = useState<FilterKey>("all");
-  const items = c.items.filter((a) => active === "all" || a.kind === active);
+  const items = data.filter((a) => active === "all" || a.kind === active);
 
   return (
     <>

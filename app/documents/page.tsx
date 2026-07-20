@@ -1,11 +1,17 @@
 import PageShell from "@/components/public/PageShell";
 import { muted } from "@/components/public/ui";
+import { fetchDocuments } from "@/lib/api";
 import { documents } from "./content";
 import DocumentsTable from "./DocumentsTable";
 
 export const metadata = { title: "Документы" };
 
-export default function DocumentsPage() {
+// ISR: библиотека документов перечитывается из CMS не чаще раза в минуту.
+export const revalidate = 60;
+
+export default async function DocumentsPage() {
+  const docs = await fetchDocuments();
+
   return (
     <PageShell active="documents">
       <div className="flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">
@@ -17,7 +23,7 @@ export default function DocumentsPage() {
         </span>
       </div>
 
-      <DocumentsTable content={documents} />
+      <DocumentsTable content={documents} docs={docs} />
     </PageShell>
   );
 }

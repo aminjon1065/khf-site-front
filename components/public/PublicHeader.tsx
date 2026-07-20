@@ -18,7 +18,15 @@ const mainNav: { key: NavKey; label: string; href: string }[] = [
   { key: "contacts", label: navCopy.contacts, href: routes.contacts },
 ];
 
-export default function PublicHeader({ active = "" }: { active?: NavKey }) {
+export default function PublicHeader({
+  active = "",
+  trustPhone,
+}: {
+  active?: NavKey;
+  trustPhone?: string;
+}) {
+  const phone = trustPhone || header.trustPhone;
+  const phoneHref = `tel:${phone.replace(/[^+\d]/g, "")}`;
   const [lang, setLang] = useState<Lang>("ru");
   const [aboutOpen, setAboutOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
@@ -188,11 +196,11 @@ export default function PublicHeader({ active = "" }: { active?: NavKey }) {
           {header.trustPhoneLabel}
           <br />
           <a
-            href={header.trustPhoneHref}
+            href={phoneHref}
             className="text-[13px] font-medium"
             style={{ color: "var(--color-accent-700)", textDecoration: "none" }}
           >
-            {header.trustPhone}
+            {phone}
           </a>
         </span>
         <a
@@ -398,8 +406,8 @@ export default function PublicHeader({ active = "" }: { active?: NavKey }) {
                 style={{ color: muted(60) }}
               >
                 {header.trustLineMobile}{" "}
-                <a href={header.trustPhoneHref} style={{ color: "var(--color-accent-700)" }}>
-                  {header.trustPhone}
+                <a href={phoneHref} style={{ color: "var(--color-accent-700)" }}>
+                  {phone}
                 </a>
               </span>
             </div>

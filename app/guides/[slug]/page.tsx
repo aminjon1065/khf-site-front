@@ -1,21 +1,74 @@
 import { Fragment } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
-import { Download } from "lucide-react";
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import PageShell from "@/components/public/PageShell";
 import { Breadcrumbs, muted } from "@/components/public/ui";
+import {
+  fetchInstruction,
+  fetchInstructions,
+  type ApiInstruction,
+} from "@/lib/api";
 import { common } from "@/lib/copy/common";
 import { routes } from "@/lib/routes";
-import {
-  getGuide,
-  guideSlugs,
-  type Run,
-  type SectionTone,
-} from "./content";
+import type { Run, SectionTone } from "./content";
 
-export function generateStaticParams() {
-  return guideSlugs.map((slug) => ({ slug }));
+export const revalidate = 60;
+
+interface GuideSection {
+  aria: string;
+  tone: SectionTone;
+  tag: string;
+  title: string;
+  steps: { n: string; text: Run[] }[];
+}
+
+interface RelatedLink {
+  label: string;
+  href: string;
+}
+
+const BLOCKS: {
+  key: "before" | "during" | "after";
+  tone: SectionTone;
+  tag: string;
+  title: string;
+  aria: string;
+}[] = [
+  { key: "before", tone: "accent", tag: "До", title: "Подготовьтесь заранее", aria: "До события" },
+  { key: "during", tone: "warning", tag: "Во время", title: "Во время события", aria: "Во время события" },
+  { key: "after", tone: "success", tag: "После", title: "После события", aria: "После события" },
+];
+
+function buildSections(item: ApiInstruction): GuideSection[] {
+  const sections = item.sections;
+  if (!sections) {
+    return [];
+  }
+  return BLOCKS.map((b) => ({
+    aria: b.aria,
+    tone: b.tone,
+    tag: b.tag,
+    title: b.title,
+    steps: (sections[b.key] ?? []).map((text, i) => ({
+      n: String(i + 1).padStart(2, "0"),
+      text: [text] as Run[],
+    })),
+  })).filter((s) => s.steps.length > 0);
+}
+
+async function relatedFor(slug: string): Promise<RelatedLink[]> {
+  const all = await fetchInstructions();
+  return all
+    .filter((i) => i.slug !== slug)
+    .slice(0, 3)
+    .map((i) => ({ label: i.title, href: routes.guide(i.slug) }));
+}
+
+export async function generateStaticParams() {
+  const all = await fetchInstructions();
+  return all.map((i) => ({ slug: i.slug }));
 }
 
 type GuideRouteProps = { params: Promise<{ slug: string }> };
@@ -24,10 +77,10 @@ export async function generateMetadata({
   params,
 }: GuideRouteProps): Promise<Metadata> {
   const { slug } = await params;
-  return { title: getGuide(slug).title };
+  const item = await fetchInstruction(slug);
+  return { title: item?.title ?? "Инструкция" };
 }
 
-/** Оформление блока по тональности: тег и цвет номеров шага. */
 const toneConfig: Record<
   SectionTone,
   { tagClassName: string; tagStyle: CSSProperties; numColor: string }
@@ -59,7 +112,6 @@ const toneConfig: Record<
   },
 };
 
-/** Рендер строки с выделенными жирным зачинами. */
 function Runs({ runs }: { runs: Run[] }): ReactNode {
   return (
     <>
@@ -76,7 +128,15 @@ function Runs({ runs }: { runs: Run[] }): ReactNode {
 
 export default async function GuidePage({ params }: GuideRouteProps) {
   const { slug } = await params;
-  const g = getGuide(slug);
+  const item = await fetchInstruction(slug);
+
+  if (!item) {
+    notFound();
+  }
+
+  const sections = buildSections(item);
+  const dont = item.sections?.prohibited ?? [];
+  const related = await relatedFor(slug);
 
   return (
     <PageShell
@@ -87,7 +147,7 @@ export default async function GuidePage({ params }: GuideRouteProps) {
         items={[
           { label: common.breadcrumbHome, href: routes.home },
           { label: common.nav.guides, href: routes.guides },
-          { label: g.crumbLabel },
+          { label: item.title },
         ]}
       />
 
@@ -98,27 +158,30 @@ export default async function GuidePage({ params }: GuideRouteProps) {
             className="text-[11px] uppercase tracking-[.1em]"
             style={{ color: "var(--color-accent-700)" }}
           >
-            {g.kicker}
+            Инструкция населению
           </span>
-          <h1 className="mb-3.5 mt-2.5 text-[36px] leading-[1.1]">{g.title}</h1>
+          <h1 className="mb-3.5 mt-2.5 text-[36px] leading-[1.1]">
+            {item.title}
+          </h1>
 
-          {/* Главное за 10 секунд */}
-          <div
-            className="blueprint px-5 py-[18px]"
-            style={{
-              background: "color-mix(in srgb,var(--color-accent) 8%,transparent)",
-            }}
-          >
-            <h6 className="m-0 mb-2" style={{ color: muted(55) }}>
-              {g.summaryTitle}
-            </h6>
-            <p className="m-0 text-[15px] leading-[1.6]">
-              <Runs runs={g.summary} />
-            </p>
-          </div>
+          {/* Главное */}
+          {item.summary && (
+            <div
+              className="blueprint px-5 py-[18px]"
+              style={{
+                background:
+                  "color-mix(in srgb,var(--color-accent) 8%,transparent)",
+              }}
+            >
+              <h6 className="m-0 mb-2" style={{ color: muted(55) }}>
+                Главное
+              </h6>
+              <p className="m-0 text-[15px] leading-[1.6]">{item.summary}</p>
+            </div>
+          )}
 
           {/* Блоки До / Во время / После */}
-          {g.sections.map((section, si) => {
+          {sections.map((section, si) => {
             const tone = toneConfig[section.tone];
             return (
               <section
@@ -163,79 +226,67 @@ export default async function GuidePage({ params }: GuideRouteProps) {
           })}
 
           {/* Чего делать нельзя */}
-          <section
-            aria-label={g.dontTitle}
-            className="blueprint mt-7 px-5 py-[18px]"
-            style={{ borderTop: "3px solid var(--hz-critical)" }}
-          >
-            <h6 className="m-0 mb-2.5" style={{ color: "var(--hz-critical)" }}>
-              {g.dontTitle}
-            </h6>
-            <ul className="m-0 flex list-disc flex-col gap-1.5 pl-[18px] text-sm leading-[1.5]">
-              {g.dont.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </section>
+          {dont.length > 0 && (
+            <section
+              aria-label="Чего делать нельзя"
+              className="blueprint mt-7 px-5 py-[18px]"
+              style={{ borderTop: "3px solid var(--hz-critical)" }}
+            >
+              <h6 className="m-0 mb-2.5" style={{ color: "var(--hz-critical)" }}>
+                Чего делать нельзя
+              </h6>
+              <ul className="m-0 flex list-disc flex-col gap-1.5 pl-[18px] text-sm leading-[1.5]">
+                {dont.map((d) => (
+                  <li key={d}>{d}</li>
+                ))}
+              </ul>
+            </section>
+          )}
         </div>
 
-        {/* Боковая колонка: материалы, экстренная помощь, связанные */}
+        {/* Боковая колонка: экстренная помощь, связанные */}
         <aside className="flex flex-col gap-5">
-          <div className="blueprint flex flex-col gap-2.5 p-[18px]">
-            <h6 className="m-0" style={{ color: muted(55) }}>
-              {g.materialsTitle}
-            </h6>
-            <Link
-              href={g.pdf.href}
-              className="btn btn-secondary justify-start"
-            >
-              <Download size={15} strokeWidth={1.5} aria-hidden="true" />
-              {g.pdf.label}
-            </Link>
-            <span className="text-xs" style={{ color: muted(55) }}>
-              {g.pdf.note}
-            </span>
-          </div>
-
           <div className="blueprint flex flex-col gap-2 p-[18px]">
             <h6 className="m-0" style={{ color: muted(55) }}>
-              {g.emergency.title}
+              Экстренная помощь
             </h6>
             <a
-              href={g.emergency.href}
+              href="tel:112"
               className="text-[26px] font-semibold no-underline [font-family:var(--font-heading)]"
               style={{ color: "var(--hz-critical)" }}
             >
-              {g.emergency.num}
+              112
             </a>
             <span className="text-[12.5px]" style={{ color: muted(62) }}>
-              {g.emergency.note}
+              Единая служба спасения, круглосуточно
             </span>
           </div>
 
-          <div>
-            <h6 className="m-0 mb-2.5" style={{ color: muted(55) }}>
-              {g.relatedTitle}
-            </h6>
-            {g.related.map((r, i) => {
-              const last = i === g.related.length - 1;
-              return (
-                <Link
-                  key={r.label}
-                  href={r.href}
-                  className="row-link block py-2.5 text-[15.5px] font-semibold no-underline [font-family:var(--font-heading)]"
-                  style={{
-                    color: "inherit",
-                    borderBottom: last
-                      ? undefined
-                      : "1px solid var(--color-divider)",
-                  }}
-                >
-                  {r.label}
-                </Link>
-              );
-            })}
-          </div>
+          {related.length > 0 && (
+            <div>
+              <h6 className="m-0 mb-2.5" style={{ color: muted(55) }}>
+                Связанные инструкции
+              </h6>
+              {related.map((r, i) => {
+                const last = i === related.length - 1;
+                return (
+                  <Link
+                    key={r.href}
+                    href={r.href}
+                    className="row-link block py-2.5 text-[15.5px] font-semibold no-underline [font-family:var(--font-heading)]"
+                    style={{
+                      color: "inherit",
+                      borderBottom: last
+                        ? undefined
+                        : "1px solid var(--color-divider)",
+                    }}
+                  >
+                    {r.label}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </aside>
       </div>
     </PageShell>

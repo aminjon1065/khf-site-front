@@ -1,14 +1,66 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import PageShell from "@/components/public/PageShell";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
+import { fetchNews, fetchNewsItem, type ApiNewsItem } from "@/lib/api";
 import { common } from "@/lib/copy/common";
 import { routes } from "@/lib/routes";
 import ArticleActions from "./ArticleActions";
-import { articleSlugs, articleUi, getArticle } from "./content";
+import {
+  articleUi,
+  type Article,
+  type ArticleBlock,
+  type RelatedArticle,
+} from "./content";
 
-export function generateStaticParams() {
-  return articleSlugs.map((slug) => ({ slug }));
+// ISR: материал перечитывается из CMS не чаще раза в минуту.
+export const revalidate = 60;
+
+/** Сборка витринной модели статьи из ответа публичного API CMS. */
+function toArticle(item: ApiNewsItem, related: RelatedArticle[]): Article {
+  const paragraphs = (item.body ?? item.excerpt ?? "")
+    .split(/\n{2,}|\r?\n/)
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+  const blocks: ArticleBlock[] =
+    paragraphs.length > 0
+      ? paragraphs.map((text) => ({ type: "p", text }))
+      : [{ type: "p", text: item.excerpt ?? "" }];
+
+  return {
+    breadcrumb: item.title,
+    kicker: item.category
+      ? `${item.category} · Пресс-служба КЧС`
+      : "Пресс-служба КЧС",
+    title: item.title,
+    lead: item.excerpt ?? "",
+    datetime: item.date ?? "",
+    source: "Пресс-центр КЧС",
+    photoLabel: articleUi.photoCaptionSource,
+    caption: articleUi.photoCaptionSource,
+    blocks,
+    materials: [],
+    related,
+  };
+}
+
+async function relatedFor(slug: string): Promise<RelatedArticle[]> {
+  const { data } = await fetchNews({ perPage: 6 });
+  return data
+    .filter((p) => p.slug !== slug)
+    .slice(0, 3)
+    .map((p) => ({
+      kicker: p.category ?? "Новости",
+      title: p.title,
+      href: routes.article(p.slug),
+    }));
+}
+
+export async function generateStaticParams() {
+  const { data } = await fetchNews({ perPage: 50 });
+  return data.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
@@ -17,7 +69,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  return { title: getArticle(slug).title };
+  const item = await fetchNewsItem(slug);
+  return { title: item?.title ?? "Новость" };
 }
 
 export default async function ArticlePage({
@@ -26,7 +79,14 @@ export default async function ArticlePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const article = getArticle(slug);
+  const item = await fetchNewsItem(slug);
+
+  if (!item) {
+    notFound();
+  }
+
+  const related = await relatedFor(slug);
+  const article = toArticle(item, related);
 
   return (
     <PageShell
@@ -75,7 +135,16 @@ export default async function ArticlePage({
           </div>
 
           <figure className="blueprint duotone mb-2 h-[340px]">
-            <ImageSlot label={article.photoLabel} />
+            {item.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={item.image}
+                alt={article.title}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <ImageSlot label={article.photoLabel} />
+            )}
           </figure>
           <figcaption className="mb-5">{article.caption}</figcaption>
 
@@ -117,36 +186,38 @@ export default async function ArticlePage({
 
         {/* Боковая колонка */}
         <aside className="flex flex-col gap-5">
-          <div>
-            <h6 className="mb-2.5" style={{ color: muted(55) }}>
-              {articleUi.relatedTitle}
-            </h6>
-            {article.related.map((r, i) => (
-              <Link
-                key={r.href + i}
-                href={r.href}
-                className="row-link block py-2.5"
-                style={{
-                  textDecoration: "none",
-                  color: "inherit",
-                  borderBottom:
-                    i === article.related.length - 1
-                      ? "none"
-                      : "1px solid var(--color-divider)",
-                }}
-              >
-                <span
-                  className="text-[11px] uppercase tracking-[.06em]"
-                  style={{ color: muted(50) }}
+          {article.related.length > 0 && (
+            <div>
+              <h6 className="mb-2.5" style={{ color: muted(55) }}>
+                {articleUi.relatedTitle}
+              </h6>
+              {article.related.map((r, i) => (
+                <Link
+                  key={r.href + i}
+                  href={r.href}
+                  className="row-link block py-2.5"
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                    borderBottom:
+                      i === article.related.length - 1
+                        ? "none"
+                        : "1px solid var(--color-divider)",
+                  }}
                 >
-                  {r.kicker}
-                </span>
-                <span className="mt-[3px] block text-[15.5px] font-semibold leading-[1.25] [font-family:var(--font-heading)]">
-                  {r.title}
-                </span>
-              </Link>
-            ))}
-          </div>
+                  <span
+                    className="text-[11px] uppercase tracking-[.06em]"
+                    style={{ color: muted(50) }}
+                  >
+                    {r.kicker}
+                  </span>
+                  <span className="mt-[3px] block text-[15.5px] font-semibold leading-[1.25] [font-family:var(--font-heading)]">
+                    {r.title}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
 
           <div className="blueprint flex flex-col gap-2 p-[18px]">
             <h6 className="m-0" style={{ color: muted(55) }}>
