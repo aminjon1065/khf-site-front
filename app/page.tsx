@@ -430,6 +430,8 @@ export default async function HomePage() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={featured.image}
+                    srcSet={featured.image_srcset ?? undefined}
+                    sizes="(max-width: 920px) 100vw, 620px"
                     alt={featured.title}
                     className="h-full w-full object-cover"
                   />

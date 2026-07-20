@@ -19,6 +19,7 @@ export type ContentLocale = "ru" | "tg" | "en";
 export interface ApiNewsItem extends NewsItem {
   datetime?: string | null;
   image?: string | null;
+  image_srcset?: string | null;
   body?: string;
   views?: number;
 }
@@ -123,8 +124,11 @@ export interface ApiInstruction {
   hazard_icon: string | null;
   priority: boolean;
   image: string | null;
-  /** Присутствует только в детальном ответе. */
+  image_srcset?: string | null;
+  /** Присутствуют только в детальном ответе. */
   sections?: Record<InstructionSectionKey, string[]>;
+  /** Необязательное развёрнутое описание (HTML из редактора CMS). */
+  body?: string;
 }
 
 /**
@@ -243,6 +247,7 @@ export interface ApiProject {
   budget: string | null;
   desc: string;
   image: string | null;
+  image_srcset?: string | null;
   // только в детальном ответе:
   code?: string | null;
   customer?: string | null;

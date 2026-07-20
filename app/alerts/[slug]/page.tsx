@@ -21,7 +21,10 @@ type Params = { slug: string };
 
 export async function generateStaticParams(): Promise<Params[]> {
   const alerts = await fetchAlerts();
-  return alerts.map((a) => ({ slug: a.slug }));
+  // Отсекаем записи без slug: один битый slug не должен ронять весь маршрут.
+  return alerts
+    .filter((a): a is typeof a & { slug: string } => Boolean(a.slug))
+    .map((a) => ({ slug: a.slug }));
 }
 
 export async function generateMetadata({

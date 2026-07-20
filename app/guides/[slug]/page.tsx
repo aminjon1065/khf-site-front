@@ -138,6 +138,10 @@ export default async function GuidePage({ params }: GuideRouteProps) {
   const dont = item.sections?.prohibited ?? [];
   const related = await relatedFor(slug);
 
+  // Необязательное развёрнутое описание — санитайзенный HTML из редактора CMS.
+  const bodyHtml = item.body ?? "";
+  const bodyIsHtml = /<[a-z][\s\S]*>/i.test(bodyHtml);
+
   return (
     <PageShell
       active="guides"
@@ -240,6 +244,19 @@ export default async function GuidePage({ params }: GuideRouteProps) {
                   <li key={d}>{d}</li>
                 ))}
               </ul>
+            </section>
+          )}
+
+          {/* Подробнее — развёрнутое описание */}
+          {bodyIsHtml && (
+            <section aria-label="Подробнее" className="mt-7">
+              <h2 className="text-[22px] uppercase tracking-[.02em]">
+                Подробнее
+              </h2>
+              <div
+                className="article-prose"
+                dangerouslySetInnerHTML={{ __html: bodyHtml }}
+              />
             </section>
           )}
         </div>

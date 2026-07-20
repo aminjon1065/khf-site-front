@@ -88,6 +88,12 @@ export default async function ArticlePage({
   const related = await relatedFor(slug);
   const article = toArticle(item, related);
 
+  // Тело из CMS: у новых материалов — санитайзенный HTML из WYSIWYG-редактора,
+  // у старых — простой текст. HTML выводим как есть; текст разбиваем на абзацы
+  // (fallback, см. toArticle). Санитайзинг выполнен на стороне CMS при записи.
+  const bodyHtml = item.body ?? "";
+  const bodyIsHtml = /<[a-z][\s\S]*>/i.test(bodyHtml);
+
   return (
     <PageShell
       active="news"
@@ -139,6 +145,8 @@ export default async function ArticlePage({
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={item.image}
+                srcSet={item.image_srcset ?? undefined}
+                sizes="(max-width: 920px) 100vw, 760px"
                 alt={article.title}
                 className="h-full w-full object-cover"
               />
@@ -148,19 +156,26 @@ export default async function ArticlePage({
           </figure>
           <figcaption className="mb-5">{article.caption}</figcaption>
 
-          {article.blocks.map((block, i) =>
-            block.type === "quote" ? (
-              <blockquote
-                key={i}
-                className="blueprint my-6 px-[22px] py-[18px] text-base not-italic leading-[1.55]"
-              >
-                {block.text}
-              </blockquote>
-            ) : (
-              <p key={i} className="text-[15px] leading-[1.7]">
-                {block.text}
-              </p>
-            ),
+          {bodyIsHtml ? (
+            <div
+              className="article-prose"
+              dangerouslySetInnerHTML={{ __html: bodyHtml }}
+            />
+          ) : (
+            article.blocks.map((block, i) =>
+              block.type === "quote" ? (
+                <blockquote
+                  key={i}
+                  className="blueprint my-6 px-[22px] py-[18px] text-base not-italic leading-[1.55]"
+                >
+                  {block.text}
+                </blockquote>
+              ) : (
+                <p key={i} className="text-[15px] leading-[1.7]">
+                  {block.text}
+                </p>
+              ),
+            )
           )}
 
           {article.materials.length > 0 && (

@@ -64,6 +64,10 @@ export default async function ProjectDetailPage({
   const goals = p.goals ?? [];
   const timeline = p.timeline ?? [];
 
+  // Развёрнутое описание проекта — санитайзенный HTML из редактора CMS.
+  const bodyHtml = p.body ?? "";
+  const bodyIsHtml = /<[a-z][\s\S]*>/i.test(bodyHtml);
+
   const all = await fetchProjects();
   const related = all.filter((r) => r.slug !== slug).slice(0, 3);
 
@@ -144,6 +148,19 @@ export default async function ProjectDetailPage({
             )}
           </section>
 
+          {/* Подробнее о проекте */}
+          {bodyIsHtml && (
+            <section aria-label="Подробнее о проекте" className="mt-7">
+              <h2 className="text-[22px] uppercase tracking-[.02em]">
+                Подробнее о проекте
+              </h2>
+              <div
+                className="article-prose"
+                dangerouslySetInnerHTML={{ __html: bodyHtml }}
+              />
+            </section>
+          )}
+
           {/* Ход реализации */}
           {timeline.length > 0 && (
             <section aria-label="Ход реализации" className="mt-7">
@@ -178,6 +195,8 @@ export default async function ProjectDetailPage({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={p.image}
+                  srcSet={p.image_srcset ?? undefined}
+                  sizes="(max-width: 920px) 100vw, 720px"
                   alt={p.title}
                   className="h-full w-full object-cover"
                 />

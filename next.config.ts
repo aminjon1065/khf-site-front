@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "http", hostname: "127.0.0.1" },
       { protocol: "http", hostname: "localhost" },
+      // Локальная CMS через lerd (медиатека отдаёт /storage/... по https).
+      { protocol: "https", hostname: "khf-site-cms.test" },
       { protocol: "https", hostname: "**.khf.tj" },
       { protocol: "https", hostname: "khf.tj" },
     ],
