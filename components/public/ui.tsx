@@ -1,10 +1,14 @@
-import Link from "next/link";
+import Link from "@/components/i18n/LocaleLink";
 import type { CSSProperties, ReactNode } from "react";
-import { ImageIcon } from "lucide-react";
+import { muted } from "@/components/public/muted";
 
-/** color-mix помощник для приглушённого текста поверх --color-text. */
-export const muted = (pct: number) =>
-  `color-mix(in srgb,var(--color-text) ${pct}%,transparent)`;
+// Пресентационные примитивы публичной части. `muted` и клиентские
+// `Breadcrumbs`/`ImageSlot` (им нужна локаль из URL) живут в отдельных файлах и
+// ре-экспортируются отсюда — существующие импорты из "@/components/public/ui"
+// продолжают работать без изменений.
+export { muted } from "@/components/public/muted";
+export { Breadcrumbs } from "@/components/public/Breadcrumbs";
+export { ImageSlot } from "@/components/public/ImageSlot";
 
 /** Центрированный контейнер контента: max-width 1160, поля 24 (16 на мобильном). */
 export function Container({
@@ -64,99 +68,6 @@ export function SectionHeader({
         </Link>
       )}
       {right}
-    </div>
-  );
-}
-
-/** Хлебные крошки. Последний элемент без href — текущая страница. */
-export function Breadcrumbs({
-  items,
-}: {
-  items: { label: string; href?: string }[];
-}) {
-  return (
-    <nav
-      aria-label="Хлебные крошки"
-      className="mb-4 flex items-center gap-2 text-[12.5px]"
-      style={{ color: muted(55) }}
-    >
-      {items.map((it, i) => {
-        const last = i === items.length - 1;
-        return (
-          <span key={i} className="flex items-center gap-2">
-            {last ? (
-              // Текущая страница: полный цвет + aria-current (только последний).
-              <span aria-current="page" style={{ color: "var(--color-text)" }}>
-                {it.label}
-              </span>
-            ) : it.href ? (
-              <Link
-                href={it.href}
-                style={{ color: "inherit", textDecoration: "none" }}
-              >
-                {it.label}
-              </Link>
-            ) : (
-              // Промежуточная крошка без ссылки (напр. «О нас») — приглушённая.
-              <span>{it.label}</span>
-            )}
-            {!last && <span aria-hidden="true">/</span>}
-          </span>
-        );
-      })}
-    </nav>
-  );
-}
-
-/**
- * Слот изображения. С `src` — реальное фото (object-fit),
- * без него — подпись-плейсхолдер (заменяется фото пресс-службы).
- * Duotone-фильтр применяется классом-обёрткой `.duotone` у родителя.
- */
-export function ImageSlot({
-  src,
-  alt,
-  label,
-  fit = "cover",
-  className = "",
-  style,
-}: {
-  src?: string;
-  alt?: string;
-  label?: string;
-  fit?: "cover" | "contain";
-  className?: string;
-  style?: CSSProperties;
-}) {
-  if (src) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={src}
-        alt={alt ?? label ?? ""}
-        className={className}
-        style={{ width: "100%", height: "100%", objectFit: fit, ...style }}
-      />
-    );
-  }
-  return (
-    <div
-      role="img"
-      aria-label={label ?? "Изображение"}
-      className={`flex h-full w-full flex-col items-center justify-center gap-2 p-4 text-center ${className}`}
-      style={{
-        minHeight: "inherit",
-        background: "var(--color-neutral-200)",
-        color: muted(42),
-        ...style,
-      }}
-    >
-      <ImageIcon size={22} strokeWidth={1.5} aria-hidden="true" />
-      {label && (
-        <span className="text-[11.5px] leading-snug tracking-[.02em]">
-          {label}
-        </span>
-      )}
     </div>
   );
 }

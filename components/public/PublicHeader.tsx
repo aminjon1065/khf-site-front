@@ -1,36 +1,57 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "@/components/i18n/LocaleLink";
 import { Moon, Sun, Phone, ChevronDown, Smartphone, Menu, X } from "lucide-react";
-import { common } from "@/lib/copy/common";
 import { routes, type NavKey } from "@/lib/routes";
 import { muted } from "@/components/public/ui";
-
-const { header, nav: navCopy, langNotice } = common;
-type Lang = "ru" | "tj" | "en";
-
-const mainNav: { key: NavKey; label: string; href: string }[] = [
-  { key: "news", label: navCopy.news, href: routes.news },
-  { key: "guides", label: navCopy.guides, href: routes.guides },
-  { key: "map", label: navCopy.map, href: routes.map },
-  { key: "documents", label: navCopy.documents, href: routes.documents },
-  { key: "contacts", label: navCopy.contacts, href: routes.contacts },
-];
+import {
+  LOCALES,
+  LOCALE_LABELS,
+  stripLocale,
+  withLocale,
+  type Locale,
+} from "@/lib/i18n/config";
+import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
 
 export default function PublicHeader({
   active = "",
   trustPhone,
+  locale,
+  copy,
 }: {
   active?: NavKey;
   trustPhone?: string;
+  locale: Locale;
+  copy: Dictionary["common"];
 }) {
+  const { header, nav: navCopy } = copy;
+  const mainNav: { key: NavKey; label: string; href: string }[] = [
+    { key: "news", label: navCopy.news, href: routes.news },
+    { key: "guides", label: navCopy.guides, href: routes.guides },
+    { key: "map", label: navCopy.map, href: routes.map },
+    { key: "documents", label: navCopy.documents, href: routes.documents },
+    { key: "contacts", label: navCopy.contacts, href: routes.contacts },
+  ];
+
+  const router = useRouter();
+  const pathname = usePathname();
   const phone = trustPhone || header.trustPhone;
   const phoneHref = `tel:${phone.replace(/[^+\d]/g, "")}`;
-  const [lang, setLang] = useState<Lang>("ru");
   const [aboutOpen, setAboutOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const aboutRef = useRef<HTMLSpanElement>(null);
+
+  // Смена языка: переходим на тот же путь под новым префиксом локали. Выбор
+  // запоминает proxy (ставит cookie NEXT_LOCALE по локали URL), поэтому здесь
+  // достаточно навигации.
+  const switchLocale = (next: Locale) => {
+    if (next === locale) {
+      return;
+    }
+    router.push(withLocale(next, stripLocale(pathname)));
+  };
 
   // Клик вне дропдауна «О нас» и Escape — закрытие.
   useEffect(() => {
@@ -86,13 +107,13 @@ export default function PublicHeader({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/assets/flag-tj.png"
-            alt="Флаг Республики Таджикистан"
+            alt={header.flagAlt}
             className="h-[13px] w-auto border border-[var(--color-divider)]"
           />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/assets/emblem-tj.png"
-            alt="Герб Республики Таджикистан"
+            alt={header.emblemAlt}
             className="h-[18px] w-auto"
           />
           <Link
@@ -128,38 +149,20 @@ export default function PublicHeader({
             <Sun className="ico-sun" size={15} strokeWidth={1.5} aria-hidden="true" />
           </button>
           <span className="seg" role="group" aria-label={header.langGroup}>
-            {(["ru", "tj", "en"] as Lang[]).map((l) => (
+            {LOCALES.map((l) => (
               <label key={l} className="seg-opt px-2.5 py-[3px] text-xs">
                 <input
                   type="radio"
                   name="lang"
-                  checked={lang === l}
-                  onChange={() => setLang(l)}
+                  checked={locale === l}
+                  onChange={() => switchLocale(l)}
                 />
-                {l === "ru" ? "РУ" : l === "tj" ? "ТҶ" : "EN"}
+                {LOCALE_LABELS[l]}
               </label>
             ))}
           </span>
         </div>
       </div>
-
-      {/* Нотис об отсутствии перевода */}
-      {lang === "tj" && (
-        <div
-          className="px-6 py-[5px] text-center text-xs"
-          style={{ background: "var(--hz-info-bg)", color: "var(--hz-info)" }}
-        >
-          {langNotice.tj}
-        </div>
-      )}
-      {lang === "en" && (
-        <div
-          className="px-6 py-[5px] text-center text-xs"
-          style={{ background: "var(--hz-info-bg)", color: "var(--hz-info)" }}
-        >
-          {langNotice.en}
-        </div>
-      )}
 
       {/* Ярус 2 — бренд-строка */}
       <div className="mx-auto flex w-full max-w-[1160px] flex-wrap items-center gap-4 px-6 py-4 max-[920px]:flex-nowrap max-[920px]:gap-2.5 max-[920px]:px-4 max-[920px]:py-2.5">
@@ -171,7 +174,7 @@ export default function PublicHeader({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/assets/logo-kchs-ru.webp"
-            alt="Эмблема КЧС Республики Таджикистан"
+            alt={header.logoAlt}
             className="h-14 w-auto max-[920px]:h-11"
           />
           <span className="block min-w-0">
@@ -226,7 +229,7 @@ export default function PublicHeader({
       {/* Ярус 3 — основная навигация (десктоп) */}
       <nav
         className="knav border-t border-[var(--color-divider)] max-[920px]:hidden"
-        aria-label="Основная навигация"
+        aria-label={header.navAria}
       >
         <div className="mx-auto flex w-full max-w-[1160px] flex-wrap items-center gap-0.5 px-6">
           <Link href={routes.home} aria-current={active === "home" ? "page" : undefined}>
@@ -336,7 +339,7 @@ export default function PublicHeader({
             </div>
             <nav
               className="flex flex-col"
-              aria-label="Мобильная навигация"
+              aria-label={header.mobileNavAria}
               onClick={() => setNavOpen(false)}
             >
               <Link className="mnav-link" href={routes.home}>

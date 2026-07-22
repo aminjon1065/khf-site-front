@@ -32,6 +32,11 @@ export const common = {
     aboutMenu: "О нас",
     emergencyCallMobile: "112 — экстренный вызов",
     trustLineMobile: "Телефон доверия:",
+    flagAlt: "Флаг Республики Таджикистан",
+    emblemAlt: "Герб Республики Таджикистан",
+    logoAlt: "Эмблема КЧС Республики Таджикистан",
+    navAria: "Основная навигация",
+    mobileNavAria: "Мобильная навигация",
   },
 
   nav: {
@@ -45,11 +50,6 @@ export const common = {
     announcements: "Объявления",
     leadership: "Руководство",
     structure: "Структура",
-  },
-
-  langNotice: {
-    tj: "Тарҷумаи тоҷикӣ дар CMS пешбинӣ шудааст — ин демо бо забони русӣ нишон дода мешавад.",
-    en: "The English version is available in the CMS for international partners — this demo is shown in Russian.",
   },
 
   footer: {
@@ -70,6 +70,7 @@ export const common = {
       { label: "Вакансии и тендеры", href: routes.announcements },
       { label: "Контакты и приёмная", href: routes.contacts },
     ],
+    trustLine: "Телефон доверия",
     emergencyTitle: "Экстренные службы",
     emergency: [
       { num: "112", label: "единая служба спасения" },

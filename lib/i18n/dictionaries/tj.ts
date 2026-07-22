@@ -1,0 +1,432 @@
+import { routes } from "@/lib/routes";
+import type { Dictionary } from "./ru";
+
+// Тоҷикӣ (кириллӣ). Сохтори объект бо ru.ts яксон аст; танҳо матн тарҷума шудааст.
+// Ҳамаи href-ҳо аз routes гирифта мешаванд — префикси забонро LocaleLink илова мекунад.
+
+export const tj: Dictionary = {
+  common: {
+    siteName: "Кумитаи ҳолатҳои фавқулода ва мудофиаи граждании Ҷумҳурии Тоҷикистон",
+    siteShort: "КҲФ ҶТ",
+    siteDescription:
+      "Кумитаи ҳолатҳои фавқулода ва мудофиаи граждании назди Ҳукумати Ҷумҳурии Тоҷикистон",
+    skipToContent: "Гузаштан ба муҳтаво",
+
+    header: {
+      committeeTitle: ["Кумитаи ҳолатҳои фавқулода", "ва мудофиаи гражданӣ"],
+      committeeSub: "назди Ҳукумати Ҷумҳурии Тоҷикистон",
+      stateSymbols: "Рамзҳои давлатӣ",
+      sitemap: "Харитаи сомона",
+      subdivisions: "Воҳидҳо",
+      themeToggle: "Ивази намуди зоҳирӣ",
+      themeTitle: "Мавзӯи равшан / торик",
+      langGroup: "Забон / Язык",
+      trustPhoneLabel: "Телефони боварии ягона",
+      trustPhone: "+992 (37) 221-59-00",
+      trustPhoneHref: "tel:+992372215900",
+      emergencyAria: "Занги фавқулоддаи 112",
+      openMenu: "Кушодани меню",
+      closeMenu: "Бастани меню",
+      menu: "Меню",
+      searchPlaceholder: "Ҷустуҷӯ дар портал",
+      sosApp: "Барномаи SOS",
+      aboutMenu: "Дар бораи мо",
+      emergencyCallMobile: "112 — занги фавқулодда",
+      trustLineMobile: "Телефони боварӣ:",
+      flagAlt: "Парчами Ҷумҳурии Тоҷикистон",
+      emblemAlt: "Нишони Ҷумҳурии Тоҷикистон",
+      logoAlt: "Нишони КҲФ Ҷумҳурии Тоҷикистон",
+      navAria: "Навигатсияи асосӣ",
+      mobileNavAria: "Навигатсияи мобилӣ",
+    },
+
+    nav: {
+      home: "Асосӣ",
+      news: "Хабарҳо",
+      guides: "Бехатарӣ",
+      map: "Харитаи хатарҳо",
+      documents: "Ҳуҷҷатҳо",
+      contacts: "Тамос",
+      projects: "Лоиҳаҳо",
+      announcements: "Эълонҳо",
+      leadership: "Роҳбарият",
+      structure: "Сохтор",
+    },
+
+    footer: {
+      orgTitle: "Кумитаи ҳолатҳои фавқулода ва мудофиаи граждании ҶТ",
+      about:
+        "Мақомоти давлатӣ оид ба пешгирӣ ва бартарафсозии ҳолатҳои фавқулода, ҳифзи аҳолӣ ва ҳудуди Ҷумҳурии Тоҷикистон.",
+      address: ["ш. Душанбе, кӯчаи Лоҳутӣ, 26", "info@khf.tj"],
+      trustLine: "Телефони боварӣ",
+      sectionsTitle: "Бахшҳо",
+      sections: [
+        { label: "Роҳбарият", href: routes.leadership },
+        { label: "Сохтор", href: routes.structure },
+        { label: "Барномаи SOS", href: routes.sos },
+        { label: "Хабарҳо ва баёнияҳо", href: routes.news },
+        { label: "Дастурҳо ба аҳолӣ", href: routes.guides },
+        { label: "Харитаи хатарҳо", href: routes.map },
+        { label: "Ҳуҷҷатҳо", href: routes.documents },
+        { label: "Лоиҳаҳо ва барномаҳо", href: routes.projects },
+        { label: "Ҷойҳои холӣ ва тендерҳо", href: routes.announcements },
+        { label: "Тамос ва қабулгоҳ", href: routes.contacts },
+      ],
+      emergencyTitle: "Хидматҳои фавқулодда",
+      emergency: [
+        { num: "112", label: "хидмати ягонаи наҷот" },
+        { num: "101", label: "оташнишонӣ" },
+        { num: "102", label: "милитсия" },
+        { num: "103", label: "ёрии таъҷилӣ" },
+      ],
+      resourcesTitle: "Захираҳои давлатӣ",
+      resources: [
+        { label: "Рамзҳои давлатӣ", href: routes.symbols, external: false },
+        { label: "Президенти Ҷумҳурии Тоҷикистон", href: "https://president.tj", external: true },
+        { label: "ВКХ Ҷумҳурии Тоҷикистон", href: "https://mfa.tj", external: true },
+        { label: "khf.tj — сомонаи расмӣ", href: "https://khf.tj", external: true },
+        { label: "Маълумоти кушода", href: "#", external: false },
+        { label: "Харитаи сомона", href: routes.sitemap, external: false },
+      ],
+      copyright:
+        "© 2026 Кумитаи ҳолатҳои фавқулода ва мудофиаи гражданӣ. Ҳамаи мавод иттилооти расмӣ мебошанд; ҳангоми истифода истинод ба khf.tj ҳатмист.",
+      legal: [
+        { label: "Ҳифзи маълумоти шахсӣ", href: "/pages/privacy" },
+        { label: "Дастрасӣ", href: "/pages/accessibility" },
+      ],
+      visitsToday: "Боздидҳо имрӯз: 4 218",
+      updated: "Навсозӣ: 18.07.2026",
+    },
+
+    breadcrumbHome: "Асосӣ",
+  },
+
+  home: {
+    critical: {
+      kicker: "Сатҳи сурх · Вазъияти бӯҳронӣ",
+      updated: "Навсозӣ 18.07.2026, 14:20 · Манбаъ: МИБ КҲФ",
+      title: "Сел ва обхезӣ дар вилояти Хатлон — ноҳияҳои Кӯлоб ва Восеъ",
+      text: "Дар натиҷаи боришоти шадиди борон селобҳо ба амал омаданд. Эвакуатсияи аҳолӣ аз деҳаҳои соҳилӣ идома дорад. Ба маҷрои дарёҳо ва каналҳои селгардон наздик нашавед.",
+      actions: [
+        { label: "Ҳангоми сел чӣ бояд кард", href: routes.guide("flood"), primary: true },
+        { label: "Тафсилот ва харита", href: routes.alert },
+        { label: "Занги 112", href: "tel:112" },
+      ],
+    },
+    warning: {
+      levelLabel: "Сатҳи норинҷӣ",
+      strong: "Хатари сел — вилояти Хатлон.",
+      text: " То 20 июл дар ноҳияҳои кӯҳпоя эҳтимоли сел ҳаст. Аз маҷрои дарёҳо дурӣ ҷӯед.",
+      time: "18.07.2026, 09:00",
+      more: "Муфассал",
+      moreHref: routes.alert,
+    },
+    calm: {
+      strong: "Огоҳиҳои фавқулодда нестанд.",
+      text: " Вазъият дар ҳудуди ҷумҳурӣ муътадил аст.",
+      updated: "Навсозӣ 18.07.2026, 14:00",
+      mapLink: "Харитаи хатарҳо",
+    },
+
+    banner: {
+      criticalAria: "Огоҳии бӯҳронӣ",
+      warningAria: "Огоҳии амалкунанда",
+      calmAria: "Ҳолати оперативӣ",
+      whatToDo: "Чӣ бояд кард",
+      detailsMap: "Тафсилот ва харита",
+      call112: "Занги 112",
+    },
+
+    slider: {
+      readMore: "Пурра хондан",
+      slides: [
+        {
+          kicker: "Расмӣ · 17 июли 2026",
+          title: "Дар вилояти Хатлон машқҳои фармондеҳию штабии «Замин-2026» анҷом ёфтанд",
+          excerpt: "Беш аз 1 200 наҷотдиҳанда ва намояндагони созмонҳои байналмилалӣ сенарияҳои вокуниш ба заминҷунбии шиддати 7,0-ро аз худ карданд.",
+          photoLabel: "Акс: машқҳои фармондеҳию штабӣ",
+          href: routes.article("zamin-2026"),
+        },
+        {
+          kicker: "Амалиёти наҷот · 16 июли 2026",
+          title: "Наҷотдиҳандагон гурӯҳи кӯҳнавардонро аз домани қуллаи Исмоили Сомонӣ эвакуатсия карданд",
+          excerpt: "Чархболи КҲФ ҳафт кӯҳнавардро аз баландии 5 900 метр пас аз бад шудани ҳаво фуроварда гирифт. Ҷабрдида нест.",
+          photoLabel: "Акс: чархболи КҲФ дар болои Помир",
+          href: routes.article("alpinists-rescue"),
+        },
+        {
+          kicker: "Ҳамкорӣ · 16 июли 2026",
+          title: "Тоҷикистон ва СММ оид ба БОХ барномаи коҳиши хатари офатро барои солҳои 2026–2030 имзо карданд",
+          excerpt: "Ҳуҷҷат навсозии низомҳои огоҳонии барвақтӣ ва омӯзиши мутахассисонро дар минтақаҳо пешбинӣ мекунад.",
+          photoLabel: "Акс: имзои барнома",
+          href: routes.article("undrr-programme"),
+        },
+      ],
+    },
+
+    president: {
+      href: "https://president.tj",
+      aria: "Президенти Ҷумҳурии Тоҷикистон — president.tj",
+      photo: "/assets/president.jpg",
+      kicker: "Пешвои миллат",
+      name: "Эмомалӣ Раҳмон",
+      role: "Президенти Ҷумҳурии Тоҷикистон · president.tj ↗",
+      quote: "«Ҳифзи ҳаёт ва саломатии инсон — вазифаи муқаддаси давлат аст»",
+    },
+
+    ops: {
+      title: "Ҳисоботи оперативӣ · 18.07",
+      items: [
+        { n: "2", color: "var(--hz-danger)", label: "рӯйдоди фаъол" },
+        { n: "3", color: "var(--hz-warning)", label: "таҳти назорат" },
+        { n: "14", color: "var(--hz-success)", label: "дар як моҳ анҷомёфта" },
+      ],
+      mapLink: "Харитаи хатарҳо →",
+    },
+
+    quickActions: {
+      title: "Ҳангоми ҳолати фавқулодда чӣ бояд кард",
+      index: "01 / Дастурҳо",
+      allLink: "Ҳамаи дастурҳо →",
+      big: {
+        title: "Заминҷунбӣ",
+        desc: "Амалҳои қадам ба қадам пеш, ҳангом ва пас аз ларзиш. Тоҷикистон минтақаи сейсмикии 8–9 балла аст.",
+        cta: "Кушодани дастур →",
+        href: routes.guide("earthquake"),
+      },
+      small: [
+        { icon: "waves", title: "Сел ва обхезӣ", desc: "Ҳангоми хатари селоб чӣ гуна амал кардан", href: routes.guide("flood") },
+        { icon: "aid", title: "Ёрии аввалия", desc: "Малакаҳои асосӣ то расидани табибон", href: routes.guide("first-aid") },
+        { icon: "map", title: "Харитаи хатарҳо", desc: "Вазъият аз рӯи минтақаҳои ҷумҳурӣ", href: routes.map },
+        { icon: "phone", title: "Телефонҳои фавқулодда", desc: "112, идораҳои минтақавӣ, қабулгоҳ", href: routes.contacts },
+        { icon: "message", title: "Дар бораи ҳодиса хабар диҳед", desc: "Қабулгоҳи электронии шаҳрвандон", href: routes.contacts },
+      ],
+    },
+
+    regionSection: {
+      title: "Вазъият аз рӯи минтақаҳо",
+      index: "02 / Харита",
+      updated: "Навсозӣ 18.07.2026, 14:00",
+      openFull: "Кушодани харитаи пурра",
+    },
+
+    warnings: {
+      title: "Огоҳиҳо",
+      index: "03 / Огоҳонӣ",
+      allLink: "Ҳамаи огоҳиҳо →",
+      cards: [
+        {
+          border: "var(--hz-warning)",
+          tagBg: "var(--hz-warning-bg)",
+          tagFg: "var(--hz-warning)",
+          tag: "Огоҳӣ",
+          status: "Амал мекунад",
+          title: "Хатари сел дар ноҳияҳои кӯҳпоя",
+          meta: "Вилояти Хатлон · 18.07.2026, 09:00",
+          text: "Боришоти борон хатари селро зиёд мекунад. Нақлиётро дар маҷро ва соҳили дарёҳо нагузоред.",
+        },
+        {
+          border: "var(--hz-info)",
+          tagBg: "var(--hz-info-bg)",
+          tagFg: "var(--hz-info)",
+          tag: "Иттилоот",
+          status: "Амал мекунад",
+          title: "Гармӣ то +43 °C дар ноҳияҳои ҷанубӣ",
+          meta: "Хатлон, НТҶ · 17.07.2026, 16:00",
+          text: "Аз соати 11:00 то 17:00 дар зери офтоб буданро маҳдуд кунед, оби бештар нӯшед, ба пиронсолон нигоҳубин кунед.",
+        },
+        {
+          border: "var(--hz-success)",
+          tagBg: "var(--hz-success-bg)",
+          tagFg: "var(--hz-success)",
+          tag: "Анҷомёфта",
+          status: "14.07.2026",
+          title: "Обхезӣ дар дарёи Зарафшон",
+          meta: "Вилояти Суғд · 10–14.07.2026",
+          text: "Сатҳи об ба меъёри мавсимӣ баргашт. Корҳои барқарорсозӣ анҷом ёфтанд.",
+        },
+      ],
+    },
+
+    news: {
+      title: "Хабарҳо ва баёнияҳо",
+      index: "04 / Хадамоти матбуот",
+      allLink: "Ҳамаи хабарҳо →",
+      featured: {
+        photoLabel: "Акс: чархболи КҲФ дар болои Помир",
+        kicker: "Амалиёти наҷот · 16 июл",
+        title: "Наҷотдиҳандагон гурӯҳи кӯҳнавардонро аз домани қуллаи Исмоили Сомонӣ эвакуатсия карданд",
+        href: routes.article("alpinists-rescue"),
+      },
+      list: [
+        { kicker: "Мудофиаи гражданӣ · 15 июл", title: "Нақшаи чорабиниҳои моҳонаи мудофиаи гражданӣ тасдиқ шуд", href: routes.article("civil-defense-month") },
+        { kicker: "Байналмилалӣ · 14 июл", title: "Ҳайати КҲФ дар форуми минтақавии коҳиши хатари офат дар Алмаато ширкат кард", href: routes.article("almaty-forum") },
+        { kicker: "Техника · 12 июл", title: "Идораҳои минтақавӣ 18 воҳиди техникаи наҷоти нав гирифтанд", href: routes.article("new-equipment") },
+        { kicker: "Омӯзиш · 11 июл", title: "Беш аз 4 000 сокини ВМКБ амалҳо ҳангоми хатари тарма омӯхтанд", href: routes.article("gbao-training") },
+      ],
+    },
+
+    kpis: [
+      { value: "247", label: ["амалиёти наҷот", "аз оғози соли 2026"] },
+      { value: "1 318", label: ["нафар наҷот дода шуд", "барои январ–июни 2026"] },
+      { value: "86 500", label: ["шаҳрванд омӯзиш гузашт", "оид ба мудофиаи гражданӣ"] },
+      { value: "68", label: ["воҳиди шаҳрию ноҳиявӣ", "-и КҲФ"] },
+    ],
+
+    documents: {
+      title: "Ҳуҷҷатҳои расмӣ",
+      index: "05 / Ҳуҷҷатҳо",
+      allLink: "Феҳраст →",
+      rows: [
+        { tag: "Қонун", title: "Қонуни ҶТ «Дар бораи ҳифзи аҳолӣ ва ҳудуд аз ҳолатҳои фавқулодаи табиӣ ва техногенӣ»", size: "PDF · 0,4 МБ" },
+        { tag: "Қарор", title: "Стратегияи миллии коҳиши хатари офат барои солҳои 2026–2030", size: "PDF · 2,1 МБ" },
+        { tag: "Ҳисобот", title: "Ҳисобот оид ба фаъолияти Кумита барои нимсолаи аввали соли 2026", size: "PDF · 1,3 МБ" },
+      ],
+    },
+
+    announcements: {
+      title: "Эълонҳо",
+      index: "06 / Ҷойҳои холӣ ва тендерҳо",
+      allLink: "Ҳамаи эълонҳо →",
+      rows: [
+        { tag: "Ҷойи холӣ", tagClass: "tag-accent", title: "Наҷотдиҳандаи гурӯҳи ҳавоӣ — ш. Душанбе, 2 вазифа", deadline: "то 31.07.2026" },
+        { tag: "Ҷойи холӣ", tagClass: "tag-accent", title: "Муҳандиси шӯъбаи мудофиаи гражданӣ — Идораи вилояти Суғд", deadline: "то 25.07.2026" },
+        { tag: "Тендер", tagClass: "tag-outline", title: "Хариди асбоби аварияию наҷот барои идораҳои минтақавӣ — қабули дархостҳо", deadline: "то 05.08.2026" },
+      ],
+    },
+
+    projects: {
+      title: "Лоиҳаҳо",
+      allLink: "Ҳамаи лоиҳаҳо →",
+      cards: [
+        { status: "Дар ҳоли иҷро", years: "2026–2030", title: "Навсозии низоми огоҳонии барвақтии аҳолӣ", meta: "СММ оид ба БОХ, Бонки Ҷаҳонӣ · 18,4 млн доллар", href: routes.project("early-warning-system") },
+        { status: "Дар ҳоли иҷро", years: "2025–2027", title: "Навсозии хидмати ягонаи наҷоти 112", meta: "Иттиҳоди Аврупо · 6,2 млн евро", href: routes.projects },
+      ],
+    },
+  },
+
+  pages: {
+    meta: {
+      projects: "Лоиҳаҳо ва барномаҳо",
+      documents: "Ҳуҷҷатҳо",
+      contacts: "Тамос",
+      guides: "Бехатарии аҳолӣ",
+      leadership: "Роҳбарият",
+      structure: "Сохтор",
+      symbols: "Рамзҳои давлатӣ",
+      sitemap: "Харитаи сомона",
+      sos: "Барномаи SOS",
+      projectFallback: "Лоиҳа",
+      projectSuffix: "Лоиҳаҳо",
+      alertFallback: "Огоҳӣ",
+      newsFallback: "Хабар",
+      guideFallback: "Дастур",
+      pageFallback: "Саҳифа",
+      alerts: "Огоҳиҳо",
+    },
+    home: {
+      main: "Муҳим",
+      presidentPhotoAlt: "Акси Президент",
+      quickActions: "Амалҳои зуд",
+      alertsMap: "Харитаи огоҳиҳо",
+      mapLegend: "Роҳнамои харита",
+      regionsList: "Вазъият аз рӯи минтақаҳо — рӯйхат",
+      latestAlerts: "Огоҳиҳои охирин",
+      news: "Хабарҳо",
+      kpis: "Нишондиҳандаҳои калидӣ",
+      officialInfo: "Иттилооти расмӣ",
+    },
+    alertsList: {
+      breadcrumb: "Огоҳиҳо",
+      heading: "Огоҳиҳо",
+      situationAria: "Вазъият",
+      listAria: "Огоҳиҳои фаъол",
+      noneActive: "фаъол нест",
+      activeCountSuffix: "фаъол",
+      emptyTitle: "Огоҳиҳои амалкунанда нест",
+      emptyText: "Вазъият дар ҳудуди ҷумҳурӣ муътадил аст.",
+      regionsHeading: "Вазъият аз рӯи минтақаҳо",
+      openMap: "Кушодани харитаи хатарҳо",
+      emergencyHelp: "Кӯмаки фаврӣ",
+      emergencyNote: "Рақами ягонаи хидматҳои фавқулодда, шабонарӯзӣ",
+      state: {
+        calm: {
+          label: "Вазъият муътадил",
+          text: "Огоҳиҳои амалкунанда дар ҷумҳурӣ нест. Паёмҳои расмии Кумитаро пайгирӣ кунед.",
+        },
+        warning: {
+          label: "Огоҳиҳо амал мекунанд",
+          text: "Дар як қатор минтақаҳо сатҳи баланди хатар эълон шудааст. Чораҳои эҳтиётиро риоя кунед.",
+        },
+        critical: {
+          label: "Вазъияти бӯҳронӣ",
+          text: "Дар баъзе минтақаҳо сатҳи бӯҳронии хатар амал мекунад. Ба дастурҳои хидматҳои наҷот амал кунед.",
+        },
+      },
+    },
+    alertDetail: {
+      breadcrumbHome: "Асосӣ",
+      breadcrumbAlerts: "Огоҳиҳо",
+      aria: "Огоҳӣ",
+      whatToDo: "Ҳоло чӣ бояд кард",
+      officialDescription: "Тавсифи расмӣ",
+      officialInfo: "Иттилооти расмӣ",
+      guidesLink: "Дастурҳо ба аҳолӣ",
+      zone: "Минтақаи амал",
+      emergencyHelp: "Кӯмаки фаврӣ",
+      related: "Огоҳиҳои алоқаманд",
+      share: "Мубодила",
+      shared: "Истинод нусхабардорӣ шуд",
+    },
+    projectDetail: {
+      aria: "Дар бораи лоиҳа",
+      customer: "Фармоишгар",
+      partners: "Шарикон",
+      budget: "Буҷа",
+      term: "Мӯҳлат",
+      goalsAria: "Ҳадафҳои лоиҳа",
+      goalsTitle: "Ҳадафҳо ва вазифаҳо",
+      moreTitle: "Муфассал дар бораи лоиҳа",
+      timelineTitle: "Рафти татбиқ",
+      photoAria: "Акс",
+      photoLabel: "Акси лоиҳа",
+      direction: "Дирексияи лоиҳа",
+      otherProjects: "Лоиҳаҳои дигар",
+    },
+    guideDetail: {
+      kicker: "Дастур ба аҳолӣ",
+      keyPoint: "Муҳим",
+      prohibited: "Чиро набояд кард",
+      more: "Муфассал",
+      emergencyHelp: "Кӯмаки фаврӣ",
+      emergencyNote: "Хидмати ягонаи наҷот, шабонарӯзӣ",
+      related: "Дастурҳои алоқаманд",
+      blocks: {
+        before: { tag: "Пеш", title: "Пешакӣ омода шавед", aria: "Пеш аз рӯйдод" },
+        during: { tag: "Ҳангом", title: "Ҳангоми рӯйдод", aria: "Ҳангоми рӯйдод" },
+        after: { tag: "Пас", title: "Пас аз рӯйдод", aria: "Пас аз рӯйдод" },
+      },
+    },
+    contentPage: {
+      breadcrumbAria: "Пайроҳа",
+      updated: "Навсозӣ:",
+      placeholder: "Мундариҷаи саҳифа омода шуда истодааст.",
+    },
+    projectsList: { empty: "Лоиҳаҳо ҳанӯз нашр нашудаанд." },
+    leadership: { chairmanAria: "Раис", deputiesAria: "Муовинон" },
+    guidesList: {
+      mainThreats: "Хатарҳои асосӣ",
+      allGuides: "Ҳамаи дастурҳо",
+      mainRisk: "Хатари асосии ҷумҳурӣ",
+      priorityGuide: "Дастури аввалиндараҷа",
+      topicsSuffix: "мавзӯъ",
+      empty: "Дастурҳо ҳанӯз нашр нашудаанд.",
+    },
+    sosPage: { app: "Барномаи SOS", features: "Имконот", how: "SOS чӣ гуна кор мекунад" },
+    newsDetail: {
+      pressKicker: "Хадамоти матбуоти КҲФ",
+      pressSource: "Маркази матбуоти КҲФ",
+      newsCategory: "Хабарҳо",
+    },
+  },
+};

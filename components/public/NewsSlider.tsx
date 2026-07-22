@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { usePathname } from "next/navigation";
+import Link from "@/components/i18n/LocaleLink";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ImageSlot, muted } from "@/components/public/ui";
 import { routes } from "@/lib/routes";
+import { localeFromPathname } from "@/lib/i18n/config";
+import { getUiStrings } from "@/lib/i18n/ui-strings";
 
 export interface Slide {
   kicker: string;
@@ -22,9 +25,10 @@ export default function NewsSlider({
   slides,
   readMore,
 }: {
-  slides: Slide[];
+  slides: readonly Slide[];
   readMore: string;
 }) {
+  const ui = getUiStrings(localeFromPathname(usePathname())).slider;
   const [slide, setSlide] = useState(0);
   const paused = useRef(false);
   const n = slides.length;
@@ -46,8 +50,8 @@ export default function NewsSlider({
     <div
       className="blueprint relative min-w-0 overflow-visible"
       role="group"
-      aria-roledescription="карусель"
-      aria-label="Главные новости"
+      aria-roledescription={ui.carousel}
+      aria-label={ui.region}
       onMouseEnter={() => (paused.current = true)}
       onMouseLeave={() => (paused.current = false)}
     >
@@ -99,7 +103,7 @@ export default function NewsSlider({
       <div className="absolute bottom-[18px] left-7 flex items-center gap-2.5">
         <button
           onClick={() => setSlide((s) => (s + n - 1) % n)}
-          aria-label="Предыдущий слайд"
+          aria-label={ui.prev}
           className="btn btn-icon btn-secondary h-[30px] w-[30px]"
           style={{ background: "var(--color-bg)" }}
         >
@@ -109,14 +113,14 @@ export default function NewsSlider({
           <button
             key={i}
             onClick={() => setSlide(i)}
-            aria-label={`Слайд ${i + 1}`}
+            aria-label={`${ui.slide} ${i + 1}`}
             className="h-1 w-[22px] cursor-pointer border-none p-0"
             style={{ background: dot(i) }}
           />
         ))}
         <button
           onClick={() => setSlide((s) => (s + 1) % n)}
-          aria-label="Следующий слайд"
+          aria-label={ui.next}
           className="btn btn-icon btn-secondary h-[30px] w-[30px]"
           style={{ background: "var(--color-bg)" }}
         >

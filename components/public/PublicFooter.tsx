@@ -1,21 +1,22 @@
-import Link from "next/link";
-import { common } from "@/lib/copy/common";
+import Link from "@/components/i18n/LocaleLink";
 import { muted } from "@/components/public/ui";
 import type { ApiMenuItem, ApiSettings } from "@/lib/api";
-
-const { footer, header } = common;
+import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
 
 /**
  * Общий подвал портала. Реквизиты, контакты, экстренные номера и меню приходят
- * из CMS (settings/menu) с фолбэком на статические строки.
+ * из CMS (settings/menu) с фолбэком на статические строки из словаря локали.
  */
 export default function PublicFooter({
   settings,
   footerMenu,
+  copy,
 }: {
   settings?: ApiSettings | null;
   footerMenu?: ApiMenuItem[];
+  copy: Dictionary["common"];
 }) {
+  const { footer, header } = copy;
   const orgTitle = settings?.org.short_name || footer.orgTitle;
   const about = settings?.org.about || footer.about;
   const address = settings?.org.address || footer.address[0];
@@ -93,7 +94,9 @@ export default function PublicFooter({
                 — {e.label}
               </span>
             ))}
-            <a href={trustHref}>Телефон доверия: {trustPhone}</a>
+            <a href={trustHref}>
+              {footer.trustLine}: {trustPhone}
+            </a>
           </div>
         </div>
 

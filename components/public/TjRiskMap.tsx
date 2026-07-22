@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 import { geoMercator, geoPath } from "d3-geo";
 import { feature } from "topojson-client";
 import type { RegionStatus } from "@/lib/types";
@@ -10,6 +11,8 @@ import {
   regionShort,
   countLabel,
 } from "@/lib/levels";
+import { localeFromPathname } from "@/lib/i18n/config";
+import { getUiStrings } from "@/lib/i18n/ui-strings";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyFeature = any;
@@ -29,6 +32,7 @@ export default function TjRiskMap({
   height?: number;
   showLabels?: boolean;
 }) {
+  const ui = getUiStrings(localeFromPathname(usePathname())).riskMap;
   const [features, setFeatures] = useState<AnyFeature | null>(null);
   const [error, setError] = useState(false);
   const [hover, setHover] = useState<string | null>(null);
@@ -97,7 +101,7 @@ export default function TjRiskMap({
           color: "color-mix(in srgb, var(--color-text) 60%, transparent)",
         }}
       >
-        Не удалось загрузить карту. Сведения по регионам доступны в списке ниже.
+        {ui.error}
       </div>
     );
   }
@@ -114,7 +118,7 @@ export default function TjRiskMap({
           color: "color-mix(in srgb, var(--color-text) 50%, transparent)",
         }}
       >
-        Загрузка карты…
+        {ui.loading}
       </div>
     );
   }
@@ -126,7 +130,7 @@ export default function TjRiskMap({
       <svg
         viewBox={`0 0 ${W} ${H}`}
         role="img"
-        aria-label="Карта Республики Таджикистан с уровнями опасности по регионам"
+        aria-label={ui.caption}
         style={{ width: "100%", height: "auto", display: "block" }}
       >
         {shapes.map((s: { f: AnyFeature; i: number; key: string }) => {

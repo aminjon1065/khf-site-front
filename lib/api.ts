@@ -3,6 +3,7 @@
 // ISR (`revalidate`). Формы/клиентские вызовы используют NEXT_PUBLIC_API_URL.
 
 import type { NewsItem } from "@/lib/types";
+import { DEFAULT_LOCALE, toApiLocale, type Locale } from "@/lib/i18n/config";
 
 /** База API: на сервере — API_URL, на клиенте — NEXT_PUBLIC_API_URL. */
 export const API_BASE =
@@ -35,7 +36,7 @@ export interface Paginated<T> {
 }
 
 interface NewsQuery {
-  locale?: ContentLocale;
+  locale?: Locale;
   category?: string;
   q?: string;
   page?: number;
@@ -45,9 +46,12 @@ interface NewsQuery {
 function buildUrl(path: string, params: Record<string, string | number | undefined>): string {
   const url = new URL(`${API_BASE}${path}`);
   for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== "") {
-      url.searchParams.set(key, String(value));
+    if (value === undefined || value === "") {
+      continue;
     }
+    // Локаль портала (`tj`) уходит в CMS как стандартный `tg` (см. toApiLocale).
+    const out = key === "locale" ? toApiLocale(value as Locale) : value;
+    url.searchParams.set(key, String(out));
   }
   return url.toString();
 }
@@ -86,7 +90,7 @@ export async function fetchNews(query: NewsQuery = {}): Promise<Paginated<ApiNew
  */
 export async function fetchNewsItem(
   slug: string,
-  locale: ContentLocale = "ru",
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiNewsItem | null> {
   const url = buildUrl(`/news/${encodeURIComponent(slug)}`, { locale });
 
@@ -136,7 +140,7 @@ export interface ApiInstruction {
  * API возвращает пустой массив — страница деградирует мягко.
  */
 export async function fetchInstructions(
-  locale: ContentLocale = "ru",
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiInstruction[]> {
   const url = buildUrl("/instructions", { locale });
 
@@ -156,7 +160,7 @@ export async function fetchInstructions(
 /** Одна инструкция по slug (с блоками sections). null при 404. */
 export async function fetchInstruction(
   slug: string,
-  locale: ContentLocale = "ru",
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiInstruction | null> {
   const url = buildUrl(`/instructions/${encodeURIComponent(slug)}`, { locale });
 
@@ -207,7 +211,7 @@ export interface ApiDocument {
  * возвращает пустой массив — страница деградирует мягко.
  */
 export async function fetchDocuments(
-  params: { locale?: ContentLocale; type?: string; section?: string } = {},
+  params: { locale?: Locale; type?: string; section?: string } = {},
 ): Promise<ApiDocument[]> {
   const url = buildUrl("/documents", {
     locale: params.locale,
@@ -259,7 +263,7 @@ export interface ApiProject {
 
 /** Список опубликованных проектов. При недоступности API — пустой массив. */
 export async function fetchProjects(
-  locale: ContentLocale = "ru",
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiProject[]> {
   const url = buildUrl("/projects", { locale });
 
@@ -279,7 +283,7 @@ export async function fetchProjects(
 /** Один проект по slug (с целями, хронологией и дирекцией). null при 404. */
 export async function fetchProject(
   slug: string,
-  locale: ContentLocale = "ru",
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiProject | null> {
   const url = buildUrl(`/projects/${encodeURIComponent(slug)}`, { locale });
 
@@ -314,7 +318,7 @@ export interface ApiAnnouncement {
 
 /** Список опубликованных объявлений (открытые первыми). Пустой массив при сбое. */
 export async function fetchAnnouncements(
-  locale: ContentLocale = "ru",
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiAnnouncement[]> {
   const url = buildUrl("/announcements", { locale });
 
@@ -395,7 +399,7 @@ export interface ApiAlertsActive {
 
 /** Активные предупреждения (наиболее серьёзные первыми). */
 export async function fetchAlerts(
-  locale: ContentLocale = "ru",
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiAlert[]> {
   const url = buildUrl("/alerts", { locale });
 
@@ -415,7 +419,7 @@ export async function fetchAlerts(
 /** Одно предупреждение по slug (с инструкциями и регионами). null при 404. */
 export async function fetchAlert(
   slug: string,
-  locale: ContentLocale = "ru",
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiAlert | null> {
   const url = buildUrl(`/alerts/${encodeURIComponent(slug)}`, { locale });
 
@@ -437,7 +441,7 @@ export async function fetchAlert(
 
 /** Глобальная сводка обстановки + статусы регионов (для баннера и карты). */
 export async function fetchAlertsActive(
-  locale: ContentLocale = "ru",
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiAlertsActive> {
   const url = buildUrl("/alerts/active", { locale });
 
@@ -456,7 +460,7 @@ export async function fetchAlertsActive(
 
 /** Статусы регионов для карты рисков. */
 export async function fetchRegions(
-  locale: ContentLocale = "ru",
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiRegionStatus[]> {
   const url = buildUrl("/regions", { locale });
 
@@ -509,7 +513,7 @@ const EMPTY_HOME: ApiHome = {
 
 /** Всё, что нужно главной странице, одним запросом. */
 export async function fetchHome(
-  locale: ContentLocale = "ru",
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiHome> {
   const url = buildUrl("/home", { locale });
 
@@ -558,7 +562,7 @@ export interface ApiMenu {
 
 /** Публичные настройки сайта (шапка/подвал). null при недоступности API. */
 export async function fetchSettings(
-  locale: ContentLocale = "ru",
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiSettings | null> {
   const url = buildUrl("/settings", { locale });
 
@@ -576,7 +580,7 @@ export async function fetchSettings(
 }
 
 /** Навигационные меню (главное + подвал). Пустые массивы при сбое. */
-export async function fetchMenu(locale: ContentLocale = "ru"): Promise<ApiMenu> {
+export async function fetchMenu(locale: Locale = DEFAULT_LOCALE): Promise<ApiMenu> {
   const url = buildUrl("/menu", { locale });
 
   try {
@@ -610,7 +614,7 @@ export interface ApiRegionOffice {
 
 /** Справочник региональных управлений. Пустой массив при сбое. */
 export async function fetchRegionsDirectory(
-  locale: ContentLocale = "ru",
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiRegionOffice[]> {
   const url = buildUrl("/regions/directory", { locale });
 
@@ -640,7 +644,7 @@ export interface ApiPageDetail extends ApiPage {
 
 /** Список опубликованных страниц (для генерации маршрутов). Пусто при сбое. */
 export async function fetchPages(
-  locale: ContentLocale = "ru",
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiPage[]> {
   const url = buildUrl("/pages", { locale });
 
@@ -660,7 +664,7 @@ export async function fetchPages(
 /** Одна страница по slug. `null` при 404 / недоступности. */
 export async function fetchPage(
   slug: string,
-  locale: ContentLocale = "ru",
+  locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiPageDetail | null> {
   const url = buildUrl(`/pages/${encodeURIComponent(slug)}`, { locale });
 
