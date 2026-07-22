@@ -123,6 +123,24 @@ export const pages = {
     placeholder: "Содержание страницы готовится.",
   },
 
+  // Страница поиска.
+  search: {
+    title: "Поиск",
+    submit: "Найти",
+    promptShort: "Введите минимум 2 символа для поиска.",
+    emptyPrefix: "Ничего не найдено по запросу",
+    resultsPrefix: "Результаты по запросу",
+    typeLabels: {
+      news: "Новости",
+      alert: "Предупреждение",
+      instruction: "Инструкция",
+      document: "Документ",
+      project: "Проект",
+      announcement: "Объявление",
+      page: "Страница",
+    },
+  },
+
   // Прочие постраничные подписи.
   projectsList: { empty: "Проекты пока не опубликованы." },
   leadership: { chairmanAria: "Председатель", deputiesAria: "Заместители" },

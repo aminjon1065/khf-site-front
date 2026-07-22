@@ -7,6 +7,7 @@ import { fetchNews, fetchNewsItem, type ApiNewsItem } from "@/lib/api";
 import { toLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { routes } from "@/lib/routes";
+import { buildMetadata } from "@/lib/seo";
 import ArticleActions from "./ArticleActions";
 import {
   getArticleUi,
@@ -83,10 +84,22 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const item = await fetchNewsItem(slug, toLocale(locale));
-  return {
-    title: item?.title ?? getDictionary(toLocale(locale)).pages.meta.newsFallback,
-  };
+  const loc = toLocale(locale);
+  const { common, pages } = getDictionary(loc);
+  const item = await fetchNewsItem(slug, loc);
+  if (!item) {
+    return { title: pages.meta.newsFallback, robots: { index: false } };
+  }
+  return buildMetadata({
+    locale: loc,
+    title: item.seo?.title ?? item.title,
+    description: item.seo?.description ?? item.excerpt,
+    path: `/news/${slug}`,
+    images: item.image ? [item.image] : undefined,
+    type: "article",
+    publishedTime: item.datetime,
+    siteName: common.siteShort,
+  });
 }
 
 export default async function ArticlePage({

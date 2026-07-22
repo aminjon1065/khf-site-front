@@ -7,6 +7,7 @@ import { fetchProject, fetchProjects } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { routes } from "@/lib/routes";
+import { buildMetadata } from "@/lib/seo";
 import { getProjectBreadcrumb } from "./content";
 
 export const revalidate = 60;
@@ -43,13 +44,21 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const pages = getDictionary(toLocale(locale)).pages;
-  const p = await fetchProject(slug, toLocale(locale));
-  return {
-    title: p
-      ? `${p.title} — ${pages.meta.projectSuffix}`
-      : pages.meta.projectFallback,
-  };
+  const loc = toLocale(locale);
+  const { common, pages } = getDictionary(loc);
+  const p = await fetchProject(slug, loc);
+  if (!p) {
+    return { title: pages.meta.projectFallback, robots: { index: false } };
+  }
+  return buildMetadata({
+    locale: loc,
+    title: p.title,
+    description: p.desc,
+    path: `/projects/${slug}`,
+    images: p.image ? [p.image] : undefined,
+    type: "article",
+    siteName: common.siteShort,
+  });
 }
 
 export default async function ProjectDetailPage({

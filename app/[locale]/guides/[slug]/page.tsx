@@ -13,6 +13,7 @@ import {
 import { toLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary, type Dictionary } from "@/lib/i18n/dictionaries";
 import { routes } from "@/lib/routes";
+import { buildMetadata } from "@/lib/seo";
 import type { Run, SectionTone } from "./content";
 
 export const revalidate = 60;
@@ -87,9 +88,21 @@ export async function generateMetadata({
   params,
 }: GuideRouteProps): Promise<Metadata> {
   const { locale, slug } = await params;
-  const pages = getDictionary(toLocale(locale)).pages;
-  const item = await fetchInstruction(slug, toLocale(locale));
-  return { title: item?.title ?? pages.meta.guideFallback };
+  const loc = toLocale(locale);
+  const { common, pages } = getDictionary(loc);
+  const item = await fetchInstruction(slug, loc);
+  if (!item) {
+    return { title: pages.meta.guideFallback, robots: { index: false } };
+  }
+  return buildMetadata({
+    locale: loc,
+    title: item.title,
+    description: item.summary,
+    path: `/guides/${slug}`,
+    images: item.image ? [item.image] : undefined,
+    type: "article",
+    siteName: common.siteShort,
+  });
 }
 
 const toneConfig: Record<

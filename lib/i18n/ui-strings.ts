@@ -22,6 +22,18 @@ interface UiStrings {
   breadcrumbsAria: string;
   /** Плейсхолдер слота изображения без подписи. */
   imageSlot: string;
+  /** Экран 404 (граница not-found.tsx). */
+  notFound: {
+    title: string;
+    text: string;
+    back: string;
+  };
+  /** Экран ошибки (граница error.tsx). */
+  errorPage: {
+    title: string;
+    text: string;
+    retry: string;
+  };
 }
 
 const ru: UiStrings = {
@@ -39,6 +51,16 @@ const ru: UiStrings = {
   },
   breadcrumbsAria: "Хлебные крошки",
   imageSlot: "Изображение",
+  notFound: {
+    title: "Страница не найдена",
+    text: "Запрашиваемая страница не существует или была перемещена.",
+    back: "На главную",
+  },
+  errorPage: {
+    title: "Что-то пошло не так",
+    text: "Произошла ошибка при загрузке страницы. Попробуйте обновить.",
+    retry: "Обновить",
+  },
 };
 
 const tj: UiStrings = {
@@ -56,6 +78,16 @@ const tj: UiStrings = {
   },
   breadcrumbsAria: "Пайроҳа",
   imageSlot: "Тасвир",
+  notFound: {
+    title: "Саҳифа ёфт нашуд",
+    text: "Саҳифаи дархостшуда вуҷуд надорад ё кӯчонида шудааст.",
+    back: "Ба асосӣ",
+  },
+  errorPage: {
+    title: "Чизе нодуруст шуд",
+    text: "Ҳангоми боркунии саҳифа хатогӣ рӯй дод. Кӯшиш кунед аз нав бор кунед.",
+    retry: "Аз нав",
+  },
 };
 
 const en: UiStrings = {
@@ -73,6 +105,16 @@ const en: UiStrings = {
   },
   breadcrumbsAria: "Breadcrumbs",
   imageSlot: "Image",
+  notFound: {
+    title: "Page not found",
+    text: "The page you requested does not exist or has been moved.",
+    back: "Go home",
+  },
+  errorPage: {
+    title: "Something went wrong",
+    text: "An error occurred while loading the page. Please try refreshing.",
+    retry: "Retry",
+  },
 };
 
 /** Строки клиентских виджетов для активной локали. */

@@ -192,6 +192,14 @@ function tagBg(level: AlertLevel): string {
   return `color-mix(in srgb, ${levelDotColor[level]} 14%, transparent)`;
 }
 
+// Цвет тега статуса проекта по локале-независимому status_tone из CMS
+// (а не хардкод-зелёный для всех статусов).
+const projectTagTone: Record<string, { background: string; color: string }> = {
+  success: { background: "var(--hz-success-bg)", color: "var(--hz-success)" },
+  info: { background: "var(--hz-info-bg)", color: "var(--hz-info)" },
+  neutral: { background: "var(--color-neutral-100)", color: "var(--color-neutral-800)" },
+};
+
 export default async function HomePage({
   params,
 }: {
@@ -587,7 +595,7 @@ export default async function HomePage({
                 <span className="flex items-center gap-2">
                   <span
                     className="tag text-[10px] font-semibold"
-                    style={{ background: "var(--hz-success-bg)", color: "var(--hz-success)" }}
+                    style={projectTagTone[pr.status_tone] ?? projectTagTone.neutral}
                   >
                     {pr.status}
                   </span>

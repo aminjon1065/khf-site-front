@@ -23,6 +23,8 @@ export interface ApiNewsItem extends NewsItem {
   image_srcset?: string | null;
   body?: string;
   views?: number;
+  /** Присутствует только в детальном ответе (`PublicNewsResource::localizedSeo`). */
+  seo?: { title: string; description: string };
 }
 
 export interface Paginated<T> {
@@ -70,7 +72,7 @@ export async function fetchNews(query: NewsQuery = {}): Promise<Paginated<ApiNew
   });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
@@ -95,7 +97,7 @@ export async function fetchNewsItem(
   const url = buildUrl(`/news/${encodeURIComponent(slug)}`, { locale });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (res.status === 404) {
       return null;
     }
@@ -105,8 +107,74 @@ export async function fetchNewsItem(
     const body = (await res.json()) as { data: ApiNewsItem };
     return body.data;
   } catch (error) {
+    // Пробрасываем не-404 (5xx/сеть/таймаут): пусть Next отдаст последний удачный
+    // статический рендер или error-boundary, а не кэширует ложный notFound().
     console.error(`fetchNewsItem(${slug}) failed:`, error);
-    return null;
+    throw error;
+  }
+}
+
+// ------------------------------------------------------------------- поиск
+
+/** Тип найденного материала (для подписи/группировки в выдаче). */
+export type SearchResultType =
+  | "news"
+  | "alert"
+  | "instruction"
+  | "document"
+  | "project"
+  | "announcement"
+  | "page";
+
+/** Результат глобального поиска (`SearchController`). `path` — без префикса локали. */
+export interface ApiSearchResult {
+  type: SearchResultType;
+  title: string;
+  excerpt: string;
+  path: string;
+  published_at: string | null;
+}
+
+interface SearchQuery {
+  q: string;
+  locale?: Locale;
+  page?: number;
+  perPage?: number;
+}
+
+/**
+ * Глобальный поиск по опубликованному контенту (`GET /search`, q ≥ 2). При
+ * коротком запросе или недоступности API возвращает пустой результат.
+ */
+export async function fetchSearch(
+  query: SearchQuery,
+): Promise<Paginated<ApiSearchResult>> {
+  const q = query.q.trim();
+  const empty: Paginated<ApiSearchResult> = {
+    data: [],
+    meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 },
+  };
+  if (q.length < 2) {
+    return empty;
+  }
+
+  const url = buildUrl("/search", {
+    q,
+    locale: query.locale,
+    page: query.page,
+    per_page: query.perPage,
+  });
+
+  try {
+    // Поиск не тегируем `cms` (запросы уникальны, инвалидировать не нужно).
+    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    if (!res.ok) {
+      throw new Error(`API ${res.status}`);
+    }
+    return (await res.json()) as Paginated<ApiSearchResult>;
+  } catch (error) {
+    console.error("fetchSearch failed:", error);
+    return empty;
   }
 }
 
@@ -142,10 +210,10 @@ export interface ApiInstruction {
 export async function fetchInstructions(
   locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiInstruction[]> {
-  const url = buildUrl("/instructions", { locale });
+  const url = buildUrl("/instructions", { locale, per_page: 50 });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
@@ -165,7 +233,7 @@ export async function fetchInstruction(
   const url = buildUrl(`/instructions/${encodeURIComponent(slug)}`, { locale });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (res.status === 404) {
       return null;
     }
@@ -176,7 +244,7 @@ export async function fetchInstruction(
     return body.data;
   } catch (error) {
     console.error(`fetchInstruction(${slug}) failed:`, error);
-    return null;
+    throw error;
   }
 }
 
@@ -217,10 +285,11 @@ export async function fetchDocuments(
     locale: params.locale,
     type: params.type,
     section: params.section,
+    per_page: 50,
   });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
@@ -265,10 +334,10 @@ export interface ApiProject {
 export async function fetchProjects(
   locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiProject[]> {
-  const url = buildUrl("/projects", { locale });
+  const url = buildUrl("/projects", { locale, per_page: 50 });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
@@ -288,7 +357,7 @@ export async function fetchProject(
   const url = buildUrl(`/projects/${encodeURIComponent(slug)}`, { locale });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (res.status === 404) {
       return null;
     }
@@ -299,7 +368,7 @@ export async function fetchProject(
     return body.data;
   } catch (error) {
     console.error(`fetchProject(${slug}) failed:`, error);
-    return null;
+    throw error;
   }
 }
 
@@ -314,16 +383,19 @@ export interface ApiAnnouncement {
   desc: string;
   deadline: string; // готовая строка, напр. «до 31.07.2026»
   open: boolean;
+  slug?: string;
+  /** Внешняя ссылка на подачу заявки, если задана в CMS. */
+  application_url?: string | null;
 }
 
 /** Список опубликованных объявлений (открытые первыми). Пустой массив при сбое. */
 export async function fetchAnnouncements(
   locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiAnnouncement[]> {
-  const url = buildUrl("/announcements", { locale });
+  const url = buildUrl("/announcements", { locale, per_page: 50 });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
@@ -404,7 +476,7 @@ export async function fetchAlerts(
   const url = buildUrl("/alerts", { locale });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
@@ -424,7 +496,7 @@ export async function fetchAlert(
   const url = buildUrl(`/alerts/${encodeURIComponent(slug)}`, { locale });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (res.status === 404) {
       return null;
     }
@@ -435,7 +507,7 @@ export async function fetchAlert(
     return body.data;
   } catch (error) {
     console.error(`fetchAlert(${slug}) failed:`, error);
-    return null;
+    throw error;
   }
 }
 
@@ -446,7 +518,7 @@ export async function fetchAlertsActive(
   const url = buildUrl("/alerts/active", { locale });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
@@ -465,7 +537,7 @@ export async function fetchRegions(
   const url = buildUrl("/regions", { locale });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
@@ -518,7 +590,7 @@ export async function fetchHome(
   const url = buildUrl("/home", { locale });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
@@ -567,7 +639,7 @@ export async function fetchSettings(
   const url = buildUrl("/settings", { locale });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
@@ -584,7 +656,7 @@ export async function fetchMenu(locale: Locale = DEFAULT_LOCALE): Promise<ApiMen
   const url = buildUrl("/menu", { locale });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
@@ -619,7 +691,7 @@ export async function fetchRegionsDirectory(
   const url = buildUrl("/regions/directory", { locale });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
@@ -640,6 +712,9 @@ export interface ApiPage {
 export interface ApiPageDetail extends ApiPage {
   body: string;
   updated: string | null;
+  /** ISO-время последнего изменения (для og:modified_time). */
+  updated_at?: string | null;
+  seo?: { title: string; description: string };
 }
 
 /** Список опубликованных страниц (для генерации маршрутов). Пусто при сбое. */
@@ -649,7 +724,7 @@ export async function fetchPages(
   const url = buildUrl("/pages", { locale });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
@@ -669,7 +744,7 @@ export async function fetchPage(
   const url = buildUrl(`/pages/${encodeURIComponent(slug)}`, { locale });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (res.status === 404) {
       return null;
     }
@@ -680,6 +755,6 @@ export async function fetchPage(
     return body.data;
   } catch (error) {
     console.error(`fetchPage(${slug}) failed:`, error);
-    return null;
+    throw error;
   }
 }

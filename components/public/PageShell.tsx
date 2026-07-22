@@ -46,6 +46,7 @@ export default async function PageShell({
         trustPhone={settings?.org.trust_phone}
         locale={locale}
         copy={common}
+        mainMenu={menu.main}
       />
       {topSlot}
       <main id="main" className={mainClassName} style={mainStyle}>

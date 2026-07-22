@@ -412,6 +412,22 @@ export const tj: Dictionary = {
       updated: "Навсозӣ:",
       placeholder: "Мундариҷаи саҳифа омода шуда истодааст.",
     },
+    search: {
+      title: "Ҷустуҷӯ",
+      submit: "Ҷустуҷӯ",
+      promptShort: "Барои ҷустуҷӯ ҳадди ақал 2 аломат ворид кунед.",
+      emptyPrefix: "Аз рӯи дархост чизе ёфт нашуд",
+      resultsPrefix: "Натиҷаҳо аз рӯи дархост",
+      typeLabels: {
+        news: "Хабарҳо",
+        alert: "Огоҳӣ",
+        instruction: "Дастур",
+        document: "Ҳуҷҷат",
+        project: "Лоиҳа",
+        announcement: "Эълон",
+        page: "Саҳифа",
+      },
+    },
     projectsList: { empty: "Лоиҳаҳо ҳанӯз нашр нашудаанд." },
     leadership: { chairmanAria: "Раис", deputiesAria: "Муовинон" },
     guidesList: {

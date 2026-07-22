@@ -5,6 +5,7 @@ import { fetchInstructions } from "@/lib/api";
 import type { Metadata } from "next";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { buildMetadata } from "@/lib/seo";
 import { routes } from "@/lib/routes";
 import { getGuidesContent, topicNum } from "./content";
 
@@ -13,7 +14,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  return { title: getDictionary(toLocale((await params).locale)).pages.meta.guides };
+  const locale = toLocale((await params).locale);
+  const { common, pages } = getDictionary(locale);
+  return buildMetadata({ locale, title: pages.meta.guides, path: "/guides", siteName: common.siteShort });
 }
 
 // ISR: каталог инструкций перечитывается из CMS не чаще раза в минуту.

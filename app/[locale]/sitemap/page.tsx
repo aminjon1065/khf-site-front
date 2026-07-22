@@ -4,6 +4,7 @@ import { muted } from "@/components/public/ui";
 import type { Metadata } from "next";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { buildMetadata } from "@/lib/seo";
 import { getSitemap, type SitemapLink } from "./content";
 
 export async function generateMetadata({
@@ -11,7 +12,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  return { title: getDictionary(toLocale((await params).locale)).pages.meta.sitemap };
+  const locale = toLocale((await params).locale);
+  const { common, pages } = getDictionary(locale);
+  return buildMetadata({ locale, title: pages.meta.sitemap, path: "/sitemap", siteName: common.siteShort });
 }
 
 /**

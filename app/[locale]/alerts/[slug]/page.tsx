@@ -14,6 +14,7 @@ import {
   regionOrder,
 } from "@/lib/levels";
 import { routes } from "@/lib/routes";
+import { buildMetadata } from "@/lib/seo";
 import type { AlertLevel, RegionStatus } from "@/lib/types";
 import ShareButton from "../ShareButton";
 
@@ -39,8 +40,21 @@ export async function generateMetadata({
   params: Promise<Params>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const a = await fetchAlert(slug, toLocale(locale));
-  return { title: a?.title ?? getDictionary(toLocale(locale)).pages.meta.alertFallback };
+  const loc = toLocale(locale);
+  const { common, pages } = getDictionary(loc);
+  const a = await fetchAlert(slug, loc);
+  if (!a) {
+    return { title: pages.meta.alertFallback, robots: { index: false } };
+  }
+  return buildMetadata({
+    locale: loc,
+    title: a.title,
+    description: a.summary,
+    path: `/alerts/${slug}`,
+    type: "article",
+    publishedTime: a.datetime,
+    siteName: common.siteShort,
+  });
 }
 
 export default async function AlertDetailPage({

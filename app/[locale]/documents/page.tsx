@@ -4,6 +4,7 @@ import { muted } from "@/components/public/ui";
 import { fetchDocuments } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { buildMetadata } from "@/lib/seo";
 import { getDocuments } from "./content";
 import DocumentsTable from "./DocumentsTable";
 
@@ -12,7 +13,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  return { title: getDictionary(toLocale((await params).locale)).pages.meta.documents };
+  const locale = toLocale((await params).locale);
+  const { common, pages } = getDictionary(locale);
+  return buildMetadata({ locale, title: pages.meta.documents, path: "/documents", siteName: common.siteShort });
 }
 
 // ISR: библиотека документов перечитывается из CMS не чаще раза в минуту.

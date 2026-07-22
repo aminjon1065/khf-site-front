@@ -22,9 +22,21 @@ export default function PublicFooter({
   const address = settings?.org.address || footer.address[0];
   const email = settings?.org.email || footer.address[1];
 
+  // CMS-меню подвала задаёт состав/порядок пунктов, но его подписи не
+  // локализованы (на /tj приходит русский фолбэк, на /en — пусто). Поэтому для
+  // известных URL берём локализованную подпись из словаря (footer.sections) —
+  // как и в шапке; для кастомных URL — подпись CMS; пустые пункты отбрасываем.
+  const footerLabelByUrl: Record<string, string> = Object.fromEntries(
+    footer.sections.map((s) => [s.href, s.label]),
+  );
   const sections =
     footerMenu && footerMenu.length > 0
-      ? footerMenu.map((m) => ({ label: m.label, href: m.url ?? "#" }))
+      ? footerMenu
+          .map((m) => {
+            const href = m.url ?? "#";
+            return { label: footerLabelByUrl[href] ?? m.label, href };
+          })
+          .filter((s) => s.label != null && s.label.trim() !== "")
       : footer.sections;
 
   const emergency =
@@ -74,7 +86,7 @@ export default function PublicFooter({
           </h6>
           <div className="flex flex-col gap-2">
             {sections.map((s) => (
-              <Link key={s.label} href={s.href}>
+              <Link key={s.href} href={s.href}>
                 {s.label}
               </Link>
             ))}

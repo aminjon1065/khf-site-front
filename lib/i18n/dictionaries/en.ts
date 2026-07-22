@@ -412,6 +412,22 @@ export const en: Dictionary = {
       updated: "Updated:",
       placeholder: "The page content is being prepared.",
     },
+    search: {
+      title: "Search",
+      submit: "Search",
+      promptShort: "Enter at least 2 characters to search.",
+      emptyPrefix: "Nothing found for",
+      resultsPrefix: "Results for",
+      typeLabels: {
+        news: "News",
+        alert: "Alert",
+        instruction: "Guide",
+        document: "Document",
+        project: "Project",
+        announcement: "Announcement",
+        page: "Page",
+      },
+    },
     projectsList: { empty: "No projects have been published yet." },
     leadership: { chairmanAria: "Chairman", deputiesAria: "Deputies" },
     guidesList: {

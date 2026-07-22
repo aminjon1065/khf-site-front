@@ -4,6 +4,8 @@ import PageShell from "@/components/public/PageShell";
 import { ImageSlot, muted } from "@/components/public/ui";
 import { fetchNews } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { buildMetadata } from "@/lib/seo";
 import { getNews } from "./content";
 import NewsList from "./NewsList";
 
@@ -12,7 +14,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  return { title: getNews(toLocale((await params).locale)).metaTitle };
+  const locale = toLocale((await params).locale);
+  const { common } = getDictionary(locale);
+  return buildMetadata({ locale, title: getNews(locale).metaTitle, path: "/news", siteName: common.siteShort });
 }
 
 // ISR: страница пересобирается не чаще раза в минуту, данные — из CMS.

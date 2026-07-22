@@ -4,6 +4,7 @@ import { ImageSlot, muted } from "@/components/public/ui";
 import type { Metadata } from "next";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { buildMetadata } from "@/lib/seo";
 import { getSos, type AppFeature } from "./content";
 
 export async function generateMetadata({
@@ -11,7 +12,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  return { title: getDictionary(toLocale((await params).locale)).pages.meta.sos };
+  const locale = toLocale((await params).locale);
+  const { common, pages } = getDictionary(locale);
+  return buildMetadata({ locale, title: pages.meta.sos, path: "/sos", siteName: common.siteShort });
 }
 
 /** Иконка возможности приложения (26×26, stroke задаётся токеном). */

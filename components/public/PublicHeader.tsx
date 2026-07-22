@@ -1,9 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "@/components/i18n/LocaleLink";
-import { Moon, Sun, Phone, ChevronDown, Smartphone, Menu, X } from "lucide-react";
+import {
+  Moon,
+  Sun,
+  Phone,
+  ChevronDown,
+  Smartphone,
+  Menu,
+  X,
+  Search,
+} from "lucide-react";
 import { routes, type NavKey } from "@/lib/routes";
 import { muted } from "@/components/public/ui";
 import {
@@ -14,34 +23,108 @@ import {
   type Locale,
 } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
+import type { ApiMenuItem } from "@/lib/api";
+
+interface NavItem {
+  label: string;
+  href: string;
+  children: { label: string; href: string }[];
+}
 
 export default function PublicHeader({
   active = "",
   trustPhone,
   locale,
   copy,
+  mainMenu,
 }: {
   active?: NavKey;
   trustPhone?: string;
   locale: Locale;
   copy: Dictionary["common"];
+  /** Главное меню из CMS (`/menu`.main). Задаёт состав/порядок пунктов. */
+  mainMenu?: ApiMenuItem[];
 }) {
   const { header, nav: navCopy } = copy;
-  const mainNav: { key: NavKey; label: string; href: string }[] = [
-    { key: "news", label: navCopy.news, href: routes.news },
-    { key: "guides", label: navCopy.guides, href: routes.guides },
-    { key: "map", label: navCopy.map, href: routes.map },
-    { key: "documents", label: navCopy.documents, href: routes.documents },
-    { key: "contacts", label: navCopy.contacts, href: routes.contacts },
+
+  // Локализованная подпись пункта по его URL (для известных маршрутов портала).
+  // CMS отдаёт подписи с фолбэком на русский (на /en они и вовсе пустые), поэтому
+  // для стандартных разделов берём перевод из словаря, а не «сырую» подпись CMS.
+  const navLabelByUrl: Record<string, string> = {
+    [routes.news]: navCopy.news,
+    [routes.guides]: navCopy.guides,
+    [routes.map]: navCopy.map,
+    [routes.documents]: navCopy.documents,
+    [routes.contacts]: navCopy.contacts,
+    [routes.projects]: navCopy.projects,
+    [routes.announcements]: navCopy.announcements,
+    [routes.leadership]: navCopy.leadership,
+    [routes.structure]: navCopy.structure,
+  };
+
+  // Статичный фолбэк, если CMS-меню пустое/недоступно (совпадает по составу с CMS).
+  const staticNav: NavItem[] = [
+    { label: navCopy.news, href: routes.news, children: [] },
+    { label: navCopy.guides, href: routes.guides, children: [] },
+    { label: navCopy.map, href: routes.map, children: [] },
+    { label: navCopy.documents, href: routes.documents, children: [] },
+    { label: navCopy.projects, href: routes.projects, children: [] },
+    { label: navCopy.announcements, href: routes.announcements, children: [] },
+    { label: navCopy.contacts, href: routes.contacts, children: [] },
   ];
+
+  // Превращаем пункт CMS в NavItem: подпись из словаря (или CMS для кастомных),
+  // пропускаем пустые и домашний «/» (Home — отдельная ссылка).
+  const toNavItem = (item: ApiMenuItem): NavItem | null => {
+    const href = item.url ?? "";
+    if (!href || href === "/") {
+      return null;
+    }
+    const label = navLabelByUrl[href] ?? item.label;
+    if (!label.trim()) {
+      return null;
+    }
+    const children = (item.children ?? [])
+      .map((c): { label: string; href: string } | null => {
+        const chref = c.url ?? "";
+        const clabel = chref ? (navLabelByUrl[chref] ?? c.label) : c.label;
+        return chref && clabel.trim() ? { label: clabel, href: chref } : null;
+      })
+      .filter((c): c is { label: string; href: string } => c !== null);
+    return { label, href, children };
+  };
+
+  const cmsNav = (mainMenu ?? [])
+    .map(toNavItem)
+    .filter((i): i is NavItem => i !== null);
+  const navItems = cmsNav.length > 0 ? cmsNav : staticNav;
 
   const router = useRouter();
   const pathname = usePathname();
+  const currentPath = stripLocale(pathname);
+  // Активный пункт по пути (устойчиво к деталям, напр. /news/slug → News).
+  const isActiveHref = (href: string): boolean =>
+    href !== "/" &&
+    (currentPath === href || currentPath.startsWith(`${href}/`));
+
   const phone = trustPhone || header.trustPhone;
   const phoneHref = `tel:${phone.replace(/[^+\d]/g, "")}`;
   const [aboutOpen, setAboutOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const [query, setQuery] = useState("");
   const aboutRef = useRef<HTMLSpanElement>(null);
+
+  // Поиск: переход на /{locale}/search?q=… (мин. 2 символа).
+  const submitSearch = (e: FormEvent) => {
+    e.preventDefault();
+    const term = query.trim();
+    if (term.length < 2) {
+      return;
+    }
+    setNavOpen(false);
+    router.push(withLocale(locale, `/search?q=${encodeURIComponent(term)}`));
+  };
 
   // Смена языка: переходим на тот же путь под новым префиксом локали. Выбор
   // запоминает proxy (ставит cookie NEXT_LOCALE по локали URL), поэтому здесь
@@ -60,7 +143,8 @@ export default function PublicHeader({
       if (aboutRef.current && !aboutRef.current.contains(e.target as Node))
         setAboutOpen(false);
     };
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setAboutOpen(false);
+    const onKey = (e: KeyboardEvent) =>
+      e.key === "Escape" && setAboutOpen(false);
     document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
     return () => {
@@ -97,7 +181,7 @@ export default function PublicHeader({
   const aboutActive = active === "about";
 
   return (
-    <header className="border-b border-[var(--color-divider)]">
+    <header className="sticky top-0 z-40 border-b border-[var(--color-divider)] bg-[var(--color-bg)]">
       {/* Ярус 1 — служебная панель */}
       <div className="border-b border-[var(--color-divider)]">
         <div
@@ -145,8 +229,18 @@ export default function PublicHeader({
             className="toplink inline-flex cursor-pointer items-center gap-1.5 border border-transparent bg-transparent px-1.5 py-1 [font:inherit]"
             style={{ color: "inherit" }}
           >
-            <Moon className="ico-moon" size={15} strokeWidth={1.5} aria-hidden="true" />
-            <Sun className="ico-sun" size={15} strokeWidth={1.5} aria-hidden="true" />
+            <Moon
+              className="ico-moon"
+              size={15}
+              strokeWidth={1.5}
+              aria-hidden="true"
+            />
+            <Sun
+              className="ico-sun"
+              size={15}
+              strokeWidth={1.5}
+              aria-hidden="true"
+            />
           </button>
           <span className="seg" role="group" aria-label={header.langGroup}>
             {LOCALES.map((l) => (
@@ -231,18 +325,23 @@ export default function PublicHeader({
         className="knav border-t border-[var(--color-divider)] max-[920px]:hidden"
         aria-label={header.navAria}
       >
-        <div className="mx-auto flex w-full max-w-[1160px] flex-wrap items-center gap-0.5 px-6">
-          <Link href={routes.home} aria-current={active === "home" ? "page" : undefined}>
+        <div className="mx-auto flex w-full max-w-[1160px] flex-nowrap items-center gap-0.5 px-6">
+          <Link
+            href={routes.home}
+            aria-current={active === "home" ? "page" : undefined}
+          >
             {navCopy.home}
           </Link>
-          <span ref={aboutRef} className="relative inline-block">
+          <span ref={aboutRef} className="relative inline-block shrink-0">
             <button
               onClick={() => setAboutOpen((v) => !v)}
               aria-expanded={aboutOpen}
               aria-haspopup="true"
               className="inline-flex cursor-pointer items-center gap-[5px] border-none bg-transparent px-[13px] py-[9px] text-sm [font:inherit]"
               style={{
-                color: aboutActive ? "var(--color-accent-700)" : "var(--color-text)",
+                color: aboutActive
+                  ? "var(--color-accent-700)"
+                  : "var(--color-text)",
                 borderBottom: `2px solid ${aboutActive ? "var(--color-accent)" : "transparent"}`,
               }}
             >
@@ -254,7 +353,10 @@ export default function PublicHeader({
                 role="menu"
                 onClick={() => setAboutOpen(false)}
                 className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] py-1"
-                style={{ background: "var(--color-bg)", boxShadow: "var(--shadow-md)" }}
+                style={{
+                  background: "var(--color-bg)",
+                  boxShadow: "var(--shadow-md)",
+                }}
               >
                 <Link
                   role="menuitem"
@@ -280,28 +382,86 @@ export default function PublicHeader({
               </span>
             )}
           </span>
-          {mainNav.map((item) => (
-            <Link
-              key={item.key}
-              href={item.href}
-              aria-current={active === item.key ? "page" : undefined}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item, i) =>
+            item.children.length > 0 ? (
+              <span key={item.href} className="relative inline-block shrink-0">
+                <button
+                  onClick={() => setOpenIdx(openIdx === i ? null : i)}
+                  aria-expanded={openIdx === i}
+                  aria-haspopup="true"
+                  className="inline-flex cursor-pointer items-center gap-[5px] border-none bg-transparent px-[13px] py-[9px] text-sm [font:inherit]"
+                  style={{
+                    color: isActiveHref(item.href)
+                      ? "var(--color-accent-700)"
+                      : "var(--color-text)",
+                    borderBottom: `2px solid ${isActiveHref(item.href) ? "var(--color-accent)" : "transparent"}`,
+                  }}
+                >
+                  {item.label}
+                  <ChevronDown size={13} strokeWidth={1.5} aria-hidden="true" />
+                </button>
+                {openIdx === i && (
+                  <span
+                    role="menu"
+                    onClick={() => setOpenIdx(null)}
+                    className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] py-1"
+                    style={{
+                      background: "var(--color-bg)",
+                      boxShadow: "var(--shadow-md)",
+                    }}
+                  >
+                    {item.children.map((child) => (
+                      <Link
+                        key={child.href}
+                        role="menuitem"
+                        href={child.href}
+                        className="!border-b-0 px-[14px] py-2"
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </span>
+                )}
+              </span>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={isActiveHref(item.href) ? "page" : undefined}
+              >
+                {item.label}
+              </Link>
+            ),
+          )}
           <span className="flex-1" />
           <Link
             href={routes.sos}
             className="sos-outline mr-2.5 inline-flex items-center gap-[7px] border border-[var(--color-accent)] px-[14px] py-1.5 text-[13.5px] font-semibold [font-family:var(--font-heading)]"
-            style={{ color: "var(--color-accent-700)", background: "transparent" }}
+            style={{
+              color: "var(--color-accent-700)",
+              background: "transparent",
+            }}
           >
             <Smartphone size={14} strokeWidth={1.5} aria-hidden="true" />
             {header.sosApp}
           </Link>
-          <form role="search" className="flex items-center gap-1.5 py-1">
+          <form
+            role="search"
+            className="relative flex min-w-[116px] shrink grow-0 basis-[190px] items-center py-1"
+            onSubmit={submitSearch}
+          >
+            <Search
+              size={14}
+              strokeWidth={1.5}
+              aria-hidden="true"
+              className="pointer-events-none absolute left-[9px] top-1/2 -translate-y-1/2"
+              style={{ color: muted(55) }}
+            />
             <input
-              className="input h-[30px] w-[190px] min-h-[30px] text-[13px]"
+              className="input h-[30px] w-full min-w-0 min-h-[30px] pl-[28px] text-[13px]"
               type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
               placeholder={header.searchPlaceholder}
               aria-label={header.searchPlaceholder}
             />
@@ -313,10 +473,19 @@ export default function PublicHeader({
       {navOpen && (
         <>
           <div className="mnav-backdrop" onClick={() => setNavOpen(false)} />
-          <div className="mnav" role="dialog" aria-modal="true" aria-label={header.menu}>
+          <div
+            className="mnav"
+            role="dialog"
+            aria-modal="true"
+            aria-label={header.menu}
+          >
             <div className="flex items-center gap-3 border-b border-[var(--color-divider)] py-[14px] pl-5 pr-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/assets/logo-kchs-ru.webp" alt="" className="h-[34px] w-auto" />
+              <img
+                src="/assets/logo-kchs-ru.webp"
+                alt=""
+                className="h-[34px] w-auto"
+              />
               <span className="flex-1 text-[15px] font-semibold uppercase [font-family:var(--font-heading)]">
                 {header.menu}
               </span>
@@ -329,14 +498,29 @@ export default function PublicHeader({
                 <X size={18} strokeWidth={1.5} aria-hidden="true" />
               </button>
             </div>
-            <div className="border-b border-[var(--color-divider)] px-5 py-[14px]">
-              <input
-                className="input min-h-[44px] w-full text-[15px]"
-                type="search"
-                placeholder={header.searchPlaceholder}
-                aria-label={header.searchPlaceholder}
-              />
-            </div>
+            <form
+              role="search"
+              onSubmit={submitSearch}
+              className="border-b border-[var(--color-divider)] px-5 py-[14px]"
+            >
+              <div className="relative flex items-center">
+                <Search
+                  size={16}
+                  strokeWidth={1.5}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
+                  style={{ color: muted(55) }}
+                />
+                <input
+                  className="input min-h-[44px] w-full pl-9 text-[15px]"
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={header.searchPlaceholder}
+                  aria-label={header.searchPlaceholder}
+                />
+              </div>
+            </form>
             <nav
               className="flex flex-col"
               aria-label={header.mobileNavAria}
@@ -360,27 +544,22 @@ export default function PublicHeader({
               <Link className="mnav-link mnav-sub" href={routes.symbols}>
                 {header.stateSymbols}
               </Link>
-              <Link className="mnav-link" href={routes.news}>
-                {navCopy.news}
-              </Link>
-              <Link className="mnav-link" href={routes.guides}>
-                {navCopy.guides}
-              </Link>
-              <Link className="mnav-link" href={routes.map}>
-                {navCopy.map}
-              </Link>
-              <Link className="mnav-link" href={routes.documents}>
-                {navCopy.documents}
-              </Link>
-              <Link className="mnav-link" href={routes.projects}>
-                {navCopy.projects}
-              </Link>
-              <Link className="mnav-link" href={routes.announcements}>
-                {navCopy.announcements}
-              </Link>
-              <Link className="mnav-link" href={routes.contacts}>
-                {navCopy.contacts}
-              </Link>
+              {navItems.map((item) => (
+                <Fragment key={item.href}>
+                  <Link className="mnav-link" href={item.href}>
+                    {item.label}
+                  </Link>
+                  {item.children.map((child) => (
+                    <Link
+                      key={child.href}
+                      className="mnav-link mnav-sub"
+                      href={child.href}
+                    >
+                      {child.label}
+                    </Link>
+                  ))}
+                </Fragment>
+              ))}
               <Link
                 className="mnav-link"
                 href={routes.sos}
@@ -399,7 +578,10 @@ export default function PublicHeader({
               <a
                 href="tel:112"
                 className="flex min-h-[48px] items-center justify-center gap-2 text-[17px] font-semibold uppercase tracking-[.03em] text-white [font-family:var(--font-heading)]"
-                style={{ background: "var(--hz-critical)", textDecoration: "none" }}
+                style={{
+                  background: "var(--hz-critical)",
+                  textDecoration: "none",
+                }}
               >
                 <Phone size={16} strokeWidth={1.5} aria-hidden="true" />
                 {header.emergencyCallMobile}
@@ -409,7 +591,10 @@ export default function PublicHeader({
                 style={{ color: muted(60) }}
               >
                 {header.trustLineMobile}{" "}
-                <a href={phoneHref} style={{ color: "var(--color-accent-700)" }}>
+                <a
+                  href={phoneHref}
+                  style={{ color: "var(--color-accent-700)" }}
+                >
                   {phone}
                 </a>
               </span>

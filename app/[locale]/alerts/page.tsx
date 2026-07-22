@@ -7,6 +7,7 @@ import { toLocale } from "@/lib/i18n/config";
 import type { Metadata } from "next";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { levelDotColor } from "@/lib/levels";
+import { buildMetadata } from "@/lib/seo";
 import { routes } from "@/lib/routes";
 import type { AlertLevel, RegionStatus } from "@/lib/types";
 
@@ -15,7 +16,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  return { title: getDictionary(toLocale((await params).locale)).pages.meta.alerts };
+  const locale = toLocale((await params).locale);
+  const { common, pages } = getDictionary(locale);
+  return buildMetadata({ locale, title: pages.meta.alerts, path: "/alerts", siteName: common.siteShort });
 }
 
 export const revalidate = 60;

@@ -52,9 +52,9 @@
   --color-accent-2-800: #314457;
   --color-accent-2-900: #1f2d3a;
 
-  --font-heading: var(--font-barlow-condensed), "Barlow Condensed", system-ui, sans-serif;
+  --font-heading: var(--font-condensed), "Fira Sans Condensed", system-ui, sans-serif;
   --font-heading-weight: 600;
-  --font-body: var(--font-barlow), "Barlow", system-ui, sans-serif;
+  --font-body: var(--font-sans), "Fira Sans", system-ui, sans-serif;
 
   --space-1: 3.4px;
   --space-2: 6.8px;
@@ -400,7 +400,8 @@ html {
   /* ── Шапка: основная навигация ── */
   .knav a {
     color: var(--color-text); text-decoration: none; font-size: 14px;
-    padding: 9px 13px; border-bottom: 2px solid transparent; display: inline-block;
+    padding: 9px 13px; border-bottom: 2px solid transparent;
+    display: inline-block; flex: none; white-space: nowrap;
   }
   .knav a:hover { color: var(--color-accent-700); background: color-mix(in srgb, var(--color-accent) 8%, transparent); }
   .knav a[aria-current="page"] { color: var(--color-accent-700); border-bottom-color: var(--color-accent); font-weight: 500; }

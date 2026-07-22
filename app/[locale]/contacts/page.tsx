@@ -4,6 +4,7 @@ import { fetchRegionsDirectory } from "@/lib/api";
 import type { Metadata } from "next";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { buildMetadata } from "@/lib/seo";
 import { getContacts } from "./content";
 import ContactForm from "./ContactForm";
 
@@ -12,7 +13,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  return { title: getDictionary(toLocale((await params).locale)).pages.meta.contacts };
+  const locale = toLocale((await params).locale);
+  const { common, pages } = getDictionary(locale);
+  return buildMetadata({ locale, title: pages.meta.contacts, path: "/contacts", siteName: common.siteShort });
 }
 
 export default async function ContactsPage({

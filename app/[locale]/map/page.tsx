@@ -3,6 +3,8 @@ import PageShell from "@/components/public/PageShell";
 import { muted } from "@/components/public/ui";
 import { fetchAlerts } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { buildMetadata } from "@/lib/seo";
 import type { RegionKey } from "@/lib/types";
 import MapExplorer, { type LiveIncident } from "./MapExplorer";
 import { getMap } from "./content";
@@ -12,7 +14,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  return { title: getMap(toLocale((await params).locale)).title };
+  const locale = toLocale((await params).locale);
+  const { common } = getDictionary(locale);
+  return buildMetadata({ locale, title: getMap(locale).title, path: "/map", siteName: common.siteShort });
 }
 
 // ISR: оперативная обстановка перечитывается из CMS не чаще раза в минуту.

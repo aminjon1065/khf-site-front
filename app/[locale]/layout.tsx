@@ -1,24 +1,26 @@
 import type { Metadata } from "next";
-import { Barlow, Barlow_Condensed } from "next/font/google";
+import { Fira_Sans, Fira_Sans_Condensed } from "next/font/google";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import { LOCALES, isLocale, htmlLang } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { buildMetadata, siteUrl } from "@/lib/seo";
 
-// Barlow / Barlow Condensed покрывают латиницу; кириллица (основной язык
-// портала) отрисовывается системным шрифтом через fallback в font-family —
-// так же, как в дизайн-референсах.
-const barlow = Barlow({
-  variable: "--font-barlow",
+// Fira Sans / Fira Sans Condensed покрывают латиницу И кириллицу, включая
+// cyrillic-ext (таджикские ҳ ҷ ӣ ӯ қ ғ). Поэтому русский, таджикский и английский
+// рендерятся одним шрифтом с единой жирностью — раньше кириллица падала на
+// системный шрифт, из-за чего начертание РУ/ТҶ отличалось от EN.
+const sans = Fira_Sans({
+  variable: "--font-sans",
   weight: ["400", "500", "700"],
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic", "cyrillic-ext"],
   display: "swap",
 });
 
-const barlowCondensed = Barlow_Condensed({
-  variable: "--font-barlow-condensed",
+const condensed = Fira_Sans_Condensed({
+  variable: "--font-condensed",
   weight: ["400", "600"],
-  subsets: ["latin"],
+  subsets: ["latin", "cyrillic", "cyrillic-ext"],
   display: "swap",
 });
 
@@ -37,12 +39,23 @@ export async function generateMetadata({
     return {};
   }
   const { common } = getDictionary(locale);
+  // База метаданных + дефолты для главной ("/"): canonical/hreflang/OG/Twitter.
+  // Дочерние страницы переопределяют их своим buildMetadata с нужным path.
+  const meta = buildMetadata({
+    locale,
+    title: common.siteName,
+    description: common.siteDescription,
+    path: "/",
+    siteName: common.siteShort,
+    type: "website",
+  });
   return {
+    ...meta,
+    metadataBase: new URL(siteUrl()),
     title: {
       default: common.siteName,
       template: `%s — ${common.siteShort}`,
     },
-    description: common.siteDescription,
   };
 }
 
@@ -66,7 +79,7 @@ export default async function LocaleLayout({
     <html
       lang={htmlLang(locale)}
       suppressHydrationWarning
-      className={`${barlow.variable} ${barlowCondensed.variable}`}
+      className={`${sans.variable} ${condensed.variable}`}
     >
       <body>
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />

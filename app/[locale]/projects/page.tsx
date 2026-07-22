@@ -5,24 +5,29 @@ import { fetchProjects } from "@/lib/api";
 import type { Metadata } from "next";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { buildMetadata } from "@/lib/seo";
 import { routes } from "@/lib/routes";
-import type { ProjectStatus } from "@/lib/types";
-import { getProjectsContent, projectStatusColors } from "./content";
+import { getProjectsContent } from "./content";
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  return { title: getDictionary(toLocale((await params).locale)).pages.meta.projects };
+  const locale = toLocale((await params).locale);
+  const { common, pages } = getDictionary(locale);
+  return buildMetadata({ locale, title: pages.meta.projects, path: "/projects", siteName: common.siteShort });
 }
 
 // ISR: список проектов перечитывается из CMS не чаще раза в минуту.
 export const revalidate = 60;
 
-const NEUTRAL = {
-  bg: "var(--color-neutral-100)",
-  fg: "var(--color-neutral-800)",
+// Цвет тега статуса по локале-независимому status_tone из CMS (а НЕ по
+// локализованной подписи p.status — иначе на EN/TJ ничего не совпадёт).
+const statusChrome: Record<string, { bg: string; fg: string }> = {
+  success: { bg: "var(--hz-success-bg)", fg: "var(--hz-success)" },
+  info: { bg: "var(--hz-info-bg)", fg: "var(--hz-info)" },
+  neutral: { bg: "var(--color-neutral-100)", fg: "var(--color-neutral-800)" },
 };
 
 export default async function ProjectsPage({
@@ -60,7 +65,7 @@ export default async function ProjectsPage({
       {projects.length > 0 ? (
         <div className="mt-6 grid grid-cols-2 gap-[14px] max-[920px]:grid-cols-1">
           {projects.map((p, i) => {
-            const sc = projectStatusColors[p.status as ProjectStatus] ?? NEUTRAL;
+            const sc = statusChrome[p.status_tone] ?? statusChrome.neutral;
             return (
               <Link
                 key={p.slug}

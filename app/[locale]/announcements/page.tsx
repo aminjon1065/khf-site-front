@@ -5,6 +5,8 @@ import PageShell from "@/components/public/PageShell";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import { fetchAnnouncements } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
+import { getDictionary } from "@/lib/i18n/dictionaries";
+import { buildMetadata } from "@/lib/seo";
 import AnnouncementsFilter from "./AnnouncementsFilter";
 import {
   getAnnouncementsContent,
@@ -17,7 +19,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
-  return { title: getAnnouncementsContent(toLocale((await params).locale)).title };
+  const locale = toLocale((await params).locale);
+  const { common } = getDictionary(locale);
+  return buildMetadata({ locale, title: getAnnouncementsContent(locale).title, path: "/announcements", siteName: common.siteShort });
 }
 
 // ISR: список объявлений перечитывается из CMS не чаще раза в минуту.
