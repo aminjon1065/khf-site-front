@@ -66,6 +66,11 @@ export default function AnnouncementsFilter({
 
       <div className="mt-2 grid grid-cols-[minmax(0,2.2fr)_minmax(260px,1fr)] items-start gap-8 max-[920px]:grid-cols-1">
         <div role="feed" aria-label={c.feedLabel} className="min-w-0">
+          {items.length === 0 && (
+            <p className="py-6 text-[14px]" style={{ color: muted(60) }}>
+              {c.empty}
+            </p>
+          )}
           {items.map((a) => {
             const kind = kindMeta[a.kind];
             const st = a.open ? statusMeta.open : statusMeta.closed;

@@ -3,6 +3,7 @@ import type { CSSProperties, ReactNode } from "react";
 import Link from "@/components/i18n/LocaleLink";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import {
@@ -90,7 +91,10 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const loc = toLocale(locale);
   const { common, pages } = getDictionary(loc);
-  const item = await fetchInstruction(slug, loc);
+  // A thrown (non-404) fetch failure degrades the same as "not found" here —
+  // metadata has no meaningful title to offer either way. The page body's
+  // own fetch (below) is what decides notFound() vs. the error boundary.
+  const item = await fetchInstruction(slug, loc).catch(() => null);
   if (!item) {
     return { title: pages.meta.guideFallback, robots: { index: false } };
   }
@@ -153,7 +157,22 @@ function Runs({ runs }: { runs: Run[] }): ReactNode {
 export default async function GuidePage({ params }: GuideRouteProps) {
   const { locale: rawLocale, slug } = await params;
   const locale = toLocale(rawLocale);
-  const item = await fetchInstruction(slug, locale);
+  // Non-404 fetch failures are an expected-error case (see
+  // FetchErrorFallback) — handled inline, not left to throw.
+  let item;
+  try {
+    item = await fetchInstruction(slug, locale);
+  } catch {
+    return (
+      <PageShell
+        active="guides"
+        locale={locale}
+        mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
+      >
+        <FetchErrorFallback locale={locale} />
+      </PageShell>
+    );
+  }
 
   if (!item) {
     notFound();

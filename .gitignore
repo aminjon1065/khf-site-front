@@ -19,6 +19,10 @@
 
 # next.js
 /.next/
+# B-6: isolated build dir for the "backend-down" Playwright project
+# (playwright.config.ts, NEXT_DIST_DIR) — same contents as /.next/, just a
+# second build so it can run concurrently with the normal dev/CI server.
+/.next-backend-down/
 /out/
 
 # production

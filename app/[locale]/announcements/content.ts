@@ -39,6 +39,8 @@ export interface AnnouncementsContent {
   filterGroupLabel: string;
   filters: FilterOption[];
   feedLabel: string;
+  /** Пустая лента: ни одного объявления с сервера, либо фильтр не дал совпадений. */
+  empty: string;
   info: InfoCard[];
 }
 
@@ -118,6 +120,7 @@ const ru: AnnouncementsContent = {
     { key: "tender", label: "Тендеры" },
   ],
   feedLabel: "Список объявлений",
+  empty: "Объявления не найдены.",
   info: [
     {
       title: "Как подать заявку",
@@ -162,6 +165,7 @@ const tj: AnnouncementsContent = {
     { key: "tender", label: "Тендерҳо" },
   ],
   feedLabel: "Рӯйхати эълонҳо",
+  empty: "Эълонҳо ёфт нашуданд.",
   info: [
     {
       title: "Чӣ гуна дархост додан",
@@ -206,6 +210,7 @@ const en: AnnouncementsContent = {
     { key: "tender", label: "Tenders" },
   ],
   feedLabel: "Announcements list",
+  empty: "No announcements found.",
   info: [
     {
       title: "How to apply",

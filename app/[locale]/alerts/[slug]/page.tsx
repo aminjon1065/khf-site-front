@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "@/components/i18n/LocaleLink";
 import { notFound } from "next/navigation";
+import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import TjRiskMap from "@/components/public/TjRiskMap";
@@ -42,7 +43,10 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const loc = toLocale(locale);
   const { common, pages } = getDictionary(loc);
-  const a = await fetchAlert(slug, loc);
+  // A thrown (non-404) fetch failure degrades the same as "not found" here —
+  // metadata has no meaningful title to offer either way. The page body's
+  // own fetch (below) is what decides notFound() vs. the error boundary.
+  const a = await fetchAlert(slug, loc).catch(() => null);
   if (!a) {
     return { title: pages.meta.alertFallback, robots: { index: false } };
   }
@@ -65,7 +69,22 @@ export default async function AlertDetailPage({
   const { locale: rawLocale, slug } = await params;
   const locale = toLocale(rawLocale);
   const { pages } = getDictionary(locale);
-  const alert = await fetchAlert(slug, locale);
+  // Non-404 fetch failures are an expected-error case (see
+  // FetchErrorFallback) — handled inline, not left to throw.
+  let alert;
+  try {
+    alert = await fetchAlert(slug, locale);
+  } catch {
+    return (
+      <PageShell
+        active="map"
+        locale={locale}
+        mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
+      >
+        <FetchErrorFallback locale={locale} />
+      </PageShell>
+    );
+  }
 
   if (!alert) {
     notFound();

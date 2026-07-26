@@ -9,6 +9,10 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    // B-6: isolated build dir for the "backend-down" Playwright project
+    // (playwright.config.ts, NEXT_DIST_DIR) — same generated content as
+    // .next/, just a second build.
+    ".next-backend-down/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

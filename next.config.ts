@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Turbopack refuses a second `next dev`/`next start` against the same
+  // project directory's .next (shared dev cache/build lock) — B-6's
+  // "backend-down" Playwright project runs a second server concurrently
+  // with the normal one, so it points here via NEXT_DIST_DIR to its own
+  // isolated output dir instead of colliding on the default `.next`.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   // app/global-not-found.tsx — рендерится за пределами статической
   // оптимизации, per-request, поэтому корректно определяет локаль из URL
   // (см. PROGRESS.md, запись B-5: классический app/not-found.tsx

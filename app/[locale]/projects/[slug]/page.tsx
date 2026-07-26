@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "@/components/i18n/LocaleLink";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
 import { fetchProject, fetchProjects } from "@/lib/api";
@@ -47,7 +48,10 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const loc = toLocale(locale);
   const { common, pages } = getDictionary(loc);
-  const p = await fetchProject(slug, loc);
+  // A thrown (non-404) fetch failure degrades the same as "not found" here —
+  // metadata has no meaningful title to offer either way. The page body's
+  // own fetch (below) is what decides notFound() vs. the error boundary.
+  const p = await fetchProject(slug, loc).catch(() => null);
   if (!p) {
     return { title: pages.meta.projectFallback, robots: { index: false } };
   }
@@ -71,7 +75,18 @@ export default async function ProjectDetailPage({
   const locale = toLocale(rawLocale);
   const { pages } = getDictionary(locale);
   const projectBreadcrumb = getProjectBreadcrumb(locale);
-  const p = await fetchProject(slug, locale);
+  // Non-404 fetch failures are an expected-error case (see
+  // FetchErrorFallback) — handled inline, not left to throw.
+  let p;
+  try {
+    p = await fetchProject(slug, locale);
+  } catch {
+    return (
+      <PageShell active="" locale={locale}>
+        <FetchErrorFallback locale={locale} />
+      </PageShell>
+    );
+  }
 
   if (!p) {
     notFound();
