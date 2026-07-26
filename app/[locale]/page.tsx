@@ -1,4 +1,5 @@
 import Link from "@/components/i18n/LocaleLink";
+import Image from "next/image";
 import { TriangleAlert } from "lucide-react";
 import PageShell from "@/components/public/PageShell";
 import { SectionHeader, ImageSlot, muted } from "@/components/public/ui";
@@ -244,7 +245,7 @@ export default async function HomePage({
           style={{ textDecoration: "none", color: "inherit" }}
         >
           <span className="block min-h-[240px] flex-1">
-            <ImageSlot src={p.photo} alt={pages.home.presidentPhotoAlt} />
+            <ImageSlot src={p.photo} alt={pages.home.presidentPhotoAlt} eager />
           </span>
           <span className="flex flex-col gap-1 px-4 pb-4 pt-[14px]">
             <span
@@ -446,13 +447,13 @@ export default async function HomePage({
             >
               <span className="blueprint duotone block h-[220px]">
                 {featured.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={featured.image}
-                    srcSet={featured.image_srcset ?? undefined}
-                    sizes="(max-width: 920px) 100vw, 620px"
                     alt={featured.title}
-                    className="h-full w-full object-cover"
+                    fill
+                    sizes="(max-width: 920px) 100vw, 620px"
+                    style={{ objectFit: "cover" }}
+                    loading="eager"
                   />
                 ) : (
                   <ImageSlot label={home.news.featured.photoLabel} />

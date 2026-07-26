@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "@/components/i18n/LocaleLink";
 import { muted } from "@/components/public/ui";
 import type { ApiMenuItem, ApiSettings } from "@/lib/api";
@@ -55,8 +56,7 @@ export default function PublicFooter({
       <div className="mx-auto grid w-full max-w-[1160px] grid-cols-[minmax(240px,1.3fr)_repeat(3,minmax(160px,1fr))] gap-8 px-6 pb-7 pt-10 max-[920px]:grid-cols-2 max-[920px]:px-4 max-[560px]:grid-cols-1">
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/assets/logo-kchs-ru.webp" alt="" className="h-11 w-auto" />
+            <Image src="/assets/logo-kchs-ru.webp" alt="" width={512} height={506} className="h-11 w-auto" />
             <span className="text-[15px] font-semibold uppercase leading-tight [font-family:var(--font-heading)]">
               {orgTitle}
             </span>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "@/components/i18n/LocaleLink";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import PageShell from "@/components/public/PageShell";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
@@ -175,13 +176,12 @@ export default async function ArticlePage({
 
           <figure className="blueprint duotone mb-2 h-[340px]">
             {item.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={item.image}
-                srcSet={item.image_srcset ?? undefined}
-                sizes="(max-width: 920px) 100vw, 760px"
                 alt={article.title}
-                className="h-full w-full object-cover"
+                fill
+                sizes="(max-width: 920px) 100vw, 760px"
+                style={{ objectFit: "cover" }}
               />
             ) : (
               <ImageSlot label={article.photoLabel} />

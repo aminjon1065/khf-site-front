@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import Image from "next/image";
 import Link from "@/components/i18n/LocaleLink";
 import {
   Moon,
@@ -188,16 +189,18 @@ export default function PublicHeader({
           className="mx-auto flex w-full max-w-[1160px] items-center gap-3 px-6 py-1.5 text-xs max-[920px]:px-4"
           style={{ color: muted(65) }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/assets/flag-tj.png"
             alt={header.flagAlt}
+            width={1920}
+            height={960}
             className="h-[13px] w-auto border border-[var(--color-divider)]"
           />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/assets/emblem-tj.png"
             alt={header.emblemAlt}
+            width={330}
+            height={327}
             className="h-[18px] w-auto"
           />
           <Link
@@ -265,10 +268,11 @@ export default function PublicHeader({
           className="flex min-w-0 items-center gap-[14px] max-[920px]:flex-1"
           style={{ textDecoration: "none", color: "inherit" }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/assets/logo-kchs-ru.webp"
             alt={header.logoAlt}
+            width={512}
+            height={506}
             className="h-14 w-auto max-[920px]:h-11"
           />
           <span className="block min-w-0">
@@ -480,10 +484,11 @@ export default function PublicHeader({
             aria-label={header.menu}
           >
             <div className="flex items-center gap-3 border-b border-[var(--color-divider)] py-[14px] pl-5 pr-4">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src="/assets/logo-kchs-ru.webp"
                 alt=""
+                width={512}
+                height={506}
                 className="h-[34px] w-auto"
               />
               <span className="flex-1 text-[15px] font-semibold uppercase [font-family:var(--font-heading)]">

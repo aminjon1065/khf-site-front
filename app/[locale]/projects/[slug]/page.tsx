@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "@/components/i18n/LocaleLink";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import PageShell from "@/components/public/PageShell";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
@@ -215,13 +216,12 @@ export default async function ProjectDetailPage({
           <section aria-label={pages.projectDetail.photoAria} className="mt-7">
             <figure className="blueprint duotone mb-1.5 h-[300px]">
               {p.image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={p.image}
-                  srcSet={p.image_srcset ?? undefined}
-                  sizes="(max-width: 920px) 100vw, 720px"
                   alt={p.title}
-                  className="h-full w-full object-cover"
+                  fill
+                  sizes="(max-width: 920px) 100vw, 720px"
+                  style={{ objectFit: "cover" }}
                 />
               ) : (
                 <ImageSlot label={pages.projectDetail.photoLabel} />

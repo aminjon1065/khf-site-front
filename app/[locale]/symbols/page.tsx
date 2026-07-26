@@ -1,4 +1,5 @@
 import Link from "@/components/i18n/LocaleLink";
+import Image from "next/image";
 import PageShell from "@/components/public/PageShell";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import type { Metadata } from "next";
@@ -51,13 +52,15 @@ export default async function SymbolsPage({
           }`}
         >
           <figure className="blueprint m-0 grid place-items-center p-6">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={s.image.src}
               alt={s.image.alt}
-              className="w-full"
+              width={s.image.width}
+              height={s.image.height}
+              className="h-auto w-full"
               style={{
                 maxWidth: s.image.maxWidth,
+                height: "auto",
                 ...(s.image.bordered
                   ? { border: "1px solid var(--color-divider)" }
                   : {}),

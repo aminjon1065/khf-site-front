@@ -2,15 +2,16 @@
 
 import type { CSSProperties } from "react";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import { ImageIcon } from "lucide-react";
 import { localeFromPathname } from "@/lib/i18n/config";
 import { getUiStrings } from "@/lib/i18n/ui-strings";
 import { muted } from "@/components/public/muted";
 
 /**
- * Слот изображения. С `src` — реальное фото (object-fit), без него —
- * подпись-плейсхолдер (заменяется фото пресс-службы). Клиентский компонент:
- * запасную aria-метку берёт из словаря по локали из URL.
+ * Слот изображения. С `src` — реальное фото (next/image, fill + object-fit),
+ * без него — подпись-плейсхолдер (заменяется фото пресс-службы). Клиентский
+ * компонент: запасную aria-метку берёт из словаря по локали из URL.
  */
 export function ImageSlot({
   src,
@@ -19,6 +20,7 @@ export function ImageSlot({
   fit = "cover",
   className = "",
   style,
+  eager = false,
 }: {
   src?: string;
   alt?: string;
@@ -26,18 +28,26 @@ export function ImageSlot({
   fit?: "cover" | "contain";
   className?: string;
   style?: CSSProperties;
+  /** Above-the-fold usage (e.g. a hero card): skip lazy-loading. */
+  eager?: boolean;
 }) {
   const ui = getUiStrings(localeFromPathname(usePathname()));
 
   if (src) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={src}
-        alt={alt ?? label ?? ""}
-        className={className}
-        style={{ width: "100%", height: "100%", objectFit: fit, ...style }}
-      />
+      <span
+        className={`relative block h-full w-full ${className}`}
+        style={style}
+      >
+        <Image
+          src={src}
+          alt={alt ?? label ?? ""}
+          fill
+          sizes="(max-width: 920px) 100vw, 380px"
+          style={{ objectFit: fit }}
+          loading={eager ? "eager" : undefined}
+        />
+      </span>
     );
   }
   return (

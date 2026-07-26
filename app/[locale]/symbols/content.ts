@@ -29,6 +29,9 @@ export interface SymbolBlock {
   image: {
     src: string;
     alt: string;
+    /** Внутренний (intrinsic) размер файла в px — для next/image. */
+    width: number;
+    height: number;
     /** max-width изображения в px. */
     maxWidth: number;
     /** тонкая рамка вокруг изображения (флаг). */
@@ -72,6 +75,8 @@ const ru: SymbolsContent = {
       image: {
         src: "/assets/flag-tj.png",
         alt: "Государственный Флаг Республики Таджикистан: три горизонтальные полосы — красная, белая с золотой короной и семью звёздами, зелёная",
+        width: 1920,
+        height: 960,
         maxWidth: 340,
         bordered: true,
       },
@@ -96,6 +101,8 @@ const ru: SymbolsContent = {
       image: {
         src: "/assets/emblem-tj.png",
         alt: "Государственный Герб Республики Таджикистан: корона с семью звёздами в лучах солнца над горами, обрамлённая колосьями пшеницы и ветками хлопчатника",
+        width: 330,
+        height: 327,
         maxWidth: 240,
       },
       body: [
@@ -155,6 +162,8 @@ const tj: SymbolsContent = {
       image: {
         src: "/assets/flag-tj.png",
         alt: "Парчами давлатии Ҷумҳурии Тоҷикистон: се тасмаи уфуқӣ — сурх, сафед бо тоҷи тиллоӣ ва ҳафт ситора, сабз",
+        width: 1920,
+        height: 960,
         maxWidth: 340,
         bordered: true,
       },
@@ -179,6 +188,8 @@ const tj: SymbolsContent = {
       image: {
         src: "/assets/emblem-tj.png",
         alt: "Нишони давлатии Ҷумҳурии Тоҷикистон: тоҷ бо ҳафт ситора дар нурҳои офтоб болои кӯҳҳо, иҳоташуда бо хӯшаҳои гандум ва навдаҳои пахта",
+        width: 330,
+        height: 327,
         maxWidth: 240,
       },
       body: [
@@ -238,6 +249,8 @@ const en: SymbolsContent = {
       image: {
         src: "/assets/flag-tj.png",
         alt: "State Flag of the Republic of Tajikistan: three horizontal stripes — red, white with a golden crown and seven stars, green",
+        width: 1920,
+        height: 960,
         maxWidth: 340,
         bordered: true,
       },
@@ -262,6 +275,8 @@ const en: SymbolsContent = {
       image: {
         src: "/assets/emblem-tj.png",
         alt: "State Emblem of the Republic of Tajikistan: a crown with seven stars in the rays of the sun above the mountains, framed by ears of wheat and cotton branches",
+        width: 330,
+        height: 327,
         maxWidth: 240,
       },
       body: [
