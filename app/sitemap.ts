@@ -7,6 +7,7 @@ import {
   fetchAlerts,
   fetchInstructions,
   fetchPages,
+  fetchAnnouncements,
 } from "@/lib/api";
 
 // Статические разделы портала — по одному URL на локаль. Поиск (`/search`) намеренно
@@ -58,12 +59,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   //    тип один раз (дефолтная локаль) и разворачиваем по всем локалям. Сбой API не
   //    должен ронять карту сайта — тогда вернём хотя бы статические маршруты.
   try {
-    const [news, projects, alerts, instructions, pages] = await Promise.all([
+    const [news, projects, alerts, instructions, pages, announcements] = await Promise.all([
       fetchNews({ perPage: 100, locale: DEFAULT_LOCALE }),
       fetchProjects({ perPage: 100, locale: DEFAULT_LOCALE }),
       fetchAlerts(DEFAULT_LOCALE),
       fetchInstructions({ perPage: 100, locale: DEFAULT_LOCALE }),
       fetchPages(DEFAULT_LOCALE),
+      fetchAnnouncements({ perPage: 100, locale: DEFAULT_LOCALE }),
     ]);
 
     // Инструкции живут под /guides, страницы — под /pages (см. app/[locale]/…).
@@ -73,6 +75,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       { type: "alerts", slugs: alerts.map((a) => a.slug) },
       { type: "guides", slugs: instructions.data.map((i) => i.slug) },
       { type: "pages", slugs: pages.map((p) => p.slug) },
+      { type: "announcements", slugs: announcements.data.map((a) => a.slug ?? "") },
     ];
 
     for (const { type, slugs } of dynamic) {

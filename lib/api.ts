@@ -467,6 +467,29 @@ export async function fetchAnnouncements(
   }
 }
 
+/** Одно объявление по slug. null при 404. */
+export async function fetchAnnouncement(
+  slug: string,
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<ApiAnnouncement | null> {
+  const url = buildUrl(`/announcements/${encodeURIComponent(slug)}`, { locale });
+
+  try {
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
+    if (res.status === 404) {
+      return null;
+    }
+    if (!res.ok) {
+      throw new Error(`API ${res.status}`);
+    }
+    const body = (await res.json()) as { data: ApiAnnouncement };
+    return body.data;
+  } catch (error) {
+    console.error(`fetchAnnouncement(${slug}) failed:`, error);
+    throw error;
+  }
+}
+
 // --------------------------------------------------- предупреждения / карта
 
 export type PublicAlertLevel =

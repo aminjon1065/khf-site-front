@@ -330,6 +330,8 @@ export const tj: Dictionary = {
       guideFallback: "Дастур",
       pageFallback: "Саҳифа",
       alerts: "Огоҳиҳо",
+      announcementFallback: "Эълон",
+      announcements: "Эълонҳо",
     },
     home: {
       main: "Муҳим",
@@ -399,6 +401,18 @@ export const tj: Dictionary = {
       photoLabel: "Акси лоиҳа",
       direction: "Дирексияи лоиҳа",
       otherProjects: "Лоиҳаҳои дигар",
+    },
+    announcementDetail: {
+      breadcrumbHome: "Асосӣ",
+      breadcrumbAnnouncements: "Эълонҳо",
+      aria: "Эълон",
+      org: "Ташкилот",
+      deadline: "Мӯҳлати пешниҳод",
+      apply: "Дархост додан",
+      applyExternal: "Дархост дар сомонаи беруна пешниҳод мешавад",
+      noApplyUrl: "Тарзи пешниҳоди дархостро аз рӯи тамоси ташкилот дақиқ кунед.",
+      contacts: "Тамос",
+      otherAnnouncements: "Эълонҳои дигар",
     },
     guideDetail: {
       kicker: "Дастур ба аҳолӣ",

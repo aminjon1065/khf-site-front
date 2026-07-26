@@ -330,6 +330,8 @@ export const en: Dictionary = {
       guideFallback: "Guide",
       pageFallback: "Page",
       alerts: "Alerts",
+      announcementFallback: "Announcement",
+      announcements: "Announcements",
     },
     home: {
       main: "Highlights",
@@ -399,6 +401,18 @@ export const en: Dictionary = {
       photoLabel: "Project photo",
       direction: "Project directorate",
       otherProjects: "Other projects",
+    },
+    announcementDetail: {
+      breadcrumbHome: "Home",
+      breadcrumbAnnouncements: "Announcements",
+      aria: "Announcement",
+      org: "Organisation",
+      deadline: "Application deadline",
+      apply: "Apply",
+      applyExternal: "The application is submitted on an external site",
+      noApplyUrl: "Check the organisation's contacts for how to apply.",
+      contacts: "Contacts",
+      otherAnnouncements: "Other announcements",
     },
     guideDetail: {
       kicker: "Public guidance",

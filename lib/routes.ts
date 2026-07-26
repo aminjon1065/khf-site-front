@@ -17,6 +17,7 @@ export const routes = {
   projects: "/projects",
   project: (slug = "early-warning-system") => `/projects/${slug}`,
   announcements: "/announcements",
+  announcement: (slug = "operator-sluzhby-112") => `/announcements/${slug}`,
   sitemap: "/sitemap",
 } as const;
 

@@ -21,6 +21,8 @@ export const pages = {
     guideFallback: "Инструкция",
     pageFallback: "Страница",
     alerts: "Предупреждения",
+    announcementFallback: "Объявление",
+    announcements: "Объявления",
   },
 
   // Aria-метки секций и alt главной страницы.
@@ -98,6 +100,20 @@ export const pages = {
     photoLabel: "Фото проекта",
     direction: "Дирекция проекта",
     otherProjects: "Другие проекты",
+  },
+
+  // Детальная страница объявления (вакансия/тендер).
+  announcementDetail: {
+    breadcrumbHome: "Главная",
+    breadcrumbAnnouncements: "Объявления",
+    aria: "Объявление",
+    org: "Организация",
+    deadline: "Срок подачи",
+    apply: "Подать заявку",
+    applyExternal: "Заявка подаётся на внешнем сайте",
+    noApplyUrl: "Способ подачи заявки уточняйте по контактам организации.",
+    contacts: "Контакты",
+    otherAnnouncements: "Другие объявления",
   },
 
   // Детальная страница инструкции.

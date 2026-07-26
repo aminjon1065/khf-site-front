@@ -95,7 +95,7 @@ export default function AnnouncementsFilter({
                 </div>
                 <h2 className="m-0 text-xl leading-[1.2]">
                   <Link
-                    href={routes.contacts}
+                    href={a.slug ? routes.announcement(a.slug) : routes.announcements}
                     className="text-inherit no-underline hover:text-[color:var(--color-accent-700)]"
                   >
                     {a.title}
