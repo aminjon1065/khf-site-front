@@ -6,89 +6,91 @@ import { usePathname } from "next/navigation";
 import Link from "@/components/i18n/LocaleLink";
 import { Search } from "lucide-react";
 import { muted } from "@/components/public/ui";
+import type { ApiCategory } from "@/lib/api";
 import { localeFromPathname } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
 import type { NewsItem } from "@/lib/types";
 import { getNews } from "./content";
 
 /**
- * Список новостей текущей страницы: фильтр по категориям (кнопки с
- * aria-pressed) и поиск — пока клиентские, действуют в пределах уже
- * загрученной страницы (постраничная выдача — на сервере, см. page.tsx;
- * серверный `?category=` — задача B-2). Правая колонка (aside) и пагинация
+ * Список новостей текущей страницы. Категории — серверный фильтр (B-2):
+ * кнопки — обычные `<Link>` на `?category=slug`, работают без JS и
+ * пережимают перезагрузку/шаринг ссылкой; сервер уже вернул нужную выборку
+ * (см. page.tsx). Поиск по заголовку/анонсу остаётся клиентским — действует
+ * в пределах уже загруженной страницы. Правая колонка (aside) и пагинация
  * приходят с сервера как готовая разметка.
  */
 export default function NewsList({
   aside,
   posts,
+  categories,
+  activeCategory,
 }: {
   aside: ReactNode;
   posts: NewsItem[];
+  categories: ApiCategory[];
+  activeCategory?: string;
 }) {
-  const news = getNews(localeFromPathname(usePathname()));
+  const pathname = usePathname();
+  const news = getNews(localeFromPathname(pathname));
   const { filter, feed, empty } = news;
-  const [cat, setCat] = useState<string>(filter.allCategory);
   const [q, setQ] = useState("");
-
-  // Категории берём из реальных данных CMS (плюс «Все»), а не из статики.
-  const categories = useMemo<string[]>(() => {
-    const present = Array.from(
-      new Set(posts.map((p) => p.category).filter(Boolean)),
-    );
-    return [filter.allCategory, ...present];
-  }, [posts, filter.allCategory]);
 
   const results = useMemo<NewsItem[]>(() => {
     const needle = q.trim().toLowerCase();
-    return posts.filter(
-      (p) =>
-        (cat === filter.allCategory || p.category === cat) &&
-        (!needle ||
-          `${p.title} ${p.excerpt ?? ""}`.toLowerCase().includes(needle)),
+    if (!needle) {
+      return posts;
+    }
+    return posts.filter((p) =>
+      `${p.title} ${p.excerpt ?? ""}`.toLowerCase().includes(needle),
     );
-  }, [posts, cat, q, filter.allCategory]);
-
-  const chooseCat = (c: string) => {
-    setCat(c);
-  };
-  const onSearch = (value: string) => {
-    setQ(value);
-  };
-  const reset = () => {
-    setCat(filter.allCategory);
-    setQ("");
-  };
+  }, [posts, q]);
 
   return (
     <>
-      {/* Панель фильтров: категории + поиск */}
+      {/* Панель фильтров: категории (ссылки, серверный фильтр) + поиск (клиентский) */}
       <div className="flex flex-wrap items-center gap-[14px] border-b border-[var(--color-divider)] py-4">
         <div
           role="group"
           aria-label={filter.groupAria}
           className="flex flex-wrap gap-1.5"
         >
+          <Link
+            href={routes.news}
+            aria-current={!activeCategory ? "true" : undefined}
+            className="btn px-[14px] py-1.5 text-[13px] no-underline hover:border-[var(--color-accent)]"
+            style={
+              !activeCategory
+                ? {
+                    background: "var(--color-accent)",
+                    color: "var(--color-bg)",
+                    borderColor: "var(--color-accent)",
+                  }
+                : { color: "inherit" }
+            }
+          >
+            {filter.allCategory}
+          </Link>
           {categories.map((c) => {
-            const pressed = c === cat;
+            const active = c.slug === activeCategory;
             return (
-              <button
-                key={c}
-                type="button"
-                aria-pressed={pressed}
-                onClick={() => chooseCat(c)}
-                className="btn px-[14px] py-1.5 text-[13px] hover:border-[var(--color-accent)]"
+              <Link
+                key={c.slug}
+                href={`${routes.news}?category=${encodeURIComponent(c.slug)}`}
+                aria-current={active ? "true" : undefined}
+                className="btn px-[14px] py-1.5 text-[13px] no-underline hover:border-[var(--color-accent)]"
                 style={
-                  pressed
+                  active
                     ? {
                         background: "var(--color-accent)",
                         color: "var(--color-bg)",
                         borderColor: "var(--color-accent)",
                       }
-                    : undefined
+                    : { color: "inherit" }
                 }
               >
-                {c}
-              </button>
+                {c.name}
+              </Link>
             );
           })}
         </div>
@@ -99,7 +101,7 @@ export default function NewsList({
           value={q}
           placeholder={filter.searchPlaceholder}
           aria-label={filter.searchAria}
-          onChange={(e) => onSearch(e.target.value)}
+          onChange={(e) => setQ(e.target.value)}
         />
       </div>
 
@@ -164,9 +166,9 @@ export default function NewsList({
           >
             {empty.text}
           </p>
-          <button type="button" onClick={reset} className="btn btn-secondary">
+          <Link href={routes.news} className="btn btn-secondary no-underline">
             {empty.reset}
-          </button>
+          </Link>
         </div>
       )}
     </>

@@ -3,7 +3,7 @@ import Link from "@/components/i18n/LocaleLink";
 import PageShell from "@/components/public/PageShell";
 import Pagination from "@/components/public/Pagination";
 import { ImageSlot, muted } from "@/components/public/ui";
-import { fetchNews } from "@/lib/api";
+import { fetchCategories, fetchNews } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { buildMetadata } from "@/lib/seo";
@@ -12,12 +12,14 @@ import NewsList from "./NewsList";
 
 const PER_PAGE = 12;
 
+type NewsSearchParams = { page?: string; category?: string };
+
 export async function generateMetadata({
   params,
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<NewsSearchParams>;
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common } = getDictionary(locale);
@@ -86,12 +88,17 @@ export default async function NewsPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<NewsSearchParams>;
 }) {
   const locale = toLocale((await params).locale);
   const news = getNews(locale);
-  const page = Math.max(1, Number((await searchParams).page) || 1);
-  const { data: posts, meta } = await fetchNews({ perPage: PER_PAGE, page, locale });
+  const resolvedSearchParams = await searchParams;
+  const page = Math.max(1, Number(resolvedSearchParams.page) || 1);
+  const category = resolvedSearchParams.category || undefined;
+  const [{ data: posts, meta }, categories] = await Promise.all([
+    fetchNews({ perPage: PER_PAGE, page, category, locale }),
+    fetchCategories({ type: "news", locale }),
+  ]);
 
   return (
     <PageShell
@@ -108,12 +115,18 @@ export default async function NewsPage({
         </span>
       </div>
 
-      <NewsList aside={<NewsAside news={news} />} posts={posts} />
+      <NewsList
+        aside={<NewsAside news={news} />}
+        posts={posts}
+        categories={categories}
+        activeCategory={category}
+      />
       <Pagination
         locale={locale}
         currentPage={meta.current_page}
         lastPage={meta.last_page}
         basePath="/news"
+        query={{ category }}
       />
     </PageShell>
   );

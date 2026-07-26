@@ -114,6 +114,39 @@ export async function fetchNewsItem(
   }
 }
 
+/** Категория контента (`GET /categories`), напр. рубрика новости. */
+export interface ApiCategory {
+  slug: string;
+  name: string;
+  type: string;
+}
+
+/**
+ * Справочник категорий заданного типа (по умолчанию `news`) — для серверного
+ * фильтра списков (см. `?category=` в fetchNews). Пустой массив при сбое.
+ */
+export async function fetchCategories(
+  params: { type?: string; locale?: Locale } = {},
+): Promise<ApiCategory[]> {
+  const url = buildUrl("/categories", {
+    type: params.type ?? "news",
+    locale: params.locale,
+    per_page: 50,
+  });
+
+  try {
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
+    if (!res.ok) {
+      throw new Error(`API ${res.status}`);
+    }
+    const body = (await res.json()) as { data: ApiCategory[] };
+    return body.data;
+  } catch (error) {
+    console.error("fetchCategories failed:", error);
+    return [];
+  }
+}
+
 // ------------------------------------------------------------------- поиск
 
 /** Тип найденного материала (для подписи/группировки в выдаче). */
