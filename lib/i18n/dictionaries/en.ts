@@ -99,6 +99,13 @@ export const en: Dictionary = {
     },
 
     breadcrumbHome: "Home",
+
+    pagination: {
+      aria: "Pagination",
+      prev: "Previous",
+      next: "Next",
+      pageAriaPrefix: "Page",
+    },
   },
 
   home: {

@@ -26,17 +26,28 @@ function localePath(locale: Locale, path: string): string {
 /**
  * canonical + languages для hreflang. Ключи — стандартные коды языка
  * (таджикская ветка /tj публикуется как hreflang `tg`), плюс x-default → ru.
+ *
+ * `page` (номер страницы пагинированного списка, >1) добавляет `?page=` к
+ * canonical и ко всем hreflang-альтернатам — так вторая страница `/ru/news`
+ * не претендует на каноничность первой и наоборот.
+ *
+ * `rel=prev/next` сюда осознанно не добавлены: Google официально не использует
+ * их как сигнал с 2019 года, а у `Metadata.alternates` в Next.js нет для них
+ * отдельного поля (только canonical/languages/media/types) — оставлять как
+ * пустой формальный жест смысла не было.
  */
 export function buildAlternates(
   path: string,
   locale: Locale,
+  page = 1,
 ): NonNullable<Metadata["alternates"]> {
+  const suffix = page > 1 ? `?page=${page}` : "";
   const languages: Record<string, string> = {};
   for (const l of LOCALES) {
-    languages[htmlLang(l)] = localePath(l, path); // ru / tg / en
+    languages[htmlLang(l)] = `${localePath(l, path)}${suffix}`; // ru / tg / en
   }
-  languages["x-default"] = localePath("ru", path);
-  return { canonical: localePath(locale, path), languages };
+  languages["x-default"] = `${localePath("ru", path)}${suffix}`;
+  return { canonical: `${localePath(locale, path)}${suffix}`, languages };
 }
 
 export interface BuildMetadataArgs {
@@ -51,6 +62,8 @@ export interface BuildMetadataArgs {
   publishedTime?: string | null;
   modifiedTime?: string | null;
   siteName?: string;
+  /** Номер страницы пагинированного списка (>1 меняет canonical/hreflang). */
+  page?: number;
 }
 
 /** Полный набор метаданных страницы (title/description/alternates/OG/Twitter). */
@@ -65,19 +78,21 @@ export function buildMetadata(args: BuildMetadataArgs): Metadata {
     publishedTime,
     modifiedTime,
     siteName,
+    page = 1,
   } = args;
 
   const hasImages = Array.isArray(images) && images.length > 0;
+  const pageSuffix = page > 1 ? `?page=${page}` : "";
 
   return {
     title,
     description,
-    alternates: buildAlternates(path, locale),
+    alternates: buildAlternates(path, locale, page),
     openGraph: {
       type,
       title,
       description,
-      url: localePath(locale, path),
+      url: `${localePath(locale, path)}${pageSuffix}`,
       siteName,
       locale: OG_LOCALE[locale],
       ...(hasImages ? { images } : {}),

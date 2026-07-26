@@ -22,13 +22,6 @@ const ru = {
 
   feed: {
     aria: "Список новостей",
-    pageSize: 6,
-  },
-
-  pagination: {
-    aria: "Страницы",
-    next: "Следующая →",
-    pageAriaPrefix: "Страница",
   },
 
   empty: {
@@ -74,13 +67,6 @@ const tj: NewsContent = {
 
   feed: {
     aria: "Рӯйхати хабарҳо",
-    pageSize: 6,
-  },
-
-  pagination: {
-    aria: "Саҳифаҳо",
-    next: "Баъдӣ →",
-    pageAriaPrefix: "Саҳифа",
   },
 
   empty: {
@@ -124,13 +110,6 @@ const en: NewsContent = {
 
   feed: {
     aria: "News list",
-    pageSize: 6,
-  },
-
-  pagination: {
-    aria: "Pages",
-    next: "Next →",
-    pageAriaPrefix: "Page",
   },
 
   empty: {

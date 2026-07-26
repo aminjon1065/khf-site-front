@@ -60,18 +60,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const [news, projects, alerts, instructions, pages] = await Promise.all([
       fetchNews({ perPage: 100, locale: DEFAULT_LOCALE }),
-      fetchProjects(DEFAULT_LOCALE),
+      fetchProjects({ perPage: 100, locale: DEFAULT_LOCALE }),
       fetchAlerts(DEFAULT_LOCALE),
-      fetchInstructions(DEFAULT_LOCALE),
+      fetchInstructions({ perPage: 100, locale: DEFAULT_LOCALE }),
       fetchPages(DEFAULT_LOCALE),
     ]);
 
     // Инструкции живут под /guides, страницы — под /pages (см. app/[locale]/…).
     const dynamic: { type: string; slugs: string[] }[] = [
       { type: "news", slugs: news.data.map((n) => n.slug) },
-      { type: "projects", slugs: projects.map((p) => p.slug) },
+      { type: "projects", slugs: projects.data.map((p) => p.slug) },
       { type: "alerts", slugs: alerts.map((a) => a.slug) },
-      { type: "guides", slugs: instructions.map((i) => i.slug) },
+      { type: "guides", slugs: instructions.data.map((i) => i.slug) },
       { type: "pages", slugs: pages.map((p) => p.slug) },
     ];
 

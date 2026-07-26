@@ -98,4 +98,11 @@ export const common = {
   },
 
   breadcrumbHome: "Главная",
+
+  pagination: {
+    aria: "Пагинация",
+    prev: "Назад",
+    next: "Вперёд",
+    pageAriaPrefix: "Страница",
+  },
 } as const;

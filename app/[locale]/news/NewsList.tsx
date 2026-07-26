@@ -12,9 +12,11 @@ import type { NewsItem } from "@/lib/types";
 import { getNews } from "./content";
 
 /**
- * Интерактивный список новостей: фильтр по категориям (кнопки с aria-pressed),
- * поиск, пагинация и empty-state. Правая колонка (aside) приходит с сервера
- * как готовая разметка и показывается только когда есть результаты.
+ * Список новостей текущей страницы: фильтр по категориям (кнопки с
+ * aria-pressed) и поиск — пока клиентские, действуют в пределах уже
+ * загрученной страницы (постраничная выдача — на сервере, см. page.tsx;
+ * серверный `?category=` — задача B-2). Правая колонка (aside) и пагинация
+ * приходят с сервера как готовая разметка.
  */
 export default function NewsList({
   aside,
@@ -24,10 +26,9 @@ export default function NewsList({
   posts: NewsItem[];
 }) {
   const news = getNews(localeFromPathname(usePathname()));
-  const { filter, feed, pagination, empty } = news;
+  const { filter, feed, empty } = news;
   const [cat, setCat] = useState<string>(filter.allCategory);
   const [q, setQ] = useState("");
-  const [page, setPage] = useState(1);
 
   // Категории берём из реальных данных CMS (плюс «Все»), а не из статики.
   const categories = useMemo<string[]>(() => {
@@ -47,25 +48,15 @@ export default function NewsList({
     );
   }, [posts, cat, q, filter.allCategory]);
 
-  const totalPages = Math.max(1, Math.ceil(results.length / feed.pageSize));
-  const current = Math.min(page, totalPages);
-  const visible = results.slice(
-    (current - 1) * feed.pageSize,
-    current * feed.pageSize,
-  );
-
   const chooseCat = (c: string) => {
     setCat(c);
-    setPage(1);
   };
   const onSearch = (value: string) => {
     setQ(value);
-    setPage(1);
   };
   const reset = () => {
     setCat(filter.allCategory);
     setQ("");
-    setPage(1);
   };
 
   return (
@@ -115,7 +106,7 @@ export default function NewsList({
       {results.length > 0 ? (
         <div className="mt-2 grid grid-cols-[minmax(0,2.2fr)_minmax(260px,1fr)] items-start gap-8 max-[920px]:grid-cols-1">
           <div role="feed" aria-label={feed.aria} className="min-w-0">
-            {visible.map((p) => (
+            {results.map((p) => (
               <article
                 key={p.slug}
                 className="grid grid-cols-[110px_minmax(0,1fr)] gap-[18px] border-b border-[var(--color-divider)] py-5 max-[560px]:grid-cols-1 max-[560px]:gap-1.5"
@@ -151,48 +142,6 @@ export default function NewsList({
                 </div>
               </article>
             ))}
-
-            {totalPages > 1 && (
-              <nav
-                aria-label={pagination.aria}
-                className="flex items-center gap-1.5 py-5"
-              >
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) =>
-                  n === current ? (
-                    <span
-                      key={n}
-                      className="btn min-w-[36px]"
-                      aria-current="page"
-                      style={{
-                        background: "var(--color-accent)",
-                        color: "var(--color-bg)",
-                        borderColor: "var(--color-accent)",
-                      }}
-                    >
-                      {n}
-                    </span>
-                  ) : (
-                    <button
-                      key={n}
-                      type="button"
-                      onClick={() => setPage(n)}
-                      aria-label={`${pagination.pageAriaPrefix} ${n}`}
-                      className="btn btn-secondary min-w-[36px]"
-                    >
-                      {n}
-                    </button>
-                  ),
-                )}
-                <button
-                  type="button"
-                  onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-                  disabled={current >= totalPages}
-                  className="btn btn-secondary"
-                >
-                  {pagination.next}
-                </button>
-              </nav>
-            )}
           </div>
 
           {aside}

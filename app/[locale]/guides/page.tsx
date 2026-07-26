@@ -1,5 +1,6 @@
 import Link from "@/components/i18n/LocaleLink";
 import PageShell from "@/components/public/PageShell";
+import Pagination from "@/components/public/Pagination";
 import { muted } from "@/components/public/ui";
 import { fetchInstructions } from "@/lib/api";
 import type { Metadata } from "next";
@@ -9,14 +10,25 @@ import { buildMetadata } from "@/lib/seo";
 import { routes } from "@/lib/routes";
 import { getGuidesContent, topicNum } from "./content";
 
+const PER_PAGE = 15;
+
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ page?: string }>;
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common, pages } = getDictionary(locale);
-  return buildMetadata({ locale, title: pages.meta.guides, path: "/guides", siteName: common.siteShort });
+  const page = Math.max(1, Number((await searchParams).page) || 1);
+  return buildMetadata({
+    locale,
+    title: page > 1 ? `${pages.meta.guides} — ${page}` : pages.meta.guides,
+    path: "/guides",
+    siteName: common.siteShort,
+    page,
+  });
 }
 
 // ISR: каталог инструкций перечитывается из CMS не чаще раза в минуту.
@@ -32,17 +44,24 @@ const tileChrome = [
 
 export default async function GuidesPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
   const locale = toLocale((await params).locale);
   const { hero, emergency, priorityCta } = getGuidesContent(locale);
   const { pages } = getDictionary(locale);
-  const all = await fetchInstructions(locale);
-  const flagged = all.filter((i) => i.priority).slice(0, 3);
-  const priorityItems = flagged.length > 0 ? flagged : all.slice(0, 3);
+  const page = Math.max(1, Number((await searchParams).page) || 1);
+  const { data: items, meta } = await fetchInstructions({ locale, page, perPage: PER_PAGE });
+
+  // Приоритетные плитки — только на первой странице (на CMS-стороне приоритет
+  // и так сортируется первым, см. Instruction::scopeOrdered), дальше — обычная
+  // сетка каталога без выделения.
+  const flagged = page === 1 ? items.filter((i) => i.priority).slice(0, 3) : [];
+  const priorityItems = flagged.length > 0 ? flagged : page === 1 ? items.slice(0, 3) : [];
   const tileSlugs = new Set(priorityItems.map((i) => i.slug));
-  const catalogItems = all.filter((i) => !tileSlugs.has(i.slug));
+  const catalogItems = items.filter((i) => !tileSlugs.has(i.slug));
 
   return (
     <PageShell
@@ -144,7 +163,7 @@ export default async function GuidesPage({
             {pages.guidesList.allGuides}
           </h2>
           <span className="text-xs" style={{ color: muted(50) }}>
-            {catalogItems.length} {pages.guidesList.topicsSuffix}
+            {meta.total} {pages.guidesList.topicsSuffix}
           </span>
         </div>
         {catalogItems.length > 0 ? (
@@ -181,6 +200,12 @@ export default async function GuidesPage({
             {pages.guidesList.empty}
           </p>
         )}
+        <Pagination
+          locale={locale}
+          currentPage={meta.current_page}
+          lastPage={meta.last_page}
+          basePath="/guides"
+        />
       </section>
     </PageShell>
   );

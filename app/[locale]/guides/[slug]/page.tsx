@@ -66,7 +66,7 @@ function buildSections(
 }
 
 async function relatedFor(slug: string, locale: Locale): Promise<RelatedLink[]> {
-  const all = await fetchInstructions(locale);
+  const { data: all } = await fetchInstructions({ locale, perPage: 50 });
   return all
     .filter((i) => i.slug !== slug)
     .slice(0, 3)
@@ -78,7 +78,7 @@ export async function generateStaticParams({
 }: {
   params: { locale: string };
 }) {
-  const all = await fetchInstructions(toLocale(locale));
+  const { data: all } = await fetchInstructions({ locale: toLocale(locale), perPage: 50 });
   return all.map((i) => ({ slug: i.slug }));
 }
 

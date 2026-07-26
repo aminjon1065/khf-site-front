@@ -1,5 +1,6 @@
 import Link from "@/components/i18n/LocaleLink";
 import PageShell from "@/components/public/PageShell";
+import Pagination from "@/components/public/Pagination";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import { fetchProjects } from "@/lib/api";
 import type { Metadata } from "next";
@@ -9,14 +10,25 @@ import { buildMetadata } from "@/lib/seo";
 import { routes } from "@/lib/routes";
 import { getProjectsContent } from "./content";
 
+const PER_PAGE = 12;
+
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ page?: string }>;
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common, pages } = getDictionary(locale);
-  return buildMetadata({ locale, title: pages.meta.projects, path: "/projects", siteName: common.siteShort });
+  const page = Math.max(1, Number((await searchParams).page) || 1);
+  return buildMetadata({
+    locale,
+    title: page > 1 ? `${pages.meta.projects} — ${page}` : pages.meta.projects,
+    path: "/projects",
+    siteName: common.siteShort,
+    page,
+  });
 }
 
 // ISR: список проектов перечитывается из CMS не чаще раза в минуту.
@@ -32,13 +44,16 @@ const statusChrome: Record<string, { bg: string; fg: string }> = {
 
 export default async function ProjectsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
   const locale = toLocale((await params).locale);
   const c = getProjectsContent(locale);
   const { pages } = getDictionary(locale);
-  const projects = await fetchProjects(locale);
+  const page = Math.max(1, Number((await searchParams).page) || 1);
+  const { data: projects, meta } = await fetchProjects({ locale, page, perPage: PER_PAGE });
 
   return (
     <PageShell
@@ -127,6 +142,13 @@ export default async function ProjectsPage({
           {pages.projectsList.empty}
         </p>
       )}
+
+      <Pagination
+        locale={locale}
+        currentPage={meta.current_page}
+        lastPage={meta.last_page}
+        basePath="/projects"
+      />
 
       {/* Связанные разделы */}
       <section

@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import Link from "@/components/i18n/LocaleLink";
 import PageShell from "@/components/public/PageShell";
+import Pagination from "@/components/public/Pagination";
 import { muted } from "@/components/public/ui";
 import { fetchSearch } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { buildMetadata } from "@/lib/seo";
+
+const PER_PAGE = 20;
 
 export async function generateMetadata({
   params,
@@ -38,11 +41,13 @@ export default async function SearchPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const locale = toLocale((await params).locale);
-  const q = firstString((await searchParams).q).trim();
+  const resolvedSearchParams = await searchParams;
+  const q = firstString(resolvedSearchParams.q).trim();
+  const page = Math.max(1, Number(firstString(resolvedSearchParams.page)) || 1);
   const { common, pages } = getDictionary(locale);
   const s = pages.search;
 
-  const result = await fetchSearch({ q, locale });
+  const result = await fetchSearch({ q, locale, page, perPage: PER_PAGE });
   const items = result.data;
 
   return (
@@ -115,6 +120,13 @@ export default async function SearchPage({
               </Link>
             ))}
           </div>
+          <Pagination
+            locale={locale}
+            currentPage={result.meta.current_page}
+            lastPage={result.meta.last_page}
+            basePath="/search"
+            query={{ q }}
+          />
         </>
       )}
     </PageShell>

@@ -99,6 +99,13 @@ export const tj: Dictionary = {
     },
 
     breadcrumbHome: "Асосӣ",
+
+    pagination: {
+      aria: "Саҳифабандӣ",
+      prev: "Қафо",
+      next: "Пеш",
+      pageAriaPrefix: "Саҳифа",
+    },
   },
 
   home: {

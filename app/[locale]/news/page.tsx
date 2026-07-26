@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "@/components/i18n/LocaleLink";
 import PageShell from "@/components/public/PageShell";
+import Pagination from "@/components/public/Pagination";
 import { ImageSlot, muted } from "@/components/public/ui";
 import { fetchNews } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
@@ -9,14 +10,26 @@ import { buildMetadata } from "@/lib/seo";
 import { getNews } from "./content";
 import NewsList from "./NewsList";
 
+const PER_PAGE = 12;
+
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ page?: string }>;
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common } = getDictionary(locale);
-  return buildMetadata({ locale, title: getNews(locale).metaTitle, path: "/news", siteName: common.siteShort });
+  const page = Math.max(1, Number((await searchParams).page) || 1);
+  const baseTitle = getNews(locale).metaTitle;
+  return buildMetadata({
+    locale,
+    title: page > 1 ? `${baseTitle} — ${page}` : baseTitle,
+    path: "/news",
+    siteName: common.siteShort,
+    page,
+  });
 }
 
 // ISR: страница пересобирается не чаще раза в минуту, данные — из CMS.
@@ -70,12 +83,15 @@ function NewsAside({ news }: { news: ReturnType<typeof getNews> }) {
 
 export default async function NewsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
   const locale = toLocale((await params).locale);
   const news = getNews(locale);
-  const { data: posts } = await fetchNews({ perPage: 50, locale });
+  const page = Math.max(1, Number((await searchParams).page) || 1);
+  const { data: posts, meta } = await fetchNews({ perPage: PER_PAGE, page, locale });
 
   return (
     <PageShell
@@ -93,6 +109,12 @@ export default async function NewsPage({
       </div>
 
       <NewsList aside={<NewsAside news={news} />} posts={posts} />
+      <Pagination
+        locale={locale}
+        currentPage={meta.current_page}
+        lastPage={meta.last_page}
+        basePath="/news"
+      />
     </PageShell>
   );
 }

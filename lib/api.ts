@@ -203,25 +203,34 @@ export interface ApiInstruction {
   body?: string;
 }
 
+interface InstructionQuery {
+  locale?: Locale;
+  page?: number;
+  perPage?: number;
+}
+
 /**
- * Каталог опубликованных инструкций (закреплённые первыми). При недоступности
- * API возвращает пустой массив — страница деградирует мягко.
+ * Каталог опубликованных инструкций (закреплённые первыми), постранично. При
+ * недоступности API возвращает пустой результат — страница деградирует мягко.
  */
 export async function fetchInstructions(
-  locale: Locale = DEFAULT_LOCALE,
-): Promise<ApiInstruction[]> {
-  const url = buildUrl("/instructions", { locale, per_page: 50 });
+  query: InstructionQuery = {},
+): Promise<Paginated<ApiInstruction>> {
+  const url = buildUrl("/instructions", {
+    locale: query.locale,
+    page: query.page,
+    per_page: query.perPage ?? 20,
+  });
 
   try {
     const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
-    const body = (await res.json()) as { data: ApiInstruction[] };
-    return body.data;
+    return (await res.json()) as Paginated<ApiInstruction>;
   } catch (error) {
     console.error("fetchInstructions failed:", error);
-    return [];
+    return { data: [], meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 } };
   }
 }
 
@@ -275,17 +284,18 @@ export interface ApiDocument {
 }
 
 /**
- * Библиотека опубликованных документов (новые первыми). При недоступности API
- * возвращает пустой массив — страница деградирует мягко.
+ * Библиотека опубликованных документов (новые первыми), постранично. При
+ * недоступности API возвращает пустой результат — страница деградирует мягко.
  */
 export async function fetchDocuments(
-  params: { locale?: Locale; type?: string; section?: string } = {},
-): Promise<ApiDocument[]> {
+  params: { locale?: Locale; type?: string; section?: string; page?: number; perPage?: number } = {},
+): Promise<Paginated<ApiDocument>> {
   const url = buildUrl("/documents", {
     locale: params.locale,
     type: params.type,
     section: params.section,
-    per_page: 50,
+    page: params.page,
+    per_page: params.perPage ?? 20,
   });
 
   try {
@@ -293,11 +303,10 @@ export async function fetchDocuments(
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
-    const body = (await res.json()) as { data: ApiDocument[] };
-    return body.data;
+    return (await res.json()) as Paginated<ApiDocument>;
   } catch (error) {
     console.error("fetchDocuments failed:", error);
-    return [];
+    return { data: [], meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 } };
   }
 }
 
@@ -330,22 +339,31 @@ export interface ApiProject {
   direction?: { address: string; phone: string; email: string };
 }
 
-/** Список опубликованных проектов. При недоступности API — пустой массив. */
+interface ProjectQuery {
+  locale?: Locale;
+  page?: number;
+  perPage?: number;
+}
+
+/** Список опубликованных проектов, постранично. При недоступности API — пустой результат. */
 export async function fetchProjects(
-  locale: Locale = DEFAULT_LOCALE,
-): Promise<ApiProject[]> {
-  const url = buildUrl("/projects", { locale, per_page: 50 });
+  query: ProjectQuery = {},
+): Promise<Paginated<ApiProject>> {
+  const url = buildUrl("/projects", {
+    locale: query.locale,
+    page: query.page,
+    per_page: query.perPage ?? 20,
+  });
 
   try {
     const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
-    const body = (await res.json()) as { data: ApiProject[] };
-    return body.data;
+    return (await res.json()) as Paginated<ApiProject>;
   } catch (error) {
     console.error("fetchProjects failed:", error);
-    return [];
+    return { data: [], meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 } };
   }
 }
 
@@ -388,22 +406,31 @@ export interface ApiAnnouncement {
   application_url?: string | null;
 }
 
-/** Список опубликованных объявлений (открытые первыми). Пустой массив при сбое. */
+interface AnnouncementQuery {
+  locale?: Locale;
+  page?: number;
+  perPage?: number;
+}
+
+/** Список опубликованных объявлений (открытые первыми), постранично. Пустой результат при сбое. */
 export async function fetchAnnouncements(
-  locale: Locale = DEFAULT_LOCALE,
-): Promise<ApiAnnouncement[]> {
-  const url = buildUrl("/announcements", { locale, per_page: 50 });
+  query: AnnouncementQuery = {},
+): Promise<Paginated<ApiAnnouncement>> {
+  const url = buildUrl("/announcements", {
+    locale: query.locale,
+    page: query.page,
+    per_page: query.perPage ?? 20,
+  });
 
   try {
     const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
-    const body = (await res.json()) as { data: ApiAnnouncement[] };
-    return body.data;
+    return (await res.json()) as Paginated<ApiAnnouncement>;
   } catch (error) {
     console.error("fetchAnnouncements failed:", error);
-    return [];
+    return { data: [], meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 } };
   }
 }
 

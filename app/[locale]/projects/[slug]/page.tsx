@@ -34,7 +34,7 @@ export async function generateStaticParams({
 }: {
   params: { locale: string };
 }) {
-  const projects = await fetchProjects(toLocale(locale));
+  const { data: projects } = await fetchProjects({ locale: toLocale(locale), perPage: 50 });
   return projects.map((p) => ({ slug: p.slug }));
 }
 
@@ -91,8 +91,8 @@ export default async function ProjectDetailPage({
   const bodyHtml = p.body ?? "";
   const bodyIsHtml = /<[a-z][\s\S]*>/i.test(bodyHtml);
 
-  const all = await fetchProjects(locale);
-  const related = all.filter((r) => r.slug !== slug).slice(0, 3);
+  const { data: allProjects } = await fetchProjects({ locale, perPage: 50 });
+  const related = allProjects.filter((r) => r.slug !== slug).slice(0, 3);
 
   return (
     <PageShell active="" locale={locale}>

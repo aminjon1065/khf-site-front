@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import type { Metadata } from "next";
 import Link from "@/components/i18n/LocaleLink";
 import PageShell from "@/components/public/PageShell";
+import Pagination from "@/components/public/Pagination";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import { fetchAnnouncements } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
@@ -14,14 +15,26 @@ import {
   type InfoSegment,
 } from "./content";
 
+const PER_PAGE = 20;
+
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ page?: string }>;
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common } = getDictionary(locale);
-  return buildMetadata({ locale, title: getAnnouncementsContent(locale).title, path: "/announcements", siteName: common.siteShort });
+  const page = Math.max(1, Number((await searchParams).page) || 1);
+  const baseTitle = getAnnouncementsContent(locale).title;
+  return buildMetadata({
+    locale,
+    title: page > 1 ? `${baseTitle} — ${page}` : baseTitle,
+    path: "/announcements",
+    siteName: common.siteShort,
+    page,
+  });
 }
 
 // ISR: список объявлений перечитывается из CMS не чаще раза в минуту.
@@ -70,12 +83,15 @@ function Aside({ info }: { info: InfoCard[] }) {
 
 export default async function AnnouncementsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
   const locale = toLocale((await params).locale);
   const c = getAnnouncementsContent(locale);
-  const data = await fetchAnnouncements(locale);
+  const page = Math.max(1, Number((await searchParams).page) || 1);
+  const { data, meta } = await fetchAnnouncements({ locale, page, perPage: PER_PAGE });
 
   return (
     <PageShell active="" locale={locale}>
@@ -90,6 +106,12 @@ export default async function AnnouncementsPage({
       <AnnouncementsFilter data={data}>
         <Aside info={c.info} />
       </AnnouncementsFilter>
+      <Pagination
+        locale={locale}
+        currentPage={meta.current_page}
+        lastPage={meta.last_page}
+        basePath="/announcements"
+      />
     </PageShell>
   );
 }
