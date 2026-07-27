@@ -3,10 +3,15 @@ import PageShell from "@/components/public/PageShell";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import type { Metadata } from "next";
+import { fetchSettings, fetchStructureUnits } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { buildMetadata } from "@/lib/seo";
 import { getStructure } from "./content";
+
+// ISR: подразделения и сводные цифры перечитываются из CMS не чаще раза в
+// минуту (C-1b).
+export const revalidate = 60;
 
 export async function generateMetadata({
   params,
@@ -25,7 +30,18 @@ export default async function StructurePage({
 }) {
   const locale = toLocale((await params).locale);
   const structure = getStructure(locale);
-  const { central, units, footnote, directions } = structure;
+  const { central, footnote, directions, statLabels } = structure;
+
+  const [units, settings] = await Promise.all([
+    fetchStructureUnits(locale),
+    fetchSettings(locale),
+  ]);
+  const stats = settings
+    ? [
+        { value: settings.structure.founded_year, label: statLabels.foundedYear },
+        { value: settings.structure.units_count, label: statLabels.unitsCount },
+      ]
+    : [];
 
   return (
     <PageShell
@@ -50,8 +66,8 @@ export default async function StructurePage({
           </p>
         </div>
         <div className="blueprint grid grid-cols-2 gap-3 px-[18px] py-4 text-center">
-          {structure.stats.map((s) => (
-            <div key={s.label}>
+          {stats.map((s, i) => (
+            <div key={i}>
               <div className="text-[28px] font-semibold [font-family:var(--font-heading)]">
                 {s.value}
               </div>

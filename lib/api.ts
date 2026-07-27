@@ -806,6 +806,32 @@ export async function fetchLeadership(
   }
 }
 
+/** Специализированное подразделение на странице «Структура». */
+export interface ApiStructureUnit {
+  num: string;
+  name: string;
+  desc: string;
+}
+
+/** Подразделения структуры, в заданном порядке. Пустой массив при сбое. */
+export async function fetchStructureUnits(
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<ApiStructureUnit[]> {
+  const url = buildUrl("/structure", { locale, per_page: 50 });
+
+  try {
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
+    if (!res.ok) {
+      throw new Error(`API ${res.status}`);
+    }
+    const body = (await res.json()) as { data: ApiStructureUnit[] };
+    return body.data;
+  } catch (error) {
+    console.error("fetchStructureUnits failed:", error);
+    return [];
+  }
+}
+
 /** Информационная страница сайта (CMS `PublicPageResource`). */
 export interface ApiPage {
   slug: string;

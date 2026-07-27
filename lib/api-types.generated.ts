@@ -716,6 +716,10 @@ export interface components {
                 social: {
                     [key: string]: string;
                 };
+                structure: {
+                    founded_year: string;
+                    units_count: string;
+                };
                 emergency_services: {
                     num: string;
                     label: string;
