@@ -4,6 +4,7 @@ import Link from "@/components/i18n/LocaleLink";
 import { notFound } from "next/navigation";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
+import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import { fetchAnnouncement, fetchAnnouncements } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
@@ -92,6 +93,14 @@ export default async function AnnouncementDetailPage({
 
   return (
     <PageShell active="" locale={locale}>
+      <BreadcrumbJsonLd
+        items={[
+          { label: d.breadcrumbHome, href: routes.home },
+          { label: d.breadcrumbAnnouncements, href: routes.announcements },
+          { label: announcement.title },
+        ]}
+        locale={locale}
+      />
       <Breadcrumbs
         items={[
           { label: d.breadcrumbHome, href: routes.home },

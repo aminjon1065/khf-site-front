@@ -1,6 +1,7 @@
 import Link from "@/components/i18n/LocaleLink";
 import PageShell from "@/components/public/PageShell";
 import Pagination from "@/components/public/Pagination";
+import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import { fetchProjects } from "@/lib/api";
 import type { Metadata } from "next";
@@ -61,6 +62,7 @@ export default async function ProjectsPage({
       locale={locale}
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-8 max-[920px]:px-4"
     >
+      <BreadcrumbJsonLd items={c.breadcrumbs} locale={locale} />
       <Breadcrumbs items={c.breadcrumbs} />
 
       {/* Заголовок раздела */}

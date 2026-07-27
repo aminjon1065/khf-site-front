@@ -3,6 +3,7 @@ import Link from "@/components/i18n/LocaleLink";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
+import { BreadcrumbJsonLd, NewsArticleJsonLd } from "@/components/public/JsonLd";
 import PageShell from "@/components/public/PageShell";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
 import { fetchNews, fetchNewsItem, type ApiNewsItem } from "@/lib/api";
@@ -152,6 +153,15 @@ export default async function ArticlePage({
       locale={locale}
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
     >
+      <NewsArticleJsonLd item={item} locale={locale} path={`/news/${slug}`} />
+      <BreadcrumbJsonLd
+        items={[
+          { label: common.breadcrumbHome, href: routes.home },
+          { label: common.nav.news, href: routes.news },
+          { label: article.breadcrumb },
+        ]}
+        locale={locale}
+      />
       <Breadcrumbs
         items={[
           { label: common.breadcrumbHome, href: routes.home },

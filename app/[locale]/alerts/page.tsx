@@ -1,5 +1,6 @@
 import Link from "@/components/i18n/LocaleLink";
 import PageShell from "@/components/public/PageShell";
+import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import TjRiskMap from "@/components/public/TjRiskMap";
 import { fetchAlerts, fetchAlertsActive } from "@/lib/api";
@@ -56,6 +57,13 @@ export default async function AlertsPage({
       locale={locale}
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
     >
+      <BreadcrumbJsonLd
+        items={[
+          { label: pages.alertDetail.breadcrumbHome, href: routes.home },
+          { label: pages.alertsList.breadcrumb },
+        ]}
+        locale={locale}
+      />
       <Breadcrumbs
         items={[
           { label: pages.alertDetail.breadcrumbHome, href: routes.home },

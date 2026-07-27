@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
+import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import {
   fetchInstruction,
@@ -193,6 +194,14 @@ export default async function GuidePage({ params }: GuideRouteProps) {
       locale={locale}
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
     >
+      <BreadcrumbJsonLd
+        items={[
+          { label: common.breadcrumbHome, href: routes.home },
+          { label: common.nav.guides, href: routes.guides },
+          { label: item.title },
+        ]}
+        locale={locale}
+      />
       <Breadcrumbs
         items={[
           { label: common.breadcrumbHome, href: routes.home },

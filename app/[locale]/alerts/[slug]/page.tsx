@@ -3,6 +3,7 @@ import Link from "@/components/i18n/LocaleLink";
 import { notFound } from "next/navigation";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
+import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import TjRiskMap from "@/components/public/TjRiskMap";
 import { fetchAlert, fetchAlerts } from "@/lib/api";
@@ -126,6 +127,14 @@ export default async function AlertDetailPage({
       locale={locale}
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
     >
+      <BreadcrumbJsonLd
+        items={[
+          { label: pages.alertDetail.breadcrumbHome, href: routes.home },
+          { label: pages.alertDetail.breadcrumbAlerts, href: routes.alert },
+          { label: alert.title },
+        ]}
+        locale={locale}
+      />
       <Breadcrumbs
         items={[
           { label: pages.alertDetail.breadcrumbHome, href: routes.home },

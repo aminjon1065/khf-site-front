@@ -1,5 +1,6 @@
 import Link from "@/components/i18n/LocaleLink";
 import PageShell from "@/components/public/PageShell";
+import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import type { Metadata } from "next";
 import { toLocale } from "@/lib/i18n/config";
@@ -32,6 +33,7 @@ export default async function StructurePage({
       locale={locale}
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-8 max-[920px]:px-4"
     >
+      <BreadcrumbJsonLd items={structure.breadcrumbs} locale={locale} />
       <Breadcrumbs items={structure.breadcrumbs} />
 
       {/* Шапка: заголовок + вводный абзац + ключевые цифры */}

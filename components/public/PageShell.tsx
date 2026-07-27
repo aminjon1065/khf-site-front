@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import PublicHeader from "@/components/public/PublicHeader";
 import PublicFooter from "@/components/public/PublicFooter";
+import { OrganizationJsonLd } from "@/components/public/JsonLd";
 import { fetchMenu, fetchSettings } from "@/lib/api";
 import type { NavKey } from "@/lib/routes";
 import type { Locale } from "@/lib/i18n/config";
@@ -41,6 +42,7 @@ export default async function PageShell({
         fontFamily: "var(--font-body)",
       }}
     >
+      <OrganizationJsonLd settings={settings} locale={locale} />
       <PublicHeader
         active={active}
         trustPhone={settings?.org.trust_phone}

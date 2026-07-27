@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "@/components/i18n/LocaleLink";
 import PageShell from "@/components/public/PageShell";
 import Pagination from "@/components/public/Pagination";
+import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import { fetchAnnouncements } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
@@ -95,6 +96,7 @@ export default async function AnnouncementsPage({
 
   return (
     <PageShell active="" locale={locale}>
+      <BreadcrumbJsonLd items={c.breadcrumbs} locale={locale} />
       <Breadcrumbs items={c.breadcrumbs} />
       <div className="flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">
         <h1 className="m-0 text-[36px] uppercase tracking-[.02em]">{c.title}</h1>

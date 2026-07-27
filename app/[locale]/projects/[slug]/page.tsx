@@ -4,6 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
+import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
 import { fetchProject, fetchProjects } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
@@ -112,6 +113,14 @@ export default async function ProjectDetailPage({
 
   return (
     <PageShell active="" locale={locale}>
+      <BreadcrumbJsonLd
+        items={[
+          { label: projectBreadcrumb.home, href: routes.home },
+          { label: projectBreadcrumb.projects, href: routes.projects },
+          { label: p.title },
+        ]}
+        locale={locale}
+      />
       <Breadcrumbs
         items={[
           { label: projectBreadcrumb.home, href: routes.home },

@@ -1,6 +1,7 @@
 import Link from "@/components/i18n/LocaleLink";
 import Image from "next/image";
 import PageShell from "@/components/public/PageShell";
+import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import type { Metadata } from "next";
 import { toLocale } from "@/lib/i18n/config";
@@ -27,6 +28,7 @@ export default async function SymbolsPage({
   const { breadcrumbs, hero, symbols, anthem, usage } = getSymbolsContent(locale);
   return (
     <PageShell active="about" locale={locale}>
+      <BreadcrumbJsonLd items={breadcrumbs} locale={locale} />
       <Breadcrumbs items={breadcrumbs} />
 
       {/* Заголовок раздела */}
