@@ -353,30 +353,32 @@ export default async function HomePage({
                 ))}
               </div>
             </div>
-            <div role="list" aria-label={pages.home.regionsList} className="flex flex-col">
-              {regions.map((r) => (
-                <div
-                  key={r.key}
-                  role="listitem"
-                  className="flex items-center gap-2.5 border-b border-[var(--color-divider)] px-0.5 py-3"
-                >
-                  <span
-                    className="h-[9px] w-[9px] flex-none rounded-full"
-                    style={{ background: levelDotColor[r.level] }}
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-[15px] font-semibold [font-family:var(--font-heading)]">
-                      {r.name}
+            <div className="flex flex-col">
+              <div role="list" aria-label={pages.home.regionsList}>
+                {regions.map((r) => (
+                  <div
+                    key={r.key}
+                    role="listitem"
+                    className="flex items-center gap-2.5 border-b border-[var(--color-divider)] px-0.5 py-3"
+                  >
+                    <span
+                      className="h-[9px] w-[9px] flex-none rounded-full"
+                      style={{ background: levelDotColor[r.level] }}
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[15px] font-semibold [font-family:var(--font-heading)]">
+                        {r.name}
+                      </span>
+                      <span className="text-xs" style={{ color: muted(58) }}>
+                        {r.statusText}
+                      </span>
                     </span>
-                    <span className="text-xs" style={{ color: muted(58) }}>
-                      {r.statusText}
+                    <span className="tag tag-neutral flex-none">
+                      {levelBadge[r.level]}
                     </span>
-                  </span>
-                  <span className="tag tag-neutral flex-none">
-                    {levelBadge[r.level]}
-                  </span>
-                </div>
-              ))}
+                  </div>
+                ))}
+              </div>
               <Link href={routes.map} className="btn btn-secondary mt-[14px] self-start">
                 {home.regionSection.openFull}
               </Link>
