@@ -3,10 +3,14 @@ import PageShell from "@/components/public/PageShell";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
 import type { Metadata } from "next";
+import { fetchLeadership } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { buildMetadata } from "@/lib/seo";
 import { getLeadership } from "./content";
+
+// ISR: состав руководства перечитывается из CMS не чаще раза в минуту (C-1a).
+export const revalidate = 60;
 
 export async function generateMetadata({
   params,
@@ -26,7 +30,11 @@ export default async function LeadershipPage({
   const locale = toLocale((await params).locale);
   const leadership = getLeadership(locale);
   const { pages } = getDictionary(locale);
-  const { chairman, deputies, deputiesTitle, footerNote } = leadership;
+  const { chairmanActions, deputiesTitle, footerNote } = leadership;
+
+  const roster = await fetchLeadership(locale);
+  const chairman = roster.find((l) => l.is_chairman) ?? null;
+  const deputies = roster.filter((l) => !l.is_chairman);
 
   return (
     <PageShell
@@ -43,45 +51,52 @@ export default async function LeadershipPage({
         </h1>
       </div>
 
-      {/* Председатель — одна широкая карточка */}
-      <section aria-label={pages.leadership.chairmanAria} className="mt-7">
-        <article className="blueprint grid min-w-0 grid-cols-[minmax(0,340px)_minmax(0,1fr)] max-[920px]:grid-cols-1">
-          <span className="duotone block min-h-[340px]">
-            <ImageSlot label={chairman.photoLabel} />
-          </span>
-          <span className="flex min-w-0 flex-col gap-2.5 px-7 py-[26px]">
-            <span
-              className="text-[11px] uppercase tracking-[.1em]"
-              style={{ color: "var(--color-accent-700)" }}
-            >
-              {chairman.kicker}
+      {/* Председатель — одна широкая карточка. Может отсутствовать, пока в CMS
+          не отмечен ни один председатель — раздел тогда просто не выводится. */}
+      {chairman && (
+        <section aria-label={pages.leadership.chairmanAria} className="mt-7">
+          <article className="blueprint grid min-w-0 grid-cols-[minmax(0,340px)_minmax(0,1fr)] max-[920px]:grid-cols-1">
+            <span className="duotone block min-h-[340px]">
+              <ImageSlot src={chairman.photo_url ?? undefined} />
             </span>
-            <span className="text-[30px] font-semibold leading-[1.1] [font-family:var(--font-heading)]">
-              {chairman.name}
-            </span>
-            <span className="text-[13px]" style={{ color: muted(60) }}>
-              {chairman.meta}
-            </span>
-            <span
-              className="max-w-[64ch] text-sm leading-[1.6]"
-              style={{ color: muted(75) }}
-            >
-              {chairman.bio}
-            </span>
-            <span className="mt-auto flex flex-wrap gap-3 pt-3">
-              {chairman.actions.map((a) => (
-                <Link
-                  key={a.label}
-                  href={a.href}
-                  className={`btn btn-${a.variant} text-[13px]`}
+            <span className="flex min-w-0 flex-col gap-2.5 px-7 py-[26px]">
+              <span
+                className="text-[11px] uppercase tracking-[.1em]"
+                style={{ color: "var(--color-accent-700)" }}
+              >
+                {chairman.role}
+              </span>
+              <span className="text-[30px] font-semibold leading-[1.1] [font-family:var(--font-heading)]">
+                {chairman.name}
+              </span>
+              {chairman.meta && (
+                <span className="text-[13px]" style={{ color: muted(60) }}>
+                  {chairman.meta}
+                </span>
+              )}
+              {chairman.bio && (
+                <span
+                  className="max-w-[64ch] text-sm leading-[1.6]"
+                  style={{ color: muted(75) }}
                 >
-                  {a.label}
-                </Link>
-              ))}
+                  {chairman.bio}
+                </span>
+              )}
+              <span className="mt-auto flex flex-wrap gap-3 pt-3">
+                {chairmanActions.map((a) => (
+                  <Link
+                    key={a.label}
+                    href={a.href}
+                    className={`btn btn-${a.variant} text-[13px]`}
+                  >
+                    {a.label}
+                  </Link>
+                ))}
+              </span>
             </span>
-          </span>
-        </article>
-      </section>
+          </article>
+        </section>
+      )}
 
       {/* Первый зам + замы */}
       <section aria-label={pages.leadership.deputiesAria} className="mt-8">
@@ -94,11 +109,11 @@ export default async function LeadershipPage({
         <div className="grid grid-cols-3 gap-[14px] max-[920px]:grid-cols-1">
           {deputies.map((l) => (
             <article
-              key={l.name}
+              key={l.id}
               className="blueprint flex min-w-0 flex-col"
             >
               <span className="duotone block h-[240px]">
-                <ImageSlot label={l.photoLabel} />
+                <ImageSlot src={l.photo_url ?? undefined} />
               </span>
               <span className="flex flex-col gap-1 px-4 pb-4 pt-[14px]">
                 <span
@@ -110,12 +125,14 @@ export default async function LeadershipPage({
                 <span className="text-[18px] font-semibold leading-[1.2] [font-family:var(--font-heading)]">
                   {l.name}
                 </span>
-                <span
-                  className="text-[12.5px] leading-[1.5]"
-                  style={{ color: muted(62) }}
-                >
-                  {l.bio}
-                </span>
+                {l.bio && (
+                  <span
+                    className="text-[12.5px] leading-[1.5]"
+                    style={{ color: muted(62) }}
+                  >
+                    {l.bio}
+                  </span>
+                )}
               </span>
             </article>
           ))}

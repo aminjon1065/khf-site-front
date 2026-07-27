@@ -776,6 +776,36 @@ export async function fetchRegionsDirectory(
   }
 }
 
+/** Запись в руководстве Комитета (страница «Руководство»): председатель или заместитель. */
+export interface ApiLeader {
+  id: number;
+  role: string;
+  name: string;
+  meta: string | null;
+  bio: string | null;
+  is_chairman: boolean;
+  photo_url: string | null;
+}
+
+/** Состав руководства, председатель первым. Пустой массив при сбое. */
+export async function fetchLeadership(
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<ApiLeader[]> {
+  const url = buildUrl("/leadership", { locale, per_page: 50 });
+
+  try {
+    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
+    if (!res.ok) {
+      throw new Error(`API ${res.status}`);
+    }
+    const body = (await res.json()) as { data: ApiLeader[] };
+    return body.data;
+  } catch (error) {
+    console.error("fetchLeadership failed:", error);
+    return [];
+  }
+}
+
 /** Информационная страница сайта (CMS `PublicPageResource`). */
 export interface ApiPage {
   slug: string;
