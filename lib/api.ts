@@ -4,6 +4,11 @@
 
 import type { NewsItem } from "@/lib/types";
 import { DEFAULT_LOCALE, toApiLocale, type Locale } from "@/lib/i18n/config";
+// D-3: generated from khf-site-cms's openapi.yaml (`npm run types:api:generate`).
+// Only ApiSettings is derived from it so far, as a proof that the pipeline
+// works end-to-end — the rest of this file's hand-written interfaces are a
+// pre-existing, much larger migration intentionally left for a follow-up.
+import type { components } from "./api-types.generated";
 
 /** База API: на сервере — API_URL, на клиенте — NEXT_PUBLIC_API_URL. */
 export const API_BASE =
@@ -687,22 +692,7 @@ export async function fetchHome(
 
 // ------------------------------------------------ настройки сайта / меню
 
-export interface ApiSettings {
-  org: {
-    name: string;
-    short_name: string;
-    about: string;
-    address: string;
-    email: string;
-    emergency_number: string;
-    trust_phone: string;
-  };
-  contacts: { press_email: string; press_phone: string; duty_phone: string };
-  social: Record<string, string>;
-  emergency_services: { num: string; label: string }[];
-  copyright: string;
-  seo: { meta_title: string; meta_description: string };
-}
+export type ApiSettings = components["schemas"]["SettingsResponse"]["data"];
 
 export interface ApiMenuItem {
   label: string;

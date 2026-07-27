@@ -40,7 +40,7 @@ export default function PublicHeader({
   mainMenu,
 }: {
   active?: NavKey;
-  trustPhone?: string;
+  trustPhone?: string | null;
   locale: Locale;
   copy: Dictionary["common"];
   /** Главное меню из CMS (`/menu`.main). Задаёт состав/порядок пунктов. */
