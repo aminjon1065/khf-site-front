@@ -20,3 +20,13 @@ test("shows the chairman as a hero card and deputies in a grid", async ({ page }
   await expect(deputiesSection.getByText("Первый заместитель", { exact: true })).toBeVisible();
   await expect(deputiesSection.getByRole("link", { name: "«Структура»" })).toBeVisible();
 });
+
+test("shows the committee logo instead of a generic placeholder when a leader has no photo", async ({ page }) => {
+  await page.goto("/ru/leadership");
+
+  // LeaderSeeder's rows have no photo attached — ImageSlot's no-src branch
+  // must fall back to the committee logo, not a generic icon.
+  const logos = page.locator('img[src*="logo-kchs-ru"]');
+  await expect(logos.first()).toBeVisible();
+  expect(await logos.count()).toBeGreaterThan(1); // chairman + at least one deputy
+});

@@ -3,15 +3,15 @@
 import type { CSSProperties } from "react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { ImageIcon } from "lucide-react";
 import { localeFromPathname } from "@/lib/i18n/config";
 import { getUiStrings } from "@/lib/i18n/ui-strings";
 import { muted } from "@/components/public/muted";
 
 /**
  * Слот изображения. С `src` — реальное фото (next/image, fill + object-fit),
- * без него — подпись-плейсхолдер (заменяется фото пресс-службы). Клиентский
- * компонент: запасную aria-метку берёт из словаря по локали из URL.
+ * без него — логотип Комитета на нейтральном фоне (заменяется фото пресс-службы
+ * при загрузке в CMS). Клиентский компонент: локаль (для логотипа и запасной
+ * aria-метки) берёт из URL.
  */
 export function ImageSlot({
   src,
@@ -31,7 +31,8 @@ export function ImageSlot({
   /** Above-the-fold usage (e.g. a hero card): skip lazy-loading. */
   eager?: boolean;
 }) {
-  const ui = getUiStrings(localeFromPathname(usePathname()));
+  const locale = localeFromPathname(usePathname());
+  const ui = getUiStrings(locale);
 
   if (src) {
     return (
@@ -62,7 +63,13 @@ export function ImageSlot({
         ...style,
       }}
     >
-      <ImageIcon size={22} strokeWidth={1.5} aria-hidden="true" />
+      <Image
+        src={`/assets/logo-kchs-${locale}.webp`}
+        alt=""
+        width={512}
+        height={506}
+        style={{ width: "38%", maxWidth: 88, height: "auto" }}
+      />
       {label && (
         <span className="text-[11.5px] leading-snug tracking-[.02em]">
           {label}
