@@ -42,8 +42,8 @@ function NewsAside({ news }: { news: ReturnType<typeof getNews> }) {
   const { media, subscribe } = news.aside;
   return (
     <aside className="flex flex-col gap-5">
-      <div className="blueprint duotone h-[170px]">
-        <ImageSlot label={news.aside.photoLabel} />
+      <div className="blueprint h-[170px]">
+        <ImageSlot label={news.aside.photoLabel} duotone />
       </div>
 
       <div className="blueprint flex flex-col gap-2 p-[18px]">

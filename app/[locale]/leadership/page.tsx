@@ -56,8 +56,8 @@ export default async function LeadershipPage({
       {chairman && (
         <section aria-label={pages.leadership.chairmanAria} className="mt-7">
           <article className="blueprint grid min-w-0 grid-cols-[minmax(0,340px)_minmax(0,1fr)] max-[920px]:grid-cols-1">
-            <span className="duotone block min-h-[340px]">
-              <ImageSlot src={chairman.photo_url ?? undefined} />
+            <span className="block min-h-[340px]">
+              <ImageSlot src={chairman.photo_url ?? undefined} duotone />
             </span>
             <span className="flex min-w-0 flex-col gap-2.5 px-7 py-[26px]">
               <span
@@ -112,8 +112,8 @@ export default async function LeadershipPage({
               key={l.id}
               className="blueprint flex min-w-0 flex-col"
             >
-              <span className="duotone block h-[240px]">
-                <ImageSlot src={l.photo_url ?? undefined} />
+              <span className="block h-[240px]">
+                <ImageSlot src={l.photo_url ?? undefined} duotone />
               </span>
               <span className="flex flex-col gap-1 px-4 pb-4 pt-[14px]">
                 <span

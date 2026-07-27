@@ -93,8 +93,8 @@ export default function NewsSlider({
                   {readMore}
                 </Link>
               </div>
-              <div className="duotone min-h-full max-[920px]:order-first max-[920px]:min-h-[210px]">
-                <ImageSlot label={s.photoLabel} />
+              <div className="min-h-full max-[920px]:order-first max-[920px]:min-h-[210px]">
+                <ImageSlot label={s.photoLabel} duotone />
               </div>
             </article>
           ))}

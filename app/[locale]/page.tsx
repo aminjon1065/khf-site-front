@@ -447,7 +447,7 @@ export default async function HomePage({
               className="flex flex-col gap-3"
               style={{ textDecoration: "none", color: "inherit" }}
             >
-              <span className="blueprint duotone block h-[220px]">
+              <span className={`blueprint block h-[220px] ${featured.image ? "duotone" : ""}`}>
                 {featured.image ? (
                   <Image
                     src={featured.image}

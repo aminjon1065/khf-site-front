@@ -238,7 +238,7 @@ export default async function ProjectDetailPage({
 
           {/* Фото */}
           <section aria-label={pages.projectDetail.photoAria} className="mt-7">
-            <figure className="blueprint duotone mb-1.5 h-[300px]">
+            <figure className={`blueprint mb-1.5 h-[300px] ${p.image ? "duotone" : ""}`}>
               {p.image ? (
                 <Image
                   src={p.image}

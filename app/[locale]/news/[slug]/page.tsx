@@ -203,7 +203,7 @@ export default async function ArticlePage({
             />
           </div>
 
-          <figure className="blueprint duotone mb-2 h-[340px]">
+          <figure className={`blueprint mb-2 h-[340px] ${item.image ? "duotone" : ""}`}>
             {item.image ? (
               <Image
                 src={item.image}

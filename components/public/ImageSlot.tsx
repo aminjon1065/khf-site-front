@@ -12,6 +12,11 @@ import { muted } from "@/components/public/muted";
  * без него — логотип Комитета на нейтральном фоне (заменяется фото пресс-службы
  * при загрузке в CMS). Клиентский компонент: локаль (для логотипа и запасной
  * aria-метки) берёт из URL.
+ *
+ * `duotone` — синий фирменный оттенок (`.duotone::after`, globals.css) поверх
+ * реального фото. Применяется ТОЛЬКО к фото: наложенный поверх логотипа-заглушки
+ * тот же слой перекрашивал бы сам логотип — раньше это был класс на обёртке
+ * снаружи ImageSlot, слепо красивший оба состояния одинаково.
  */
 export function ImageSlot({
   src,
@@ -21,6 +26,7 @@ export function ImageSlot({
   className = "",
   style,
   eager = false,
+  duotone = false,
 }: {
   src?: string;
   alt?: string;
@@ -30,6 +36,8 @@ export function ImageSlot({
   style?: CSSProperties;
   /** Above-the-fold usage (e.g. a hero card): skip lazy-loading. */
   eager?: boolean;
+  /** Фирменный синий оттенок поверх реального фото (не применяется к логотипу). */
+  duotone?: boolean;
 }) {
   const locale = localeFromPathname(usePathname());
   const ui = getUiStrings(locale);
@@ -37,7 +45,7 @@ export function ImageSlot({
   if (src) {
     return (
       <span
-        className={`relative block h-full w-full ${className}`}
+        className={`relative block h-full w-full ${duotone ? "duotone" : ""} ${className}`}
         style={style}
       >
         <Image
