@@ -18,6 +18,8 @@ export async function generateMetadata({
   return buildMetadata({ locale, title: pages.meta.contacts, path: "/contacts", siteName: common.siteShort });
 }
 
+export const revalidate = 60;
+
 export default async function ContactsPage({
   params,
 }: {

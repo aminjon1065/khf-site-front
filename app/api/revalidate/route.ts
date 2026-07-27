@@ -36,9 +36,13 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  // Помечаем весь CMS-контент как устаревший (stale-while-revalidate): при
-  // следующем заходе страница отдаст закэшированное и обновится в фоне.
-  revalidateTag("cms", "max");
+  // { expire: 0 } — немедленная инвалидация, а не stale-while-revalidate
+  // ("max"). Это вебхук от CMS, а не обычный визит: следующий же заход
+  // должен увидеть свежий контент, а не отдать старую версию и обновиться
+  // в фоне (тот самый сценарий, для которого Next документирует именно
+  // { expire: 0 } — см. revalidateTag.md, раздел "webhooks or third-party
+  // services that need immediate expiration").
+  revalidateTag("cms", { expire: 0 });
 
   return NextResponse.json({ revalidated: true, tag: "cms", now: Date.now() });
 }
