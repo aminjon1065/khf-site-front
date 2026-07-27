@@ -90,7 +90,7 @@ function AlertBanner({
     return (
       <section
         aria-label={copy.banner.criticalAria}
-        style={{ background: "var(--hz-critical)", color: "#fff" }}
+        style={{ background: "var(--hz-critical-solid)", color: "#fff" }}
       >
         <div className="mx-auto flex w-full max-w-[1160px] flex-col gap-[14px] px-6 py-7 max-[920px]:px-4">
           <div className="flex flex-wrap items-center gap-3">
@@ -110,7 +110,7 @@ function AlertBanner({
             <Link
               href={routes.guides}
               className="btn px-5 py-2.5 text-[15px]"
-              style={{ background: "#fff", color: "var(--hz-critical)", borderColor: "#fff" }}
+              style={{ background: "#fff", color: "var(--hz-critical-solid)", borderColor: "#fff" }}
             >
               {copy.banner.whatToDo}
             </Link>

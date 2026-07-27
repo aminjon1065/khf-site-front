@@ -49,7 +49,7 @@ export default function AnnouncementsFilter({
                 aria-pressed={pressed}
                 className="btn px-[14px] py-1.5 text-[13px] hover:border-[color:var(--color-accent)]"
                 style={{
-                  background: pressed ? "var(--color-accent)" : "transparent",
+                  background: pressed ? "var(--color-accent-solid)" : "transparent",
                   color: pressed ? "var(--color-bg)" : "var(--color-text)",
                 }}
               >

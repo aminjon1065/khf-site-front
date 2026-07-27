@@ -15,18 +15,25 @@ import type { RegionStatus } from "@/lib/types";
 // so prerendering it changes nothing visible — the code-splitting (the
 // actual point of this change) works either way.
 const TjRiskMapImpl = dynamic(() => import("./TjRiskMapImpl"), {
-  loading: () => (
-    <div
-      aria-busy="true"
-      style={{ height: 480, display: "grid", placeItems: "center" }}
-    />
-  ),
+  loading: () => null,
 });
 
-export default function TjRiskMap(props: {
+export default function TjRiskMap({
+  height = 480,
+  ...rest
+}: {
   regions?: RegionStatus[];
   height?: number;
   showLabels?: boolean;
 }) {
-  return <TjRiskMapImpl {...props} />;
+  // Reserve the map's final aspect ratio from the very first paint (same
+  // W/H formula TjRiskMapImpl uses for its SVG viewBox), so the dynamic-import
+  // placeholder, the data-loading placeholder, and the finished map all
+  // occupy the same box instead of the page jumping as each stage swaps in.
+  const aspectRatio = 960 / Math.round((height / 480) * 560);
+  return (
+    <div style={{ aspectRatio }}>
+      <TjRiskMapImpl height={height} {...rest} />
+    </div>
+  );
 }

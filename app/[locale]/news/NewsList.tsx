@@ -62,9 +62,9 @@ export default function NewsList({
             style={
               !activeCategory
                 ? {
-                    background: "var(--color-accent)",
+                    background: "var(--color-accent-solid)",
                     color: "var(--color-bg)",
-                    borderColor: "var(--color-accent)",
+                    borderColor: "var(--color-accent-solid)",
                   }
                 : { color: "inherit" }
             }
@@ -82,9 +82,9 @@ export default function NewsList({
                 style={
                   active
                     ? {
-                        background: "var(--color-accent)",
+                        background: "var(--color-accent-solid)",
                         color: "var(--color-bg)",
-                        borderColor: "var(--color-accent)",
+                        borderColor: "var(--color-accent-solid)",
                       }
                     : { color: "inherit" }
                 }

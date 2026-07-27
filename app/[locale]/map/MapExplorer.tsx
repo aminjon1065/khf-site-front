@@ -107,7 +107,7 @@ export default function MapExplorer({
                 aria-pressed={active}
                 className="btn px-[14px] py-1.5 text-[13px] hover:border-[var(--color-accent)]"
                 style={{
-                  background: active ? "var(--color-accent)" : "transparent",
+                  background: active ? "var(--color-accent-solid)" : "transparent",
                   color: active ? "var(--color-bg)" : "var(--color-text)",
                 }}
               >

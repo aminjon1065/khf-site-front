@@ -13,6 +13,7 @@ import {
 } from "@/lib/levels";
 import { localeFromPathname } from "@/lib/i18n/config";
 import { getUiStrings } from "@/lib/i18n/ui-strings";
+import { muted } from "@/components/public/muted";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyFeature = any;
@@ -99,10 +100,13 @@ export default function TjRiskMapImpl({
       <div
         role="note"
         style={{
+          height: "100%",
+          display: "grid",
+          placeItems: "center",
           padding: 32,
           textAlign: "center",
           fontSize: 13,
-          color: "color-mix(in srgb, var(--color-text) 60%, transparent)",
+          color: muted(65),
         }}
       >
         {ui.error}
@@ -115,11 +119,11 @@ export default function TjRiskMapImpl({
       <div
         aria-busy="true"
         style={{
-          height,
+          height: "100%",
           display: "grid",
           placeItems: "center",
           fontSize: 13,
-          color: "color-mix(in srgb, var(--color-text) 50%, transparent)",
+          color: muted(65),
         }}
       >
         {ui.loading}

@@ -15,6 +15,7 @@ const sans = Fira_Sans({
   weight: ["400", "500", "700"],
   subsets: ["latin", "cyrillic", "cyrillic-ext"],
   display: "swap",
+  preload: false,
 });
 
 const condensed = Fira_Sans_Condensed({
@@ -22,6 +23,7 @@ const condensed = Fira_Sans_Condensed({
   weight: ["400", "600"],
   subsets: ["latin", "cyrillic", "cyrillic-ext"],
   display: "swap",
+  preload: false,
 });
 
 // Статически генерируем по одной ветке на каждый язык (/ru, /tj, /en).

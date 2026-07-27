@@ -86,9 +86,9 @@ export default function Pagination({
             className="btn min-w-[36px]"
             aria-current="page"
             style={{
-              background: "var(--color-accent)",
+              background: "var(--color-accent-solid)",
               color: "var(--color-bg)",
-              borderColor: "var(--color-accent)",
+              borderColor: "var(--color-accent-solid)",
             }}
           >
             {entry}

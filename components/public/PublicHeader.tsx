@@ -194,6 +194,8 @@ export default function PublicHeader({
             alt={header.flagAlt}
             width={1920}
             height={960}
+            sizes="26px"
+            priority
             className="h-[13px] w-auto border border-[var(--color-divider)]"
           />
           <Image
@@ -201,6 +203,8 @@ export default function PublicHeader({
             alt={header.emblemAlt}
             width={330}
             height={327}
+            sizes="18px"
+            priority
             className="h-[18px] w-auto"
           />
           <Link
@@ -273,6 +277,8 @@ export default function PublicHeader({
             alt={header.logoAlt}
             width={512}
             height={506}
+            sizes="(max-width: 920px) 44px, 56px"
+            priority
             className="h-14 w-auto max-[920px]:h-11"
           />
           <span className="block min-w-0">
@@ -308,7 +314,7 @@ export default function PublicHeader({
           href="tel:112"
           className="call-112 inline-flex items-center gap-2 border border-[var(--color-divider)] px-[18px] py-2.5 text-[16px] font-semibold uppercase tracking-[.03em] text-white [box-shadow:var(--shadow-sm)] [font-family:var(--font-heading)] max-[920px]:ml-auto max-[920px]:px-[13px] max-[920px]:py-[9px] max-[920px]:text-[15px]"
           aria-label={header.emergencyAria}
-          style={{ background: "var(--hz-critical)", textDecoration: "none" }}
+          style={{ background: "var(--hz-critical-solid)", textDecoration: "none" }}
         >
           <Phone size={16} strokeWidth={1.5} aria-hidden="true" />
           112
@@ -489,6 +495,7 @@ export default function PublicHeader({
                 alt=""
                 width={512}
                 height={506}
+                sizes="34px"
                 className="h-[34px] w-auto"
               />
               <span className="flex-1 text-[15px] font-semibold uppercase [font-family:var(--font-heading)]">
@@ -584,7 +591,7 @@ export default function PublicHeader({
                 href="tel:112"
                 className="flex min-h-[48px] items-center justify-center gap-2 text-[17px] font-semibold uppercase tracking-[.03em] text-white [font-family:var(--font-heading)]"
                 style={{
-                  background: "var(--hz-critical)",
+                  background: "var(--hz-critical-solid)",
                   textDecoration: "none",
                 }}
               >
