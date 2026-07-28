@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import { ImageIcon } from "lucide-react";
 import { localeFromPathname } from "@/lib/i18n/config";
 import { getUiStrings } from "@/lib/i18n/ui-strings";
@@ -17,6 +18,8 @@ export function ImageSlot({
   alt,
   label,
   fit = "cover",
+  sizes = "100vw",
+  preload = false,
   className = "",
   style,
 }: {
@@ -24,6 +27,8 @@ export function ImageSlot({
   alt?: string;
   label?: string;
   fit?: "cover" | "contain";
+  sizes?: string;
+  preload?: boolean;
   className?: string;
   style?: CSSProperties;
 }) {
@@ -31,13 +36,16 @@ export function ImageSlot({
 
   if (src) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={src}
-        alt={alt ?? label ?? ""}
-        className={className}
-        style={{ width: "100%", height: "100%", objectFit: fit, ...style }}
-      />
+      <div className={`relative h-full w-full ${className}`} style={style}>
+        <Image
+          src={src}
+          alt={alt ?? label ?? ""}
+          fill
+          sizes={sizes}
+          preload={preload}
+          style={{ objectFit: fit }}
+        />
+      </div>
     );
   }
   return (

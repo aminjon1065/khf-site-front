@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { unstable_cache } from "next/cache";
 import { siteUrl } from "@/lib/seo";
 import { LOCALES, DEFAULT_LOCALE, htmlLang } from "@/lib/i18n/config";
 import {
@@ -8,6 +9,7 @@ import {
   fetchInstructions,
   fetchPages,
 } from "@/lib/api";
+import { cmsCacheTags } from "@/lib/cache-tags";
 
 // Статические разделы портала — по одному URL на локаль. Поиск (`/search`) намеренно
 // исключён: он под disallow в robots.txt и не должен попадать в карту сайта.
@@ -27,6 +29,28 @@ const STATIC_PATHS = [
   "/sos",
   "/sitemap",
 ] as const;
+
+const fetchDynamicRoutes = unstable_cache(
+  async (): Promise<{ type: string; slugs: string[] }[]> => {
+    const [news, projects, alerts, instructions, pages] = await Promise.all([
+      fetchNews({ perPage: 100, locale: DEFAULT_LOCALE }),
+      fetchProjects(DEFAULT_LOCALE),
+      fetchAlerts(DEFAULT_LOCALE),
+      fetchInstructions(DEFAULT_LOCALE),
+      fetchPages(DEFAULT_LOCALE),
+    ]);
+
+    return [
+      { type: "news", slugs: news.data.map((item) => item.slug) },
+      { type: "projects", slugs: projects.map((item) => item.slug) },
+      { type: "alerts", slugs: alerts.map((item) => item.slug) },
+      { type: "guides", slugs: instructions.map((item) => item.slug) },
+      { type: "pages", slugs: pages.map((item) => item.slug) },
+    ];
+  },
+  ["cms-sitemap-dynamic-routes"],
+  { revalidate: 60, tags: [cmsCacheTags.sitemap] },
+);
 
 /**
  * hreflang-альтернаты для пути без локали: ключи — канонические коды языка
@@ -58,22 +82,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   //    тип один раз (дефолтная локаль) и разворачиваем по всем локалям. Сбой API не
   //    должен ронять карту сайта — тогда вернём хотя бы статические маршруты.
   try {
-    const [news, projects, alerts, instructions, pages] = await Promise.all([
-      fetchNews({ perPage: 100, locale: DEFAULT_LOCALE }),
-      fetchProjects(DEFAULT_LOCALE),
-      fetchAlerts(DEFAULT_LOCALE),
-      fetchInstructions(DEFAULT_LOCALE),
-      fetchPages(DEFAULT_LOCALE),
-    ]);
-
     // Инструкции живут под /guides, страницы — под /pages (см. app/[locale]/…).
-    const dynamic: { type: string; slugs: string[] }[] = [
-      { type: "news", slugs: news.data.map((n) => n.slug) },
-      { type: "projects", slugs: projects.map((p) => p.slug) },
-      { type: "alerts", slugs: alerts.map((a) => a.slug) },
-      { type: "guides", slugs: instructions.map((i) => i.slug) },
-      { type: "pages", slugs: pages.map((p) => p.slug) },
-    ];
+    const dynamic = await fetchDynamicRoutes();
 
     for (const { type, slugs } of dynamic) {
       for (const slug of slugs) {

@@ -16,7 +16,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common } = getDictionary(locale);
-  return buildMetadata({ locale, title: getMap(locale).title, path: "/map", siteName: common.siteShort });
+  const map = getMap(locale);
+
+  return buildMetadata({
+    locale,
+    title: map.title,
+    description: map.subtitle,
+    path: "/map",
+    siteName: common.siteShort,
+  });
 }
 
 // ISR: оперативная обстановка перечитывается из CMS не чаще раза в минуту.

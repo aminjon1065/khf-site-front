@@ -16,7 +16,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common } = getDictionary(locale);
-  return buildMetadata({ locale, title: getNews(locale).metaTitle, path: "/news", siteName: common.siteShort });
+  const news = getNews(locale);
+
+  return buildMetadata({
+    locale,
+    title: news.metaTitle,
+    description: news.metaDescription,
+    path: "/news",
+    siteName: common.siteShort,
+  });
 }
 
 // ISR: страница пересобирается не чаще раза в минуту, данные — из CMS.
@@ -32,9 +40,9 @@ function NewsAside({ news }: { news: ReturnType<typeof getNews> }) {
       </div>
 
       <div className="blueprint flex flex-col gap-2 p-[18px]">
-        <h6 className="m-0" style={{ color: muted(55) }}>
+        <h2 className="m-0 text-base" style={{ color: muted(55) }}>
           {media.title}
-        </h6>
+        </h2>
         <p className="m-0 text-[13px] leading-[1.55]" style={{ color: muted(70) }}>
           {media.text}
         </p>
@@ -48,9 +56,9 @@ function NewsAside({ news }: { news: ReturnType<typeof getNews> }) {
       </div>
 
       <div className="blueprint flex flex-col gap-2 p-[18px]">
-        <h6 className="m-0" style={{ color: muted(55) }}>
+        <h2 className="m-0 text-base" style={{ color: muted(55) }}>
           {subscribe.title}
-        </h6>
+        </h2>
         <p className="m-0 text-[13px] leading-[1.55]" style={{ color: muted(70) }}>
           {subscribe.text}
         </p>

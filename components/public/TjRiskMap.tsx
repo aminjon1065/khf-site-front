@@ -95,6 +95,9 @@ export default function TjRiskMap({
       <div
         role="note"
         style={{
+          aspectRatio: `${W} / ${H}`,
+          display: "grid",
+          placeItems: "center",
           padding: 32,
           textAlign: "center",
           fontSize: 13,
@@ -111,7 +114,7 @@ export default function TjRiskMap({
       <div
         aria-busy="true"
         style={{
-          height,
+          aspectRatio: `${W} / ${H}`,
           display: "grid",
           placeItems: "center",
           fontSize: 13,
@@ -126,7 +129,7 @@ export default function TjRiskMap({
   const { path, shapes, labels } = built;
 
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative", aspectRatio: `${W} / ${H}` }}>
       <svg
         viewBox={`0 0 ${W} ${H}`}
         role="img"

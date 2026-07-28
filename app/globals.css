@@ -17,7 +17,7 @@
   --color-bg: #f2f2f3;
   --color-surface: #e9e9ea;
   --color-text: #1d1f20;
-  --color-accent: #5980a6;
+  --color-accent: #416180;
   --color-accent-2: #728fab;
   --color-divider: color-mix(in srgb, #1d1f20 16%, transparent);
 
@@ -153,7 +153,7 @@ html {
   figcaption {
     font-size: 11px;
     margin-top: var(--space-1);
-    color: color-mix(in srgb, var(--color-text) 55%, transparent);
+    color: color-mix(in srgb, var(--color-text) 70%, transparent);
   }
   :focus { outline: none; }
   :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
@@ -161,7 +161,7 @@ html {
 }
 
 @layer components {
-  .text-muted { color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+  .text-muted { color: color-mix(in srgb, var(--color-text) 70%, transparent); }
 
   /* — карточка-«blueprint»: спокойный режим без крестиков по углам,
        тонкая рамка + мягкая тень (решение заказчика). — */
@@ -246,7 +246,7 @@ html {
     margin-top: var(--space-1);
     font-size: 12.5px;
     line-height: 1.4;
-    color: color-mix(in srgb, var(--color-text) 60%, transparent);
+    color: color-mix(in srgb, var(--color-text) 70%, transparent);
     text-align: center;
   }
   .article-prose::after { content: ""; display: block; clear: both; }
@@ -294,8 +294,8 @@ html {
   .btn svg { display: block; }
   .btn:disabled { opacity: 0.45; cursor: not-allowed; }
   .btn-primary { background: var(--color-accent); color: var(--color-bg); border-color: var(--color-accent); }
-  .btn-primary:hover { background: var(--color-accent-600); }
-  .btn-primary:active { background: var(--color-accent-700); }
+  .btn-primary:hover { background: var(--color-accent-800); }
+  .btn-primary:active { background: var(--color-accent-900); }
   .btn-secondary { border-color: var(--color-divider); }
   .btn-secondary:hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
   .btn-secondary:active { background: color-mix(in srgb, var(--color-text) 14%, transparent); }
@@ -342,7 +342,7 @@ html {
     padding: 7px 12px; font-size: 13px; cursor: pointer;
   }
   .seg-opt + .seg-opt { border-left: 1px solid var(--color-divider); }
-  .seg-opt:has(input:checked) { background: var(--color-accent); color: var(--color-bg); }
+  .seg-opt:has(input:checked) { background: var(--color-accent-700); color: var(--color-bg); }
   .seg-opt:not(:has(input:checked)):hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
   .seg-opt:has(input:focus-visible) { outline: 2px solid var(--color-accent); outline-offset: -2px; }
 
@@ -412,7 +412,9 @@ html {
   .sos-outline:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
 
   /* ── Выдвижное мобильное меню ── */
-  .mnav-backdrop { position: fixed; inset: 0; z-index: 90; background: rgba(10, 14, 18, 0.5); }
+  body:has(.mnav[open]) { overflow: hidden; }
+  .mnav::backdrop { background: rgba(10, 14, 18, 0.5); }
+  .mnav:not([open]) { display: none; }
   .mnav {
     position: fixed; top: 0; right: 0; bottom: 0; z-index: 95;
     width: min(340px, 90vw); background: var(--color-bg); box-shadow: var(--shadow-lg);

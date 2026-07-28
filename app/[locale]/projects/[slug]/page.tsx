@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "@/components/i18n/LocaleLink";
 import { notFound } from "next/navigation";
 import PageShell from "@/components/public/PageShell";
+import CmsImage from "@/components/public/CmsImage";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
 import { fetchProject, fetchProjects } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { routes } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
+import { cmsImageSource } from "@/lib/media";
 import { getProjectBreadcrumb } from "./content";
 
 export const revalidate = 60;
@@ -50,12 +52,14 @@ export async function generateMetadata({
   if (!p) {
     return { title: pages.meta.projectFallback, robots: { index: false } };
   }
+  const image = cmsImageSource(p.image_data);
+
   return buildMetadata({
     locale: loc,
     title: p.title,
     description: p.desc,
     path: `/projects/${slug}`,
-    images: p.image ? [p.image] : undefined,
+    images: image ? [image] : undefined,
     type: "article",
     siteName: common.siteShort,
   });
@@ -75,6 +79,7 @@ export default async function ProjectDetailPage({
   if (!p) {
     notFound();
   }
+  const hasImage = cmsImageSource(p.image_data) !== null;
 
   const meta = [
     { label: pages.projectDetail.customer, value: p.customer },
@@ -95,7 +100,7 @@ export default async function ProjectDetailPage({
   const related = all.filter((r) => r.slug !== slug).slice(0, 3);
 
   return (
-    <PageShell active="" locale={locale}>
+    <PageShell active="projects" locale={locale}>
       <Breadcrumbs
         items={[
           { label: projectBreadcrumb.home, href: routes.home },
@@ -213,15 +218,11 @@ export default async function ProjectDetailPage({
 
           {/* Фото */}
           <section aria-label={pages.projectDetail.photoAria} className="mt-7">
-            <figure className="blueprint duotone mb-1.5 h-[300px]">
-              {p.image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={p.image}
-                  srcSet={p.image_srcset ?? undefined}
+            <figure className="blueprint duotone relative mb-1.5 h-[300px]">
+              {hasImage && p.image_data ? (
+                <CmsImage
+                  image={p.image_data}
                   sizes="(max-width: 920px) 100vw, 720px"
-                  alt={p.title}
-                  className="h-full w-full object-cover"
                 />
               ) : (
                 <ImageSlot label={pages.projectDetail.photoLabel} />

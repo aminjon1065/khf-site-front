@@ -14,6 +14,7 @@ import { toLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary, type Dictionary } from "@/lib/i18n/dictionaries";
 import { routes } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
+import { cmsImageSource } from "@/lib/media";
 import type { Run, SectionTone } from "./content";
 
 export const revalidate = 60;
@@ -94,12 +95,14 @@ export async function generateMetadata({
   if (!item) {
     return { title: pages.meta.guideFallback, robots: { index: false } };
   }
+  const image = cmsImageSource(item.image_data);
+
   return buildMetadata({
     locale: loc,
     title: item.title,
     description: item.summary,
     path: `/guides/${slug}`,
-    images: item.image ? [item.image] : undefined,
+    images: image ? [image] : undefined,
     type: "article",
     siteName: common.siteShort,
   });

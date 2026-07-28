@@ -3,10 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-   "dev": "NODE_EXTRA_CA_CERTS=\"$(mkcert -CAROOT)/rootCA.pem\" next dev",
+    "api:types": "node scripts/generate-api-types.mjs",
+    "api:types:check": "node scripts/generate-api-types.mjs --check",
+    "dev": "NODE_EXTRA_CA_CERTS=\"$(mkcert -CAROOT)/rootCA.pem\" next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:a11y": "playwright test tests/e2e/accessibility.spec.ts",
+    "lighthouse:ci": "lhci autorun",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "d3-geo": "^3.1.1",
@@ -17,6 +24,9 @@
     "topojson-client": "^3.1.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.62.0",
     "@tailwindcss/postcss": "^4",
     "@types/d3-geo": "^3.1.0",
     "@types/node": "^20",
@@ -26,6 +36,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "tailwindcss": "^4",
-    "typescript": "^5"
-  }
+    "typescript": "^5",
+    "vitest": "^4.1.10"
+  },
+  "packageManager": "pnpm@11.17.0+sha512.cca3cea332ad254bb84145f966d19f4879615210346fc92c79a047f23a0d7b3cca3c3792f0076ba1f1831d277efbcf0a9119b31a9a60eca7fb3d6231f331ef72"
 }

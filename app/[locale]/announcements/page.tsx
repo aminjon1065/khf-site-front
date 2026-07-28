@@ -78,7 +78,7 @@ export default async function AnnouncementsPage({
   const data = await fetchAnnouncements(locale);
 
   return (
-    <PageShell active="" locale={locale}>
+    <PageShell active="announcements" locale={locale}>
       <Breadcrumbs items={c.breadcrumbs} />
       <div className="flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">
         <h1 className="m-0 text-[36px] uppercase tracking-[.02em]">{c.title}</h1>
