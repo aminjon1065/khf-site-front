@@ -1,14 +1,15 @@
 import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
+import { parseRevalidationPayload } from "@/lib/cache-tags";
 
 // Приёмник вебхука ревалидации от CMS. При публикации/обновлении контента
 // Laravel-джоба App\Jobs\RevalidateFrontend шлёт:
 //   POST /api/revalidate
 //   Authorization: Bearer <FRONTEND_REVALIDATION_SECRET>
-//   { "tag": "cms" }
+//   { "type": "news", "id": 42, "slug": "storm", "locales": ["ru"], ... }
 // Секрет фронта (REVALIDATION_SECRET) должен совпадать с CMS-овским
-// FRONTEND_REVALIDATION_SECRET. Все fetch в lib/api.ts помечены tags:["cms"].
+// FRONTEND_REVALIDATION_SECRET.
 
 /** Сравнение секретов за постоянное время (защита от timing-атак). */
 function secretMatches(provided: string, expected: string): boolean {
@@ -36,13 +37,37 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  // { expire: 0 } — немедленная инвалидация, а не stale-while-revalidate
-  // ("max"). Это вебхук от CMS, а не обычный визит: следующий же заход
-  // должен увидеть свежий контент, а не отдать старую версию и обновиться
-  // в фоне (тот самый сценарий, для которого Next документирует именно
-  // { expire: 0 } — см. revalidateTag.md, раздел "webhooks or third-party
-  // services that need immediate expiration").
-  revalidateTag("cms", { expire: 0 });
+  let json: unknown;
+  try {
+    json = await request.json();
+  } catch {
+    return NextResponse.json(
+      { revalidated: false, error: "invalid_json" },
+      { status: 400 },
+    );
+  }
 
-  return NextResponse.json({ revalidated: true, tag: "cms", now: Date.now() });
+  const payload = parseRevalidationPayload(json);
+  if (!payload) {
+    return NextResponse.json(
+      { revalidated: false, error: "invalid_contract" },
+      { status: 422 },
+    );
+  }
+
+  // { expire: 0 } — немедленная инвалидация, а не stale-while-revalidate
+  // ("max"). Это вебхук от CMS, а не обычный визит: следующий же заход должен
+  // увидеть свежий контент, а не отдать старую версию и обновиться в фоне
+  // (тот самый сценарий, для которого Next документирует именно { expire: 0 } —
+  // см. revalidateTag.md, раздел "webhooks or third-party services that need
+  // immediate expiration").
+  for (const tag of payload.tags) {
+    revalidateTag(tag, { expire: 0 });
+  }
+
+  return NextResponse.json({
+    revalidated: true,
+    tags: payload.tags,
+    now: Date.now(),
+  });
 }

@@ -17,7 +17,7 @@
   --color-bg: #f2f2f3;
   --color-surface: #e9e9ea;
   --color-text: #1d1f20;
-  --color-accent: #5980a6;
+  --color-accent: #416180;
   --color-accent-2: #728fab;
   --color-divider: color-mix(in srgb, #1d1f20 16%, transparent);
 
@@ -440,7 +440,9 @@ html {
   .sos-outline:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
 
   /* ── Выдвижное мобильное меню ── */
-  .mnav-backdrop { position: fixed; inset: 0; z-index: 90; background: rgba(10, 14, 18, 0.5); }
+  body:has(.mnav[open]) { overflow: hidden; }
+  .mnav::backdrop { background: rgba(10, 14, 18, 0.5); }
+  .mnav:not([open]) { display: none; }
   .mnav {
     position: fixed; top: 0; right: 0; bottom: 0; z-index: 95;
     width: min(340px, 90vw); background: var(--color-bg); box-shadow: var(--shadow-lg);

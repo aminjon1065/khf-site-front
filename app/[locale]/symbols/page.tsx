@@ -1,13 +1,34 @@
-import Link from "@/components/i18n/LocaleLink";
 import Image from "next/image";
+import Link from "@/components/i18n/LocaleLink";
 import PageShell from "@/components/public/PageShell";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
+import emblemImage from "@/public/assets/emblem-tj.png";
+import flagImage from "@/public/assets/flag-tj.png";
 import type { Metadata } from "next";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { buildMetadata } from "@/lib/seo";
-import { getSymbolsContent } from "./content";
+import { getSymbolsContent, type SymbolBlock } from "./content";
+
+function SymbolImage({ image }: { image: SymbolBlock["image"] }) {
+  const source = image.src === "/assets/flag-tj.png" ? flagImage : emblemImage;
+
+  return (
+    <Image
+      src={source}
+      alt={image.alt}
+      sizes={`(max-width: 920px) calc(100vw - 80px), ${image.maxWidth}px`}
+      className="h-auto w-full"
+      style={{
+        maxWidth: image.maxWidth,
+        ...(image.bordered
+          ? { border: "1px solid var(--color-divider)" }
+          : {}),
+      }}
+    />
+  );
+}
 
 export async function generateMetadata({
   params,
@@ -54,20 +75,7 @@ export default async function SymbolsPage({
           }`}
         >
           <figure className="blueprint m-0 grid place-items-center p-6">
-            <Image
-              src={s.image.src}
-              alt={s.image.alt}
-              width={s.image.width}
-              height={s.image.height}
-              className="h-auto w-full"
-              style={{
-                maxWidth: s.image.maxWidth,
-                height: "auto",
-                ...(s.image.bordered
-                  ? { border: "1px solid var(--color-divider)" }
-                  : {}),
-              }}
-            />
+            <SymbolImage image={s.image} />
           </figure>
           <div className="min-w-0">
             <span

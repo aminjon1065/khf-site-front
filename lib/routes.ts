@@ -29,5 +29,7 @@ export type NavKey =
   | "guides"
   | "map"
   | "documents"
+  | "projects"
+  | "announcements"
   | "contacts"
   | "";

@@ -6,10 +6,9 @@ import { usePathname } from "next/navigation";
 import Link from "@/components/i18n/LocaleLink";
 import { Search } from "lucide-react";
 import { muted } from "@/components/public/ui";
-import type { ApiCategory } from "@/lib/api";
+import type { ApiCategory, ApiNewsItem } from "@/lib/api";
 import { localeFromPathname } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
-import type { NewsItem } from "@/lib/types";
 import { getNews } from "./content";
 
 /**
@@ -27,7 +26,7 @@ export default function NewsList({
   activeCategory,
 }: {
   aside: ReactNode;
-  posts: NewsItem[];
+  posts: ApiNewsItem[];
   categories: ApiCategory[];
   activeCategory?: string;
 }) {
@@ -36,7 +35,7 @@ export default function NewsList({
   const { filter, feed, empty } = news;
   const [q, setQ] = useState("");
 
-  const results = useMemo<NewsItem[]>(() => {
+  const results = useMemo<ApiNewsItem[]>(() => {
     const needle = q.trim().toLowerCase();
     if (!needle) {
       return posts;

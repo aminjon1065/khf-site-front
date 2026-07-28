@@ -23,6 +23,8 @@ export function ImageSlot({
   alt,
   label,
   fit = "cover",
+  sizes = "(max-width: 920px) 100vw, 380px",
+  preload = false,
   className = "",
   style,
   eager = false,
@@ -32,6 +34,10 @@ export function ImageSlot({
   alt?: string;
   label?: string;
   fit?: "cover" | "contain";
+  /** Подсказка браузеру о реальном размере слота в вёрстке. */
+  sizes?: string;
+  /** LCP-изображение: попросить браузер загрузить его приоритетно. */
+  preload?: boolean;
   className?: string;
   style?: CSSProperties;
   /** Above-the-fold usage (e.g. a hero card): skip lazy-loading. */
@@ -52,7 +58,8 @@ export function ImageSlot({
           src={src}
           alt={alt ?? label ?? ""}
           fill
-          sizes="(max-width: 920px) 100vw, 380px"
+          sizes={sizes}
+          preload={preload}
           style={{ objectFit: fit }}
           loading={eager ? "eager" : undefined}
         />

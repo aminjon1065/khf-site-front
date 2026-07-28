@@ -24,10 +24,12 @@ export async function generateMetadata({
   const locale = toLocale((await params).locale);
   const { common } = getDictionary(locale);
   const page = Math.max(1, Number((await searchParams).page) || 1);
-  const baseTitle = getNews(locale).metaTitle;
+  const news = getNews(locale);
+  const baseTitle = news.metaTitle;
   return buildMetadata({
     locale,
     title: page > 1 ? `${baseTitle} — ${page}` : baseTitle,
+    description: news.metaDescription,
     path: "/news",
     siteName: common.siteShort,
     page,
@@ -47,9 +49,9 @@ function NewsAside({ news }: { news: ReturnType<typeof getNews> }) {
       </div>
 
       <div className="blueprint flex flex-col gap-2 p-[18px]">
-        <h6 className="m-0" style={{ color: muted(55) }}>
+        <h2 className="m-0 text-base" style={{ color: muted(55) }}>
           {media.title}
-        </h6>
+        </h2>
         <p className="m-0 text-[13px] leading-[1.55]" style={{ color: muted(70) }}>
           {media.text}
         </p>
@@ -63,9 +65,9 @@ function NewsAside({ news }: { news: ReturnType<typeof getNews> }) {
       </div>
 
       <div className="blueprint flex flex-col gap-2 p-[18px]">
-        <h6 className="m-0" style={{ color: muted(55) }}>
+        <h2 className="m-0 text-base" style={{ color: muted(55) }}>
           {subscribe.title}
-        </h6>
+        </h2>
         <p className="m-0 text-[13px] leading-[1.55]" style={{ color: muted(70) }}>
           {subscribe.text}
         </p>

@@ -1,36 +1,35 @@
-"use client";
-
-import { Fragment, useEffect, useRef, useState, type FormEvent } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { Fragment } from "react";
 import Image from "next/image";
-import Link from "@/components/i18n/LocaleLink";
-import {
-  Moon,
-  Sun,
-  Phone,
-  ChevronDown,
-  Smartphone,
-  Menu,
-  X,
-  Search,
-} from "lucide-react";
-import { routes, type NavKey } from "@/lib/routes";
-import { muted } from "@/components/public/ui";
-import {
-  LOCALES,
-  LOCALE_LABELS,
-  stripLocale,
-  withLocale,
-  type Locale,
-} from "@/lib/i18n/config";
-import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
+import NextLink from "next/link";
+import { ChevronDown, Phone, Search, Smartphone, X } from "lucide-react";
+import emblemImage from "@/public/assets/emblem-tj.png";
+import flagImage from "@/public/assets/flag-tj.png";
+import logoImage from "@/public/assets/logo-kchs-ru.webp";
+import LocaleSwitcher from "@/components/public/header/LocaleSwitcher";
+import MobileMenuButton from "@/components/public/header/MobileMenuButton";
+import ThemeToggle from "@/components/public/header/ThemeToggle";
+import { muted } from "@/components/public/muted";
 import type { ApiMenuItem } from "@/lib/api";
+import { withLocale, type Locale } from "@/lib/i18n/config";
+import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
+import { routes, type NavKey } from "@/lib/routes";
 
 interface NavItem {
   label: string;
   href: string;
   children: { label: string; href: string }[];
 }
+
+const activeRoutes: Partial<Record<NavKey, string>> = {
+  home: routes.home,
+  news: routes.news,
+  guides: routes.guides,
+  map: routes.map,
+  documents: routes.documents,
+  projects: routes.projects,
+  announcements: routes.announcements,
+  contacts: routes.contacts,
+};
 
 export default function PublicHeader({
   active = "",
@@ -47,10 +46,6 @@ export default function PublicHeader({
   mainMenu?: ApiMenuItem[];
 }) {
   const { header, nav: navCopy } = copy;
-
-  // Локализованная подпись пункта по его URL (для известных маршрутов портала).
-  // CMS отдаёт подписи с фолбэком на русский (на /en они и вовсе пустые), поэтому
-  // для стандартных разделов берём перевод из словаря, а не «сырую» подпись CMS.
   const navLabelByUrl: Record<string, string> = {
     [routes.news]: navCopy.news,
     [routes.guides]: navCopy.guides,
@@ -62,224 +57,121 @@ export default function PublicHeader({
     [routes.leadership]: navCopy.leadership,
     [routes.structure]: navCopy.structure,
   };
-
-  // Статичный фолбэк, если CMS-меню пустое/недоступно (совпадает по составу с CMS).
   const staticNav: NavItem[] = [
     { label: navCopy.news, href: routes.news, children: [] },
     { label: navCopy.guides, href: routes.guides, children: [] },
     { label: navCopy.map, href: routes.map, children: [] },
     { label: navCopy.documents, href: routes.documents, children: [] },
     { label: navCopy.projects, href: routes.projects, children: [] },
-    { label: navCopy.announcements, href: routes.announcements, children: [] },
+    {
+      label: navCopy.announcements,
+      href: routes.announcements,
+      children: [],
+    },
     { label: navCopy.contacts, href: routes.contacts, children: [] },
   ];
 
-  // Превращаем пункт CMS в NavItem: подпись из словаря (или CMS для кастомных),
-  // пропускаем пустые и домашний «/» (Home — отдельная ссылка).
   const toNavItem = (item: ApiMenuItem): NavItem | null => {
     const href = item.url ?? "";
     if (!href || href === "/") {
       return null;
     }
+
     const label = navLabelByUrl[href] ?? item.label;
     if (!label.trim()) {
       return null;
     }
+
     const children = (item.children ?? [])
-      .map((c): { label: string; href: string } | null => {
-        const chref = c.url ?? "";
-        const clabel = chref ? (navLabelByUrl[chref] ?? c.label) : c.label;
-        return chref && clabel.trim() ? { label: clabel, href: chref } : null;
+      .map((child): { label: string; href: string } | null => {
+        const childHref = child.url ?? "";
+        const childLabel = childHref
+          ? (navLabelByUrl[childHref] ?? child.label)
+          : child.label;
+
+        return childHref && childLabel.trim()
+          ? { label: childLabel, href: childHref }
+          : null;
       })
-      .filter((c): c is { label: string; href: string } => c !== null);
+      .filter(
+        (child): child is { label: string; href: string } => child !== null,
+      );
+
     return { label, href, children };
   };
 
   const cmsNav = (mainMenu ?? [])
     .map(toNavItem)
-    .filter((i): i is NavItem => i !== null);
+    .filter((item): item is NavItem => item !== null);
   const navItems = cmsNav.length > 0 ? cmsNav : staticNav;
-
-  const router = useRouter();
-  const pathname = usePathname();
-  const currentPath = stripLocale(pathname);
-  // Активный пункт по пути (устойчиво к деталям, напр. /news/slug → News).
   const isActiveHref = (href: string): boolean =>
-    href !== "/" &&
-    (currentPath === href || currentPath.startsWith(`${href}/`));
-
+    active !== "" && activeRoutes[active] === href;
   const phone = trustPhone || header.trustPhone;
   const phoneHref = `tel:${phone.replace(/[^+\d]/g, "")}`;
-  const [aboutOpen, setAboutOpen] = useState(false);
-  const [navOpen, setNavOpen] = useState(false);
-  const [openIdx, setOpenIdx] = useState<number | null>(null);
-  const [query, setQuery] = useState("");
-  const aboutRef = useRef<HTMLSpanElement>(null);
-
-  // Поиск: переход на /{locale}/search?q=… (мин. 2 символа).
-  const submitSearch = (e: FormEvent) => {
-    e.preventDefault();
-    const term = query.trim();
-    if (term.length < 2) {
-      return;
-    }
-    setNavOpen(false);
-    router.push(withLocale(locale, `/search?q=${encodeURIComponent(term)}`));
-  };
-
-  // Смена языка: переходим на тот же путь под новым префиксом локали. Выбор
-  // запоминает proxy (ставит cookie NEXT_LOCALE по локали URL), поэтому здесь
-  // достаточно навигации.
-  const switchLocale = (next: Locale) => {
-    if (next === locale) {
-      return;
-    }
-    router.push(withLocale(next, stripLocale(pathname)));
-  };
-
-  // Клик вне дропдауна «О нас» и Escape — закрытие.
-  useEffect(() => {
-    if (!aboutOpen) return;
-    const onDown = (e: MouseEvent) => {
-      if (aboutRef.current && !aboutRef.current.contains(e.target as Node))
-        setAboutOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) =>
-      e.key === "Escape" && setAboutOpen(false);
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [aboutOpen]);
-
-  // Блокировка прокрутки фона и Escape при открытом мобильном меню.
-  useEffect(() => {
-    if (!navOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setNavOpen(false);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [navOpen]);
-
-  const toggleTheme = () => {
-    const el = document.documentElement;
-    const dark = el.getAttribute("data-theme") === "dark";
-    if (dark) {
-      el.removeAttribute("data-theme");
-      localStorage.setItem("kchs-theme", "light");
-    } else {
-      el.setAttribute("data-theme", "dark");
-      localStorage.setItem("kchs-theme", "dark");
-    }
-  };
-
   const aboutActive = active === "about";
+  const localize = (href: string): string => withLocale(locale, href);
 
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--color-divider)] bg-[var(--color-bg)]">
-      {/* Ярус 1 — служебная панель */}
       <div className="border-b border-[var(--color-divider)]">
         <div
           className="mx-auto flex w-full max-w-[1160px] items-center gap-3 px-6 py-1.5 text-xs max-[920px]:px-4"
           style={{ color: muted(65) }}
         >
           <Image
-            src="/assets/flag-tj.png"
+            src={flagImage}
             alt={header.flagAlt}
-            width={1920}
-            height={960}
-            sizes="26px"
-            priority
+            width={26}
+            height={13}
             className="h-[13px] w-auto border border-[var(--color-divider)]"
           />
           <Image
-            src="/assets/emblem-tj.png"
+            src={emblemImage}
             alt={header.emblemAlt}
-            width={330}
-            height={327}
-            sizes="18px"
-            priority
+            width={18}
+            height={18}
             className="h-[18px] w-auto"
           />
-          <Link
-            href={routes.symbols}
+          <NextLink
+            href={localize(routes.symbols)}
             className="toplink text-[11px] uppercase tracking-[.04em]"
             style={{ color: "inherit", textDecoration: "none" }}
           >
             {header.stateSymbols}
-          </Link>
+          </NextLink>
           <span className="flex-1" />
-          <Link
-            href={routes.sitemap}
+          <NextLink
+            href={localize(routes.sitemap)}
             className="toplink px-1.5 py-1 max-[920px]:hidden"
             style={{ color: "inherit", textDecoration: "none" }}
           >
             {header.sitemap}
-          </Link>
-          <Link
-            href={routes.structure}
+          </NextLink>
+          <NextLink
+            href={localize(routes.structure)}
             className="toplink px-1.5 py-1 max-[920px]:hidden"
             style={{ color: "inherit", textDecoration: "none" }}
           >
             {header.subdivisions}
-          </Link>
-          <button
-            onClick={toggleTheme}
-            aria-label={header.themeToggle}
-            title={header.themeTitle}
-            className="toplink inline-flex cursor-pointer items-center gap-1.5 border border-transparent bg-transparent px-1.5 py-1 [font:inherit]"
-            style={{ color: "inherit" }}
-          >
-            <Moon
-              className="ico-moon"
-              size={15}
-              strokeWidth={1.5}
-              aria-hidden="true"
-            />
-            <Sun
-              className="ico-sun"
-              size={15}
-              strokeWidth={1.5}
-              aria-hidden="true"
-            />
-          </button>
-          <span className="seg" role="group" aria-label={header.langGroup}>
-            {LOCALES.map((l) => (
-              <label key={l} className="seg-opt px-2.5 py-[3px] text-xs">
-                <input
-                  type="radio"
-                  name="lang"
-                  checked={locale === l}
-                  onChange={() => switchLocale(l)}
-                />
-                {LOCALE_LABELS[l]}
-              </label>
-            ))}
-          </span>
+          </NextLink>
+          <ThemeToggle label={header.themeToggle} title={header.themeTitle} />
+          <LocaleSwitcher label={header.langGroup} locale={locale} />
         </div>
       </div>
 
-      {/* Ярус 2 — бренд-строка */}
       <div className="mx-auto flex w-full max-w-[1160px] flex-wrap items-center gap-4 px-6 py-4 max-[920px]:flex-nowrap max-[920px]:gap-2.5 max-[920px]:px-4 max-[920px]:py-2.5">
-        <Link
-          href={routes.home}
+        <NextLink
+          href={localize(routes.home)}
           className="flex min-w-0 items-center gap-[14px] max-[920px]:flex-1"
           style={{ textDecoration: "none", color: "inherit" }}
         >
           <Image
-            src="/assets/logo-kchs-ru.webp"
+            src={logoImage}
             alt={header.logoAlt}
-            width={512}
-            height={506}
-            sizes="(max-width: 920px) 44px, 56px"
-            priority
+            width={57}
+            height={56}
             className="h-14 w-auto max-[920px]:h-11"
+            style={{ width: "auto" }}
           />
           <span className="block min-w-0">
             <span className="block text-[19px] font-semibold uppercase leading-[1.15] tracking-[.01em] [font-family:var(--font-heading)] max-[920px]:text-[14.5px]">
@@ -294,7 +186,7 @@ export default function PublicHeader({
               {header.committeeSub}
             </span>
           </span>
-        </Link>
+        </NextLink>
         <span className="flex-1 max-[920px]:hidden" />
         <span
           className="text-right text-xs leading-[1.4] max-[920px]:hidden"
@@ -319,35 +211,159 @@ export default function PublicHeader({
           <Phone size={16} strokeWidth={1.5} aria-hidden="true" />
           112
         </a>
-        <button
-          onClick={() => setNavOpen(true)}
-          aria-expanded={navOpen}
-          aria-label={header.openMenu}
-          className="hidden h-[46px] w-[46px] flex-none cursor-pointer items-center justify-center border border-[var(--color-divider)] bg-transparent max-[920px]:inline-flex"
-          style={{ color: "var(--color-text)" }}
-        >
-          <Menu size={20} strokeWidth={1.5} aria-hidden="true" />
-        </button>
+        <MobileMenuButton
+          menuId="public-mobile-menu"
+          openLabel={header.openMenu}
+        />
       </div>
 
-      {/* Ярус 3 — основная навигация (десктоп) */}
+      <dialog
+        id="public-mobile-menu"
+        className="mnav m-0 ml-auto border-0 p-0"
+        aria-label={header.menu}
+      >
+        <div className="flex items-center gap-3 border-b border-[var(--color-divider)] py-[14px] pl-5 pr-4">
+          <Image
+            src={logoImage}
+            alt=""
+            width={35}
+            height={34}
+            className="h-[34px] w-[35px]"
+          />
+          <span className="flex-1 text-[15px] font-semibold uppercase [font-family:var(--font-heading)]">
+            {header.menu}
+          </span>
+          <form method="dialog">
+            <button
+              aria-label={header.closeMenu}
+              className="inline-flex h-11 w-11 cursor-pointer items-center justify-center border border-[var(--color-divider)] bg-transparent"
+              style={{ color: "var(--color-text)" }}
+            >
+              <X size={18} strokeWidth={1.5} aria-hidden="true" />
+            </button>
+          </form>
+        </div>
+        <form
+          role="search"
+          method="get"
+          action={localize("/search")}
+          className="border-b border-[var(--color-divider)] px-5 py-[14px]"
+        >
+          <div className="relative flex items-center">
+            <Search
+              size={16}
+              strokeWidth={1.5}
+              aria-hidden="true"
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
+              style={{ color: muted(55) }}
+            />
+            <input
+              className="input min-h-[44px] w-full pl-9 text-[15px]"
+              type="search"
+              name="q"
+              minLength={2}
+              required
+              placeholder={header.searchPlaceholder}
+              aria-label={header.searchPlaceholder}
+            />
+          </div>
+        </form>
+        <nav className="flex flex-col" aria-label={header.mobileNavAria}>
+          <NextLink className="mnav-link" href={localize(routes.home)}>
+            {navCopy.home}
+          </NextLink>
+          <span
+            className="flex min-h-[40px] items-center px-5 pt-2.5 text-[11px] uppercase tracking-[.1em]"
+            style={{ color: muted(50) }}
+          >
+            {header.aboutMenu}
+          </span>
+          <NextLink
+            className="mnav-link mnav-sub"
+            href={localize(routes.leadership)}
+          >
+            {navCopy.leadership}
+          </NextLink>
+          <NextLink
+            className="mnav-link mnav-sub"
+            href={localize(routes.structure)}
+          >
+            {navCopy.structure}
+          </NextLink>
+          <NextLink
+            className="mnav-link mnav-sub"
+            href={localize(routes.symbols)}
+          >
+            {header.stateSymbols}
+          </NextLink>
+          {navItems.map((item) => (
+            <Fragment key={item.href}>
+              <NextLink className="mnav-link" href={localize(item.href)}>
+                {item.label}
+              </NextLink>
+              {item.children.map((child) => (
+                <NextLink
+                  key={child.href}
+                  className="mnav-link mnav-sub"
+                  href={localize(child.href)}
+                >
+                  {child.label}
+                </NextLink>
+              ))}
+            </Fragment>
+          ))}
+          <NextLink
+            className="mnav-link"
+            href={localize(routes.sos)}
+            style={{ color: "var(--color-accent-700)" }}
+          >
+            <Smartphone
+              size={16}
+              strokeWidth={1.5}
+              aria-hidden="true"
+              className="mr-[9px]"
+            />
+            {header.sosApp}
+          </NextLink>
+        </nav>
+        <div className="mt-auto flex flex-col gap-2.5 border-t border-[var(--color-divider)] px-5 py-[18px]">
+          <a
+            href="tel:112"
+            className="flex min-h-[48px] items-center justify-center gap-2 text-[17px] font-semibold uppercase tracking-[.03em] text-white [font-family:var(--font-heading)]"
+            style={{
+              background: "var(--hz-critical)",
+              textDecoration: "none",
+            }}
+          >
+            <Phone size={16} strokeWidth={1.5} aria-hidden="true" />
+            {header.emergencyCallMobile}
+          </a>
+          <span
+            className="text-center text-[12.5px]"
+            style={{ color: muted(60) }}
+          >
+            {header.trustLineMobile}{" "}
+            <a href={phoneHref} style={{ color: "var(--color-accent-700)" }}>
+              {phone}
+            </a>
+          </span>
+        </div>
+      </dialog>
+
       <nav
         className="knav border-t border-[var(--color-divider)] max-[920px]:hidden"
         aria-label={header.navAria}
       >
         <div className="mx-auto flex w-full max-w-[1160px] flex-nowrap items-center gap-0.5 px-6">
-          <Link
-            href={routes.home}
+          <NextLink
+            href={localize(routes.home)}
             aria-current={active === "home" ? "page" : undefined}
           >
             {navCopy.home}
-          </Link>
-          <span ref={aboutRef} className="relative inline-block shrink-0">
-            <button
-              onClick={() => setAboutOpen((v) => !v)}
-              aria-expanded={aboutOpen}
-              aria-haspopup="true"
-              className="inline-flex cursor-pointer items-center gap-[5px] border-none bg-transparent px-[13px] py-[9px] text-sm [font:inherit]"
+          </NextLink>
+          <details className="group relative inline-block shrink-0">
+            <summary
+              className="inline-flex cursor-pointer list-none items-center gap-[5px] border-none bg-transparent px-[13px] py-[9px] text-sm [font:inherit] [&::-webkit-details-marker]:hidden"
               style={{
                 color: aboutActive
                   ? "var(--color-accent-700)"
@@ -356,50 +372,48 @@ export default function PublicHeader({
               }}
             >
               {header.aboutMenu}
-              <ChevronDown size={13} strokeWidth={1.5} aria-hidden="true" />
-            </button>
-            {aboutOpen && (
-              <span
-                role="menu"
-                onClick={() => setAboutOpen(false)}
-                className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] py-1"
-                style={{
-                  background: "var(--color-bg)",
-                  boxShadow: "var(--shadow-md)",
-                }}
+              <ChevronDown
+                className="transition-transform group-open:rotate-180"
+                size={13}
+                strokeWidth={1.5}
+                aria-hidden="true"
+              />
+            </summary>
+            <span
+              role="menu"
+              className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-bg)] py-1 [box-shadow:var(--shadow-md)]"
+            >
+              <NextLink
+                role="menuitem"
+                href={localize(routes.leadership)}
+                className="!border-b-0 px-[14px] py-2"
               >
-                <Link
-                  role="menuitem"
-                  href={routes.leadership}
-                  className="!border-b-0 px-[14px] py-2"
-                >
-                  {navCopy.leadership}
-                </Link>
-                <Link
-                  role="menuitem"
-                  href={routes.structure}
-                  className="!border-b-0 px-[14px] py-2"
-                >
-                  {navCopy.structure}
-                </Link>
-                <Link
-                  role="menuitem"
-                  href={routes.symbols}
-                  className="!border-b-0 px-[14px] py-2"
-                >
-                  {header.stateSymbols}
-                </Link>
-              </span>
-            )}
-          </span>
-          {navItems.map((item, i) =>
+                {navCopy.leadership}
+              </NextLink>
+              <NextLink
+                role="menuitem"
+                href={localize(routes.structure)}
+                className="!border-b-0 px-[14px] py-2"
+              >
+                {navCopy.structure}
+              </NextLink>
+              <NextLink
+                role="menuitem"
+                href={localize(routes.symbols)}
+                className="!border-b-0 px-[14px] py-2"
+              >
+                {header.stateSymbols}
+              </NextLink>
+            </span>
+          </details>
+          {navItems.map((item) =>
             item.children.length > 0 ? (
-              <span key={item.href} className="relative inline-block shrink-0">
-                <button
-                  onClick={() => setOpenIdx(openIdx === i ? null : i)}
-                  aria-expanded={openIdx === i}
-                  aria-haspopup="true"
-                  className="inline-flex cursor-pointer items-center gap-[5px] border-none bg-transparent px-[13px] py-[9px] text-sm [font:inherit]"
+              <details
+                key={item.href}
+                className="group relative inline-block shrink-0"
+              >
+                <summary
+                  className="inline-flex cursor-pointer list-none items-center gap-[5px] border-none bg-transparent px-[13px] py-[9px] text-sm [font:inherit] [&::-webkit-details-marker]:hidden"
                   style={{
                     color: isActiveHref(item.href)
                       ? "var(--color-accent-700)"
@@ -408,44 +422,42 @@ export default function PublicHeader({
                   }}
                 >
                   {item.label}
-                  <ChevronDown size={13} strokeWidth={1.5} aria-hidden="true" />
-                </button>
-                {openIdx === i && (
-                  <span
-                    role="menu"
-                    onClick={() => setOpenIdx(null)}
-                    className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] py-1"
-                    style={{
-                      background: "var(--color-bg)",
-                      boxShadow: "var(--shadow-md)",
-                    }}
-                  >
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.href}
-                        role="menuitem"
-                        href={child.href}
-                        className="!border-b-0 px-[14px] py-2"
-                      >
-                        {child.label}
-                      </Link>
-                    ))}
-                  </span>
-                )}
-              </span>
+                  <ChevronDown
+                    className="transition-transform group-open:rotate-180"
+                    size={13}
+                    strokeWidth={1.5}
+                    aria-hidden="true"
+                  />
+                </summary>
+                <span
+                  role="menu"
+                  className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-bg)] py-1 [box-shadow:var(--shadow-md)]"
+                >
+                  {item.children.map((child) => (
+                    <NextLink
+                      key={child.href}
+                      role="menuitem"
+                      href={localize(child.href)}
+                      className="!border-b-0 px-[14px] py-2"
+                    >
+                      {child.label}
+                    </NextLink>
+                  ))}
+                </span>
+              </details>
             ) : (
-              <Link
+              <NextLink
                 key={item.href}
-                href={item.href}
+                href={localize(item.href)}
                 aria-current={isActiveHref(item.href) ? "page" : undefined}
               >
                 {item.label}
-              </Link>
+              </NextLink>
             ),
           )}
           <span className="flex-1" />
-          <Link
-            href={routes.sos}
+          <NextLink
+            href={localize(routes.sos)}
             className="sos-outline mr-2.5 inline-flex items-center gap-[7px] border border-[var(--color-accent)] px-[14px] py-1.5 text-[13.5px] font-semibold [font-family:var(--font-heading)]"
             style={{
               color: "var(--color-accent-700)",
@@ -454,11 +466,12 @@ export default function PublicHeader({
           >
             <Smartphone size={14} strokeWidth={1.5} aria-hidden="true" />
             {header.sosApp}
-          </Link>
+          </NextLink>
           <form
             role="search"
+            method="get"
+            action={localize("/search")}
             className="relative flex min-w-[116px] shrink grow-0 basis-[190px] items-center py-1"
-            onSubmit={submitSearch}
           >
             <Search
               size={14}
@@ -468,152 +481,17 @@ export default function PublicHeader({
               style={{ color: muted(55) }}
             />
             <input
-              className="input h-[30px] w-full min-w-0 min-h-[30px] pl-[28px] text-[13px]"
+              className="input h-[30px] min-h-[30px] w-full min-w-0 pl-[28px] text-[13px]"
               type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              name="q"
+              minLength={2}
+              required
               placeholder={header.searchPlaceholder}
               aria-label={header.searchPlaceholder}
             />
           </form>
         </div>
       </nav>
-
-      {/* Мобильное выдвижное меню */}
-      {navOpen && (
-        <>
-          <div className="mnav-backdrop" onClick={() => setNavOpen(false)} />
-          <div
-            className="mnav"
-            role="dialog"
-            aria-modal="true"
-            aria-label={header.menu}
-          >
-            <div className="flex items-center gap-3 border-b border-[var(--color-divider)] py-[14px] pl-5 pr-4">
-              <Image
-                src="/assets/logo-kchs-ru.webp"
-                alt=""
-                width={512}
-                height={506}
-                sizes="34px"
-                className="h-[34px] w-auto"
-              />
-              <span className="flex-1 text-[15px] font-semibold uppercase [font-family:var(--font-heading)]">
-                {header.menu}
-              </span>
-              <button
-                onClick={() => setNavOpen(false)}
-                aria-label={header.closeMenu}
-                className="inline-flex h-11 w-11 cursor-pointer items-center justify-center border border-[var(--color-divider)] bg-transparent"
-                style={{ color: "var(--color-text)" }}
-              >
-                <X size={18} strokeWidth={1.5} aria-hidden="true" />
-              </button>
-            </div>
-            <form
-              role="search"
-              onSubmit={submitSearch}
-              className="border-b border-[var(--color-divider)] px-5 py-[14px]"
-            >
-              <div className="relative flex items-center">
-                <Search
-                  size={16}
-                  strokeWidth={1.5}
-                  aria-hidden="true"
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
-                  style={{ color: muted(55) }}
-                />
-                <input
-                  className="input min-h-[44px] w-full pl-9 text-[15px]"
-                  type="search"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder={header.searchPlaceholder}
-                  aria-label={header.searchPlaceholder}
-                />
-              </div>
-            </form>
-            <nav
-              className="flex flex-col"
-              aria-label={header.mobileNavAria}
-              onClick={() => setNavOpen(false)}
-            >
-              <Link className="mnav-link" href={routes.home}>
-                {navCopy.home}
-              </Link>
-              <span
-                className="flex min-h-[40px] items-center px-5 pt-2.5 text-[11px] uppercase tracking-[.1em]"
-                style={{ color: muted(50) }}
-              >
-                {header.aboutMenu}
-              </span>
-              <Link className="mnav-link mnav-sub" href={routes.leadership}>
-                {navCopy.leadership}
-              </Link>
-              <Link className="mnav-link mnav-sub" href={routes.structure}>
-                {navCopy.structure}
-              </Link>
-              <Link className="mnav-link mnav-sub" href={routes.symbols}>
-                {header.stateSymbols}
-              </Link>
-              {navItems.map((item) => (
-                <Fragment key={item.href}>
-                  <Link className="mnav-link" href={item.href}>
-                    {item.label}
-                  </Link>
-                  {item.children.map((child) => (
-                    <Link
-                      key={child.href}
-                      className="mnav-link mnav-sub"
-                      href={child.href}
-                    >
-                      {child.label}
-                    </Link>
-                  ))}
-                </Fragment>
-              ))}
-              <Link
-                className="mnav-link"
-                href={routes.sos}
-                style={{ color: "var(--color-accent-700)" }}
-              >
-                <Smartphone
-                  size={16}
-                  strokeWidth={1.5}
-                  aria-hidden="true"
-                  className="mr-[9px]"
-                />
-                {header.sosApp}
-              </Link>
-            </nav>
-            <div className="mt-auto flex flex-col gap-2.5 border-t border-[var(--color-divider)] px-5 py-[18px]">
-              <a
-                href="tel:112"
-                className="flex min-h-[48px] items-center justify-center gap-2 text-[17px] font-semibold uppercase tracking-[.03em] text-white [font-family:var(--font-heading)]"
-                style={{
-                  background: "var(--hz-critical-solid)",
-                  textDecoration: "none",
-                }}
-              >
-                <Phone size={16} strokeWidth={1.5} aria-hidden="true" />
-                {header.emergencyCallMobile}
-              </a>
-              <span
-                className="text-center text-[12.5px]"
-                style={{ color: muted(60) }}
-              >
-                {header.trustLineMobile}{" "}
-                <a
-                  href={phoneHref}
-                  style={{ color: "var(--color-accent-700)" }}
-                >
-                  {phone}
-                </a>
-              </span>
-            </div>
-          </div>
-        </>
-      )}
     </header>
   );
 }

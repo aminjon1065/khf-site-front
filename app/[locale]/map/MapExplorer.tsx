@@ -192,9 +192,9 @@ export default function MapExplorer({
           )}
 
           <div className="blueprint mt-5 flex flex-col gap-1.5 p-4">
-            <h6 className="m-0" style={{ color: muted(55) }}>
+            <h2 className="m-0 text-base" style={{ color: muted(55) }}>
               {map.howToRead.title}
-            </h6>
+            </h2>
             <p
               className="m-0 text-[12.5px] leading-[1.55]"
               style={{ color: muted(65) }}

@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import Link from "@/components/i18n/LocaleLink";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import { BreadcrumbJsonLd, NewsArticleJsonLd } from "@/components/public/JsonLd";
 import PageShell from "@/components/public/PageShell";
+import CmsImage from "@/components/public/CmsImage";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
 import { fetchNews, fetchNewsItem, type ApiNewsItem } from "@/lib/api";
 import { toLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { routes } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
+import { cmsImageSource } from "@/lib/media";
 import ArticleActions from "./ArticleActions";
 import {
   getArticleUi,
@@ -96,12 +97,14 @@ export async function generateMetadata({
   if (!item) {
     return { title: pages.meta.newsFallback, robots: { index: false } };
   }
+  const image = cmsImageSource(item.image_data);
+
   return buildMetadata({
     locale: loc,
     title: item.seo?.title ?? item.title,
     description: item.seo?.description ?? item.excerpt,
     path: `/news/${slug}`,
-    images: item.image ? [item.image] : undefined,
+    images: image ? [image] : undefined,
     type: "article",
     publishedTime: item.datetime,
     siteName: common.siteShort,
@@ -137,6 +140,7 @@ export default async function ArticlePage({
   if (!item) {
     notFound();
   }
+  const hasImage = cmsImageSource(item.image_data) !== null;
 
   const related = await relatedFor(slug, locale, pages.newsDetail.newsCategory);
   const article = toArticle(item, related, articleUi, pages.newsDetail);
@@ -203,14 +207,12 @@ export default async function ArticlePage({
             />
           </div>
 
-          <figure className={`blueprint mb-2 h-[340px] ${item.image ? "duotone" : ""}`}>
-            {item.image ? (
-              <Image
-                src={item.image}
-                alt={article.title}
-                fill
+          <figure className="blueprint duotone relative mb-2 h-[340px]">
+            {hasImage && item.image_data ? (
+              <CmsImage
+                image={item.image_data}
                 sizes="(max-width: 920px) 100vw, 760px"
-                style={{ objectFit: "cover" }}
+                preload
               />
             ) : (
               <ImageSlot label={article.photoLabel} />
@@ -242,7 +244,9 @@ export default async function ArticlePage({
 
           {article.materials.length > 0 && (
             <div className="mt-6">
-              <h6 style={{ color: muted(55) }}>{articleUi.materialsTitle}</h6>
+              <h2 className="text-base" style={{ color: muted(55) }}>
+                {articleUi.materialsTitle}
+              </h2>
               {article.materials.map((m) => (
                 <Link
                   key={m.title}
@@ -265,9 +269,9 @@ export default async function ArticlePage({
         <aside className="flex flex-col gap-5">
           {article.related.length > 0 && (
             <div>
-              <h6 className="mb-2.5" style={{ color: muted(55) }}>
+              <h2 className="mb-2.5 text-base" style={{ color: muted(55) }}>
                 {articleUi.relatedTitle}
-              </h6>
+              </h2>
               {article.related.map((r, i) => (
                 <Link
                   key={r.href + i}
@@ -297,9 +301,9 @@ export default async function ArticlePage({
           )}
 
           <div className="blueprint flex flex-col gap-2 p-[18px]">
-            <h6 className="m-0" style={{ color: muted(55) }}>
+            <h2 className="m-0 text-base" style={{ color: muted(55) }}>
               {articleUi.sourceBoxTitle}
-            </h6>
+            </h2>
             <p
               className="m-0 text-[13px] leading-[1.55]"
               style={{ color: muted(70) }}

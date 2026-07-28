@@ -8,10 +8,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "types:api:generate": "openapi-typescript ../../laragon/www/khf-site-cms/openapi.yaml -o lib/api-types.generated.ts",
-    "lighthouse": "node scripts/lighthouse-budgets.mjs"
+    "test:a11y": "playwright test tests/e2e/accessibility.spec.ts",
+    "api:types": "node scripts/generate-api-types.mjs",
+    "api:types:check": "node scripts/generate-api-types.mjs --check",
+    "lighthouse": "node scripts/lighthouse-budgets.mjs",
+    "lighthouse:ci": "lhci autorun"
   },
   "dependencies": {
     "d3-geo": "^3.1.1",
@@ -23,6 +27,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.62.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",

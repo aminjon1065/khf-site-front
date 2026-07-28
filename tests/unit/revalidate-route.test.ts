@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { buildRevalidationTags } from "@/lib/cache-tags";
 
 const revalidateTagMock = vi.fn();
 vi.mock("next/cache", () => ({
@@ -7,12 +8,27 @@ vi.mock("next/cache", () => ({
 
 import { POST } from "@/app/api/revalidate/route";
 
-function request(authorization?: string): Request {
-  const headers: Record<string, string> = {};
+// Гранулярный контракт вебхука (O-009): CMS присылает тип, id, slug, локали,
+// событие и готовый список тегов — не единственный `{"tag":"cms"}`, как раньше.
+const PAYLOAD = {
+  type: "news",
+  id: 42,
+  slug: "storm",
+  locales: ["ru"],
+  event: "published",
+  tags: buildRevalidationTags("news", "storm", ["ru"]),
+};
+
+function request(authorization?: string, body: unknown = PAYLOAD): Request {
+  const headers: Record<string, string> = { "content-type": "application/json" };
   if (authorization !== undefined) {
     headers.authorization = authorization;
   }
-  return new Request("http://localhost/api/revalidate", { method: "POST", headers });
+  return new Request("http://localhost/api/revalidate", {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+  });
 }
 
 describe("POST /api/revalidate", () => {
@@ -64,7 +80,7 @@ describe("POST /api/revalidate", () => {
     expect(res.status).toBe(401);
   });
 
-  it("revalidates the cms tag immediately (not stale-while-revalidate) on a valid request", async () => {
+  it("revalidates the payload tags immediately (not stale-while-revalidate)", async () => {
     // E-4: a webhook from the CMS needs the very next visit to see fresh
     // content, not the old cached page — { expire: 0 }, not "max".
     vi.stubEnv("REVALIDATION_SECRET", "top-secret");
@@ -72,8 +88,13 @@ describe("POST /api/revalidate", () => {
     const res = await POST(request("Bearer top-secret"));
 
     expect(res.status).toBe(200);
-    expect(await res.json()).toMatchObject({ revalidated: true, tag: "cms" });
-    expect(revalidateTagMock).toHaveBeenCalledTimes(1);
-    expect(revalidateTagMock).toHaveBeenCalledWith("cms", { expire: 0 });
+    expect(await res.json()).toMatchObject({
+      revalidated: true,
+      tags: PAYLOAD.tags,
+    });
+    expect(revalidateTagMock).toHaveBeenCalledTimes(PAYLOAD.tags.length);
+    for (const tag of PAYLOAD.tags) {
+      expect(revalidateTagMock).toHaveBeenCalledWith(tag, { expire: 0 });
+    }
   });
 });

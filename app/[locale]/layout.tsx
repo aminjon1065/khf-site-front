@@ -1,29 +1,29 @@
 import type { Metadata } from "next";
-import { Fira_Sans, Fira_Sans_Condensed } from "next/font/google";
+import localFont from "next/font/local";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import { LOCALES, isLocale, htmlLang } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { buildMetadata, siteUrl } from "@/lib/seo";
+import { cmsDiagnosticEnabled } from "@/lib/cms-readiness.mjs";
+import { WebVitalsReporter } from "@/components/public/WebVitalsReporter";
 
-// Fira Sans / Fira Sans Condensed покрывают латиницу И кириллицу, включая
-// cyrillic-ext (таджикские ҳ ҷ ӣ ӯ қ ғ). Поэтому русский, таджикский и английский
-// рендерятся одним шрифтом с единой жирностью — раньше кириллица падала на
-// системный шрифт, из-за чего начертание РУ/ТҶ отличалось от EN.
-const sans = Fira_Sans({
+// Локальные subsets сохраняют Fira Sans для латиницы и расширенной кириллицы
+// (включая таджикские ҳ ҷ ӣ ӯ қ ғ), но сокращают критический путь до двух WOFF2.
+const sans = localFont({
+  src: "../fonts/fira-sans-critical.woff2",
   variable: "--font-sans",
-  weight: ["400", "500", "700"],
-  subsets: ["latin", "cyrillic", "cyrillic-ext"],
+  weight: "400",
   display: "swap",
-  preload: false,
+  preload: true,
 });
 
-const condensed = Fira_Sans_Condensed({
+const condensed = localFont({
+  src: "../fonts/fira-sans-condensed-critical.woff2",
   variable: "--font-condensed",
-  weight: ["400", "600"],
-  subsets: ["latin", "cyrillic", "cyrillic-ext"],
+  weight: "600",
   display: "swap",
-  preload: false,
+  preload: true,
 });
 
 // Статически генерируем по одной ветке на каждый язык (/ru, /tj, /en).
@@ -85,9 +85,21 @@ export default async function LocaleLayout({
     >
       <body>
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+        <WebVitalsReporter />
         <a href="#main" className="skip-link">
           {common.skipToContent}
         </a>
+        {cmsDiagnosticEnabled() && (
+          <aside
+            aria-live="polite"
+            className="border-b border-[var(--hz-warning)] bg-[var(--hz-warning-bg)] px-4 py-2 text-center text-sm font-semibold text-[var(--color-text)]"
+            data-testid="cms-diagnostic-banner"
+            role="status"
+          >
+            CMS diagnostic mode: fallback content is allowed; this build must not be
+            promoted to production.
+          </aside>
+        )}
         {children}
       </body>
     </html>

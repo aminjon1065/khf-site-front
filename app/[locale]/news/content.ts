@@ -7,6 +7,8 @@ import { routes } from "@/lib/routes";
 
 const ru = {
   metaTitle: "Новости и заявления",
+  metaDescription:
+    "Официальные новости, заявления и сообщения пресс-службы Комитета по чрезвычайным ситуациям Таджикистана.",
 
   header: {
     title: "Новости и заявления",
@@ -52,6 +54,8 @@ type NewsContent = typeof ru;
 
 const tj: NewsContent = {
   metaTitle: "Хабарҳо ва баёнияҳо",
+  metaDescription:
+    "Хабарҳо, баёнияҳо ва паёмҳои расмии хадамоти матбуоти Кумитаи ҳолатҳои фавқулодаи Тоҷикистон.",
 
   header: {
     title: "Хабарҳо ва баёнияҳо",
@@ -95,6 +99,8 @@ const tj: NewsContent = {
 
 const en: NewsContent = {
   metaTitle: "News & statements",
+  metaDescription:
+    "Official news, statements and press releases from the Committee of Emergency Situations of Tajikistan.",
 
   header: {
     title: "News & statements",

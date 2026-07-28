@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "@/components/i18n/LocaleLink";
 import { muted } from "@/components/public/ui";
+import logoImage from "@/public/assets/logo-kchs-ru.webp";
 import type { ApiMenuItem, ApiSettings } from "@/lib/api";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
 
@@ -56,12 +57,22 @@ export default function PublicFooter({
       <div className="mx-auto grid w-full max-w-[1160px] grid-cols-[minmax(240px,1.3fr)_repeat(3,minmax(160px,1fr))] gap-8 px-6 pb-7 pt-10 max-[920px]:grid-cols-2 max-[920px]:px-4 max-[560px]:grid-cols-1">
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
-            <Image src="/assets/logo-kchs-ru.webp" alt="" width={512} height={506} className="h-11 w-auto" />
+            <Image
+              src={logoImage}
+              alt=""
+              width={45}
+              height={44}
+              className="h-11 w-auto"
+              style={{ width: "auto" }}
+            />
             <span className="text-[15px] font-semibold uppercase leading-tight [font-family:var(--font-heading)]">
               {orgTitle}
             </span>
           </div>
-          <p className="m-0 text-[13px] leading-[1.55]" style={{ color: muted(62) }}>
+          <p
+            className="m-0 text-[13px] leading-[1.55]"
+            style={{ color: muted(62) }}
+          >
             {about}
           </p>
           <p className="m-0 text-xs" style={{ color: muted(50) }}>
@@ -72,7 +83,13 @@ export default function PublicFooter({
           {socialEntries.length > 0 && (
             <div className="flex flex-wrap gap-3 text-[12.5px]">
               {socialEntries.map(([k, v]) => (
-                <a key={k} href={v} target="_blank" rel="noopener" className="capitalize">
+                <a
+                  key={k}
+                  href={v}
+                  target="_blank"
+                  rel="noopener"
+                  className="capitalize"
+                >
                   {k}
                 </a>
               ))}
@@ -81,9 +98,9 @@ export default function PublicFooter({
         </div>
 
         <div>
-          <h6 className="mb-3" style={{ color: muted(55) }}>
+          <h2 className="mb-3 text-base" style={{ color: muted(55) }}>
             {footer.sectionsTitle}
-          </h6>
+          </h2>
           <div className="flex flex-col gap-2">
             {sections.map((s) => (
               <Link key={s.href} href={s.href}>
@@ -94,9 +111,9 @@ export default function PublicFooter({
         </div>
 
         <div>
-          <h6 className="mb-3" style={{ color: muted(55) }}>
+          <h2 className="mb-3 text-base" style={{ color: muted(55) }}>
             {footer.emergencyTitle}
-          </h6>
+          </h2>
           <div className="flex flex-col gap-2 text-[13px]">
             {emergency.map((e) => (
               <span key={e.num}>
@@ -113,9 +130,9 @@ export default function PublicFooter({
         </div>
 
         <div>
-          <h6 className="mb-3" style={{ color: muted(55) }}>
+          <h2 className="mb-3 text-base" style={{ color: muted(55) }}>
             {footer.resourcesTitle}
-          </h6>
+          </h2>
           <div className="flex flex-col gap-2">
             {footer.resources.map((r) =>
               r.external ? (

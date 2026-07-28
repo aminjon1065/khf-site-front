@@ -1,7 +1,7 @@
 import Link from "@/components/i18n/LocaleLink";
-import Image from "next/image";
 import { TriangleAlert } from "lucide-react";
 import PageShell from "@/components/public/PageShell";
+import CmsImage from "@/components/public/CmsImage";
 import { SectionHeader, ImageSlot, muted } from "@/components/public/ui";
 import NewsSlider from "@/components/public/NewsSlider";
 import TjRiskMap from "@/components/public/TjRiskMap";
@@ -10,6 +10,7 @@ import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
 import { routes } from "@/lib/routes";
+import { cmsImageSource } from "@/lib/media";
 import {
   legendItems,
   levelBadge,
@@ -221,6 +222,7 @@ export default async function HomePage({
   }));
 
   const featured = data.news[0];
+  const featuredHasImage = cmsImageSource(featured?.image_data) !== null;
   const newsList = data.news.slice(1, 5);
   const p = home.president;
 
@@ -245,7 +247,12 @@ export default async function HomePage({
           style={{ textDecoration: "none", color: "inherit" }}
         >
           <span className="block min-h-[240px] flex-1">
-            <ImageSlot src={p.photo} alt={pages.home.presidentPhotoAlt} eager />
+            <ImageSlot
+              src={p.photo}
+              alt={pages.home.presidentPhotoAlt}
+              sizes="(max-width: 920px) calc(100vw - 32px), 360px"
+              preload
+            />
           </span>
           <span className="flex flex-col gap-1 px-4 pb-4 pt-[14px]">
             <span
@@ -447,15 +454,11 @@ export default async function HomePage({
               className="flex flex-col gap-3"
               style={{ textDecoration: "none", color: "inherit" }}
             >
-              <span className={`blueprint block h-[220px] ${featured.image ? "duotone" : ""}`}>
-                {featured.image ? (
-                  <Image
-                    src={featured.image}
-                    alt={featured.title}
-                    fill
+              <span className="blueprint duotone relative block h-[220px]">
+                {featuredHasImage && featured.image_data ? (
+                  <CmsImage
+                    image={featured.image_data}
                     sizes="(max-width: 920px) 100vw, 620px"
-                    style={{ objectFit: "cover" }}
-                    loading="eager"
                   />
                 ) : (
                   <ImageSlot label={home.news.featured.photoLabel} />
