@@ -4,12 +4,14 @@ import { test, expect } from "@playwright/test";
 //
 // 1. notFound() called from WITHIN a matched dynamic route (e.g. an unknown
 //    news/project/announcement slug) renders app/[locale]/not-found.tsx per
-//    request, so the locale is correct even in the raw (pre-hydration) HTML.
-//    The HTTP status is 200, not 404 — a documented Next.js limitation: the
-//    response headers commit before an async notFound() resolves once the
-//    route streams (it does here, via app/[locale]/loading.tsx). SEO is
-//    still protected: Next always injects <meta name="robots" content="
-//    noindex">, which is asserted below.
+//    request, so the locale is correct even in the raw (pre-hydration) HTML,
+//    и статус честный — 404.
+//
+//    Так было не всегда: пока в сегменте лежал loading.tsx, ответ уходил
+//    потоком, заголовки коммитились раньше, чем разрешался асинхронный
+//    notFound(), и статус застывал на 200. Скелетон убрали (о загрузке
+//    сообщает полоса прогресса) — и статус стал корректным. Если поток
+//    когда-нибудь вернётся, этот тест снова начнёт видеть 200.
 //
 // 2. A genuinely unmatched path (no route at all, e.g. /tj/nonexistent)
 //    renders app/global-not-found.tsx. That boundary IS optimized as a
@@ -46,10 +48,7 @@ test.describe("unknown slug on a matched dynamic route", () => {
   ]) {
     test(`${path} does not 500 and shows the not-found UI`, async ({ page }) => {
       const response = await page.goto(path);
-      // Documented Next.js limitation (see file header): streamed responses
-      // can't update their status after notFound() resolves, so this is 200
-      // rather than 404. The regression this guards against is a 500.
-      expect(response?.status()).toBeLessThan(500);
+      expect(response?.status()).toBe(404);
 
       const robots = await page.locator('meta[name="robots"]').first().getAttribute("content");
       expect(robots).toContain("noindex");

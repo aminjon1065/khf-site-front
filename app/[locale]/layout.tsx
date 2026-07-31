@@ -84,7 +84,7 @@ export default async function LocaleLayout({
   const { common } = getDictionary(locale);
   // Оболочка (шапка, подвал, их данные из CMS) живёт в layout, а не в странице:
   // так она переживает переход между маршрутами — не размонтируется, не
-  // перезапрашивает /settings и /menu и не подменяется скелетоном loading.tsx.
+  // перезапрашивает /settings и /menu при каждом переходе.
   const [settings, menu] = await Promise.all([
     fetchSettings(locale),
     fetchMenu(locale),
