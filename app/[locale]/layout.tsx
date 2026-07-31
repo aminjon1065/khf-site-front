@@ -9,6 +9,10 @@ import { buildMetadata, siteUrl } from "@/lib/seo";
 import { cmsDiagnosticEnabled } from "@/lib/cms-readiness.mjs";
 import { WebVitalsReporter } from "@/components/public/WebVitalsReporter";
 import NavigationProgress from "@/components/public/NavigationProgress";
+import PublicHeader from "@/components/public/PublicHeader";
+import PublicFooter from "@/components/public/PublicFooter";
+import { OrganizationJsonLd } from "@/components/public/JsonLd";
+import { fetchMenu, fetchSettings } from "@/lib/api";
 
 // Локальные subsets сохраняют Fira Sans для латиницы и расширенной кириллицы
 // (включая таджикские ҳ ҷ ӣ ӯ қ ғ), но сокращают критический путь до двух WOFF2.
@@ -78,6 +82,13 @@ export default async function LocaleLayout({
     notFound();
   }
   const { common } = getDictionary(locale);
+  // Оболочка (шапка, подвал, их данные из CMS) живёт в layout, а не в странице:
+  // так она переживает переход между маршрутами — не размонтируется, не
+  // перезапрашивает /settings и /menu и не подменяется скелетоном loading.tsx.
+  const [settings, menu] = await Promise.all([
+    fetchSettings(locale),
+    fetchMenu(locale),
+  ]);
 
   return (
     <html
@@ -107,7 +118,28 @@ export default async function LocaleLayout({
             not be promoted to production.
           </aside>
         )}
-        {children}
+        <div
+          style={{
+            minHeight: "100vh",
+            background: "var(--color-bg)",
+            color: "var(--color-text)",
+            fontFamily: "var(--font-body)",
+          }}
+        >
+          <OrganizationJsonLd settings={settings} locale={locale} />
+          <PublicHeader
+            trustPhone={settings?.org.trust_phone}
+            locale={locale}
+            copy={common}
+            mainMenu={menu.main}
+          />
+          <main id="main">{children}</main>
+          <PublicFooter
+            settings={settings}
+            footerMenu={menu.footer}
+            copy={common}
+          />
+        </div>
       </body>
     </html>
   );

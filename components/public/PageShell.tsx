@@ -1,60 +1,51 @@
 import type { CSSProperties, ReactNode } from "react";
-import PublicHeader from "@/components/public/PublicHeader";
-import PublicFooter from "@/components/public/PublicFooter";
-import { OrganizationJsonLd } from "@/components/public/JsonLd";
-import { fetchMenu, fetchSettings } from "@/lib/api";
 import type { NavKey } from "@/lib/routes";
 import type { Locale } from "@/lib/i18n/config";
-import { getDictionary } from "@/lib/i18n/dictionaries";
+
+/** Ширина и отступы контентной колонки по умолчанию. */
+export const DEFAULT_MAIN_CLASS =
+  "mx-auto w-full max-w-[1160px] px-6 pt-9 max-[920px]:px-4";
 
 /**
- * Каркас публичной страницы: обёртка с фоном/цветом → шапка → (опц.) полоса над
- * контентом (статусные баннеры Home) → <main id="main"> → подвал.
- * Настройки и меню (шапка/подвал) приходят из CMS на активном языке.
+ * Контентная колонка страницы.
+ *
+ * Раньше этот компонент был всей оболочкой: сам ходил в CMS за настройками и
+ * меню, рисовал шапку, `<main>` и подвал. Из-за этого шапка и подвал жили
+ * ВНУТРИ страницы: при каждом переходе они размонтировались, перерисовывались и
+ * заново запрашивали `/settings` и `/menu`, а `loading.tsx` (Suspense-граница
+ * сегмента) на время загрузки подменял скелетоном весь экран вместе с меню.
+ *
+ * Теперь оболочка живёт в `app/[locale]/layout.tsx` и переживает переходы, а
+ * здесь остаётся только колонка контента — та часть, которая действительно
+ * меняется от страницы к странице. Разметка при этом не изменилась: те же
+ * классы, только на `<div>` внутри `<main>`, а не на самом `<main>`.
+ *
+ * Пропы `active` и `locale` больше не нужны (активный пункт меню шапка
+ * определяет по URL, локаль знает layout), но остаются в типе, чтобы не
+ * править разом два десятка страниц — они просто игнорируются.
  */
-export default async function PageShell({
-  active = "",
+export default function PageShell({
   topSlot,
   children,
-  mainClassName = "mx-auto w-full max-w-[1160px] px-6 pt-9 max-[920px]:px-4",
+  mainClassName = DEFAULT_MAIN_CLASS,
   mainStyle,
-  locale,
 }: {
+  /** @deprecated активный пункт меню определяется по URL. */
   active?: NavKey;
+  /** @deprecated локаль берётся из layout. */
+  locale?: Locale;
+  /** Полноширинный блок над контентом (статусный баннер главной). */
   topSlot?: ReactNode;
   children: ReactNode;
   mainClassName?: string;
   mainStyle?: CSSProperties;
-  locale: Locale;
 }) {
-  const [settings, menu] = await Promise.all([
-    fetchSettings(locale),
-    fetchMenu(locale),
-  ]);
-  const { common } = getDictionary(locale);
-
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "var(--color-bg)",
-        color: "var(--color-text)",
-        fontFamily: "var(--font-body)",
-      }}
-    >
-      <OrganizationJsonLd settings={settings} locale={locale} />
-      <PublicHeader
-        active={active}
-        trustPhone={settings?.org.trust_phone}
-        locale={locale}
-        copy={common}
-        mainMenu={menu.main}
-      />
+    <>
       {topSlot}
-      <main id="main" className={mainClassName} style={mainStyle}>
+      <div className={mainClassName} style={mainStyle}>
         {children}
-      </main>
-      <PublicFooter settings={settings} footerMenu={menu.footer} copy={common} />
-    </div>
+      </div>
+    </>
   );
 }

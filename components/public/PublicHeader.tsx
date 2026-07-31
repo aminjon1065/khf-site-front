@@ -3,18 +3,20 @@ import { Fragment } from "react";
 // идемпотентна), зато каждая ссылка сообщает полосе прогресса о старте перехода.
 import NextLink from "@/components/i18n/LocaleLink";
 import Image from "next/image";
-import { ChevronDown, Phone, Search, Smartphone, X } from "lucide-react";
+import { Phone, Search, Smartphone, X } from "lucide-react";
 import emblemImage from "@/public/assets/emblem-tj.png";
 import flagImage from "@/public/assets/flag-tj.png";
 import logoImage from "@/public/assets/logo-kchs-ru.webp";
 import LocaleSwitcher from "@/components/public/header/LocaleSwitcher";
 import MobileMenuButton from "@/components/public/header/MobileMenuButton";
+import NavLink from "@/components/public/header/NavLink";
+import NavSummary from "@/components/public/header/NavSummary";
 import ThemeToggle from "@/components/public/header/ThemeToggle";
 import { muted } from "@/components/public/muted";
 import type { ApiMenuItem } from "@/lib/api";
 import { withLocale, type Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
-import { routes, type NavKey } from "@/lib/routes";
+import { routes } from "@/lib/routes";
 
 interface NavItem {
   label: string;
@@ -22,25 +24,12 @@ interface NavItem {
   children: { label: string; href: string }[];
 }
 
-const activeRoutes: Partial<Record<NavKey, string>> = {
-  home: routes.home,
-  news: routes.news,
-  guides: routes.guides,
-  map: routes.map,
-  documents: routes.documents,
-  projects: routes.projects,
-  announcements: routes.announcements,
-  contacts: routes.contacts,
-};
-
 export default function PublicHeader({
-  active = "",
   trustPhone,
   locale,
   copy,
   mainMenu,
 }: {
-  active?: NavKey;
   trustPhone?: string | null;
   locale: Locale;
   copy: Dictionary["common"];
@@ -106,11 +95,8 @@ export default function PublicHeader({
     .map(toNavItem)
     .filter((item): item is NavItem => item !== null);
   const navItems = cmsNav.length > 0 ? cmsNav : staticNav;
-  const isActiveHref = (href: string): boolean =>
-    active !== "" && activeRoutes[active] === href;
   const phone = trustPhone || header.trustPhone;
   const phoneHref = `tel:${phone.replace(/[^+\d]/g, "")}`;
-  const aboutActive = active === "about";
   const localize = (href: string): string => withLocale(locale, href);
 
   return (
@@ -360,30 +346,14 @@ export default function PublicHeader({
         aria-label={header.navAria}
       >
         <div className="mx-auto flex w-full max-w-[1160px] flex-nowrap items-center gap-0.5 px-6">
-          <NextLink
-            href={localize(routes.home)}
-            aria-current={active === "home" ? "page" : undefined}
-          >
+          <NavLink href={localize(routes.home)} match={routes.home}>
             {navCopy.home}
-          </NextLink>
+          </NavLink>
           <details className="group relative inline-block shrink-0">
-            <summary
-              className="inline-flex cursor-pointer list-none items-center gap-[5px] border-none bg-transparent px-[13px] py-[9px] text-sm [font:inherit] [&::-webkit-details-marker]:hidden"
-              style={{
-                color: aboutActive
-                  ? "var(--color-accent-700)"
-                  : "var(--color-text)",
-                borderBottom: `2px solid ${aboutActive ? "var(--color-accent)" : "transparent"}`,
-              }}
-            >
-              {header.aboutMenu}
-              <ChevronDown
-                className="transition-transform group-open:rotate-180"
-                size={13}
-                strokeWidth={1.5}
-                aria-hidden="true"
-              />
-            </summary>
+            <NavSummary
+              label={header.aboutMenu}
+              matches={[routes.leadership, routes.structure, routes.symbols]}
+            />
             <span
               role="menu"
               className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-bg)] py-1 [box-shadow:var(--shadow-md)]"
@@ -417,23 +387,7 @@ export default function PublicHeader({
                 key={item.href}
                 className="group relative inline-block shrink-0"
               >
-                <summary
-                  className="inline-flex cursor-pointer list-none items-center gap-[5px] border-none bg-transparent px-[13px] py-[9px] text-sm [font:inherit] [&::-webkit-details-marker]:hidden"
-                  style={{
-                    color: isActiveHref(item.href)
-                      ? "var(--color-accent-700)"
-                      : "var(--color-text)",
-                    borderBottom: `2px solid ${isActiveHref(item.href) ? "var(--color-accent)" : "transparent"}`,
-                  }}
-                >
-                  {item.label}
-                  <ChevronDown
-                    className="transition-transform group-open:rotate-180"
-                    size={13}
-                    strokeWidth={1.5}
-                    aria-hidden="true"
-                  />
-                </summary>
+                <NavSummary label={item.label} matches={[item.href]} />
                 <span
                   role="menu"
                   className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-bg)] py-1 [box-shadow:var(--shadow-md)]"
@@ -451,13 +405,13 @@ export default function PublicHeader({
                 </span>
               </details>
             ) : (
-              <NextLink
+              <NavLink
                 key={item.href}
                 href={localize(item.href)}
-                aria-current={isActiveHref(item.href) ? "page" : undefined}
+                match={item.href}
               >
                 {item.label}
-              </NextLink>
+              </NavLink>
             ),
           )}
           <span className="flex-1" />
