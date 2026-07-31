@@ -16,10 +16,14 @@ type LinkProps = ComponentProps<typeof NextLink>;
  * Внешние ссылки (http/tel/mailto/якоря) и уже локализованные пути не трогаются.
  * Объектные href (UrlObject) пробрасываются как есть.
  */
-export default function LocaleLink({ href, ...rest }: LinkProps) {
+export default function LocaleLink({
+  href,
+  prefetch = false,
+  ...rest
+}: LinkProps) {
   const pathname = usePathname();
   const locale = localeFromPathname(pathname);
   const localized = typeof href === "string" ? withLocale(locale, href) : href;
 
-  return <NextLink href={localized} {...rest} />;
+  return <NextLink href={localized} prefetch={prefetch} {...rest} />;
 }

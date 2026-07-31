@@ -56,6 +56,141 @@ const linkedNewsSlugs = new Set([
   "undrr-programme",
   "zamin-2026",
 ]);
+const announcements = [
+  {
+    slug: "vacancy-test",
+    kind: "vacancy",
+    kind_label: "Вакансия",
+    title: "Тестовая вакансия",
+    org: "КЧС",
+    desc: "Описание вакансии",
+    deadline: "бессрочно",
+    deadline_at: null,
+    deadline_state: "unlimited",
+    open: true,
+    application_url: null,
+  },
+  {
+    slug: "tender-test",
+    kind: "tender",
+    kind_label: "Тендер",
+    title: "Тестовый тендер",
+    org: "КЧС",
+    desc: "Описание тендера",
+    deadline: "до 31.12.2026",
+    deadline_at: "2026-12-31",
+    deadline_state: "open",
+    open: true,
+    application_url: null,
+  },
+];
+const documents = [
+  {
+    id: 1,
+    type: "Закон",
+    type_value: "law",
+    title: "Закон № 123",
+    number: "123",
+    section: null,
+    date: "01.01.2026",
+    date_iso: "2026-01-01",
+    lang: "РУ",
+    size: null,
+    href: null,
+    files: [],
+  },
+  {
+    id: 2,
+    type: "Отчёт",
+    type_value: "report",
+    title: "Годовой отчёт",
+    number: "A-42",
+    section: null,
+    date: "02.01.2026",
+    date_iso: "2026-01-02",
+    lang: "РУ",
+    size: null,
+    href: null,
+    files: [],
+  },
+];
+const region = {
+  key: "dushanbe",
+  name: "Душанбе",
+  level: "warning",
+  count: 1,
+  statusText: "Предупреждение",
+};
+const alertItem = {
+  slug: "test-alert",
+  level: "warning",
+  level_label: "Предупреждение",
+  severity: "Средняя",
+  status: "Активно",
+  status_code: "active",
+  is_active: true,
+  hazard: "weather",
+  hazard_label: "Непогода",
+  title: "Тестовое предупреждение",
+  summary: "Стабильное предупреждение из изолированного CMS mock.",
+  region: "Душанбе",
+  region_codes: ["dushanbe"],
+  datetime: "27.07.2026 12:00",
+  starts_at: "27.07.2026 12:00",
+  ends_at: null,
+  published_at: "27.07.2026 12:00",
+  starts_at_iso: "2026-07-27T12:00:00+05:00",
+  ends_at_iso: null,
+  body: "Официальное описание тестового предупреждения.",
+  instructions: ["Следите за официальными сообщениями."],
+  contacts: "112",
+  source: "КЧС",
+  territory_type: "regions",
+  regions: [{ code: "dushanbe", name: "Душанбе" }],
+  meta: [{ label: "Период", value: "27 июля" }],
+};
+const settings = {
+  org: {
+    name: "Комитет по чрезвычайным ситуациям и гражданской обороне",
+    short_name: "КЧС",
+    about: "Официальный сайт Комитета.",
+    address: "Душанбе, Таджикистан",
+    email: "info@example.test",
+    emergency_number: "112",
+    trust_phone: "+992 00 000 00 00",
+  },
+  contacts: {
+    press_email: "press@example.test",
+    press_phone: "+992 00 000 00 01",
+    duty_phone: "112",
+  },
+  social: {},
+  emergency_services: [{ num: "112", label: "Единая служба" }],
+  structure: { founded_year: "1994", units_count: "5" },
+  copyright: "КЧС",
+  seo: {
+    meta_title: "КЧС Таджикистана",
+    meta_description: "Официальный сайт.",
+  },
+};
+const leadership = [
+  {
+    id: 1,
+    role: "Председатель",
+    name: "Тестовый руководитель",
+    meta: null,
+    bio: null,
+    is_chairman: true,
+    photo_url: null,
+  },
+];
+const structureUnits = [
+  {
+    num: "01",
+    name: "Тестовое управление",
+    desc: "Подразделение для детерминированной production-сборки.",
+  },
+];
 
 const emptyPagination = {
   total: 0,
@@ -136,20 +271,30 @@ const server = createServer((request, response) => {
   if (path === "/home") {
     json(response, {
       data: {
-        blocks: [{ type: "latest_news", title: "Новости", config: { limit: 5 } }],
-        alerts: { state: "calm", count: 0, regions: [], items: [] },
+        blocks: [
+          { type: "latest_news", title: "Новости", config: { limit: 5 } },
+          { type: "regions_map", title: "Обстановка", config: {} },
+          { type: "active_alerts", title: "Предупреждения", config: {} },
+        ],
+        alerts: {
+          state: "warning",
+          count: 1,
+          regions: [region],
+          items: [alertItem],
+        },
         news: [newsItem],
         instructions: [],
         documents: [],
         announcements: [],
         projects: [],
+        emergency_contacts: {},
       },
     });
     return;
   }
 
   if (path === "/settings") {
-    json(response, { data: null });
+    json(response, { data: settings });
     return;
   }
 
@@ -159,9 +304,14 @@ const server = createServer((request, response) => {
   }
 
   if (path === "/news") {
+    const q = requestUrl.searchParams.get("q")?.toLowerCase();
+    const data =
+      !q || `${newsItem.title} ${newsItem.excerpt}`.toLowerCase().includes(q)
+        ? [newsItem]
+        : [];
     json(response, {
-      data: [newsItem],
-      meta: { ...emptyPagination, total: 1, last_page: 1 },
+      data,
+      meta: { ...emptyPagination, total: data.length, last_page: 1 },
     });
     return;
   }
@@ -182,8 +332,30 @@ const server = createServer((request, response) => {
     return;
   }
 
+  if (path === "/categories") {
+    json(response, {
+      data: [{ slug: "news", name: "Новости" }],
+    });
+    return;
+  }
+
   if (path === "/alerts/active") {
-    json(response, { data: { state: "calm", count: 0, regions: [] } });
+    json(response, {
+      data: { state: "warning", count: 1, regions: [region] },
+    });
+    return;
+  }
+
+  if (path === "/alerts") {
+    json(response, {
+      data: [alertItem],
+      meta: { ...emptyPagination, total: 1, last_page: 1 },
+    });
+    return;
+  }
+
+  if (path === `/alerts/${alertItem.slug}`) {
+    json(response, { data: alertItem });
     return;
   }
 
@@ -192,10 +364,62 @@ const server = createServer((request, response) => {
     return;
   }
 
+  if (path === "/leadership") {
+    json(response, {
+      data: leadership,
+      meta: { ...emptyPagination, total: leadership.length, last_page: 1 },
+    });
+    return;
+  }
+
+  if (path === "/structure") {
+    json(response, {
+      data: structureUnits,
+      meta: { ...emptyPagination, total: structureUnits.length, last_page: 1 },
+    });
+    return;
+  }
+
+  if (path === "/announcements") {
+    const kind = requestUrl.searchParams.get("kind");
+    const data = kind
+      ? announcements.filter((announcement) => announcement.kind === kind)
+      : announcements;
+    json(response, {
+      data,
+      meta: { ...emptyPagination, total: data.length, last_page: 1 },
+    });
+    return;
+  }
+
+  const announcementSlug = path.match(/^\/announcements\/([^/]+)$/)?.[1];
+  const announcement = announcements.find(
+    (item) => item.slug === announcementSlug,
+  );
+  if (announcement) {
+    json(response, { data: announcement });
+    return;
+  }
+
+  if (path === "/documents") {
+    const type = requestUrl.searchParams.get("type");
+    const q = requestUrl.searchParams.get("q")?.toLowerCase();
+    const data = documents.filter(
+      (document) =>
+        (!type || document.type_value === type) &&
+        (!q ||
+          `${document.title} ${document.number ?? ""}`
+            .toLowerCase()
+            .includes(q)),
+    );
+    json(response, {
+      data,
+      meta: { ...emptyPagination, total: data.length, last_page: 1 },
+    });
+    return;
+  }
+
   const emptyCollections = new Set([
-    "/alerts",
-    "/announcements",
-    "/documents",
     "/instructions",
     "/pages",
     "/projects",

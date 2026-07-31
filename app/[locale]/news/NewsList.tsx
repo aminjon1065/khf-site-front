@@ -1,49 +1,35 @@
-"use client";
-
-import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { usePathname } from "next/navigation";
-import Link from "@/components/i18n/LocaleLink";
 import { Search } from "lucide-react";
 import { muted } from "@/components/public/ui";
 import type { ApiCategory, ApiNewsItem } from "@/lib/api";
-import { localeFromPathname } from "@/lib/i18n/config";
+import { withLocale, type Locale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
 import { getNews } from "./content";
 
 /**
  * Список новостей текущей страницы. Категории — серверный фильтр (B-2):
- * кнопки — обычные `<Link>` на `?category=slug`, работают без JS и
- * пережимают перезагрузку/шаринг ссылкой; сервер уже вернул нужную выборку
- * (см. page.tsx). Поиск по заголовку/анонсу остаётся клиентским — действует
- * в пределах уже загруженной страницы. Правая колонка (aside) и пагинация
- * приходят с сервера как готовая разметка.
+ * кнопки — обычные `<Link>` на `?category=slug`, поиск — GET-форма с `q`.
+ * Оба фильтра работают без JS, переживают reload/шаринг ссылкой и применяются
+ * CMS до пагинации.
  */
 export default function NewsList({
   aside,
   posts,
   categories,
   activeCategory,
+  query,
+  content,
+  locale,
 }: {
   aside: ReactNode;
   posts: ApiNewsItem[];
   categories: ApiCategory[];
   activeCategory?: string;
+  query?: string;
+  content: ReturnType<typeof getNews>;
+  locale: Locale;
 }) {
-  const pathname = usePathname();
-  const news = getNews(localeFromPathname(pathname));
-  const { filter, feed, empty } = news;
-  const [q, setQ] = useState("");
-
-  const results = useMemo<ApiNewsItem[]>(() => {
-    const needle = q.trim().toLowerCase();
-    if (!needle) {
-      return posts;
-    }
-    return posts.filter((p) =>
-      `${p.title} ${p.excerpt ?? ""}`.toLowerCase().includes(needle),
-    );
-  }, [posts, q]);
+  const { filter, feed, empty } = content;
 
   return (
     <>
@@ -54,8 +40,13 @@ export default function NewsList({
           aria-label={filter.groupAria}
           className="flex flex-wrap gap-1.5"
         >
-          <Link
-            href={routes.news}
+          <a
+            href={withLocale(
+              locale,
+              query
+                ? `${routes.news}?q=${encodeURIComponent(query)}`
+                : routes.news,
+            )}
             aria-current={!activeCategory ? "true" : undefined}
             className="btn px-[14px] py-1.5 text-[13px] no-underline hover:border-[var(--color-accent)]"
             style={
@@ -69,13 +60,16 @@ export default function NewsList({
             }
           >
             {filter.allCategory}
-          </Link>
+          </a>
           {categories.map((c) => {
             const active = c.slug === activeCategory;
             return (
-              <Link
+              <a
                 key={c.slug}
-                href={`${routes.news}?category=${encodeURIComponent(c.slug)}`}
+                href={withLocale(
+                  locale,
+                  `${routes.news}?category=${encodeURIComponent(c.slug)}${query ? `&q=${encodeURIComponent(query)}` : ""}`,
+                )}
                 aria-current={active ? "true" : undefined}
                 className="btn px-[14px] py-1.5 text-[13px] no-underline hover:border-[var(--color-accent)]"
                 style={
@@ -89,25 +83,33 @@ export default function NewsList({
                 }
               >
                 {c.name}
-              </Link>
+              </a>
             );
           })}
         </div>
         <span className="flex-1" />
-        <input
-          className="input min-h-[34px] w-[240px] text-[13px] max-[560px]:w-full"
-          type="search"
-          value={q}
-          placeholder={filter.searchPlaceholder}
-          aria-label={filter.searchAria}
-          onChange={(e) => setQ(e.target.value)}
-        />
+        <form method="get" className="flex gap-2 max-[560px]:w-full">
+          {activeCategory && (
+            <input type="hidden" name="category" value={activeCategory} />
+          )}
+          <input
+            className="input min-h-11 w-[240px] text-[13px] max-[560px]:min-w-0 max-[560px]:flex-1"
+            type="search"
+            name="q"
+            defaultValue={query ?? ""}
+            placeholder={filter.searchPlaceholder}
+            aria-label={filter.searchAria}
+          />
+          <button type="submit" className="btn btn-primary min-h-11">
+            {filter.submit}
+          </button>
+        </form>
       </div>
 
-      {results.length > 0 ? (
+      {posts.length > 0 ? (
         <div className="mt-2 grid grid-cols-[minmax(0,2.2fr)_minmax(260px,1fr)] items-start gap-8 max-[920px]:grid-cols-1">
           <div role="feed" aria-label={feed.aria} className="min-w-0">
-            {results.map((p) => (
+            {posts.map((p) => (
               <article
                 key={p.slug}
                 className="grid grid-cols-[110px_minmax(0,1fr)] gap-[18px] border-b border-[var(--color-divider)] py-5 max-[560px]:grid-cols-1 max-[560px]:gap-1.5"
@@ -126,13 +128,13 @@ export default function NewsList({
                 </div>
                 <div className="min-w-0">
                   <h2 className="m-0 mb-1.5 text-[21px] leading-[1.2]">
-                    <Link
-                      href={routes.article(p.slug)}
+                    <a
+                      href={withLocale(locale, routes.article(p.slug))}
                       className="row-link"
                       style={{ color: "inherit", textDecoration: "none" }}
                     >
                       {p.title}
-                    </Link>
+                    </a>
                   </h2>
                   <p
                     className="m-0 text-[13.5px] leading-[1.55]"
@@ -159,15 +161,15 @@ export default function NewsList({
           <p className="m-0 mb-1.5 text-[19px] font-semibold [font-family:var(--font-heading)]">
             {empty.title}
           </p>
-          <p
-            className="m-0 mb-4 text-[13.5px]"
-            style={{ color: muted(60) }}
-          >
+          <p className="m-0 mb-4 text-[13.5px]" style={{ color: muted(60) }}>
             {empty.text}
           </p>
-          <Link href={routes.news} className="btn btn-secondary no-underline">
+          <a
+            href={withLocale(locale, routes.news)}
+            className="btn btn-secondary no-underline"
+          >
             {empty.reset}
-          </Link>
+          </a>
         </div>
       )}
     </>

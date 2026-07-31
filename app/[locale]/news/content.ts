@@ -20,6 +20,7 @@ const ru = {
     allCategory: "Все",
     searchPlaceholder: "Поиск по новостям",
     searchAria: "Поиск по новостям",
+    submit: "Найти",
   },
 
   feed: {
@@ -67,6 +68,7 @@ const tj: NewsContent = {
     allCategory: "Ҳама",
     searchPlaceholder: "Ҷустуҷӯ дар хабарҳо",
     searchAria: "Ҷустуҷӯ дар хабарҳо",
+    submit: "Ҷустуҷӯ",
   },
 
   feed: {
@@ -112,6 +114,7 @@ const en: NewsContent = {
     allCategory: "All",
     searchPlaceholder: "Search the news",
     searchAria: "Search the news",
+    submit: "Search",
   },
 
   feed: {

@@ -7,6 +7,10 @@ const layoutSource = readFileSync(
   join(process.cwd(), "app", "[locale]", "layout.tsx"),
   "utf8",
 );
+const globalNotFoundSource = readFileSync(
+  join(process.cwd(), "app", "global-not-found.tsx"),
+  "utf8",
+);
 
 describe("critical font pipeline", () => {
   it("self-hosts exactly two critical WOFF2 resources", () => {
@@ -25,5 +29,11 @@ describe("critical font pipeline", () => {
     expect(totalBytes).toBeLessThanOrEqual(100 * 1024);
     expect(layoutSource).toContain('from "next/font/local"');
     expect(layoutSource).not.toContain('from "next/font/google"');
+    expect(globalNotFoundSource).toContain('from "next/font/local"');
+    expect(globalNotFoundSource).not.toContain('from "next/font/google"');
+    expect(globalNotFoundSource).toContain("fira-sans-critical.woff2");
+    expect(globalNotFoundSource).toContain(
+      "fira-sans-condensed-critical.woff2",
+    );
   });
 });

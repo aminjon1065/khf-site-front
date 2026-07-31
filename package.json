@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "dev:mkcert": "NODE_EXTRA_CA_CERTS=\"$(mkcert -CAROOT)/rootCA.pem\" next dev",
+    "dev": "node scripts/dev.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -14,6 +13,8 @@
     "test:a11y": "playwright test tests/e2e/accessibility.spec.ts",
     "api:types": "node scripts/generate-api-types.mjs",
     "api:types:check": "node scripts/generate-api-types.mjs --check",
+    "bundle:report": "node scripts/bundle-report.mjs",
+    "test:bundle": "vitest run tests/unit/bundle-report.test.mjs",
     "lighthouse": "node scripts/lighthouse-budgets.mjs",
     "lighthouse:ci": "lhci autorun"
   },

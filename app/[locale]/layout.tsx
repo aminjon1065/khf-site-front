@@ -96,8 +96,8 @@ export default async function LocaleLayout({
             data-testid="cms-diagnostic-banner"
             role="status"
           >
-            CMS diagnostic mode: fallback content is allowed; this build must not be
-            promoted to production.
+            CMS diagnostic mode: fallback content is allowed; this build must
+            not be promoted to production.
           </aside>
         )}
         {children}

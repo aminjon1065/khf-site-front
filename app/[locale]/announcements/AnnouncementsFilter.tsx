@@ -1,12 +1,8 @@
-"use client";
-
-import { useState } from "react";
 import type { ReactNode } from "react";
-import { usePathname } from "next/navigation";
 import Link from "@/components/i18n/LocaleLink";
 import { muted } from "@/components/public/ui";
 import type { ApiAnnouncement } from "@/lib/api";
-import { localeFromPathname } from "@/lib/i18n/config";
+import type { Locale } from "@/lib/i18n/config";
 import { routes } from "@/lib/routes";
 import {
   getAnnouncementsContent,
@@ -24,54 +20,66 @@ import {
 export default function AnnouncementsFilter({
   children,
   data,
+  locale,
+  active,
+  total,
 }: {
   children: ReactNode;
   data: ApiAnnouncement[];
+  locale: Locale;
+  active: FilterKey;
+  total: number;
 }) {
-  const locale = localeFromPathname(usePathname());
   const c = getAnnouncementsContent(locale);
   const kindMeta = getKindMeta(locale);
   const statusMeta = getStatusMeta(locale);
-  const [active, setActive] = useState<FilterKey>("all");
-  const items = data.filter((a) => active === "all" || a.kind === active);
 
   return (
     <>
       <div className="flex flex-wrap items-center gap-[14px] border-b border-[var(--color-divider)] py-4">
-        <div role="group" aria-label={c.filterGroupLabel} className="flex flex-wrap gap-1.5">
+        <div
+          role="group"
+          aria-label={c.filterGroupLabel}
+          className="flex flex-wrap gap-1.5"
+        >
           {c.filters.map((f) => {
             const pressed = f.key === active;
+            const href =
+              f.key === "all"
+                ? routes.announcements
+                : `${routes.announcements}?kind=${f.key}`;
             return (
-              <button
+              <Link
                 key={f.key}
-                type="button"
-                onClick={() => setActive(f.key)}
-                aria-pressed={pressed}
+                href={href}
+                aria-current={pressed ? "page" : undefined}
                 className="btn px-[14px] py-1.5 text-[13px] hover:border-[color:var(--color-accent)]"
                 style={{
-                  background: pressed ? "var(--color-accent-solid)" : "transparent",
+                  background: pressed
+                    ? "var(--color-accent-solid)"
+                    : "transparent",
                   color: pressed ? "var(--color-bg)" : "var(--color-text)",
                 }}
               >
                 {f.label}
-              </button>
+              </Link>
             );
           })}
         </div>
         <span className="flex-1" />
         <span className="text-xs" style={{ color: muted(50) }}>
-          {announcementsCount(items.length, locale)}
+          {announcementsCount(total, locale)}
         </span>
       </div>
 
       <div className="mt-2 grid grid-cols-[minmax(0,2.2fr)_minmax(260px,1fr)] items-start gap-8 max-[920px]:grid-cols-1">
         <div role="feed" aria-label={c.feedLabel} className="min-w-0">
-          {items.length === 0 && (
+          {data.length === 0 && (
             <p className="py-6 text-[14px]" style={{ color: muted(60) }}>
               {c.empty}
             </p>
           )}
-          {items.map((a) => {
+          {data.map((a) => {
             const kind = kindMeta[a.kind];
             const st = a.open ? statusMeta.open : statusMeta.closed;
             return (
@@ -100,7 +108,11 @@ export default function AnnouncementsFilter({
                 </div>
                 <h2 className="m-0 text-xl leading-[1.2]">
                   <Link
-                    href={a.slug ? routes.announcement(a.slug) : routes.announcements}
+                    href={
+                      a.slug
+                        ? routes.announcement(a.slug)
+                        : routes.announcements
+                    }
                     className="text-inherit no-underline hover:text-[color:var(--color-accent-700)]"
                   >
                     {a.title}

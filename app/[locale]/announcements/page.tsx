@@ -12,18 +12,28 @@ import { buildMetadata } from "@/lib/seo";
 import AnnouncementsFilter from "./AnnouncementsFilter";
 import {
   getAnnouncementsContent,
+  type FilterKey,
   type InfoCard,
   type InfoSegment,
 } from "./content";
 
 const PER_PAGE = 20;
 
+interface AnnouncementSearchParams {
+  page?: string;
+  kind?: string;
+}
+
+function announcementKind(value: string | undefined): FilterKey {
+  return value === "vacancy" || value === "tender" ? value : "all";
+}
+
 export async function generateMetadata({
   params,
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<AnnouncementSearchParams>;
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common } = getDictionary(locale);
@@ -64,11 +74,17 @@ function Aside({ info }: { info: InfoCard[] }) {
   return (
     <aside className="flex flex-col gap-5">
       {info.map((card) => (
-        <div key={card.title} className="blueprint flex flex-col gap-2 p-[18px]">
+        <div
+          key={card.title}
+          className="blueprint flex flex-col gap-2 p-[18px]"
+        >
           <h6 className="m-0" style={{ color: muted(55) }}>
             {card.title}
           </h6>
-          <p className="m-0 text-[13px] leading-[1.55]" style={{ color: muted(70) }}>
+          <p
+            className="m-0 text-[13px] leading-[1.55]"
+            style={{ color: muted(70) }}
+          >
             {card.body.map((seg, i) => (
               <Fragment key={i}>
                 {seg.br && <br />}
@@ -87,25 +103,39 @@ export default async function AnnouncementsPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<AnnouncementSearchParams>;
 }) {
   const locale = toLocale((await params).locale);
   const c = getAnnouncementsContent(locale);
-  const page = Math.max(1, Number((await searchParams).page) || 1);
-  const { data, meta } = await fetchAnnouncements({ locale, page, perPage: PER_PAGE });
+  const resolvedSearchParams = await searchParams;
+  const page = Math.max(1, Number(resolvedSearchParams.page) || 1);
+  const kind = announcementKind(resolvedSearchParams.kind);
+  const { data, meta } = await fetchAnnouncements({
+    locale,
+    page,
+    perPage: PER_PAGE,
+    kind: kind === "all" ? undefined : kind,
+  });
 
   return (
     <PageShell active="announcements" locale={locale}>
       <BreadcrumbJsonLd items={c.breadcrumbs} locale={locale} />
       <Breadcrumbs items={c.breadcrumbs} />
       <div className="flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">
-        <h1 className="m-0 text-[36px] uppercase tracking-[.02em]">{c.title}</h1>
+        <h1 className="m-0 text-[36px] uppercase tracking-[.02em]">
+          {c.title}
+        </h1>
         <span className="text-xs" style={{ color: muted(50) }}>
           {c.subtitle}
         </span>
       </div>
 
-      <AnnouncementsFilter data={data}>
+      <AnnouncementsFilter
+        data={data}
+        locale={locale}
+        active={kind}
+        total={meta.total}
+      >
         <Aside info={c.info} />
       </AnnouncementsFilter>
       <Pagination
@@ -113,6 +143,7 @@ export default async function AnnouncementsPage({
         currentPage={meta.current_page}
         lastPage={meta.last_page}
         basePath="/announcements"
+        query={{ kind: kind === "all" ? undefined : kind }}
       />
     </PageShell>
   );

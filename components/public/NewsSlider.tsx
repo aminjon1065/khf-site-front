@@ -32,6 +32,7 @@ export default function NewsSlider({
   const [slide, setSlide] = useState(0);
   const paused = useRef(false);
   const n = slides.length;
+  const activeSlide = slides[slide];
 
   useEffect(() => {
     const rm = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -56,49 +57,39 @@ export default function NewsSlider({
       onMouseLeave={() => (paused.current = false)}
     >
       <div className="min-h-[430px] overflow-hidden">
-        <div
-          className="flex [transition:transform_.5s_ease] [will-change:transform]"
-          style={{ transform: `translateX(-${slide * 100}%)` }}
-        >
-          {slides.map((s, i) => (
-            <article
-              key={i}
-              className="grid min-h-[430px] w-full flex-none grid-cols-[minmax(0,1fr)_42%] max-[920px]:grid-cols-1"
+        <article className="grid min-h-[430px] w-full grid-cols-[minmax(0,1fr)_42%] max-[920px]:grid-cols-1">
+          <div className="flex min-w-0 flex-col justify-center gap-3 px-7 py-[26px] max-[920px]:px-[18px] max-[920px]:pb-[60px] max-[920px]:pt-[18px]">
+            <div
+              className="text-[11px] uppercase tracking-[.1em]"
+              style={{ color: "var(--color-accent-700)" }}
             >
-              <div className="flex min-w-0 flex-col justify-center gap-3 px-7 py-[26px] max-[920px]:px-[18px] max-[920px]:pb-[60px] max-[920px]:pt-[18px]">
-                <div
-                  className="text-[11px] uppercase tracking-[.1em]"
-                  style={{ color: "var(--color-accent-700)" }}
-                >
-                  {s.kicker}
-                </div>
-                <h2 className="m-0 text-[27px] leading-[1.15]">
-                  <Link
-                    href={s.href ?? routes.article()}
-                    style={{ color: "inherit", textDecoration: "none" }}
-                  >
-                    {s.title}
-                  </Link>
-                </h2>
-                <p
-                  className="m-0 text-sm leading-[1.55]"
-                  style={{ color: muted(72) }}
-                >
-                  {s.excerpt}
-                </p>
-                <Link
-                  href={s.href ?? routes.article()}
-                  className="btn btn-secondary mt-1.5 self-start"
-                >
-                  {readMore}
-                </Link>
-              </div>
-              <div className="min-h-full max-[920px]:order-first max-[920px]:min-h-[210px]">
-                <ImageSlot label={s.photoLabel} duotone />
-              </div>
-            </article>
-          ))}
-        </div>
+              {activeSlide.kicker}
+            </div>
+            <h2 className="m-0 text-[27px] leading-[1.15]">
+              <Link
+                href={activeSlide.href ?? routes.article()}
+                style={{ color: "inherit", textDecoration: "none" }}
+              >
+                {activeSlide.title}
+              </Link>
+            </h2>
+            <p
+              className="m-0 text-sm leading-[1.55]"
+              style={{ color: muted(72) }}
+            >
+              {activeSlide.excerpt}
+            </p>
+            <Link
+              href={activeSlide.href ?? routes.article()}
+              className="btn btn-secondary mt-1.5 self-start"
+            >
+              {readMore}
+            </Link>
+          </div>
+          <div className="min-h-full max-[920px]:order-first max-[920px]:min-h-[210px]">
+            <ImageSlot label={activeSlide.photoLabel} duotone />
+          </div>
+        </article>
       </div>
       <div className="absolute bottom-[18px] left-7 flex items-center gap-2.5">
         <button

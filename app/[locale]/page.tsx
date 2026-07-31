@@ -95,11 +95,16 @@ function AlertBanner({
       >
         <div className="mx-auto flex w-full max-w-[1160px] flex-col gap-[14px] px-6 py-7 max-[920px]:px-4">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="crit-dot h-3 w-3 rounded-full" style={{ background: "#fff" }} />
+            <span
+              className="crit-dot h-3 w-3 rounded-full"
+              style={{ background: "#fff" }}
+            />
             <span className="text-[11px] font-bold uppercase tracking-[.12em]">
               {top?.level_label ?? c.kicker}
             </span>
-            {top?.datetime && <span className="text-xs opacity-85">{top.datetime}</span>}
+            {top?.datetime && (
+              <span className="text-xs opacity-85">{top.datetime}</span>
+            )}
           </div>
           <h1 className="m-0 text-[34px]" style={{ color: "#fff" }}>
             {top?.title ?? c.title}
@@ -111,7 +116,11 @@ function AlertBanner({
             <Link
               href={routes.guides}
               className="btn px-5 py-2.5 text-[15px]"
-              style={{ background: "#fff", color: "var(--hz-critical-solid)", borderColor: "#fff" }}
+              style={{
+                background: "#fff",
+                color: "var(--hz-critical-solid)",
+                borderColor: "#fff",
+              }}
             >
               {copy.banner.whatToDo}
             </Link>
@@ -152,7 +161,10 @@ function AlertBanner({
           />
           <span
             className="tag font-bold uppercase tracking-[.08em]"
-            style={{ background: "var(--hz-warning)", color: "var(--color-bg)" }}
+            style={{
+              background: "var(--hz-warning)",
+              color: "var(--color-bg)",
+            }}
           >
             {top?.level_label ?? w.levelLabel}
           </span>
@@ -174,9 +186,15 @@ function AlertBanner({
   }
   const c = copy.calm;
   return (
-    <section aria-label={copy.banner.calmAria} className="border-b border-[var(--color-divider)]">
+    <section
+      aria-label={copy.banner.calmAria}
+      className="border-b border-[var(--color-divider)]"
+    >
       <div className="mx-auto flex w-full max-w-[1160px] flex-wrap items-center gap-2.5 px-6 py-2.5 text-[13px] max-[920px]:px-4">
-        <span className="h-[9px] w-[9px] rounded-full" style={{ background: "var(--hz-success)" }} />
+        <span
+          className="h-[9px] w-[9px] rounded-full"
+          style={{ background: "var(--hz-success)" }}
+        />
         <span>
           <strong>{c.strong}</strong>
           {c.text}
@@ -190,16 +208,23 @@ function AlertBanner({
   );
 }
 
-function tagBg(level: AlertLevel): string {
-  return `color-mix(in srgb, ${levelDotColor[level]} 14%, transparent)`;
-}
+const tagBackground: Record<AlertLevel, string> = {
+  none: "var(--color-neutral-200)",
+  info: "var(--hz-info-bg)",
+  warning: "var(--hz-warning-bg)",
+  danger: "var(--hz-danger-bg)",
+  critical: "var(--hz-critical-bg)",
+};
 
 // Цвет тега статуса проекта по локале-независимому status_tone из CMS
 // (а не хардкод-зелёный для всех статусов).
 const projectTagTone: Record<string, { background: string; color: string }> = {
   success: { background: "var(--hz-success-bg)", color: "var(--hz-success)" },
   info: { background: "var(--hz-info-bg)", color: "var(--hz-info)" },
-  neutral: { background: "var(--color-neutral-100)", color: "var(--color-neutral-800)" },
+  neutral: {
+    background: "var(--color-neutral-100)",
+    color: "var(--color-neutral-800)",
+  },
 };
 
 export default async function HomePage({
@@ -237,13 +262,15 @@ export default async function HomePage({
         aria-label={pages.home.main}
         className="grid grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] items-stretch gap-7 max-[920px]:grid-cols-1"
       >
-        <NewsSlider slides={home.slider.slides} readMore={home.slider.readMore} />
+        <NewsSlider
+          slides={home.slider.slides}
+          readMore={home.slider.readMore}
+        />
         <a
           href={p.href}
           target="_blank"
           rel="noopener"
           className="blueprint surface-hover flex min-w-0 flex-col"
-          aria-label={p.aria}
           style={{ textDecoration: "none", color: "inherit" }}
         >
           <span className="block min-h-[240px] flex-1">
@@ -288,7 +315,11 @@ export default async function HomePage({
           <Link
             href={home.quickActions.big.href}
             className="blueprint accent-900-hover row-span-2 flex flex-col gap-2.5 p-5 max-[560px]:row-span-1"
-            style={{ background: "var(--color-accent-900)", textDecoration: "none", color: "inherit" }}
+            style={{
+              background: "var(--color-accent-900)",
+              textDecoration: "none",
+              color: "inherit",
+            }}
           >
             <svg
               width="30"
@@ -350,7 +381,10 @@ export default async function HomePage({
                 aria-label={pages.home.mapLegend}
               >
                 {legendItems.map((l) => (
-                  <span key={l.level} className="inline-flex items-center gap-1.5">
+                  <span
+                    key={l.level}
+                    className="inline-flex items-center gap-1.5"
+                  >
                     <span
                       className="h-3 w-3 border border-[var(--color-divider)]"
                       style={{ background: levelMapFill[l.level] }}
@@ -386,7 +420,10 @@ export default async function HomePage({
                   </div>
                 ))}
               </div>
-              <Link href={routes.map} className="btn btn-secondary mt-[14px] self-start">
+              <Link
+                href={routes.map}
+                className="btn btn-secondary mt-[14px] self-start"
+              >
                 {home.regionSection.openFull}
               </Link>
             </div>
@@ -410,16 +447,26 @@ export default async function HomePage({
                   key={a.slug}
                   href={`/alerts/${a.slug}`}
                   className="blueprint surface-hover-6 flex flex-col gap-2 p-[18px]"
-                  style={{ textDecoration: "none", color: "inherit", borderTop: `3px solid ${color}` }}
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                    borderTop: `3px solid ${color}`,
+                  }}
                 >
                   <div className="flex items-center gap-2">
                     <span
                       className="tag font-bold uppercase tracking-[.06em]"
-                      style={{ background: tagBg(a.level as AlertLevel), color }}
+                      style={{
+                        background: tagBackground[a.level as AlertLevel],
+                        color,
+                      }}
                     >
                       {a.hazard_label}
                     </span>
-                    <span className="text-[11.5px]" style={{ color: muted(50) }}>
+                    <span
+                      className="text-[11.5px]"
+                      style={{ color: muted(50) }}
+                    >
                       {a.status}
                     </span>
                   </div>
@@ -430,7 +477,10 @@ export default async function HomePage({
                     {a.region}
                     {a.datetime ? ` · ${a.datetime}` : ""}
                   </span>
-                  <span className="text-[13px] leading-[1.5]" style={{ color: muted(72) }}>
+                  <span
+                    className="text-[13px] leading-[1.5]"
+                    style={{ color: muted(72) }}
+                  >
                     {a.summary}
                   </span>
                 </Link>
@@ -484,10 +534,14 @@ export default async function HomePage({
                     textDecoration: "none",
                     color: "inherit",
                     padding: i === 0 ? "0 0 14px" : "14px 0",
-                    borderBottom: i === newsList.length - 1 ? "none" : undefined,
+                    borderBottom:
+                      i === newsList.length - 1 ? "none" : undefined,
                   }}
                 >
-                  <span className="text-[11px] uppercase tracking-[.08em]" style={{ color: muted(50) }}>
+                  <span
+                    className="text-[11px] uppercase tracking-[.08em]"
+                    style={{ color: muted(50) }}
+                  >
                     {[it.category, it.date].filter(Boolean).join(" · ")}
                   </span>
                   <span className="mt-1 block text-[17px] font-semibold leading-[1.25] [font-family:var(--font-heading)]">
@@ -509,13 +563,18 @@ export default async function HomePage({
               className="px-[22px] py-[18px]"
               style={{
                 borderRight:
-                  i === home.kpis.length - 1 ? undefined : "1px solid var(--color-divider)",
+                  i === home.kpis.length - 1
+                    ? undefined
+                    : "1px solid var(--color-divider)",
               }}
             >
               <div className="text-[34px] font-semibold [font-family:var(--font-heading)]">
                 {k.value}
               </div>
-              <div className="text-[12.5px] leading-[1.4]" style={{ color: muted(62) }}>
+              <div
+                className="text-[12.5px] leading-[1.4]"
+                style={{ color: muted(62) }}
+              >
                 {k.label[0]}
                 <br />
                 {k.label[1]}
@@ -547,7 +606,10 @@ export default async function HomePage({
                 >
                   <span className="tag tag-neutral flex-none">{d.type}</span>
                   <span className="flex-1 text-sm">{d.title}</span>
-                  <span className="flex-none text-xs" style={{ color: muted(50) }}>
+                  <span
+                    className="flex-none text-xs"
+                    style={{ color: muted(50) }}
+                  >
                     {d.size ?? ""}
                   </span>
                 </Link>
@@ -561,7 +623,10 @@ export default async function HomePage({
                 id="announcements"
                 title={home.announcements.title}
                 index={home.announcements.index}
-                link={{ label: home.announcements.allLink, href: routes.announcements }}
+                link={{
+                  label: home.announcements.allLink,
+                  href: routes.announcements,
+                }}
               />
               {data.announcements.map((a) => (
                 <Link
@@ -576,7 +641,10 @@ export default async function HomePage({
                     {a.kind_label}
                   </span>
                   <span className="flex-1 text-sm">{a.title}</span>
-                  <span className="flex-none text-xs" style={{ color: muted(50) }}>
+                  <span
+                    className="flex-none text-xs"
+                    style={{ color: muted(50) }}
+                  >
                     {a.deadline}
                   </span>
                 </Link>
@@ -601,7 +669,9 @@ export default async function HomePage({
                 <span className="flex items-center gap-2">
                   <span
                     className="tag text-[10px] font-semibold"
-                    style={projectTagTone[pr.status_tone] ?? projectTagTone.neutral}
+                    style={
+                      projectTagTone[pr.status_tone] ?? projectTagTone.neutral
+                    }
                   >
                     {pr.status}
                   </span>

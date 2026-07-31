@@ -88,6 +88,20 @@ test("locale shell loads no more than two critical fonts", async ({ page }) => {
   expect(uniqueFontResponses.every((response) => response.ok)).toBe(true);
 });
 
+test("hero carousel keeps only the active slide in the DOM", async ({
+  page,
+}) => {
+  await page.goto("/ru");
+
+  const carousel = page.locator("[aria-roledescription]").first();
+  const initialTitle = await carousel.locator("article h2").textContent();
+
+  await expect(carousel.locator("article")).toHaveCount(1);
+  await carousel.getByRole("button", { name: "Следующий слайд" }).click();
+  await expect(carousel.locator("article")).toHaveCount(1);
+  await expect(carousel.locator("article h2")).not.toHaveText(initialTitle!);
+});
+
 for (const localeCase of localeCases) {
   test(`${localeCase.path} renders with html lang=${localeCase.lang}`, async ({
     page,

@@ -65,7 +65,7 @@ export default function MapExplorer({
     const rs = list.filter((i) => i.regionKey === k);
     const level = rs.reduce<AlertLevel>(
       (top, i) => (rank[i.level] > rank[top] ? i.level : top),
-      "none"
+      "none",
     );
     return {
       key: k,
@@ -107,7 +107,9 @@ export default function MapExplorer({
                 aria-pressed={active}
                 className="btn px-[14px] py-1.5 text-[13px] hover:border-[var(--color-accent)]"
                 style={{
-                  background: active ? "var(--color-accent-solid)" : "transparent",
+                  background: active
+                    ? "var(--color-accent-solid)"
+                    : "transparent",
                   color: active ? "var(--color-bg)" : "var(--color-text)",
                 }}
               >
@@ -147,39 +149,42 @@ export default function MapExplorer({
           </p>
 
           {list.length > 0 ? (
-            <div role="list" aria-label={map.incidentsListAria}>
+            <ul
+              className="m-0 list-none p-0"
+              aria-label={map.incidentsListAria}
+            >
               {list.map((i, idx) => (
-                <Link
-                  key={`${i.slug}-${idx}`}
-                  href={`/alerts/${i.slug}`}
-                  role="listitem"
-                  className="row-link block border-b border-[var(--color-divider)] py-3"
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  <span className="flex items-center gap-2 text-[11px]">
-                    <span
-                      className="h-2 w-2 flex-none rounded-full"
-                      style={{ background: levelDotColor[i.level] }}
-                    />
-                    <span
-                      className="uppercase tracking-[.06em]"
-                      style={{ color: muted(55) }}
-                    >
-                      {i.kind} · {i.time}
-                    </span>
-                  </span>
-                  <span className="mt-[3px] block text-[15.5px] font-semibold leading-[1.25] [font-family:var(--font-heading)]">
-                    {i.title}
-                  </span>
-                  <span
-                    className="mt-0.5 block text-[12.5px]"
-                    style={{ color: muted(58) }}
+                <li key={`${i.slug}-${idx}`}>
+                  <Link
+                    href={`/alerts/${i.slug}`}
+                    className="row-link block border-b border-[var(--color-divider)] py-3"
+                    style={{ textDecoration: "none", color: "inherit" }}
                   >
-                    {i.region}
-                  </span>
-                </Link>
+                    <span className="flex items-center gap-2 text-[11px]">
+                      <span
+                        className="h-2 w-2 flex-none rounded-full"
+                        style={{ background: levelDotColor[i.level] }}
+                      />
+                      <span
+                        className="uppercase tracking-[.06em]"
+                        style={{ color: muted(55) }}
+                      >
+                        {i.kind} · {i.time}
+                      </span>
+                    </span>
+                    <span className="mt-[3px] block text-[15.5px] font-semibold leading-[1.25] [font-family:var(--font-heading)]">
+                      {i.title}
+                    </span>
+                    <span
+                      className="mt-0.5 block text-[12.5px]"
+                      style={{ color: muted(58) }}
+                    >
+                      {i.region}
+                    </span>
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           ) : (
             <div className="border border-dashed border-[var(--color-divider)] px-4 py-7 text-center">
               <p className="m-0 mb-1 text-base font-semibold [font-family:var(--font-heading)]">

@@ -13,7 +13,7 @@ export interface DocumentsContent {
   allType: string;
   /** Полный список типов (включая «Все»). */
   types: string[];
-  search: { placeholder: string; ariaLabel: string };
+  search: { placeholder: string; ariaLabel: string; submit: string };
   columns: {
     type: string;
     title: string;
@@ -37,6 +37,7 @@ const ru: DocumentsContent = {
   search: {
     placeholder: "Название или номер документа",
     ariaLabel: "Поиск документов",
+    submit: "Найти",
   },
   columns: {
     type: "Тип",
@@ -72,8 +73,7 @@ const ru: DocumentsContent = {
     },
     {
       type: "Постановление",
-      title:
-        "Национальная стратегия снижения риска бедствий на 2026–2030 годы",
+      title: "Национальная стратегия снижения риска бедствий на 2026–2030 годы",
       number: "№ 218",
       date: "15.04.2026",
       lang: "ТҶ / РУ / EN",
@@ -90,8 +90,7 @@ const ru: DocumentsContent = {
     },
     {
       type: "Отчёт",
-      title:
-        "Отчёт о деятельности Комитета за первое полугодие 2026 года",
+      title: "Отчёт о деятельности Комитета за первое полугодие 2026 года",
       number: "—",
       date: "10.07.2026",
       lang: "ТҶ / РУ",
@@ -142,6 +141,7 @@ const tj: DocumentsContent = {
   search: {
     placeholder: "Ном ё рақами ҳуҷҷат",
     ariaLabel: "Ҷустуҷӯи ҳуҷҷатҳо",
+    submit: "Ҷустуҷӯ",
   },
   columns: {
     type: "Навъ",
@@ -177,8 +177,7 @@ const tj: DocumentsContent = {
     },
     {
       type: "Қарор",
-      title:
-        "Стратегияи миллии коҳиши хатари офат барои солҳои 2026–2030",
+      title: "Стратегияи миллии коҳиши хатари офат барои солҳои 2026–2030",
       number: "№ 218",
       date: "15.04.2026",
       lang: "ТҶ / РУ / EN",
@@ -195,8 +194,7 @@ const tj: DocumentsContent = {
     },
     {
       type: "Ҳисобот",
-      title:
-        "Ҳисобот оид ба фаъолияти Кумита барои нимсолаи аввали соли 2026",
+      title: "Ҳисобот оид ба фаъолияти Кумита барои нимсолаи аввали соли 2026",
       number: "—",
       date: "10.07.2026",
       lang: "ТҶ / РУ",
@@ -204,8 +202,7 @@ const tj: DocumentsContent = {
     },
     {
       type: "Ҳисобот",
-      title:
-        "Таҳлили ҳолатҳои фавқулода дар ҳудуди ҷумҳурӣ барои соли 2025",
+      title: "Таҳлили ҳолатҳои фавқулода дар ҳудуди ҷумҳурӣ барои соли 2025",
       number: "—",
       date: "25.02.2026",
       lang: "ТҶ / РУ / EN",
@@ -247,6 +244,7 @@ const en: DocumentsContent = {
   search: {
     placeholder: "Document title or number",
     ariaLabel: "Search documents",
+    submit: "Search",
   },
   columns: {
     type: "Type",

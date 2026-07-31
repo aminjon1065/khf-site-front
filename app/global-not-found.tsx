@@ -2,7 +2,7 @@
 
 import "./globals.css";
 import { usePathname } from "next/navigation";
-import { Fira_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import { htmlLang, localeFromPathname } from "@/lib/i18n/config";
 import { getUiStrings } from "@/lib/i18n/ui-strings";
 
@@ -19,10 +19,16 @@ import { getUiStrings } from "@/lib/i18n/ui-strings";
 //
 // Обязателен полный документ (<html>/<body>) и собственный импорт шрифтов —
 // этот файл рендерится в обход layout.tsx.
-const sans = Fira_Sans({
+const sans = localFont({
+  src: "./fonts/fira-sans-critical.woff2",
   variable: "--font-sans",
-  weight: ["400", "500", "700"],
-  subsets: ["latin", "cyrillic", "cyrillic-ext"],
+  weight: "400",
+  display: "swap",
+});
+const condensed = localFont({
+  src: "./fonts/fira-sans-condensed-critical.woff2",
+  variable: "--font-condensed",
+  weight: "600",
   display: "swap",
 });
 
@@ -31,7 +37,10 @@ export default function GlobalNotFound() {
   const t = getUiStrings(locale).notFound;
 
   return (
-    <html lang={htmlLang(locale)} className={sans.variable}>
+    <html
+      lang={htmlLang(locale)}
+      className={`${sans.variable} ${condensed.variable}`}
+    >
       <body>
         <div
           style={{

@@ -1,8 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const frontendPort = Number(process.env.PLAYWRIGHT_PORT ?? 3100);
+const backendDownPort = Number(
+  process.env.PLAYWRIGHT_BACKEND_DOWN_PORT ?? frontendPort + 1,
+);
 const cmsPort = Number(process.env.CMS_MOCK_PORT ?? 38848);
 const frontendUrl = `http://127.0.0.1:${frontendPort}`;
+const backendDownUrl = `http://127.0.0.1:${backendDownPort}`;
 const cmsUrl = `http://127.0.0.1:${cmsPort}/api/v1`;
 
 export default defineConfig({
@@ -46,11 +50,35 @@ export default defineConfig({
       stdout: "pipe",
       stderr: "pipe",
     },
+    {
+      command: `npx next dev --hostname 127.0.0.1 --port ${backendDownPort}`,
+      url: backendDownUrl,
+      reuseExistingServer: !process.env.CI,
+      env: {
+        API_URL: "http://127.0.0.1:39999/api/v1",
+        CMS_BUILD_MODE: "preview",
+        NEXT_DIST_DIR: ".next-backend-down-e2e",
+        NEXT_PUBLIC_API_URL: "http://127.0.0.1:39999/api/v1",
+        NEXT_PUBLIC_RUM_SAMPLE_RATE: "0",
+        NEXT_PUBLIC_SITE_URL: backendDownUrl,
+      },
+      stdout: "pipe",
+      stderr: "pipe",
+    },
   ],
   projects: [
     {
       name: "chromium",
+      testIgnore: "**/graceful-degradation.spec.ts",
       use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "backend-down",
+      testMatch: "**/graceful-degradation.spec.ts",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: backendDownUrl,
+      },
     },
   ],
   outputDir: "test-results",

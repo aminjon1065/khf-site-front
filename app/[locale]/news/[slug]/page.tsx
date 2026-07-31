@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "@/components/i18n/LocaleLink";
 import { notFound } from "next/navigation";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
-import { BreadcrumbJsonLd, NewsArticleJsonLd } from "@/components/public/JsonLd";
+import {
+  BreadcrumbJsonLd,
+  NewsArticleJsonLd,
+} from "@/components/public/JsonLd";
 import PageShell from "@/components/public/PageShell";
 import CmsImage from "@/components/public/CmsImage";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
@@ -212,7 +215,8 @@ export default async function ArticlePage({
               <CmsImage
                 image={item.image_data}
                 sizes="(max-width: 920px) 100vw, 760px"
-                preload
+                fetchPriority="high"
+                loading="eager"
               />
             ) : (
               <ImageSlot label={article.photoLabel} />
@@ -256,7 +260,10 @@ export default async function ArticlePage({
                 >
                   <span className="tag tag-neutral flex-none">{m.tag}</span>
                   <span className="flex-1 text-[13.5px]">{m.title}</span>
-                  <span className="flex-none text-xs" style={{ color: muted(50) }}>
+                  <span
+                    className="flex-none text-xs"
+                    style={{ color: muted(50) }}
+                  >
                     {m.size}
                   </span>
                 </Link>

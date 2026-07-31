@@ -1,89 +1,27 @@
-"use client";
-
-import { useMemo, useState } from "react";
 import { Download } from "lucide-react";
+import Link from "@/components/i18n/LocaleLink";
 import { muted } from "@/components/public/ui";
 import type { ApiDocument } from "@/lib/api";
 import type { DocumentsContent } from "./content";
 
 /**
- * Клиентская таблица документов: фильтр по типу (кнопки с aria-pressed) и
- * поиск по названию/номеру. Данные (docs) приходят из CMS; типы фильтра
- * выводятся из реальных данных. Пустой результат — состояние со сбросом.
+ * Серверная таблица документов. Фильтрация и поиск выполняются CMS до
+ * пагинации, поэтому результат и URL остаются корректными без JavaScript.
  */
 export default function DocumentsTable({
   content,
   docs,
+  hasFilters,
 }: {
   content: DocumentsContent;
   docs: ApiDocument[];
+  hasFilters: boolean;
 }) {
-  const { allType, search, columns, downloadAria, empty } = content;
-  const [type, setType] = useState(allType);
-  const [q, setQ] = useState("");
-
-  // Типы фильтра — из реальных данных CMS (плюс «Все»).
-  const types = useMemo<string[]>(() => {
-    const present = Array.from(new Set(docs.map((d) => d.type)));
-    return [allType, ...present];
-  }, [docs, allType]);
-
-  const filtered = useMemo(() => {
-    const query = q.trim().toLowerCase();
-    return docs.filter(
-      (d) =>
-        (type === allType || d.type === type) &&
-        (!query ||
-          `${d.title} ${d.number ?? ""}`.toLowerCase().includes(query)),
-    );
-  }, [docs, type, allType, q]);
-
-  const reset = () => {
-    setType(allType);
-    setQ("");
-  };
+  const { columns, downloadAria, empty } = content;
 
   return (
     <>
-      {/* Панель фильтров: типы слева, поиск справа */}
-      <div className="flex flex-wrap items-center gap-[14px] border-b border-[var(--color-divider)] py-4">
-        <div
-          role="group"
-          aria-label={content.typeGroupLabel}
-          className="flex flex-wrap gap-1.5"
-        >
-          {types.map((ty) => {
-            const pressed = ty === type;
-            return (
-              <button
-                key={ty}
-                type="button"
-                onClick={() => setType(ty)}
-                aria-pressed={pressed}
-                className="btn px-[14px] py-1.5 text-[13px] hover:border-[var(--color-accent)]"
-                style={{
-                  background: pressed ? "var(--color-accent-solid)" : "transparent",
-                  color: pressed ? "var(--color-bg)" : "var(--color-text)",
-                }}
-              >
-                {ty}
-              </button>
-            );
-          })}
-        </div>
-        <span className="flex-1" />
-        <input
-          className="input w-[260px] text-[13px] max-[560px]:w-full"
-          style={{ minHeight: 34 }}
-          type="search"
-          placeholder={search.placeholder}
-          aria-label={search.ariaLabel}
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
-      </div>
-
-      {filtered.length > 0 ? (
+      {docs.length > 0 ? (
         <div className="mt-2 overflow-x-auto">
           <table className="table">
             <thead>
@@ -97,7 +35,7 @@ export default function DocumentsTable({
               </tr>
             </thead>
             <tbody>
-              {filtered.map((d) => (
+              {docs.map((d) => (
                 <tr key={d.id}>
                   <td>
                     <span className="tag tag-neutral">{d.type}</span>
@@ -151,9 +89,11 @@ export default function DocumentsTable({
           <p className="m-0 mb-4 text-[13.5px]" style={{ color: muted(60) }}>
             {empty.text}
           </p>
-          <button type="button" className="btn btn-secondary" onClick={reset}>
-            {empty.reset}
-          </button>
+          {hasFilters && (
+            <Link href="/documents" className="btn btn-secondary">
+              {empty.reset}
+            </Link>
+          )}
         </div>
       )}
     </>

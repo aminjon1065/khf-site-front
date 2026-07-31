@@ -1,6 +1,5 @@
-import { Fragment } from "react";
+import { Fragment, type ComponentProps } from "react";
 import Image from "next/image";
-import NextLink from "next/link";
 import { ChevronDown, Phone, Search, Smartphone, X } from "lucide-react";
 import emblemImage from "@/public/assets/emblem-tj.png";
 import flagImage from "@/public/assets/flag-tj.png";
@@ -18,6 +17,10 @@ interface NavItem {
   label: string;
   href: string;
   children: { label: string; href: string }[];
+}
+
+function NextLink(props: ComponentProps<"a"> & { href: string }) {
+  return <a {...props} />;
 }
 
 const activeRoutes: Partial<Record<NavKey, string>> = {
@@ -206,7 +209,10 @@ export default function PublicHeader({
           href="tel:112"
           className="call-112 inline-flex items-center gap-2 border border-[var(--color-divider)] px-[18px] py-2.5 text-[16px] font-semibold uppercase tracking-[.03em] text-white [box-shadow:var(--shadow-sm)] [font-family:var(--font-heading)] max-[920px]:ml-auto max-[920px]:px-[13px] max-[920px]:py-[9px] max-[920px]:text-[15px]"
           aria-label={header.emergencyAria}
-          style={{ background: "var(--hz-critical-solid)", textDecoration: "none" }}
+          style={{
+            background: "var(--hz-critical-solid)",
+            textDecoration: "none",
+          }}
         >
           <Phone size={16} strokeWidth={1.5} aria-hidden="true" />
           112

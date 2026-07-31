@@ -12,7 +12,7 @@ import NewsList from "./NewsList";
 
 const PER_PAGE = 12;
 
-type NewsSearchParams = { page?: string; category?: string };
+type NewsSearchParams = { page?: string; category?: string; q?: string };
 
 export async function generateMetadata({
   params,
@@ -52,7 +52,10 @@ function NewsAside({ news }: { news: ReturnType<typeof getNews> }) {
         <h2 className="m-0 text-base" style={{ color: muted(55) }}>
           {media.title}
         </h2>
-        <p className="m-0 text-[13px] leading-[1.55]" style={{ color: muted(70) }}>
+        <p
+          className="m-0 text-[13px] leading-[1.55]"
+          style={{ color: muted(70) }}
+        >
           {media.text}
         </p>
         <Link
@@ -68,7 +71,10 @@ function NewsAside({ news }: { news: ReturnType<typeof getNews> }) {
         <h2 className="m-0 text-base" style={{ color: muted(55) }}>
           {subscribe.title}
         </h2>
-        <p className="m-0 text-[13px] leading-[1.55]" style={{ color: muted(70) }}>
+        <p
+          className="m-0 text-[13px] leading-[1.55]"
+          style={{ color: muted(70) }}
+        >
           {subscribe.text}
         </p>
         <input
@@ -97,8 +103,9 @@ export default async function NewsPage({
   const resolvedSearchParams = await searchParams;
   const page = Math.max(1, Number(resolvedSearchParams.page) || 1);
   const category = resolvedSearchParams.category || undefined;
+  const q = resolvedSearchParams.q?.trim() || undefined;
   const [{ data: posts, meta }, categories] = await Promise.all([
-    fetchNews({ perPage: PER_PAGE, page, category, locale }),
+    fetchNews({ perPage: PER_PAGE, page, category, q, locale }),
     fetchCategories({ type: "news", locale }),
   ]);
 
@@ -122,13 +129,16 @@ export default async function NewsPage({
         posts={posts}
         categories={categories}
         activeCategory={category}
+        query={q}
+        content={news}
+        locale={locale}
       />
       <Pagination
         locale={locale}
         currentPage={meta.current_page}
         lastPage={meta.last_page}
         basePath="/news"
-        query={{ category }}
+        query={{ category, q }}
       />
     </PageShell>
   );

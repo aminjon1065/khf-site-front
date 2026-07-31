@@ -2,6 +2,7 @@
 // Серверные компоненты Next.js вызывают эти функции; данные кэшируются через
 // ISR (`revalidate`). Формы/клиентские вызовы используют NEXT_PUBLIC_API_URL.
 
+import { cache } from "react";
 import type {
   ApiAlert,
   ApiAlertsActive,
@@ -146,7 +147,7 @@ export async function fetchNews(
  * Одна новость по slug. Возвращает null при 404 (материал не опубликован или не
  * существует) — вызывающая страница показывает notFound().
  */
-export async function fetchNewsItem(
+export const fetchNewsItem = cache(async function fetchNewsItem(
   slug: string,
   locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiNewsItem | null> {
@@ -168,7 +169,7 @@ export async function fetchNewsItem(
     reportCmsFailure("fetchNewsItem", error);
     throw error;
   }
-}
+});
 
 /** Категория контента (`GET /categories`), напр. рубрика новости. */
 export interface ApiCategory {
@@ -191,7 +192,9 @@ export async function fetchCategories(
   });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
+    const res = await fetch(url, {
+      next: { revalidate: REVALIDATE, tags: ["cms"] },
+    });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
@@ -277,19 +280,25 @@ export async function fetchInstructions(
   });
 
   try {
-    const res = await fetch(url, cmsFetchOptions("instruction", query.locale ?? DEFAULT_LOCALE));
+    const res = await fetch(
+      url,
+      cmsFetchOptions("instruction", query.locale ?? DEFAULT_LOCALE),
+    );
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
     return (await res.json()) as Paginated<ApiInstruction>;
   } catch (error) {
     reportCmsFailure("fetchInstructions", error);
-    return { data: [], meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 } };
+    return {
+      data: [],
+      meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 },
+    };
   }
 }
 
 /** Одна инструкция по slug (с блоками sections). null при 404. */
-export async function fetchInstruction(
+export const fetchInstruction = cache(async function fetchInstruction(
   slug: string,
   locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiInstruction | null> {
@@ -309,7 +318,7 @@ export async function fetchInstruction(
     reportCmsFailure("fetchInstruction", error);
     throw error;
   }
-}
+});
 
 // ---------------------------------------------------------------- документы
 
@@ -318,12 +327,20 @@ export async function fetchInstruction(
  * недоступности API возвращает пустой результат — страница деградирует мягко.
  */
 export async function fetchDocuments(
-  params: { locale?: Locale; type?: string; section?: string; page?: number; perPage?: number } = {},
+  params: {
+    locale?: Locale;
+    type?: string;
+    section?: string;
+    q?: string;
+    page?: number;
+    perPage?: number;
+  } = {},
 ): Promise<Paginated<ApiDocument>> {
   const url = buildUrl("/documents", {
     locale: params.locale,
     type: params.type,
     section: params.section,
+    q: params.q,
     page: params.page,
     per_page: params.perPage ?? 20,
   });
@@ -339,7 +356,10 @@ export async function fetchDocuments(
     return (await res.json()) as Paginated<ApiDocument>;
   } catch (error) {
     reportCmsFailure("fetchDocuments", error);
-    return { data: [], meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 } };
+    return {
+      data: [],
+      meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 },
+    };
   }
 }
 
@@ -362,19 +382,25 @@ export async function fetchProjects(
   });
 
   try {
-    const res = await fetch(url, cmsFetchOptions("project", query.locale ?? DEFAULT_LOCALE));
+    const res = await fetch(
+      url,
+      cmsFetchOptions("project", query.locale ?? DEFAULT_LOCALE),
+    );
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
     return (await res.json()) as Paginated<ApiProject>;
   } catch (error) {
     reportCmsFailure("fetchProjects", error);
-    return { data: [], meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 } };
+    return {
+      data: [],
+      meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 },
+    };
   }
 }
 
 /** Один проект по slug (с целями, хронологией и дирекцией). null при 404. */
-export async function fetchProject(
+export const fetchProject = cache(async function fetchProject(
   slug: string,
   locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiProject | null> {
@@ -394,12 +420,13 @@ export async function fetchProject(
     reportCmsFailure("fetchProject", error);
     throw error;
   }
-}
+});
 
 // -------------------------------------------------------------- объявления
 
 interface AnnouncementQuery {
   locale?: Locale;
+  kind?: "vacancy" | "tender";
   page?: number;
   perPage?: number;
 }
@@ -410,31 +437,42 @@ export async function fetchAnnouncements(
 ): Promise<Paginated<ApiAnnouncement>> {
   const url = buildUrl("/announcements", {
     locale: query.locale,
+    kind: query.kind,
     page: query.page,
     per_page: query.perPage ?? 20,
   });
 
   try {
-    const res = await fetch(url, cmsFetchOptions("announcement", query.locale ?? DEFAULT_LOCALE));
+    const res = await fetch(
+      url,
+      cmsFetchOptions("announcement", query.locale ?? DEFAULT_LOCALE),
+    );
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
     return (await res.json()) as Paginated<ApiAnnouncement>;
   } catch (error) {
     reportCmsFailure("fetchAnnouncements", error);
-    return { data: [], meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 } };
+    return {
+      data: [],
+      meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 },
+    };
   }
 }
 
 /** Одно объявление по slug. null при 404. */
-export async function fetchAnnouncement(
+export const fetchAnnouncement = cache(async function fetchAnnouncement(
   slug: string,
   locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiAnnouncement | null> {
-  const url = buildUrl(`/announcements/${encodeURIComponent(slug)}`, { locale });
+  const url = buildUrl(`/announcements/${encodeURIComponent(slug)}`, {
+    locale,
+  });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
+    const res = await fetch(url, {
+      next: { revalidate: REVALIDATE, tags: ["cms"] },
+    });
     if (res.status === 404) {
       return null;
     }
@@ -447,7 +485,7 @@ export async function fetchAnnouncement(
     reportCmsFailure("fetchAnnouncements", error);
     throw error;
   }
-}
+});
 
 // --------------------------------------------------- предупреждения / карта
 
@@ -474,7 +512,7 @@ export async function fetchAlerts(
 }
 
 /** Одно предупреждение по slug (с инструкциями и регионами). null при 404. */
-export async function fetchAlert(
+export const fetchAlert = cache(async function fetchAlert(
   slug: string,
   locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiAlert | null> {
@@ -494,7 +532,7 @@ export async function fetchAlert(
     reportCmsFailure("fetchAlert", error);
     throw error;
   }
-}
+});
 
 /** Глобальная сводка обстановки + статусы регионов (для баннера и карты). */
 export async function fetchAlertsActive(
@@ -668,7 +706,9 @@ export async function fetchLeadership(
   const url = buildUrl("/leadership", { locale, per_page: 50 });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
+    const res = await fetch(url, {
+      next: { revalidate: REVALIDATE, tags: ["cms"] },
+    });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
@@ -694,7 +734,9 @@ export async function fetchStructureUnits(
   const url = buildUrl("/structure", { locale, per_page: 50 });
 
   try {
-    const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ["cms"] } });
+    const res = await fetch(url, {
+      next: { revalidate: REVALIDATE, tags: ["cms"] },
+    });
     if (!res.ok) {
       throw new Error(`API ${res.status}`);
     }
@@ -726,7 +768,7 @@ export async function fetchPages(
 }
 
 /** Одна страница по slug. `null` при 404 / недоступности. */
-export async function fetchPage(
+export const fetchPage = cache(async function fetchPage(
   slug: string,
   locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiPageDetail | null> {
@@ -746,4 +788,4 @@ export async function fetchPage(
     reportCmsFailure("fetchPage", error);
     throw error;
   }
-}
+});

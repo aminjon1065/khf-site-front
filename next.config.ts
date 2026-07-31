@@ -20,6 +20,58 @@ function usesLocalCmsEndpoint(): boolean {
   }
 }
 
+function cmsOrigin(): string | null {
+  const endpoint = process.env.NEXT_PUBLIC_API_URL ?? process.env.API_URL;
+
+  try {
+    return endpoint ? new URL(endpoint).origin : null;
+  } catch {
+    return null;
+  }
+}
+
+function contentSecurityPolicy(): string {
+  const isDevelopment = process.env.NODE_ENV === "development";
+  const connectSources = ["'self'", cmsOrigin()].filter(Boolean).join(" ");
+
+  return [
+    "default-src 'self'",
+    `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https: http:",
+    "font-src 'self' data:",
+    `connect-src ${connectSources}`,
+    "media-src 'self' https:",
+    "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com",
+    "worker-src 'self' blob:",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+    ...(isDevelopment ? [] : ["upgrade-insecure-requests"]),
+  ].join("; ");
+}
+
+const securityHeaders = [
+  { key: "Content-Security-Policy", value: contentSecurityPolicy() },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "DENY" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+  },
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+  ...(process.env.NODE_ENV === "production"
+    ? [
+        {
+          key: "Strict-Transport-Security",
+          value: "max-age=63072000; includeSubDomains; preload",
+        },
+      ]
+    : []),
+];
+
 const nextConfig: NextConfig = {
   // Turbopack refuses a second `next dev`/`next start` against the same
   // project directory's .next (shared dev cache/build lock) — B-6's
@@ -33,6 +85,17 @@ const nextConfig: NextConfig = {
   // предрендерится в статический _not-found один раз при сборке).
   experimental: {
     globalNotFound: true,
+  },
+  // `next start` gzip is intentionally explicit; an edge proxy may replace it
+  // with Brotli, but must not disable compression without an equivalent.
+  compress: true,
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: securityHeaders,
+      },
+    ];
   },
   images: {
     // Next.js 16 blocks private upstreams by default. Local CMS/mock media is

@@ -6,14 +6,18 @@ import type { Dictionary } from "./ru";
 
 export const en: Dictionary = {
   common: {
-    siteName: "Committee of Emergency Situations and Civil Defence of the Republic of Tajikistan",
+    siteName:
+      "Committee of Emergency Situations and Civil Defence of the Republic of Tajikistan",
     siteShort: "CoES RT",
     siteDescription:
       "Committee of Emergency Situations and Civil Defence under the Government of the Republic of Tajikistan",
     skipToContent: "Skip to content",
 
     header: {
-      committeeTitle: ["Committee of Emergency Situations", "and Civil Defence"],
+      committeeTitle: [
+        "Committee of Emergency Situations",
+        "and Civil Defence",
+      ],
       committeeSub: "under the Government of the Republic of Tajikistan",
       stateSymbols: "State symbols",
       sitemap: "Sitemap",
@@ -82,9 +86,21 @@ export const en: Dictionary = {
       resourcesTitle: "State resources",
       resources: [
         { label: "State symbols", href: routes.symbols, external: false },
-        { label: "President of the Republic of Tajikistan", href: "https://president.tj", external: true },
-        { label: "MFA of the Republic of Tajikistan", href: "https://mfa.tj", external: true },
-        { label: "khf.tj — official website", href: "https://khf.tj", external: true },
+        {
+          label: "President of the Republic of Tajikistan",
+          href: "https://president.tj",
+          external: true,
+        },
+        {
+          label: "MFA of the Republic of Tajikistan",
+          href: "https://mfa.tj",
+          external: true,
+        },
+        {
+          label: "khf.tj — official website",
+          href: "https://khf.tj",
+          external: true,
+        },
         { label: "Open data", href: "#", external: false },
         { label: "Sitemap", href: routes.sitemap, external: false },
       ],
@@ -112,10 +128,15 @@ export const en: Dictionary = {
     critical: {
       kicker: "Red level · Critical situation",
       updated: "Updated 18.07.2026, 14:20 · Source: CoES Crisis Centre",
-      title: "Mudflows and flooding in Khatlon region — Kulob and Vose districts",
+      title:
+        "Mudflows and flooding in Khatlon region — Kulob and Vose districts",
       text: "Heavy rainfall has triggered mudflows. Evacuation of residents from riverside villages is under way. Do not approach riverbeds or mudflow channels.",
       actions: [
-        { label: "What to do in a mudflow", href: routes.guide("flood"), primary: true },
+        {
+          label: "What to do in a mudflow",
+          href: routes.guide("flood"),
+          primary: true,
+        },
         { label: "Details and map", href: routes.alert },
         { label: "Call 112", href: "tel:112" },
       ],
@@ -125,7 +146,7 @@ export const en: Dictionary = {
       strong: "Mudflow hazard — Khatlon region.",
       text: " Mudflows are possible in foothill districts until 20 July. Avoid riverbeds.",
       time: "18.07.2026, 09:00",
-      more: "Learn more",
+      more: "Read the active alert",
       moreHref: routes.alert,
     },
     calm: {
@@ -149,22 +170,28 @@ export const en: Dictionary = {
       slides: [
         {
           kicker: "Official · 17 July 2026",
-          title: "Command-and-staff exercise “Zamin-2026” completed in Khatlon region",
-          excerpt: "Over 1,200 rescuers and representatives of international organisations practised response scenarios for a magnitude 7.0 earthquake.",
+          title:
+            "Command-and-staff exercise “Zamin-2026” completed in Khatlon region",
+          excerpt:
+            "Over 1,200 rescuers and representatives of international organisations practised response scenarios for a magnitude 7.0 earthquake.",
           photoLabel: "Photo: command-and-staff exercise",
           href: routes.article("zamin-2026"),
         },
         {
           kicker: "Rescue operations · 16 July 2026",
-          title: "Rescuers evacuated a group of climbers from the slope of Ismoili Somoni Peak",
-          excerpt: "A CoES helicopter lifted seven climbers from an altitude of 5,900 metres after a sharp deterioration in the weather. No casualties.",
+          title:
+            "Rescuers evacuated a group of climbers from the slope of Ismoili Somoni Peak",
+          excerpt:
+            "A CoES helicopter lifted seven climbers from an altitude of 5,900 metres after a sharp deterioration in the weather. No casualties.",
           photoLabel: "Photo: CoES helicopter over the Pamirs",
           href: routes.article("alpinists-rescue"),
         },
         {
           kicker: "Cooperation · 16 July 2026",
-          title: "Tajikistan and UNDRR signed a disaster risk reduction programme for 2026–2030",
-          excerpt: "The document provides for upgrading early-warning systems and training specialists in the regions.",
+          title:
+            "Tajikistan and UNDRR signed a disaster risk reduction programme for 2026–2030",
+          excerpt:
+            "The document provides for upgrading early-warning systems and training specialists in the regions.",
           photoLabel: "Photo: signing of the programme",
           href: routes.article("undrr-programme"),
         },
@@ -202,11 +229,36 @@ export const en: Dictionary = {
         href: routes.guide("earthquake"),
       },
       small: [
-        { icon: "waves", title: "Mudflow & flood", desc: "How to act when a mudflow threatens", href: routes.guide("flood") },
-        { icon: "aid", title: "First aid", desc: "Basic techniques before medics arrive", href: routes.guide("first-aid") },
-        { icon: "map", title: "Risk map", desc: "Situation across the regions of the republic", href: routes.map },
-        { icon: "phone", title: "Emergency phones", desc: "112, regional offices, reception", href: routes.contacts },
-        { icon: "message", title: "Report an incident", desc: "Electronic reception for citizens", href: routes.contacts },
+        {
+          icon: "waves",
+          title: "Mudflow & flood",
+          desc: "How to act when a mudflow threatens",
+          href: routes.guide("flood"),
+        },
+        {
+          icon: "aid",
+          title: "First aid",
+          desc: "Basic techniques before medics arrive",
+          href: routes.guide("first-aid"),
+        },
+        {
+          icon: "map",
+          title: "Risk map",
+          desc: "Situation across the regions of the republic",
+          href: routes.map,
+        },
+        {
+          icon: "phone",
+          title: "Emergency phones",
+          desc: "112, regional offices, reception",
+          href: routes.contacts,
+        },
+        {
+          icon: "message",
+          title: "Report an incident",
+          desc: "Electronic reception for citizens",
+          href: routes.contacts,
+        },
       ],
     },
 
@@ -262,14 +314,32 @@ export const en: Dictionary = {
       featured: {
         photoLabel: "Photo: CoES helicopter over the Pamirs",
         kicker: "Rescue operations · 16 July",
-        title: "Rescuers evacuated a group of climbers from the slope of Ismoili Somoni Peak",
+        title:
+          "Rescuers evacuated a group of climbers from the slope of Ismoili Somoni Peak",
         href: routes.article("alpinists-rescue"),
       },
       list: [
-        { kicker: "Civil defence · 15 July", title: "Action plan for the civil defence month approved", href: routes.article("civil-defense-month") },
-        { kicker: "International · 14 July", title: "CoES delegation took part in the regional disaster risk reduction forum in Almaty", href: routes.article("almaty-forum") },
-        { kicker: "Equipment · 12 July", title: "Regional offices received 18 units of new rescue equipment", href: routes.article("new-equipment") },
-        { kicker: "Training · 11 July", title: "Over 4,000 GBAO residents trained in avalanche safety", href: routes.article("gbao-training") },
+        {
+          kicker: "Civil defence · 15 July",
+          title: "Action plan for the civil defence month approved",
+          href: routes.article("civil-defense-month"),
+        },
+        {
+          kicker: "International · 14 July",
+          title:
+            "CoES delegation took part in the regional disaster risk reduction forum in Almaty",
+          href: routes.article("almaty-forum"),
+        },
+        {
+          kicker: "Equipment · 12 July",
+          title: "Regional offices received 18 units of new rescue equipment",
+          href: routes.article("new-equipment"),
+        },
+        {
+          kicker: "Training · 11 July",
+          title: "Over 4,000 GBAO residents trained in avalanche safety",
+          href: routes.article("gbao-training"),
+        },
       ],
     },
 
@@ -285,9 +355,23 @@ export const en: Dictionary = {
       index: "05 / Documents",
       allLink: "Catalogue →",
       rows: [
-        { tag: "Law", title: "Law of the RT “On the protection of the population and territory from natural and man-made emergencies”", size: "PDF · 0.4 MB" },
-        { tag: "Resolution", title: "National Disaster Risk Reduction Strategy for 2026–2030", size: "PDF · 2.1 MB" },
-        { tag: "Report", title: "Report on the Committee's activities for the first half of 2026", size: "PDF · 1.3 MB" },
+        {
+          tag: "Law",
+          title:
+            "Law of the RT “On the protection of the population and territory from natural and man-made emergencies”",
+          size: "PDF · 0.4 MB",
+        },
+        {
+          tag: "Resolution",
+          title: "National Disaster Risk Reduction Strategy for 2026–2030",
+          size: "PDF · 2.1 MB",
+        },
+        {
+          tag: "Report",
+          title:
+            "Report on the Committee's activities for the first half of 2026",
+          size: "PDF · 1.3 MB",
+        },
       ],
     },
 
@@ -296,9 +380,25 @@ export const en: Dictionary = {
       index: "06 / Vacancies & tenders",
       allLink: "All announcements →",
       rows: [
-        { tag: "Vacancy", tagClass: "tag-accent", title: "Air-mobile unit rescuer — Dushanbe, 2 positions", deadline: "until 31.07.2026" },
-        { tag: "Vacancy", tagClass: "tag-accent", title: "Civil defence department engineer — Sughd Regional Office", deadline: "until 25.07.2026" },
-        { tag: "Tender", tagClass: "tag-outline", title: "Procurement of rescue tools for regional offices — applications open", deadline: "until 05.08.2026" },
+        {
+          tag: "Vacancy",
+          tagClass: "tag-accent",
+          title: "Air-mobile unit rescuer — Dushanbe, 2 positions",
+          deadline: "until 31.07.2026",
+        },
+        {
+          tag: "Vacancy",
+          tagClass: "tag-accent",
+          title: "Civil defence department engineer — Sughd Regional Office",
+          deadline: "until 25.07.2026",
+        },
+        {
+          tag: "Tender",
+          tagClass: "tag-outline",
+          title:
+            "Procurement of rescue tools for regional offices — applications open",
+          deadline: "until 05.08.2026",
+        },
       ],
     },
 
@@ -306,8 +406,20 @@ export const en: Dictionary = {
       title: "Projects",
       allLink: "All projects →",
       cards: [
-        { status: "In progress", years: "2026–2030", title: "Modernisation of the public early-warning system", meta: "UNDRR, World Bank · USD 18.4M", href: routes.project("early-warning-system") },
-        { status: "In progress", years: "2025–2027", title: "Modernisation of the 112 unified rescue service", meta: "European Union · EUR 6.2M", href: routes.projects },
+        {
+          status: "In progress",
+          years: "2026–2030",
+          title: "Modernisation of the public early-warning system",
+          meta: "UNDRR, World Bank · USD 18.4M",
+          href: routes.project("early-warning-system"),
+        },
+        {
+          status: "In progress",
+          years: "2025–2027",
+          title: "Modernisation of the 112 unified rescue service",
+          meta: "European Union · EUR 6.2M",
+          href: routes.projects,
+        },
       ],
     },
   },
@@ -423,9 +535,21 @@ export const en: Dictionary = {
       emergencyNote: "Unified rescue service, 24/7",
       related: "Related guides",
       blocks: {
-        before: { tag: "Before", title: "Prepare in advance", aria: "Before the event" },
-        during: { tag: "During", title: "During the event", aria: "During the event" },
-        after: { tag: "After", title: "After the event", aria: "After the event" },
+        before: {
+          tag: "Before",
+          title: "Prepare in advance",
+          aria: "Before the event",
+        },
+        during: {
+          tag: "During",
+          title: "During the event",
+          aria: "During the event",
+        },
+        after: {
+          tag: "After",
+          title: "After the event",
+          aria: "After the event",
+        },
       },
     },
     contentPage: {

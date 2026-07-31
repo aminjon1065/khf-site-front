@@ -73,6 +73,9 @@ jobs:
       - name: Build production application
         run: npm run build
 
+      - name: Check frontend bundle budgets
+        run: npm run bundle:report
+
       - name: Run browser and accessibility tests
         run: npm run test:e2e
 
@@ -96,6 +99,15 @@ jobs:
           path: |
             lighthouse-results/
             .lighthouseci/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload frontend bundle report
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: frontend-bundle-report
+          path: bundle-reports/
           if-no-files-found: ignore
           retention-days: 14
 
