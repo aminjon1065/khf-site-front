@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import localFont from "next/font/local";
 import { notFound } from "next/navigation";
 import "../globals.css";
@@ -7,6 +8,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { buildMetadata, siteUrl } from "@/lib/seo";
 import { cmsDiagnosticEnabled } from "@/lib/cms-readiness.mjs";
 import { WebVitalsReporter } from "@/components/public/WebVitalsReporter";
+import NavigationProgress from "@/components/public/NavigationProgress";
 
 // Локальные subsets сохраняют Fira Sans для латиницы и расширенной кириллицы
 // (включая таджикские ҳ ҷ ӣ ӯ қ ғ), но сокращают критический путь до двух WOFF2.
@@ -86,6 +88,11 @@ export default async function LocaleLayout({
       <body>
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
         <WebVitalsReporter />
+        {/* useSearchParams внутри требует Suspense-границы при статическом
+            пре-рендере, иначе весь маршрут уходит в динамический рендер. */}
+        <Suspense fallback={null}>
+          <NavigationProgress />
+        </Suspense>
         <a href="#main" className="skip-link">
           {common.skipToContent}
         </a>

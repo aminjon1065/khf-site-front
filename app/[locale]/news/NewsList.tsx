@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Search } from "lucide-react";
+import Link from "@/components/i18n/LocaleLink";
 import { muted } from "@/components/public/ui";
 import type { ApiCategory, ApiNewsItem } from "@/lib/api";
 import { withLocale, type Locale } from "@/lib/i18n/config";
@@ -40,7 +41,7 @@ export default function NewsList({
           aria-label={filter.groupAria}
           className="flex flex-wrap gap-1.5"
         >
-          <a
+          <Link
             href={withLocale(
               locale,
               query
@@ -60,11 +61,11 @@ export default function NewsList({
             }
           >
             {filter.allCategory}
-          </a>
+          </Link>
           {categories.map((c) => {
             const active = c.slug === activeCategory;
             return (
-              <a
+              <Link
                 key={c.slug}
                 href={withLocale(
                   locale,
@@ -83,7 +84,7 @@ export default function NewsList({
                 }
               >
                 {c.name}
-              </a>
+              </Link>
             );
           })}
         </div>
@@ -128,13 +129,13 @@ export default function NewsList({
                 </div>
                 <div className="min-w-0">
                   <h2 className="m-0 mb-1.5 text-[21px] leading-[1.2]">
-                    <a
+                    <Link
                       href={withLocale(locale, routes.article(p.slug))}
                       className="row-link"
                       style={{ color: "inherit", textDecoration: "none" }}
                     >
                       {p.title}
-                    </a>
+                    </Link>
                   </h2>
                   <p
                     className="m-0 text-[13.5px] leading-[1.55]"
@@ -164,12 +165,12 @@ export default function NewsList({
           <p className="m-0 mb-4 text-[13.5px]" style={{ color: muted(60) }}>
             {empty.text}
           </p>
-          <a
+          <Link
             href={withLocale(locale, routes.news)}
             className="btn btn-secondary no-underline"
           >
             {empty.reset}
-          </a>
+          </Link>
         </div>
       )}
     </>

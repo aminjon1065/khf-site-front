@@ -1,4 +1,7 @@
-import { Fragment, type ComponentProps } from "react";
+import { Fragment } from "react";
+// LocaleLink, а не next/link: href в шапке уже локализованы (withLocale
+// идемпотентна), зато каждая ссылка сообщает полосе прогресса о старте перехода.
+import NextLink from "@/components/i18n/LocaleLink";
 import Image from "next/image";
 import { ChevronDown, Phone, Search, Smartphone, X } from "lucide-react";
 import emblemImage from "@/public/assets/emblem-tj.png";
@@ -17,10 +20,6 @@ interface NavItem {
   label: string;
   href: string;
   children: { label: string; href: string }[];
-}
-
-function NextLink(props: ComponentProps<"a"> & { href: string }) {
-  return <a {...props} />;
 }
 
 const activeRoutes: Partial<Record<NavKey, string>> = {

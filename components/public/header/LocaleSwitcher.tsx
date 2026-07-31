@@ -1,5 +1,7 @@
 "use client";
 
+import { usePathname, useRouter } from "next/navigation";
+import { startNavigationProgress } from "@/lib/navigation-progress";
 import {
   LOCALES,
   LOCALE_LABELS,
@@ -15,11 +17,16 @@ export default function LocaleSwitcher({
   label: string;
   locale: Locale;
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // router.push, а не window.location.assign: смена языка — обычный переход,
+  // перезагружать всё приложение ради неё не нужно. Куку NEXT_LOCALE проставит
+  // proxy.ts на самом локализованном запросе.
   const switchLocale = (nextLocale: Locale) => {
     if (nextLocale !== locale) {
-      window.location.assign(
-        withLocale(nextLocale, stripLocale(window.location.pathname)),
-      );
+      startNavigationProgress();
+      router.push(withLocale(nextLocale, stripLocale(pathname)));
     }
   };
 
