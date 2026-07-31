@@ -72,7 +72,7 @@ export default async function AnnouncementDetailPage({
     announcement = await fetchAnnouncement(slug, locale);
   } catch {
     return (
-      <PageShell active="" locale={locale}>
+      <PageShell>
         <FetchErrorFallback locale={locale} />
       </PageShell>
     );
@@ -92,7 +92,7 @@ export default async function AnnouncementDetailPage({
   const related = allAnnouncements.filter((a) => a.slug !== slug).slice(0, 3);
 
   return (
-    <PageShell active="" locale={locale}>
+    <PageShell>
       <BreadcrumbJsonLd
         items={[
           { label: d.breadcrumbHome, href: routes.home },

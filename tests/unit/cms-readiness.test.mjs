@@ -21,10 +21,20 @@ const readyPayload = {
 describe("CMS build modes", () => {
   it("defaults to production and enables diagnostics only for fallback modes", () => {
     expect(cmsBuildMode({})).toBe("production");
-    expect(cmsDiagnosticEnabled({ NODE_ENV: "development" })).toBe(true);
+
+    // Сам по себе режим разработки — не повод для предупреждения: с живой CMS
+    // страницы наполнены настоящими данными, и вечная плашка только мешает.
+    expect(cmsDiagnosticEnabled({ NODE_ENV: "development" })).toBe(false);
     expect(cmsDiagnosticEnabled({ NODE_ENV: "production" })).toBe(false);
+
+    // Повод первый: сборка, где gate готовности CMS осознанно пропущен.
     expect(
       cmsDiagnosticEnabled({ NODE_ENV: "production", CMS_BUILD_MODE: "preview" }),
+    ).toBe(true);
+
+    // Повод второй: CMS недоступна прямо сейчас и показан резервный контент.
+    expect(
+      cmsDiagnosticEnabled({ NODE_ENV: "development" }, { degraded: true }),
     ).toBe(true);
     expect(() => cmsBuildMode({ CMS_BUILD_MODE: "staging" })).toThrowError(
       expect.objectContaining({ code: "invalid_build_mode" }),

@@ -89,6 +89,10 @@ export default async function LocaleLayout({
     fetchSettings(locale),
     fetchMenu(locale),
   ]);
+  // `fetchSettings` возвращает null только когда CMS не ответила (сетевая
+  // ошибка или не-2xx) — это и есть признак резервного режима: страница
+  // показывает пустые списки вместо данных.
+  const degraded = settings === null;
 
   return (
     <html
@@ -107,15 +111,16 @@ export default async function LocaleLayout({
         <a href="#main" className="skip-link">
           {common.skipToContent}
         </a>
-        {cmsDiagnosticEnabled() && (
+        {cmsDiagnosticEnabled(process.env, { degraded }) && (
           <aside
             aria-live="polite"
             className="border-b border-[var(--hz-warning)] bg-[var(--hz-warning-bg)] px-4 py-2 text-center text-sm font-semibold text-[var(--color-text)]"
             data-testid="cms-diagnostic-banner"
             role="status"
           >
-            CMS diagnostic mode: fallback content is allowed; this build must
-            not be promoted to production.
+            {degraded
+              ? "CMS недоступна: показан резервный контент, данные могут быть неполными."
+              : "Сборка режима preview: проверка готовности CMS пропущена, в артефакте допускается резервный контент — в production не выкладывать."}
           </aside>
         )}
         <div

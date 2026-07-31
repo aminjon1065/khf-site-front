@@ -111,8 +111,6 @@ export default async function NewsPage({
 
   return (
     <PageShell
-      active="news"
-      locale={locale}
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-8 max-[920px]:px-4"
     >
       <div className="flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">

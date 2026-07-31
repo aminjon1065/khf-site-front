@@ -78,7 +78,7 @@ export default async function DocumentsPage({
   }));
 
   return (
-    <PageShell active="documents" locale={locale}>
+    <PageShell>
       <div className="flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">
         <h1 className="m-0 text-[36px] uppercase tracking-[.02em]">
           {documents.title}

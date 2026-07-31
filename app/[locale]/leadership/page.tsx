@@ -38,8 +38,6 @@ export default async function LeadershipPage({
 
   return (
     <PageShell
-      active="about"
-      locale={locale}
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-8 max-[920px]:px-4"
     >
       <BreadcrumbJsonLd items={leadership.breadcrumbs} locale={locale} />

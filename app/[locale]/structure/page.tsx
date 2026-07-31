@@ -45,8 +45,6 @@ export default async function StructurePage({
 
   return (
     <PageShell
-      active="about"
-      locale={locale}
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-8 max-[920px]:px-4"
     >
       <BreadcrumbJsonLd items={structure.breadcrumbs} locale={locale} />

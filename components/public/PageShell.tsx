@@ -1,6 +1,4 @@
 import type { CSSProperties, ReactNode } from "react";
-import type { NavKey } from "@/lib/routes";
-import type { Locale } from "@/lib/i18n/config";
 
 /** Ширина и отступы контентной колонки по умолчанию. */
 export const DEFAULT_MAIN_CLASS =
@@ -20,9 +18,8 @@ export const DEFAULT_MAIN_CLASS =
  * меняется от страницы к странице. Разметка при этом не изменилась: те же
  * классы, только на `<div>` внутри `<main>`, а не на самом `<main>`.
  *
- * Пропы `active` и `locale` больше не нужны (активный пункт меню шапка
- * определяет по URL, локаль знает layout), но остаются в типе, чтобы не
- * править разом два десятка страниц — они просто игнорируются.
+ * Активный пункт меню шапка определяет по URL, локаль знает layout —
+ * страницам больше не нужно ничего об этом сообщать.
  */
 export default function PageShell({
   topSlot,
@@ -30,10 +27,6 @@ export default function PageShell({
   mainClassName = DEFAULT_MAIN_CLASS,
   mainStyle,
 }: {
-  /** @deprecated активный пункт меню определяется по URL. */
-  active?: NavKey;
-  /** @deprecated локаль берётся из layout. */
-  locale?: Locale;
   /** Полноширинный блок над контентом (статусный баннер главной). */
   topSlot?: ReactNode;
   children: ReactNode;

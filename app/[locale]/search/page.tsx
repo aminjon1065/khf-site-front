@@ -52,8 +52,6 @@ export default async function SearchPage({
 
   return (
     <PageShell
-      active=""
-      locale={locale}
       mainClassName="mx-auto w-full max-w-[900px] px-6 pt-8 max-[920px]:px-4"
     >
       <h1 className="m-0 mb-4 text-[36px] uppercase tracking-[.02em]">{s.title}</h1>

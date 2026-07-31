@@ -118,7 +118,7 @@ export default async function AnnouncementsPage({
   });
 
   return (
-    <PageShell active="announcements" locale={locale}>
+    <PageShell>
       <BreadcrumbJsonLd items={c.breadcrumbs} locale={locale} />
       <Breadcrumbs items={c.breadcrumbs} />
       <div className="flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">

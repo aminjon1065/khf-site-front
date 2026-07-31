@@ -53,8 +53,6 @@ export default async function AlertsPage({
 
   return (
     <PageShell
-      active="map"
-      locale={locale}
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
     >
       <BreadcrumbJsonLd

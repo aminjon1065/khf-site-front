@@ -60,7 +60,6 @@ export default async function ContentPage({
   } catch {
     return (
       <PageShell
-        locale={locale}
         mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
       >
         <FetchErrorFallback locale={locale} />
@@ -86,7 +85,6 @@ export default async function ContentPage({
 
   return (
     <PageShell
-      locale={locale}
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
     >
       <nav className="text-[12.5px]" style={{ color: muted(55) }} aria-label={pages.contentPage.breadcrumbAria}>

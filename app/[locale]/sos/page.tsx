@@ -67,7 +67,7 @@ export default async function SosPage({
   const { hero, features, how } = sos;
 
   return (
-    <PageShell active="" locale={locale}>
+    <PageShell>
       {/* Hero: описание + кнопки магазинов + макет телефона */}
       <section
         aria-label={pages.sosPage.app}

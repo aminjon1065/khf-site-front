@@ -53,7 +53,7 @@ export default async function MapPage({
   );
 
   return (
-    <PageShell active="map" locale={locale}>
+    <PageShell>
       <div className="flex flex-wrap items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">
         <h1 className="m-0 text-[36px] uppercase tracking-[.02em]">
           {map.title}

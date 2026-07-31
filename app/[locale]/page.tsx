@@ -253,8 +253,6 @@ export default async function HomePage({
 
   return (
     <PageShell
-      active="home"
-      locale={locale}
       topSlot={<AlertBanner state={data.alerts.state} top={top} copy={home} />}
     >
       {/* Главное: слайдер + карточка Президента */}

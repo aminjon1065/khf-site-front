@@ -131,8 +131,6 @@ export default async function ArticlePage({
   } catch {
     return (
       <PageShell
-        active="news"
-        locale={locale}
         mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
       >
         <FetchErrorFallback locale={locale} />
@@ -156,8 +154,6 @@ export default async function ArticlePage({
 
   return (
     <PageShell
-      active="news"
-      locale={locale}
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
     >
       <NewsArticleJsonLd item={item} locale={locale} path={`/news/${slug}`} />

@@ -48,7 +48,7 @@ export default async function SymbolsPage({
   const locale = toLocale((await params).locale);
   const { breadcrumbs, hero, symbols, anthem, usage } = getSymbolsContent(locale);
   return (
-    <PageShell active="about" locale={locale}>
+    <PageShell>
       <BreadcrumbJsonLd items={breadcrumbs} locale={locale} />
       <Breadcrumbs items={breadcrumbs} />
 

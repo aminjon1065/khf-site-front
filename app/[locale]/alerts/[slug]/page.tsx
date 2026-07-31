@@ -78,8 +78,6 @@ export default async function AlertDetailPage({
   } catch {
     return (
       <PageShell
-        active="map"
-        locale={locale}
         mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
       >
         <FetchErrorFallback locale={locale} />
@@ -123,8 +121,6 @@ export default async function AlertDetailPage({
 
   return (
     <PageShell
-      active="map"
-      locale={locale}
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
     >
       <BreadcrumbJsonLd

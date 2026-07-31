@@ -86,7 +86,7 @@ export default async function ProjectDetailPage({
     p = await fetchProject(slug, locale);
   } catch {
     return (
-      <PageShell active="" locale={locale}>
+      <PageShell>
         <FetchErrorFallback locale={locale} />
       </PageShell>
     );
@@ -116,7 +116,7 @@ export default async function ProjectDetailPage({
   const related = allProjects.filter((r) => r.slug !== slug).slice(0, 3);
 
   return (
-    <PageShell active="projects" locale={locale}>
+    <PageShell>
       <BreadcrumbJsonLd
         items={[
           { label: projectBreadcrumb.home, href: routes.home },

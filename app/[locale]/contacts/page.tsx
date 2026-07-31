@@ -44,7 +44,7 @@ export default async function ContactsPage({
       : offices.rows;
 
   return (
-    <PageShell active="contacts" locale={locale}>
+    <PageShell>
       {/* Заголовок страницы */}
       <div className="flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">
         <h1 className="m-0 text-[36px] uppercase tracking-[.02em]">{contacts.title}</h1>
