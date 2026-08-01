@@ -9,6 +9,7 @@ import flagImage from "@/public/assets/flag-tj.png";
 import logoImage from "@/public/assets/logo-kchs-ru.webp";
 import LocaleSwitcher from "@/components/public/header/LocaleSwitcher";
 import MobileMenuButton from "@/components/public/header/MobileMenuButton";
+import CloseOnNavigate from "@/components/public/header/CloseOnNavigate";
 import NavLink from "@/components/public/header/NavLink";
 import NavSummary from "@/components/public/header/NavSummary";
 import ThemeToggle from "@/components/public/header/ThemeToggle";
@@ -101,6 +102,7 @@ export default function PublicHeader({
 
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--color-divider)] bg-[var(--color-bg)]">
+      <CloseOnNavigate />
       <div className="border-b border-[var(--color-divider)]">
         <div
           className="mx-auto flex w-full max-w-[1160px] items-center gap-3 px-6 py-1.5 text-xs max-[920px]:px-4"
