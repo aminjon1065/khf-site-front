@@ -22,10 +22,12 @@
 
 # next.js
 /.next/
-# B-6: isolated build dir for the "backend-down" Playwright project
-# (playwright.config.ts, NEXT_DIST_DIR) — same contents as /.next/, just a
-# second build so it can run concurrently with the normal dev/CI server.
-/.next-backend-down/
+# Изолированные dist-каталоги стенда Playwright (playwright.config.ts,
+# NEXT_DIST_DIR). Содержимое то же, что в /.next/, — отдельные сборки нужны
+# только чтобы серверы стенда не конфликтовали за dev-lock с обычным
+# `npm run dev` и друг с другом.
+/.next-e2e/
+/.next-backend-down-e2e/
 /out/
 
 # production

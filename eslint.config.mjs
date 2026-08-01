@@ -9,12 +9,18 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
-    // B-6: isolated build dir for the "backend-down" Playwright project
-    // (playwright.config.ts, NEXT_DIST_DIR) — same generated content as
-    // .next/, just a second build.
-    ".next-backend-down/**",
+    // Изолированные dist-каталоги стенда Playwright (playwright.config.ts,
+    // NEXT_DIST_DIR): `.next-e2e`, `.next-backend-down-e2e` и любые будущие.
+    // Раньше здесь был прибит один конкретный `.next-backend-down`, который
+    // разошёлся с реальным именем каталога, и eslint часами линтил
+    // минифицированный вывод сборки, выдавая полторы тысячи «ошибок».
+    ".next-*/**",
     "out/**",
     "build/**",
+    // Артефакты прогона Playwright: HTML-отчёт со сжатым бандлом внутри и
+    // трассы упавших тестов. В .gitignore они есть, в ignores eslint — не были.
+    "playwright-report/**",
+    "test-results/**",
     "next-env.d.ts",
     // Дизайн-референсы (не исходники приложения).
     "design_handoff_kchs_redesign/**",

@@ -28,6 +28,20 @@ describe("buildAlternates", () => {
     expect(alternates.canonical).toBe("/en");
     expect(alternates.languages!.ru).toBe("/ru");
   });
+
+  it("emits exactly the expected object for a nested path on the tj branch", () => {
+    // Полное сравнение, а не выборочные поля: ловит и лишний ключ hreflang,
+    // который в выборочных проверках выше прошёл бы незамеченным.
+    expect(buildAlternates("/news/test-news", "tj")).toEqual({
+      canonical: "/tj/news/test-news",
+      languages: {
+        ru: "/ru/news/test-news",
+        tg: "/tj/news/test-news",
+        en: "/en/news/test-news",
+        "x-default": "/ru/news/test-news",
+      },
+    });
+  });
 });
 
 describe("buildMetadata", () => {
@@ -63,6 +77,25 @@ describe("buildMetadata", () => {
     expect((metadata.openGraph as Record<string, unknown>).images).toEqual([
       "https://cms.khf.tj/storage/cover.jpg",
     ]);
+  });
+
+  it("uses a large Twitter card only when an image exists", () => {
+    // Обе ветки рядом: иначе легко «починить» одну и не заметить, что вторая
+    // теперь отдаёт тот же самый card.
+    const withoutImage = buildMetadata({
+      locale: "ru",
+      title: "Новость",
+      path: "/news/test-news",
+    });
+    const withImage = buildMetadata({
+      locale: "ru",
+      title: "Новость",
+      path: "/news/test-news",
+      images: ["https://cms.example/image.webp"],
+    });
+
+    expect(withoutImage.twitter).toMatchObject({ card: "summary" });
+    expect(withImage.twitter).toMatchObject({ card: "summary_large_image" });
   });
 
   it("adds publishedTime/modifiedTime only for article type", () => {

@@ -1,10 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  buildUrl,
   fetchAnnouncements,
   fetchDocuments,
   fetchNews,
   fetchNewsItem,
 } from "@/lib/api";
+
+// Сведено из двух линий работ (api.test.ts + api.optimize.test.ts). Проверки
+// параметров и деградации были у обеих — оставлена версия через публичные
+// fetch-функции; уникальными оказались прямая проверка buildUrl и теги ISR,
+// они добавлены отдельными блоками.
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -25,6 +31,52 @@ describe("lib/api", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
+  });
+
+  describe("buildUrl", () => {
+    it("maps tj to tg and drops empty/undefined query parameters", () => {
+      // Прямо на buildUrl, без сети: контракт «tj в URL сайта, tg в API»
+      // должен держаться сам по себе, а не как побочный эффект fetchNews.
+      const url = new URL(
+        buildUrl("/news", {
+          locale: "tj",
+          q: "",
+          page: 2,
+          category: undefined,
+        }),
+      );
+
+      expect(url.pathname).toBe("/api/v1/news");
+      expect(url.searchParams.get("locale")).toBe("tg");
+      expect(url.searchParams.get("page")).toBe("2");
+      expect(url.searchParams.has("q")).toBe(false);
+      expect(url.searchParams.has("category")).toBe(false);
+    });
+  });
+
+  describe("ISR cache tags", () => {
+    it("tags list and detail fetches independently by locale and slug", async () => {
+      // O-009: публикация одной новости не должна регенерировать весь сайт,
+      // поэтому у списка и детальной страницы теги разные.
+      fetchMock
+        .mockResolvedValueOnce(
+          jsonResponse({
+            data: [],
+            meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 },
+          }),
+        )
+        .mockResolvedValueOnce(jsonResponse({ data: { slug: "storm" } }));
+
+      await fetchNews({ locale: "tj" });
+      await fetchNewsItem("storm", "en");
+
+      expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({
+        next: { tags: ["cms:news:tj"] },
+      });
+      expect(fetchMock.mock.calls[1]?.[1]).toMatchObject({
+        next: { tags: ["cms:news:en", "cms:news:storm:en"] },
+      });
+    });
   });
 
   describe("fetchNews / buildUrl", () => {
@@ -109,7 +161,9 @@ describe("lib/api", () => {
         jsonResponse({ message: "Server error" }, 500),
       );
 
-      await expect(fetchNewsItem("some-slug")).rejects.toThrow();
+      // Именно «API 500»: ISR должен отличать «материала нет» от «CMS
+      // прилегла» и в последнем случае сохранить прежнюю версию страницы.
+      await expect(fetchNewsItem("some-slug")).rejects.toThrow("API 500");
     });
 
     it("throws when the network request itself fails", async () => {

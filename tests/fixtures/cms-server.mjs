@@ -47,6 +47,42 @@ const newsItem = {
     description: "Материал для smoke и Lighthouse CI.",
   },
 };
+// Рубрика второй новости совпадает со slug'ом из CategorySeeder — на неё
+// опирается news-category-filter.spec.ts. Заголовок намеренно не содержит
+// слова «автоматических», иначе поиск в server-filters.spec.ts нашёл бы две
+// записи вместо одной.
+const cooperationNewsItem = {
+  ...newsItem,
+  slug: "test-cooperation",
+  title: "Совместная программа с партнёрами по региону",
+  excerpt: "Вторая запись изолированного CMS mock — рубрика «Сотрудничество».",
+  body: "Абзац о совместной программе.",
+  category: "Сотрудничество",
+  seo: {
+    title: "Совместная программа",
+    description: "Материал для проверки серверного фильтра рубрик.",
+  },
+};
+
+// Внутреннее поле стенда: в публичном DTO новости отдают только человекочитаемую
+// `category`, а фильтрация идёт по slug'у — как в CMS, где `?category=` бьётся
+// по таблице категорий, а не по подписи карточки.
+const newsCategorySlugs = new Map([
+  [newsItem.slug, "spasatelnye-operatsii"],
+  [cooperationNewsItem.slug, "sotrudnichestvo"],
+]);
+const allNewsItems = [newsItem, cooperationNewsItem];
+
+// Совпадает с CategorySeeder: чипы фильтра на /news строятся из этого списка.
+const categories = [
+  { slug: "spasatelnye-operatsii", name: "Спасательные операции", type: "news" },
+  { slug: "grazhdanskaya-oborona", name: "Гражданская оборона", type: "news" },
+  { slug: "sotrudnichestvo", name: "Сотрудничество", type: "news" },
+  { slug: "obuchenie", name: "Обучение", type: "news" },
+  { slug: "tehnika", name: "Техника", type: "news" },
+  { slug: "otchyoty", name: "Отчёты", type: "news" },
+];
+
 const linkedNewsSlugs = new Set([
   "almaty-forum",
   "alpinists-rescue",
@@ -166,29 +202,88 @@ const settings = {
   },
   social: {},
   emergency_services: [{ num: "112", label: "Единая служба" }],
-  structure: { founded_year: "1994", units_count: "5" },
+  // Значения плашек на /structure берутся из настроек — совпадают с SettingSeeder.
+  structure: { founded_year: "1994", units_count: "68" },
   copyright: "КЧС",
   seo: {
     meta_title: "КЧС Таджикистана",
     meta_description: "Официальный сайт.",
   },
 };
+// Ростер повторяет LeaderSeeder (один председатель + три заместителя):
+// leadership.spec.ts проверяет разметку «герой + сетка», а она различается
+// только при наличии обеих групп. Фотографий нет намеренно — так же, как в
+// сидере, чтобы отрабатывал фолбэк ImageSlot на логотип комитета.
 const leadership = [
   {
     id: 1,
-    role: "Председатель",
-    name: "Тестовый руководитель",
-    meta: null,
-    bio: null,
+    role: "Председатель Комитета",
+    name: "Рустам Назарзода",
+    meta: "Генерал-лейтенант · руководит Комитетом с 2016 года",
+    bio: "Осуществляет общее руководство Комитетом, координацию сил и средств единой государственной системы предупреждения и ликвидации чрезвычайных ситуаций, представляет Комитет в Правительстве Республики Таджикистан и международных организациях.",
     is_chairman: true,
     photo_url: null,
   },
+  {
+    id: 2,
+    role: "Первый заместитель председателя",
+    name: "Первый заместитель",
+    meta: null,
+    bio: "Оперативное реагирование, Центр управления в кризисных ситуациях и служба спасения 112.",
+    is_chairman: false,
+    photo_url: null,
+  },
+  {
+    id: 3,
+    role: "Заместитель председателя",
+    name: "Заместитель по гражданской обороне",
+    meta: null,
+    bio: "Гражданская оборона, подготовка населения, эвакуационные мероприятия и защитные сооружения.",
+    is_chairman: false,
+    photo_url: null,
+  },
+  {
+    id: 4,
+    role: "Заместитель председателя",
+    name: "Заместитель по предупреждению ЧС",
+    meta: null,
+    bio: "Прогнозирование рисков, государственный надзор и международное сотрудничество.",
+    is_chairman: false,
+    photo_url: null,
+  },
 ];
+// Повторяет StructureUnitSeeder: structure.spec.ts проверяет, что на странице
+// оказались все шесть подразделений, а не только первое.
 const structureUnits = [
   {
     num: "01",
-    name: "Тестовое управление",
-    desc: "Подразделение для детерминированной production-сборки.",
+    name: "Центр управления в кризисных ситуациях",
+    desc: "Круглосуточный мониторинг обстановки, приём вызовов 112, координация реагирования",
+  },
+  {
+    num: "02",
+    name: "Служба спасения",
+    desc: "Аэромобильный отряд, кинологические расчёты, водолазная и горная службы",
+  },
+  {
+    num: "03",
+    name: "Управление гражданской обороны",
+    desc: "Планы ГО, эвакуационные мероприятия, защитные сооружения",
+  },
+  {
+    num: "04",
+    name: "Управление предупреждения ЧС",
+    desc: "Прогнозирование рисков, селе- и лавиноопасные участки, надзор",
+  },
+  {
+    num: "05",
+    name: "Учебный центр",
+    desc: "Подготовка спасателей и обучение населения действиям при ЧС",
+  },
+  {
+    num: "06",
+    name: "Управление международного сотрудничества",
+    desc: "Программы с УСРБ ООН, ИНСАРАГ, партнёрами по региону",
   },
 ];
 
@@ -305,10 +400,13 @@ const server = createServer((request, response) => {
 
   if (path === "/news") {
     const q = requestUrl.searchParams.get("q")?.toLowerCase();
-    const data =
-      !q || `${newsItem.title} ${newsItem.excerpt}`.toLowerCase().includes(q)
-        ? [newsItem]
-        : [];
+    const category = requestUrl.searchParams.get("category");
+    const data = allNewsItems.filter(
+      (item) =>
+        (!category || newsCategorySlugs.get(item.slug) === category) &&
+        (!q ||
+          `${item.title} ${item.excerpt}`.toLowerCase().includes(q)),
+    );
     json(response, {
       data,
       meta: { ...emptyPagination, total: data.length, last_page: 1 },
@@ -316,8 +414,11 @@ const server = createServer((request, response) => {
     return;
   }
 
-  if (path === `/news/${newsItem.slug}`) {
-    json(response, { data: newsItem });
+  const mockNewsItem = allNewsItems.find(
+    (item) => path === `/news/${item.slug}`,
+  );
+  if (mockNewsItem) {
+    json(response, { data: mockNewsItem });
     return;
   }
 
@@ -333,9 +434,7 @@ const server = createServer((request, response) => {
   }
 
   if (path === "/categories") {
-    json(response, {
-      data: [{ slug: "news", name: "Новости" }],
-    });
+    json(response, { data: categories });
     return;
   }
 
@@ -433,6 +532,15 @@ const server = createServer((request, response) => {
 
   json(response, { message: "Not found" }, 404);
 });
+
+// Node по умолчанию закрывает простаивающее keep-alive соединение через 5 с, а
+// undici (fetch в Next) держит своё до 4 с и переиспользует сокет. Когда
+// таймеры сходятся, запрос уходит в уже закрываемый сокет и серверный fetch
+// падает с «TypeError: fetch failed» — страница при этом рендерится пустой, и
+// тест падает на ровном месте. Держим соединение заведомо дольше клиента,
+// чтобы первым его закрывал всегда клиент.
+server.keepAliveTimeout = 65_000;
+server.headersTimeout = 70_000;
 
 server.listen(port, host, () => {
   console.log(`CMS mock ready at http://${host}:${port}/api/v1`);

@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { buildRevalidationTags } from "@/lib/cache-tags";
+import {
+  buildRevalidationTags,
+  type CmsRevalidationPayload,
+} from "@/lib/cache-tags";
 
 const revalidateTagMock = vi.fn();
 vi.mock("next/cache", () => ({
@@ -8,15 +11,21 @@ vi.mock("next/cache", () => ({
 
 import { POST } from "@/app/api/revalidate/route";
 
+// Сведено из двух линий работ (revalidate-route.test.ts + .optimize.test.ts).
+// Проверки авторизации взяты из первой (там разобраны все три случая, включая
+// токен другой длины), контрактные — из второй (422 и запрет на сплошной тег
+// `cms`). Локалей в payload две: односложный случай не поймал бы потерю
+// второй локали.
+//
 // Гранулярный контракт вебхука (O-009): CMS присылает тип, id, slug, локали,
 // событие и готовый список тегов — не единственный `{"tag":"cms"}`, как раньше.
-const PAYLOAD = {
+const PAYLOAD: CmsRevalidationPayload = {
   type: "news",
   id: 42,
   slug: "storm",
-  locales: ["ru"],
+  locales: ["ru", "tj"],
   event: "published",
-  tags: buildRevalidationTags("news", "storm", ["ru"]),
+  tags: buildRevalidationTags("news", "storm", ["ru", "tj"]),
 };
 
 function request(authorization?: string, body: unknown = PAYLOAD): Request {
@@ -92,9 +101,31 @@ describe("POST /api/revalidate", () => {
       revalidated: true,
       tags: PAYLOAD.tags,
     });
-    expect(revalidateTagMock).toHaveBeenCalledTimes(PAYLOAD.tags.length);
-    for (const tag of PAYLOAD.tags) {
-      expect(revalidateTagMock).toHaveBeenCalledWith(tag, { expire: 0 });
-    }
+    // Сравнение всего списка вызовов, а не each-проверка: так видно и лишний
+    // вызов, которого в payload не было.
+    expect(revalidateTagMock.mock.calls).toEqual(
+      PAYLOAD.tags.map((tag) => [tag, { expire: 0 }]),
+    );
+    // Сплошной тег `cms` — это ровно то, от чего уходили в O-009: он
+    // регенерирует весь сайт на любую правку.
+    expect(revalidateTagMock).not.toHaveBeenCalledWith("cms", { expire: 0 });
+  });
+
+  it("returns 422 and does not revalidate when tags contradict the payload metadata", async () => {
+    // Иначе вебхук стал бы способом сбросить произвольный тег по чужому
+    // списку: теги должны выводиться из type/slug/locales, а не приниматься
+    // на веру.
+    vi.stubEnv("REVALIDATION_SECRET", "top-secret");
+
+    const res = await POST(
+      request("Bearer top-secret", { ...PAYLOAD, tags: ["cms:shell:ru"] }),
+    );
+
+    expect(res.status).toBe(422);
+    expect(await res.json()).toEqual({
+      revalidated: false,
+      error: "invalid_contract",
+    });
+    expect(revalidateTagMock).not.toHaveBeenCalled();
   });
 });
