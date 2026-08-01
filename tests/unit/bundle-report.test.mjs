@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   evaluateFrontendBundle,
+  evaluateLazyOnlyLibraries,
   FRONTEND_BUNDLE_BUDGETS,
+  LAZY_ONLY_LIBRARIES,
 } from "../../scripts/bundle-report.mjs";
 
 describe("frontend bundle budgets", () => {
@@ -41,5 +43,57 @@ describe("frontend bundle budgets", () => {
 
     expect(report.violations).toHaveLength(1);
     expect(report.violations[0]).toMatch(/^largestRouteBytes:/);
+  });
+});
+
+describe("lazy-only libraries", () => {
+  const [mapLibrary] = LAZY_ONLY_LIBRARIES;
+  const routes = [
+    {
+      route: "/[locale]",
+      firstLoadChunkPaths: [".next/static/chunks/shell.js"],
+    },
+    {
+      route: "/[locale]/map",
+      firstLoadChunkPaths: [".next/static/chunks/shell.js"],
+    },
+  ];
+
+  it("stays silent while the map libraries live in a chunk nobody loads upfront", () => {
+    const violations = evaluateLazyOnlyLibraries(
+      routes,
+      new Map([[".next/static/chunks/shell.js", "export const a=1"]]),
+    );
+
+    expect(violations).toEqual([]);
+  });
+
+  it("catches the map libraries returning to the first-load graph", () => {
+    // Ровно та регрессия, которую байтовый бюджет не ловит: ~50 KiB d3-geo и
+    // topojson всё ещё умещаются в запас до largestRouteBytes.
+    const violations = evaluateLazyOnlyLibraries(
+      routes,
+      new Map([
+        [
+          ".next/static/chunks/shell.js",
+          'case"MultiPolygon":case"GeometryCollection":return t',
+        ],
+      ]),
+    );
+
+    expect(violations).toHaveLength(1);
+    expect(violations[0]).toContain(mapLibrary.name);
+    expect(violations[0]).toContain("/[locale]");
+  });
+
+  it("does not fire when only one marker happens to appear", () => {
+    const violations = evaluateLazyOnlyLibraries(
+      routes,
+      new Map([
+        [".next/static/chunks/shell.js", 'const kind="MultiPolygon"'],
+      ]),
+    );
+
+    expect(violations).toEqual([]);
   });
 });

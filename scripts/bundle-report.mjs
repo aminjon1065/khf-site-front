@@ -9,6 +9,62 @@ export const FRONTEND_BUNDLE_BUDGETS = {
   totalChunkBytes: 1024 * 1024,
 };
 
+/**
+ * Библиотеки, которые обязаны приезжать только отдельным чанком по требованию.
+ *
+ * Одних байтовых бюджетов для этого мало: d3-geo вместе с topojson-client
+ * занимают ~50 KiB, а запаса до `largestRouteBytes` сейчас ~53 KiB. То есть
+ * если карта снова станет статическим импортом, все маршруты с картой
+ * потяжелеют на 50 KiB и всё равно пролезут под бюджет — регрессия пройдёт
+ * незамеченной. Поэтому проверяем не только вес, но и сам факт: попала ли
+ * библиотека в граф первой загрузки хоть одного маршрута.
+ *
+ * Маркеры — строковые литералы, которые переживают минификацию (имена
+ * идентификаторов она переписывает, строки в разборе типов геометрии — нет).
+ * Требуем совпадения ВСЕХ маркеров сразу, чтобы случайное употребление одного
+ * слова в другом коде не давало ложную тревогу.
+ */
+export const LAZY_ONLY_LIBRARIES = [
+  {
+    name: "d3-geo + topojson-client (карта регионов)",
+    markers: ["MultiPolygon", "GeometryCollection"],
+  },
+];
+
+/**
+ * @param {Array<{route: string, firstLoadChunkPaths: string[]}>} routes
+ * @param {Map<string, string>} chunkContents — содержимое чанков первой загрузки
+ * @returns {string[]} нарушения
+ */
+export function evaluateLazyOnlyLibraries(routes, chunkContents) {
+  const violations = [];
+
+  for (const library of LAZY_ONLY_LIBRARIES) {
+    const offenders = new Map();
+
+    for (const route of routes) {
+      for (const path of route.firstLoadChunkPaths) {
+        const contents = chunkContents.get(path);
+        if (
+          contents !== undefined &&
+          library.markers.every((marker) => contents.includes(marker))
+        ) {
+          offenders.set(route.route, path);
+        }
+      }
+    }
+
+    if (offenders.size > 0) {
+      const [route, path] = [...offenders.entries()][0];
+      violations.push(
+        `lazyOnly:${library.name}: попала в первую загрузку ${offenders.size} маршрут(ов), например ${route} через ${path}`,
+      );
+    }
+  }
+
+  return violations;
+}
+
 export function evaluateFrontendBundle(routes, chunks) {
   const largestRoute = routes.toSorted(
     (left, right) =>
@@ -49,11 +105,14 @@ async function createFrontendBundleReport(root) {
   const chunkPaths = [
     ...new Set(routes.flatMap((route) => route.firstLoadChunkPaths)),
   ];
+  const chunkContents = new Map();
   const chunks = await Promise.all(
     chunkPaths.map(async (path) => {
       const absolutePath = join(root, path);
       const contents = await readFile(absolutePath);
       const details = await stat(absolutePath);
+
+      chunkContents.set(path, contents.toString("utf8"));
 
       return {
         path,
@@ -62,6 +121,7 @@ async function createFrontendBundleReport(root) {
       };
     }),
   );
+  const budgets = evaluateFrontendBundle(routes, chunks);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -71,7 +131,11 @@ async function createFrontendBundleReport(root) {
         left.firstLoadUncompressedJsBytes,
     ),
     chunks: chunks.toSorted((left, right) => right.bytes - left.bytes),
-    ...evaluateFrontendBundle(routes, chunks),
+    ...budgets,
+    violations: [
+      ...budgets.violations,
+      ...evaluateLazyOnlyLibraries(routes, chunkContents),
+    ],
   };
 }
 
