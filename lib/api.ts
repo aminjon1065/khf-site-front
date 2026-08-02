@@ -76,6 +76,21 @@ function cmsFetchOptions(
   };
 }
 
+/**
+ * Ошибка неуспешного ответа CMS. Кроме статуса несёт `X-Request-ID` — тот
+ * самый идентификатор, который CMS уже пишет в свой лог (`PublicApiResponse`).
+ * Без него в журнале фронта оставалось только «API 500», и связать запись с
+ * записью на стороне CMS было нечем: время и маршрут не различают запросы,
+ * идущие пачками при сборке страницы.
+ */
+function cmsResponseError(res: Response): Error {
+  const requestId = res.headers.get("x-request-id");
+
+  return new Error(
+    `API ${res.status}${requestId ? ` request_id=${requestId}` : ""}`,
+  );
+}
+
 export interface Paginated<T> {
   data: T[];
   meta: {
@@ -131,7 +146,7 @@ export async function fetchNews(
       cmsFetchOptions("news", query.locale ?? DEFAULT_LOCALE),
     );
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     return (await res.json()) as Paginated<ApiNewsItem>;
   } catch (error) {
@@ -159,7 +174,7 @@ export const fetchNewsItem = cache(async function fetchNewsItem(
       return null;
     }
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiNewsItem };
     return body.data;
@@ -196,7 +211,7 @@ export async function fetchCategories(
       next: { revalidate: REVALIDATE, tags: ["cms"] },
     });
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiCategory[] };
     return body.data;
@@ -245,7 +260,7 @@ export async function fetchSearch(
     // Поиск не тегируем `cms` (запросы уникальны, инвалидировать не нужно).
     const res = await fetch(url, { next: { revalidate: REVALIDATE } });
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     return (await res.json()) as Paginated<ApiSearchResult>;
   } catch (error) {
@@ -285,7 +300,7 @@ export async function fetchInstructions(
       cmsFetchOptions("instruction", query.locale ?? DEFAULT_LOCALE),
     );
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     return (await res.json()) as Paginated<ApiInstruction>;
   } catch (error) {
@@ -310,7 +325,7 @@ export const fetchInstruction = cache(async function fetchInstruction(
       return null;
     }
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiInstruction };
     return body.data;
@@ -351,7 +366,7 @@ export async function fetchDocuments(
       cmsFetchOptions("document", params.locale ?? DEFAULT_LOCALE),
     );
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     return (await res.json()) as Paginated<ApiDocument>;
   } catch (error) {
@@ -387,7 +402,7 @@ export async function fetchProjects(
       cmsFetchOptions("project", query.locale ?? DEFAULT_LOCALE),
     );
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     return (await res.json()) as Paginated<ApiProject>;
   } catch (error) {
@@ -412,7 +427,7 @@ export const fetchProject = cache(async function fetchProject(
       return null;
     }
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiProject };
     return body.data;
@@ -448,7 +463,7 @@ export async function fetchAnnouncements(
       cmsFetchOptions("announcement", query.locale ?? DEFAULT_LOCALE),
     );
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     return (await res.json()) as Paginated<ApiAnnouncement>;
   } catch (error) {
@@ -477,7 +492,7 @@ export const fetchAnnouncement = cache(async function fetchAnnouncement(
       return null;
     }
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiAnnouncement };
     return body.data;
@@ -501,7 +516,7 @@ export async function fetchAlerts(
   try {
     const res = await fetch(url, cmsFetchOptions("alert", locale));
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiAlert[] };
     return body.data;
@@ -524,7 +539,7 @@ export const fetchAlert = cache(async function fetchAlert(
       return null;
     }
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiAlert };
     return body.data;
@@ -543,7 +558,7 @@ export async function fetchAlertsActive(
   try {
     const res = await fetch(url, cmsFetchOptions("alert", locale));
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiAlertsActive };
     return body.data;
@@ -567,7 +582,7 @@ export async function fetchRegions(
       },
     });
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiRegionStatus[] };
     return body.data;
@@ -604,7 +619,7 @@ export async function fetchHome(
       },
     });
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiHome };
     return body.data;
@@ -630,7 +645,7 @@ export async function fetchSettings(
       },
     });
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiSettings };
     return body.data;
@@ -654,7 +669,7 @@ export async function fetchMenu(
       },
     });
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiMenu };
     return body.data;
@@ -678,7 +693,7 @@ export async function fetchRegionsDirectory(
       },
     });
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiRegionOffice[] };
     return body.data;
@@ -710,7 +725,7 @@ export async function fetchLeadership(
       next: { revalidate: REVALIDATE, tags: ["cms"] },
     });
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiLeader[] };
     return body.data;
@@ -738,7 +753,7 @@ export async function fetchStructureUnits(
       next: { revalidate: REVALIDATE, tags: ["cms"] },
     });
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiStructureUnit[] };
     return body.data;
@@ -765,7 +780,7 @@ export const fetchPage = cache(async function fetchPage(
       return null;
     }
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiPageDetail };
     return body.data;
@@ -810,7 +825,7 @@ export async function fetchSlugs(
   try {
     const res = await fetch(url, cmsFetchOptions(type, locale));
     if (!res.ok) {
-      throw new Error(`API ${res.status}`);
+      throw cmsResponseError(res);
     }
     const body = (await res.json()) as SlugListResponse;
     return body.data;

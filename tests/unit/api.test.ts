@@ -167,6 +167,26 @@ describe("lib/api", () => {
       await expect(fetchNewsItem("some-slug")).rejects.toThrow("API 500");
     });
 
+    it("несёт X-Request-ID ответа CMS в тексте ошибки", async () => {
+      // CMS уже пишет этот идентификатор в свой лог (`PublicApiResponse`), и
+      // именно он уходит в запись фронта об отказе. Без него там оставалось
+      // «API 500», и связать две записи было нечем: при сборке страницы
+      // запросы идут пачками, и ни время, ни имя операции их не различают.
+      fetchMock.mockResolvedValueOnce(
+        new Response(JSON.stringify({ message: "Server error" }), {
+          status: 500,
+          headers: {
+            "content-type": "application/json",
+            "x-request-id": "cms-req-42",
+          },
+        }),
+      );
+
+      await expect(fetchNewsItem("slug")).rejects.toThrow(
+        "API 500 request_id=cms-req-42",
+      );
+    });
+
     it("throws when the network request itself fails", async () => {
       fetchMock.mockRejectedValueOnce(new TypeError("fetch failed"));
 
