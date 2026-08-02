@@ -1,5 +1,5 @@
 import type { ApiNewsItem, ApiSettings } from "@/lib/api";
-import type { Locale } from "@/lib/i18n/config";
+import { htmlLang, type Locale } from "@/lib/i18n/config";
 import { siteUrl } from "@/lib/seo";
 
 // E-3: structured data (schema.org JSON-LD), scoped exactly per PROJECT_PLAN.md
@@ -28,6 +28,59 @@ function JsonLdScript({ data }: { data: object }) {
 }
 
 /**
+ * Короткая форма организации — для полей `publisher`/`author` статьи. Полный
+ * блок с адресом, телефоном и соцсетями на той же странице уже есть (его
+ * рендерит layout), дублировать его внутри статьи незачем: поисковику здесь
+ * нужны имя и логотип, а страница новости и без того самая тяжёлая. Имя берётся
+ * из того же `settings`, поэтому разойтись с сайтовым блоком не может.
+ */
+function organizationRef(
+  settings: ApiSettings,
+  locale: Locale,
+): Record<string, unknown> {
+  return {
+    "@type": "GovernmentOrganization",
+    name: settings.org.name,
+    url: absoluteUrl(locale, "/"),
+    logo: `${siteUrl()}/assets/logo-kchs-${locale}.webp`,
+  };
+}
+
+/**
+ * The organization itself as a schema.org node — полная форма для сайтового
+ * блока.
+ */
+function organizationNode(
+  settings: ApiSettings,
+  locale: Locale,
+): Record<string, unknown> {
+  const sameAs = Object.values(settings.social ?? {}).filter(Boolean);
+
+  return {
+    "@type": "GovernmentOrganization",
+    name: settings.org.name,
+    alternateName: settings.org.short_name,
+    description: settings.org.about,
+    url: absoluteUrl(locale, "/"),
+    logo: `${siteUrl()}/assets/logo-kchs-${locale}.webp`,
+    ...(settings.org.address
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: settings.org.address,
+            addressCountry: "TJ",
+          },
+        }
+      : {}),
+    ...(settings.org.email ? { email: settings.org.email } : {}),
+    ...(settings.org.emergency_number
+      ? { telephone: settings.org.emergency_number }
+      : {}),
+    ...(sameAs.length > 0 ? { sameAs } : {}),
+  };
+}
+
+/**
  * Sitewide GovernmentOrganization — rendered once in PageShell, which already
  * fetches `settings` for the header/footer, so this adds zero extra requests.
  * Silently renders nothing if settings failed to load (same graceful-
@@ -45,52 +98,44 @@ export function OrganizationJsonLd({
     return null;
   }
 
-  const sameAs = Object.values(settings.social ?? {}).filter(Boolean);
-
   return (
     <JsonLdScript
       data={{
         "@context": "https://schema.org",
-        "@type": "GovernmentOrganization",
-        name: settings.org.name,
-        alternateName: settings.org.short_name,
-        description: settings.org.about,
-        url: absoluteUrl(locale, "/"),
-        logo: `${siteUrl()}/assets/logo-kchs-${locale}.webp`,
-        ...(settings.org.address
-          ? {
-              address: {
-                "@type": "PostalAddress",
-                streetAddress: settings.org.address,
-                addressCountry: "TJ",
-              },
-            }
-          : {}),
-        ...(settings.org.email ? { email: settings.org.email } : {}),
-        ...(settings.org.emergency_number
-          ? { telephone: settings.org.emergency_number }
-          : {}),
-        ...(sameAs.length > 0 ? { sameAs } : {}),
+        ...organizationNode(settings, locale),
       }}
     />
   );
 }
 
 /**
- * NewsArticle for a single article detail page. `dateModified` is
- * deliberately omitted — ApiNewsItem has no such field (the CMS only tracks
- * `datetime`, the publish time), fabricating one would be worse than leaving
- * it out.
+ * NewsArticle for a single article detail page.
+ *
+ * `author` and `publisher` are both the Committee: the public news DTO
+ * deliberately never exposes the editor who wrote the item (see
+ * `PublicNewsResource`), and for an official portal the institution *is* the
+ * author. Google reports a missing `author` as a rich-result warning, so an
+ * accurate organization beats an omitted field and beats an invented person.
+ * Both are omitted when settings failed to load — same graceful degradation
+ * as the sitewide block.
+ *
+ * `dateModified` is deliberately omitted: `ApiNewsItem` has no such field (the
+ * CMS publishes only `datetime`, the publish time), and deriving it from the
+ * publish time would state something untrue about the article's freshness.
  */
 export function NewsArticleJsonLd({
   item,
   locale,
   path,
+  settings,
 }: {
   item: ApiNewsItem;
   locale: Locale;
   path: string;
+  settings: ApiSettings | null;
 }) {
+  const organization = settings ? organizationRef(settings, locale) : null;
+
   return (
     <JsonLdScript
       data={{
@@ -99,8 +144,12 @@ export function NewsArticleJsonLd({
         headline: item.title,
         description: item.excerpt,
         mainEntityOfPage: absoluteUrl(locale, path),
+        inLanguage: htmlLang(locale),
         ...(item.image ? { image: [item.image] } : {}),
         ...(item.datetime ? { datePublished: item.datetime } : {}),
+        ...(organization
+          ? { author: organization, publisher: organization }
+          : {}),
       }}
     />
   );

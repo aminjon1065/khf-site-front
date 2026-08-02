@@ -19,6 +19,13 @@ export type ApiLocale = "ru" | "tg" | "en";
 /** Cookie, в которую сохраняется выбор языка (читается прокси при заходе на `/`). */
 export const LOCALE_COOKIE = "NEXT_LOCALE";
 
+/**
+ * Заголовок запроса, которым proxy.ts передаёт путь визита рендеру. Нужен
+ * там, где локаль неоткуда взять из params, — в app/global-not-found.tsx,
+ * который Next рендерит в обход layout.tsx.
+ */
+export const PATHNAME_HEADER = "x-kchs-pathname";
+
 /** Проверка, что строка — поддерживаемая локаль (сужает тип). */
 export function isLocale(value: string | undefined | null): value is Locale {
   return typeof value === "string" && (LOCALES as readonly string[]).includes(value);

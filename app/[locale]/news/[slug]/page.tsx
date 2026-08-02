@@ -12,6 +12,7 @@ import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
 import {
   fetchNews,
   fetchNewsItem,
+  fetchSettings,
   fetchSlugs,
   type ApiNewsItem,
 } from "@/lib/api";
@@ -148,7 +149,14 @@ export default async function ArticlePage({
   }
   const hasImage = cmsImageSource(item.image_data) !== null;
 
-  const related = await relatedFor(slug, locale, pages.newsDetail.newsCategory);
+  // Оргданные для publisher/author в NewsArticle. Тот же запрос, что делает
+  // layout ради шапки и подвала, — Next дедуплицирует его в рамках рендера
+  // (замер в PROGRESS.md, §F-06: `settings ×1` на страницу), поэтому лишнего
+  // обращения к CMS здесь не появляется.
+  const [related, settings] = await Promise.all([
+    relatedFor(slug, locale, pages.newsDetail.newsCategory),
+    fetchSettings(locale),
+  ]);
   const article = toArticle(item, related, articleUi, pages.newsDetail);
 
   // Тело из CMS: у новых материалов — санитайзенный HTML из WYSIWYG-редактора,
@@ -161,7 +169,12 @@ export default async function ArticlePage({
     <PageShell
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
     >
-      <NewsArticleJsonLd item={item} locale={locale} path={`/news/${slug}`} />
+      <NewsArticleJsonLd
+        item={item}
+        locale={locale}
+        path={`/news/${slug}`}
+        settings={settings}
+      />
       <BreadcrumbJsonLd
         items={[
           { label: common.breadcrumbHome, href: routes.home },

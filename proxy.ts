@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { DEFAULT_LOCALE, LOCALES, LOCALE_COOKIE, type Locale } from "@/lib/i18n/config";
+import {
+  DEFAULT_LOCALE,
+  LOCALES,
+  LOCALE_COOKIE,
+  PATHNAME_HEADER,
+  type Locale,
+} from "@/lib/i18n/config";
 
 // В Next.js 16 middleware переименован в `proxy` (файл proxy.ts в корне).
 // Задача: любой публичный путь без префикса локали (`/news`) увести на
@@ -74,7 +80,12 @@ export function proxy(request: NextRequest): NextResponse {
   // лишь навигирует, а состояние выбора живёт на сервере (без правки document.cookie).
   if (pathnameHasLocale(pathname)) {
     const current = pathname.split("/")[1] as Locale;
-    const response = NextResponse.next();
+    // Путь визита — единственный источник языка для app/global-not-found.tsx:
+    // он рендерится в обход layout.tsx, поэтому params с локалью не видит.
+    // `set` (а не `append`) затирает возможный одноимённый заголовок клиента.
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set(PATHNAME_HEADER, pathname);
+    const response = NextResponse.next({ request: { headers: requestHeaders } });
     response.cookies.set(LOCALE_COOKIE, current, COOKIE_OPTIONS);
     return response;
   }
