@@ -30,6 +30,18 @@ function cmsOrigin(): string | null {
   }
 }
 
+/**
+ * `script-src` осознанно остаётся с `'unsafe-inline'`, и это измеренное
+ * решение, а не недосмотр. Строгий вариант в Next 16 — nonce, который
+ * выдаёт proxy на каждый запрос; официальная документация прямо требует для
+ * него **динамического рендера всех страниц** («Static pages are generated at
+ * build time, when no request or response headers exist — so no nonce can be
+ * injected»). У портала 111 страниц пререндерятся при сборке, и перевод их в
+ * динамику стоил бы ровно того выигрыша, ради которого весь Этап 2. Хеши тоже
+ * не подходят: помимо нашего одного инлайна (тема до первой отрисовки) Next
+ * вставляет собственные скрипты с содержимым, меняющимся от страницы к
+ * странице. Что можно было сузить без потери страниц — сужено ниже.
+ */
 function contentSecurityPolicy(): string {
   const isDevelopment = process.env.NODE_ENV === "development";
   const connectSources = ["'self'", cmsOrigin()].filter(Boolean).join(" ");
@@ -38,7 +50,11 @@ function contentSecurityPolicy(): string {
     "default-src 'self'",
     `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https: http:",
+    // `http:` разрешён только в разработке (локальная CMS отдаёт медиа по
+    // http). В production его нет: все картинки страницы идут через
+    // `/_next/image`, то есть со своего же origin, а `https:` оставлен для
+    // изображений, вставленных редактором в тело материала.
+    `img-src 'self' data: blob: https:${isDevelopment ? " http:" : ""}`,
     "font-src 'self' data:",
     `connect-src ${connectSources}`,
     "media-src 'self' https:",
