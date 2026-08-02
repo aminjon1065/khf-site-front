@@ -44,6 +44,49 @@ describe("frontend bundle budgets", () => {
     expect(report.violations).toHaveLength(1);
     expect(report.violations[0]).toMatch(/^largestRouteBytes:/);
   });
+
+  it("catches CSS growing past the §3.3 budget", () => {
+    // Единственный бюджет из раздела 3.3, который до сих пор нигде не
+    // проверялся: вес CSS. Сейчас запас четырёхкратный, но именно поэтому
+    // рост легко не заметить — счётчик должен назвать метрику по имени.
+    const report = evaluateFrontendBundle(
+      [],
+      [],
+      [
+        {
+          path: ".next/static/chunks/a.css",
+          bytes: 1,
+          gzipBytes: FRONTEND_BUNDLE_BUDGETS.cssGzipBytes,
+        },
+        {
+          path: ".next/static/chunks/b.css",
+          bytes: 1,
+          gzipBytes: 1,
+        },
+      ],
+    );
+
+    expect(report.metrics.cssGzipBytes).toBe(
+      FRONTEND_BUNDLE_BUDGETS.cssGzipBytes + 1,
+    );
+    expect(report.violations).toHaveLength(1);
+    expect(report.violations[0]).toMatch(/^cssGzipBytes:/);
+  });
+
+  it("sums every stylesheet, not just the first one", () => {
+    const half = Math.floor(FRONTEND_BUNDLE_BUDGETS.cssGzipBytes / 2);
+    const report = evaluateFrontendBundle(
+      [],
+      [],
+      [
+        { path: "a.css", bytes: 1, gzipBytes: half },
+        { path: "b.css", bytes: 1, gzipBytes: half },
+      ],
+    );
+
+    expect(report.metrics.cssGzipBytes).toBe(half * 2);
+    expect(report.violations).toEqual([]);
+  });
 });
 
 describe("lazy-only libraries", () => {

@@ -1,12 +1,18 @@
 import { gzipSync } from "node:zlib";
-import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
+import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const FRONTEND_BUNDLE_BUDGETS = {
   largestRouteBytes: 620 * 1024,
   largestChunkBytes: 250 * 1024,
   totalChunkBytes: 1024 * 1024,
+  // Бюджет CSS из optimize.md §3.3 (≤ 35 KB gzip). Считается по всем таблицам
+  // стилей сборки сразу: сейчас она одна на весь сайт, поэтому «сумма» и «на
+  // страницу» — одно и то же число. Если Next начнёт делить CSS по маршрутам,
+  // сумма станет строже бюджета — это осознанный запас в безопасную сторону,
+  // но тогда метрику стоит пересчитать на маршрут, как сделано для JS.
+  cssGzipBytes: 35 * 1024,
 };
 
 /**
@@ -65,7 +71,37 @@ export function evaluateLazyOnlyLibraries(routes, chunkContents) {
   return violations;
 }
 
-export function evaluateFrontendBundle(routes, chunks) {
+/**
+ * Таблицы стилей production-сборки. В `route-bundle-stats.json` их нет — там
+ * только JS, — поэтому CSS собирается отдельным обходом каталога чанков.
+ *
+ * @param {string} root
+ * @returns {Promise<Array<{path: string, bytes: number, gzipBytes: number}>>}
+ */
+export async function collectCssAssets(root) {
+  const directory = join(root, ".next/static/chunks");
+  const entries = await readdir(directory, {
+    recursive: true,
+    withFileTypes: true,
+  });
+
+  return Promise.all(
+    entries
+      .filter((entry) => entry.isFile() && entry.name.endsWith(".css"))
+      .map(async (entry) => {
+        const absolutePath = join(entry.parentPath, entry.name);
+        const contents = await readFile(absolutePath);
+
+        return {
+          path: relative(root, absolutePath),
+          bytes: contents.byteLength,
+          gzipBytes: gzipSync(contents).byteLength,
+        };
+      }),
+  );
+}
+
+export function evaluateFrontendBundle(routes, chunks, cssAssets = []) {
   const largestRoute = routes.toSorted(
     (left, right) =>
       right.firstLoadUncompressedJsBytes - left.firstLoadUncompressedJsBytes,
@@ -77,6 +113,7 @@ export function evaluateFrontendBundle(routes, chunks) {
     largestRouteBytes: largestRoute?.firstLoadUncompressedJsBytes ?? 0,
     largestChunkBytes: largestChunk?.bytes ?? 0,
     totalChunkBytes: chunks.reduce((total, chunk) => total + chunk.bytes, 0),
+    cssGzipBytes: cssAssets.reduce((total, asset) => total + asset.gzipBytes, 0),
   };
   const violations = Object.entries(FRONTEND_BUNDLE_BUDGETS)
     .filter(([metric, budget]) => metrics[metric] > budget)
@@ -93,6 +130,7 @@ export function evaluateFrontendBundle(routes, chunks) {
       route: largestRoute ?? null,
       chunk: largestChunk ?? null,
     },
+    cssAssets,
   };
 }
 
@@ -121,7 +159,8 @@ async function createFrontendBundleReport(root) {
       };
     }),
   );
-  const budgets = evaluateFrontendBundle(routes, chunks);
+  const cssAssets = await collectCssAssets(root);
+  const budgets = evaluateFrontendBundle(routes, chunks, cssAssets);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -168,6 +207,7 @@ Generated: ${report.generatedAt}
 | Largest route first-load JS | ${formatBytes(report.metrics.largestRouteBytes)} | ${formatBytes(report.budgets.largestRouteBytes)} |
 | Largest client chunk | ${formatBytes(report.metrics.largestChunkBytes)} | ${formatBytes(report.budgets.largestChunkBytes)} |
 | Total route client chunks | ${formatBytes(report.metrics.totalChunkBytes)} | ${formatBytes(report.budgets.totalChunkBytes)} |
+| CSS (gzip) | ${formatBytes(report.metrics.cssGzipBytes)} | ${formatBytes(report.budgets.cssGzipBytes)} |
 
 ## Largest routes
 
@@ -199,7 +239,7 @@ async function main() {
   ]);
 
   console.log(
-    `Frontend bundle: largest route ${formatBytes(report.metrics.largestRouteBytes)}, largest chunk ${formatBytes(report.metrics.largestChunkBytes)}, total chunks ${formatBytes(report.metrics.totalChunkBytes)}.`,
+    `Frontend bundle: largest route ${formatBytes(report.metrics.largestRouteBytes)}, largest chunk ${formatBytes(report.metrics.largestChunkBytes)}, total chunks ${formatBytes(report.metrics.totalChunkBytes)}, CSS ${formatBytes(report.metrics.cssGzipBytes)} gzip.`,
   );
 
   if (report.violations.length > 0) {

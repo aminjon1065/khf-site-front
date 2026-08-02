@@ -34,7 +34,7 @@ export default function NewsList({
 
   return (
     <>
-      {/* Панель фильтров: категории (ссылки, серверный фильтр) + поиск (клиентский) */}
+      {/* Панель фильтров: категории — ссылки, поиск — GET-форма; оба серверные */}
       <div className="flex flex-wrap items-center gap-[14px] border-b border-[var(--color-divider)] py-4">
         <div
           role="group"
