@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
 import { muted } from "@/components/public/ui";
-import { fetchPage, fetchPages } from "@/lib/api";
+import { fetchPage, fetchSlugs } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { buildMetadata } from "@/lib/seo";
@@ -15,8 +15,8 @@ export async function generateStaticParams({
 }: {
   params: { locale: string };
 }) {
-  const pages = await fetchPages(toLocale(locale));
-  return pages.map((p) => ({ slug: p.slug }));
+  const slugs = await fetchSlugs("page", toLocale(locale));
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({

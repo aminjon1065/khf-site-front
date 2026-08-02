@@ -6,7 +6,7 @@ import PageShell from "@/components/public/PageShell";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import TjRiskMap from "@/components/public/TjRiskMap";
-import { fetchAlert, fetchAlerts } from "@/lib/api";
+import { fetchAlert, fetchAlerts, fetchSlugs } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import {
@@ -29,11 +29,10 @@ export async function generateStaticParams({
 }: {
   params: { locale: string };
 }) {
-  const alerts = await fetchAlerts(toLocale(locale));
-  // Отсекаем записи без slug: один битый slug не должен ронять весь маршрут.
-  return alerts
-    .filter((a): a is typeof a & { slug: string } => Boolean(a.slug))
-    .map((a) => ({ slug: a.slug }));
+  // Пустые slug'и отсеивает сам эндпоинт: адрес без сегмента всё равно не
+  // разрешился бы в маршрут.
+  const slugs = await fetchSlugs("alert", toLocale(locale));
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({

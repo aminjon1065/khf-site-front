@@ -1,6 +1,6 @@
 /**
  * Generated from khf-site-cms/openapi/openapi.json.
- * Schema SHA-256: 8b8bcfe92578c6dc
+ * Schema SHA-256: b33157572c5d5614
  * Do not edit by hand; run `npm run api:types`.
  */
 
@@ -500,4 +500,11 @@ export interface StructureUnitListResponse {
   data: Array<ApiStructureUnit>;
   meta: PaginationMeta;
   links: PaginationLinks;
+}
+
+export interface SlugListResponse {
+  data: Array<string>;
+  meta: {
+    total: number;
+  };
 }

@@ -5,6 +5,7 @@ import {
   fetchDocuments,
   fetchNews,
   fetchNewsItem,
+  fetchSlugs,
 } from "@/lib/api";
 
 // Сведено из двух линий работ (api.test.ts + api.optimize.test.ts). Проверки
@@ -227,6 +228,42 @@ describe("lib/api", () => {
 
       const requestedUrl = new URL(fetchMock.mock.calls[0][0] as string);
       expect(requestedUrl.searchParams.get("kind")).toBe("tender");
+    });
+  });
+
+  describe("fetchSlugs", () => {
+    it("asks the slug endpoint of the right type, not the full list", async () => {
+      // Смысл эндпоинта: страницы генерируются по адресам, а не по содержимому.
+      // Уход обратно на `/instructions?per_page=50` этот тест обязан заметить.
+      fetchMock.mockResolvedValueOnce(
+        jsonResponse({ data: ["flood", "quake"], meta: { total: 2 } }),
+      );
+
+      const slugs = await fetchSlugs("instruction", "tj");
+
+      const requestedUrl = new URL(fetchMock.mock.calls[0][0] as string);
+      expect(requestedUrl.pathname).toBe("/api/v1/slugs/instructions");
+      expect(requestedUrl.searchParams.get("locale")).toBe("tg");
+      expect(requestedUrl.searchParams.has("per_page")).toBe(false);
+      expect(slugs).toEqual(["flood", "quake"]);
+    });
+
+    it("shares the list cache tag, so a publication refreshes both", async () => {
+      fetchMock.mockResolvedValueOnce(
+        jsonResponse({ data: [], meta: { total: 0 } }),
+      );
+
+      await fetchSlugs("news", "en");
+
+      expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({
+        next: { tags: ["cms:news:en"] },
+      });
+    });
+
+    it("degrades to an empty list so a CMS outage cannot break the build", async () => {
+      fetchMock.mockResolvedValueOnce(jsonResponse({ message: "oops" }, 503));
+
+      await expect(fetchSlugs("project", "ru")).resolves.toEqual([]);
     });
   });
 });

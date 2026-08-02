@@ -12,13 +12,13 @@ import type {
   ApiInstruction,
   ApiMenu,
   ApiNewsItem,
-  ApiPage,
   ApiPageDetail,
   ApiProject,
   ApiRegionOffice,
   ApiRegionStatus,
   ApiSearchResult,
   ApiSettings,
+  SlugListResponse,
 } from "@/lib/api.generated";
 import { DEFAULT_LOCALE, toApiLocale, type Locale } from "@/lib/i18n/config";
 import { reportCmsFailure } from "@/lib/cms-error-reporting.mjs";
@@ -748,24 +748,9 @@ export async function fetchStructureUnits(
   }
 }
 
-/** Список опубликованных страниц (для генерации маршрутов). Пусто при сбое. */
-export async function fetchPages(
-  locale: Locale = DEFAULT_LOCALE,
-): Promise<ApiPage[]> {
-  const url = buildUrl("/pages", { locale });
-
-  try {
-    const res = await fetch(url, cmsFetchOptions("page", locale));
-    if (!res.ok) {
-      throw new Error(`API ${res.status}`);
-    }
-    const body = (await res.json()) as { data: ApiPage[] };
-    return body.data;
-  } catch (error) {
-    reportCmsFailure("fetchPages", error);
-    return [];
-  }
-}
+// `fetchPages` («список опубликованных страниц») удалён вместе с последним
+// потребителем: его звали только ради slug'ов, а это теперь `fetchSlugs`.
+// Сам эндпоинт `/pages` в CMS остаётся — он часть публичного контракта.
 
 /** Одна страница по slug. `null` при 404 / недоступности. */
 export const fetchPage = cache(async function fetchPage(
@@ -789,3 +774,48 @@ export const fetchPage = cache(async function fetchPage(
     throw error;
   }
 });
+
+// ------------------------------------------------- slug'и для генерации URL
+
+/**
+ * Сегмент `api/v1/slugs/{type}` для типа контента. Отличается от сегмента
+ * маршрута портала (инструкции живут под `/guides`), поэтому карта отдельная,
+ * а не переиспользует `RESOURCE_BY_TYPE` из cache-tags.
+ */
+const SLUG_ENDPOINTS = {
+  alert: "alerts",
+  announcement: "announcements",
+  instruction: "instructions",
+  news: "news",
+  page: "pages",
+  project: "projects",
+} as const;
+
+/** Типы контента, у которых есть детальный маршрут, а значит и список slug'ов. */
+export type SlugContentType = keyof typeof SLUG_ENDPOINTS;
+
+/**
+ * Slug'и всех материалов типа, доступных в этой локали — для
+ * `generateStaticParams` и карты сайта. Отдаёт те же записи, что и обычный
+ * список, но одно поле вместо полного DTO: список нужен ради адресов, а не
+ * содержимого. Пустой массив при сбое — маршрут тогда просто отрендерится по
+ * запросу, а карта сайта сохранит статические разделы.
+ */
+export async function fetchSlugs(
+  type: SlugContentType,
+  locale: Locale = DEFAULT_LOCALE,
+): Promise<string[]> {
+  const url = buildUrl(`/slugs/${SLUG_ENDPOINTS[type]}`, { locale });
+
+  try {
+    const res = await fetch(url, cmsFetchOptions(type, locale));
+    if (!res.ok) {
+      throw new Error(`API ${res.status}`);
+    }
+    const body = (await res.json()) as SlugListResponse;
+    return body.data;
+  } catch (error) {
+    reportCmsFailure(`fetchSlugs(${type})`, error);
+    return [];
+  }
+}

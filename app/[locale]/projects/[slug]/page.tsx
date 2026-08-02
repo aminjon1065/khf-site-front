@@ -6,7 +6,7 @@ import PageShell from "@/components/public/PageShell";
 import CmsImage from "@/components/public/CmsImage";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
-import { fetchProject, fetchProjects } from "@/lib/api";
+import { fetchProject, fetchProjects, fetchSlugs } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { routes } from "@/lib/routes";
@@ -38,8 +38,8 @@ export async function generateStaticParams({
 }: {
   params: { locale: string };
 }) {
-  const { data: projects } = await fetchProjects({ locale: toLocale(locale), perPage: 50 });
-  return projects.map((p) => ({ slug: p.slug }));
+  const slugs = await fetchSlugs("project", toLocale(locale));
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({

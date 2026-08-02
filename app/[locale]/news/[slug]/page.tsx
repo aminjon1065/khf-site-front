@@ -9,7 +9,12 @@ import {
 import PageShell from "@/components/public/PageShell";
 import CmsImage from "@/components/public/CmsImage";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
-import { fetchNews, fetchNewsItem, type ApiNewsItem } from "@/lib/api";
+import {
+  fetchNews,
+  fetchNewsItem,
+  fetchSlugs,
+  type ApiNewsItem,
+} from "@/lib/api";
 import { toLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { routes } from "@/lib/routes";
@@ -81,8 +86,8 @@ export async function generateStaticParams({
 }: {
   params: { locale: string };
 }) {
-  const { data } = await fetchNews({ perPage: 50, locale: toLocale(locale) });
-  return data.map((p) => ({ slug: p.slug }));
+  const slugs = await fetchSlugs("news", toLocale(locale));
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({

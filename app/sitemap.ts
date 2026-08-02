@@ -2,14 +2,7 @@ import type { MetadataRoute } from "next";
 import { unstable_cache } from "next/cache";
 import { siteUrl } from "@/lib/seo";
 import { LOCALES, DEFAULT_LOCALE, htmlLang } from "@/lib/i18n/config";
-import {
-  fetchNews,
-  fetchProjects,
-  fetchAlerts,
-  fetchInstructions,
-  fetchPages,
-  fetchAnnouncements,
-} from "@/lib/api";
+import { fetchSlugs, type SlugContentType } from "@/lib/api";
 import { cmsCacheTags } from "@/lib/cache-tags";
 
 // Статические разделы портала — по одному URL на локаль. Поиск (`/search`) намеренно
@@ -31,31 +24,28 @@ const STATIC_PATHS = [
   "/sitemap",
 ] as const;
 
-const fetchDynamicRoutes = unstable_cache(
-  async (): Promise<{ type: string; slugs: string[] }[]> => {
-    const [news, projects, alerts, instructions, pages, announcements] =
-      await Promise.all([
-        fetchNews({ perPage: 100, locale: DEFAULT_LOCALE }),
-        fetchProjects({ perPage: 100, locale: DEFAULT_LOCALE }),
-        fetchAlerts(DEFAULT_LOCALE),
-        fetchInstructions({ perPage: 100, locale: DEFAULT_LOCALE }),
-        fetchPages(DEFAULT_LOCALE),
-        fetchAnnouncements({ perPage: 100, locale: DEFAULT_LOCALE }),
-      ]);
+// Тип контента в CMS → сегмент маршрута портала (инструкции живут под /guides).
+const SITEMAP_SECTIONS: { type: SlugContentType; segment: string }[] = [
+  { type: "news", segment: "news" },
+  { type: "project", segment: "projects" },
+  { type: "alert", segment: "alerts" },
+  { type: "instruction", segment: "guides" },
+  { type: "page", segment: "pages" },
+  { type: "announcement", segment: "announcements" },
+];
 
-    return [
-      { type: "news", slugs: news.data.map((item) => item.slug) },
-      { type: "projects", slugs: projects.data.map((item) => item.slug) },
-      { type: "alerts", slugs: alerts.map((item) => item.slug) },
-      { type: "guides", slugs: instructions.data.map((item) => item.slug) },
-      { type: "pages", slugs: pages.map((item) => item.slug) },
-      {
-        type: "announcements",
-        slugs: announcements.data
-          .map((item) => item.slug)
-          .filter((slug): slug is string => Boolean(slug)),
-      },
-    ];
+const fetchDynamicRoutes = unstable_cache(
+  async (): Promise<{ segment: string; slugs: string[] }[]> => {
+    const slugs = await Promise.all(
+      SITEMAP_SECTIONS.map((section) =>
+        fetchSlugs(section.type, DEFAULT_LOCALE),
+      ),
+    );
+
+    return SITEMAP_SECTIONS.map((section, index) => ({
+      segment: section.segment,
+      slugs: slugs[index],
+    }));
   },
   ["cms-sitemap-dynamic-routes"],
   { revalidate: 60, tags: [cmsCacheTags.sitemap] },
@@ -94,10 +84,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Инструкции живут под /guides, страницы — под /pages (см. app/[locale]/…).
     const dynamic = await fetchDynamicRoutes();
 
-    for (const { type, slugs } of dynamic) {
+    for (const { segment, slugs } of dynamic) {
       for (const slug of slugs) {
         if (!slug) continue;
-        const path = `/${type}/${slug}`;
+        const path = `/${segment}/${slug}`;
         for (const locale of LOCALES) {
           entries.push({
             url: `${base}/${locale}${path}`,

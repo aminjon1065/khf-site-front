@@ -10,6 +10,7 @@ import { Breadcrumbs, muted } from "@/components/public/ui";
 import {
   fetchInstruction,
   fetchInstructions,
+  fetchSlugs,
   type ApiInstruction,
 } from "@/lib/api";
 import { toLocale, type Locale } from "@/lib/i18n/config";
@@ -81,8 +82,8 @@ export async function generateStaticParams({
 }: {
   params: { locale: string };
 }) {
-  const { data: all } = await fetchInstructions({ locale: toLocale(locale), perPage: 50 });
-  return all.map((i) => ({ slug: i.slug }));
+  const slugs = await fetchSlugs("instruction", toLocale(locale));
+  return slugs.map((slug) => ({ slug }));
 }
 
 type GuideRouteProps = { params: Promise<{ locale: string; slug: string }> };
