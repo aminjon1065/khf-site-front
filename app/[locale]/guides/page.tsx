@@ -6,7 +6,7 @@ import { fetchInstructions } from "@/lib/api";
 import type { Metadata } from "next";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { buildMetadata } from "@/lib/seo";
+import { buildMetadata, metaDescription } from "@/lib/seo";
 import { routes } from "@/lib/routes";
 import { getGuidesContent, topicNum } from "./content";
 
@@ -25,6 +25,7 @@ export async function generateMetadata({
   return buildMetadata({
     locale,
     title: page > 1 ? `${pages.meta.guides} — ${page}` : pages.meta.guides,
+    description: metaDescription(getGuidesContent(locale).hero.lead),
     path: "/guides",
     siteName: common.siteShort,
     page,

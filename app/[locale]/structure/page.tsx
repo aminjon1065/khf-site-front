@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import { fetchSettings, fetchStructureUnits } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { buildMetadata } from "@/lib/seo";
+import { buildMetadata, metaDescription } from "@/lib/seo";
 import { getStructure } from "./content";
 
 // ISR: подразделения и сводные цифры перечитываются из CMS не чаще раза в
@@ -20,7 +20,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common, pages } = getDictionary(locale);
-  return buildMetadata({ locale, title: pages.meta.structure, path: "/structure", siteName: common.siteShort });
+  return buildMetadata({
+    locale,
+    title: pages.meta.structure,
+    description: metaDescription(getStructure(locale).intro),
+    path: "/structure",
+    siteName: common.siteShort,
+  });
 }
 
 export default async function StructurePage({
@@ -89,7 +95,13 @@ export default async function StructurePage({
             </span>
             <span className="text-[13px] text-white/75">
               {central.meta}
-              <Link href={central.link.href} style={{ color: "#d6ebff" }}>
+              {/* Подчёркивание, а не только цвет: ссылка стоит внутри
+                  предложения на тёмной плашке, и по одному оттенку её не
+                  отличить (WCAG 1.4.1). */}
+              <Link
+                href={central.link.href}
+                style={{ color: "#d6ebff", textDecoration: "underline" }}
+              >
                 {central.link.label}
               </Link>
             </span>

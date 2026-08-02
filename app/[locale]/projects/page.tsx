@@ -7,7 +7,7 @@ import { fetchProjects } from "@/lib/api";
 import type { Metadata } from "next";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { buildMetadata } from "@/lib/seo";
+import { buildMetadata, metaDescription } from "@/lib/seo";
 import { routes } from "@/lib/routes";
 import { getProjectsContent } from "./content";
 
@@ -26,6 +26,7 @@ export async function generateMetadata({
   return buildMetadata({
     locale,
     title: page > 1 ? `${pages.meta.projects} — ${page}` : pages.meta.projects,
+    description: metaDescription(getProjectsContent(locale).intro),
     path: "/projects",
     siteName: common.siteShort,
     page,

@@ -50,6 +50,26 @@ export function buildAlternates(
   return { canonical: `${localePath(locale, path)}${suffix}`, languages };
 }
 
+/**
+ * Описание страницы для `<meta name="description">`. Берётся из уже
+ * переведённого текста самой страницы (лид, подзаголовок), а не пишется
+ * заново: так описание не расходится с содержимым и не требует отдельного
+ * перевода. Длина обрезается по границе слова — поисковики показывают около
+ * 160 символов, а обрыв на середине слова читается как ошибка.
+ */
+export function metaDescription(text: string, limit = 160): string {
+  const normalized = text.replace(/\s+/g, " ").trim();
+
+  if (normalized.length <= limit) {
+    return normalized;
+  }
+
+  const cut = normalized.slice(0, limit);
+  const lastSpace = cut.lastIndexOf(" ");
+
+  return `${(lastSpace > limit * 0.6 ? cut.slice(0, lastSpace) : cut).replace(/[\s.,;:—-]+$/, "")}…`;
+}
+
 export interface BuildMetadataArgs {
   locale: Locale;
   title: string;

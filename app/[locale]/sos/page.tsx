@@ -4,7 +4,7 @@ import { ImageSlot, muted } from "@/components/public/ui";
 import type { Metadata } from "next";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { buildMetadata } from "@/lib/seo";
+import { buildMetadata, metaDescription } from "@/lib/seo";
 import { getSos, type AppFeature } from "./content";
 
 export async function generateMetadata({
@@ -14,7 +14,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common, pages } = getDictionary(locale);
-  return buildMetadata({ locale, title: pages.meta.sos, path: "/sos", siteName: common.siteShort });
+  return buildMetadata({
+    locale,
+    title: pages.meta.sos,
+    description: metaDescription(getSos(locale).hero.lead),
+    path: "/sos",
+    siteName: common.siteShort,
+  });
 }
 
 /** Иконка возможности приложения (26×26, stroke задаётся токеном). */
@@ -196,9 +202,9 @@ export default async function SosPage({
         </div>
 
         <aside className="blueprint flex flex-col gap-3 p-5">
-          <h6 className="m-0" style={{ color: muted(55) }}>
+          <h2 className="kicker-heading m-0" style={{ color: muted(55) }}>
             {how.aside.title}
-          </h6>
+          </h2>
           {how.aside.notes.map((note, i) => (
             <p key={i} className="m-0 text-[13px] leading-[1.55]" style={{ color: muted(70) }}>
               {note.parts.map((part, j) =>

@@ -8,7 +8,7 @@ import flagImage from "@/public/assets/flag-tj.png";
 import type { Metadata } from "next";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { buildMetadata } from "@/lib/seo";
+import { buildMetadata, metaDescription } from "@/lib/seo";
 import { getSymbolsContent, type SymbolBlock } from "./content";
 
 function SymbolImage({ image }: { image: SymbolBlock["image"] }) {
@@ -37,7 +37,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common, pages } = getDictionary(locale);
-  return buildMetadata({ locale, title: pages.meta.symbols, path: "/symbols", siteName: common.siteShort });
+  return buildMetadata({
+    locale,
+    title: pages.meta.symbols,
+    description: metaDescription(getSymbolsContent(locale).hero.lead),
+    path: "/symbols",
+    siteName: common.siteShort,
+  });
 }
 
 export default async function SymbolsPage({
@@ -181,9 +187,9 @@ export default async function SymbolsPage({
         aria-label={usage.ariaLabel}
         className="blueprint mt-10 px-[22px] py-5"
       >
-        <h6 className="mb-2.5" style={{ color: muted(55) }}>
+        <h3 className="kicker-heading mb-2.5" style={{ color: muted(55) }}>
           {usage.title}
-        </h6>
+        </h3>
         <p
           className="m-0 max-w-[80ch] text-[13.5px] leading-[1.6]"
           style={{ color: muted(72) }}

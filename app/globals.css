@@ -176,6 +176,11 @@ html {
   h6 { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
   p { margin: 0 0 var(--space-3); }
   a { color: var(--color-accent); text-underline-offset: 3px; }
+  /* Ссылка внутри абзаца обязана отличаться не только цветом: WCAG 1.4.1
+     («Использование цвета») — дальтоник и человек в монохромном режиме
+     ссылку в тексте иначе не найдут. Навигацию, карточки и кнопки правило не
+     трогает: у них есть свой класс, а здесь — только «голые» ссылки в тексте. */
+  p > a:not([class]) { text-decoration: underline; }
   img { display: block; max-width: 100%; }
   figure { margin: 0; }
   figcaption {
@@ -381,6 +386,10 @@ html {
     background: transparent; border: 1px solid var(--color-divider);
   }
   .card-kicker { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); }
+  /* Мелкий заголовок карточки. Раньше на его месте стоял <h6> — ради размера,
+     а не иерархии: после <h1> это давало разрыв уровней, и скринридер терял
+     структуру страницы. Тег теперь по смыслу, а внешний вид — отсюда. */
+  .kicker-heading { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
   .card-title { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: 17px; line-height: 1.2; }
   .card-body { margin: 0; font-size: 13px; opacity: 0.8; flex: 1; }
   .card-meta {

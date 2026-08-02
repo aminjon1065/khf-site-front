@@ -4,7 +4,7 @@ import { muted } from "@/components/public/ui";
 import type { Metadata } from "next";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { buildMetadata } from "@/lib/seo";
+import { buildMetadata, metaDescription } from "@/lib/seo";
 import { getSitemap, type SitemapLink } from "./content";
 
 export async function generateMetadata({
@@ -14,7 +14,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common, pages } = getDictionary(locale);
-  return buildMetadata({ locale, title: pages.meta.sitemap, path: "/sitemap", siteName: common.siteShort });
+  return buildMetadata({
+    locale,
+    title: pages.meta.sitemap,
+    description: metaDescription(getSitemap(locale).intro),
+    path: "/sitemap",
+    siteName: common.siteShort,
+  });
 }
 
 /**
@@ -56,9 +62,9 @@ export default async function SitemapPage({
       <div className="mt-7 grid grid-cols-3 gap-8 max-[920px]:grid-cols-1">
         {sitemap.groups.map((group) => (
           <div key={group.title}>
-            <h6 className="m-0 mb-2.5" style={{ color: muted(55) }}>
+            <h2 className="kicker-heading m-0 mb-2.5" style={{ color: muted(55) }}>
               {group.title}
-            </h6>
+            </h2>
             <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
               {group.links.map((link) => (
                 <li key={link.label} className={link.spaced ? "mt-2" : undefined}>

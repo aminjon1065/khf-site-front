@@ -8,7 +8,7 @@ import { Breadcrumbs, muted } from "@/components/public/ui";
 import { fetchAnnouncements } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { buildMetadata } from "@/lib/seo";
+import { buildMetadata, metaDescription } from "@/lib/seo";
 import AnnouncementsFilter from "./AnnouncementsFilter";
 import {
   getAnnouncementsContent,
@@ -42,6 +42,7 @@ export async function generateMetadata({
   return buildMetadata({
     locale,
     title: page > 1 ? `${baseTitle} — ${page}` : baseTitle,
+    description: metaDescription(getAnnouncementsContent(locale).subtitle),
     path: "/announcements",
     siteName: common.siteShort,
     page,
@@ -78,9 +79,9 @@ function Aside({ info }: { info: InfoCard[] }) {
           key={card.title}
           className="blueprint flex flex-col gap-2 p-[18px]"
         >
-          <h6 className="m-0" style={{ color: muted(55) }}>
+          <h2 className="kicker-heading m-0" style={{ color: muted(55) }}>
             {card.title}
-          </h6>
+          </h2>
           <p
             className="m-0 text-[13px] leading-[1.55]"
             style={{ color: muted(70) }}

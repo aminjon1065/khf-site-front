@@ -65,3 +65,27 @@ for (const route of ["/tj", "/en"] as const) {
     await scan(page, route, "blocking");
   });
 }
+
+// Остальные публичные страницы. Их не сканировал никто, и именно там
+// накопились нарушения: заголовки с пропущенным уровнем (<h6> ради размера
+// после <h1>) на четырёх страницах и ссылка в тексте, отличимая только цветом,
+// — на двух. Планка жёсткая: страница, которую не проверяют, ровно так и
+// зарастает.
+for (const route of [
+  "/ru/projects",
+  "/ru/documents",
+  "/ru/guides",
+  "/ru/announcements",
+  "/ru/alerts",
+  "/ru/contacts",
+  "/ru/sos",
+  "/ru/leadership",
+  "/ru/structure",
+  "/ru/symbols",
+  "/ru/sitemap",
+  "/ru/search",
+] as const) {
+  test(`${route} has no axe violations at all`, async ({ page }) => {
+    await scan(page, route, "none");
+  });
+}

@@ -163,9 +163,9 @@ export default async function AlertsPage({
         {/* Боковая колонка: карта + 112 */}
         <aside className="flex min-w-0 flex-col gap-5">
           <div className="blueprint p-3">
-            <h6 className="mx-1.5 mt-1 mb-2" style={{ color: muted(55) }}>
+            <h3 className="kicker-heading mx-1.5 mt-1 mb-2" style={{ color: muted(55) }}>
               {pages.alertsList.regionsHeading}
-            </h6>
+            </h3>
             <TjRiskMap regions={regions} height={300} showLabels={false} />
             <Link
               href={routes.map}
@@ -176,9 +176,9 @@ export default async function AlertsPage({
           </div>
 
           <div className="blueprint flex flex-col gap-2 p-[18px]">
-            <h6 className="m-0" style={{ color: muted(55) }}>
+            <h3 className="kicker-heading m-0" style={{ color: muted(55) }}>
               {pages.alertsList.emergencyHelp}
-            </h6>
+            </h3>
             <a
               href="tel:112"
               className="text-[26px] font-semibold no-underline [font-family:var(--font-heading)]"

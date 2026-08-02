@@ -4,7 +4,7 @@ import { fetchRegionsDirectory } from "@/lib/api";
 import type { Metadata } from "next";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { buildMetadata } from "@/lib/seo";
+import { buildMetadata, metaDescription } from "@/lib/seo";
 import { getContacts } from "./content";
 import ContactForm from "./ContactForm";
 
@@ -15,7 +15,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common, pages } = getDictionary(locale);
-  return buildMetadata({ locale, title: pages.meta.contacts, path: "/contacts", siteName: common.siteShort });
+  return buildMetadata({
+    locale,
+    title: pages.meta.contacts,
+    // Описание берём из уже переведённого подзаголовка самой страницы —
+    // отдельный текст пришлось бы переводить и поддерживать втрое.
+    description: metaDescription(getContacts(locale).subtitle),
+    path: "/contacts",
+    siteName: common.siteShort,
+  });
 }
 
 export const revalidate = 60;
@@ -60,9 +68,9 @@ export default async function ContactsPage({
       >
         {/* Угроза жизни — 112 */}
         <div className="blueprint p-5" style={{ borderTop: "3px solid var(--hz-critical)" }}>
-          <h6 className="m-0 mb-1.5" style={{ color: muted(55) }}>
+          <h2 className="kicker-heading m-0 mb-1.5" style={{ color: muted(55) }}>
             {emergency.critical.kicker}
-          </h6>
+          </h2>
           <a
             href={emergency.critical.phoneHref}
             className="text-[34px] font-semibold no-underline [font-family:var(--font-heading)]"
@@ -77,9 +85,9 @@ export default async function ContactsPage({
 
         {/* Телефон доверия */}
         <div className="blueprint p-5">
-          <h6 className="m-0 mb-1.5" style={{ color: muted(55) }}>
+          <h2 className="kicker-heading m-0 mb-1.5" style={{ color: muted(55) }}>
             {emergency.trust.kicker}
-          </h6>
+          </h2>
           <a
             href={emergency.trust.phoneHref}
             className="text-[22px] font-semibold no-underline [font-family:var(--font-heading)]"
@@ -94,9 +102,9 @@ export default async function ContactsPage({
 
         {/* Центральный аппарат — адрес */}
         <div className="blueprint p-5">
-          <h6 className="m-0 mb-1.5" style={{ color: muted(55) }}>
+          <h2 className="kicker-heading m-0 mb-1.5" style={{ color: muted(55) }}>
             {emergency.hq.kicker}
-          </h6>
+          </h2>
           <p className="m-0 text-[13.5px] leading-[1.6]">
             {emergency.hq.address}
             <br />

@@ -6,7 +6,7 @@ import { muted } from "@/components/public/ui";
 import { fetchDocuments } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { buildMetadata } from "@/lib/seo";
+import { buildMetadata, metaDescription } from "@/lib/seo";
 import { getDocuments } from "./content";
 import DocumentsTable from "./DocumentsTable";
 
@@ -43,6 +43,7 @@ export async function generateMetadata({
     locale,
     title:
       page > 1 ? `${pages.meta.documents} — ${page}` : pages.meta.documents,
+    description: metaDescription(getDocuments(locale).subtitle),
     path: "/documents",
     siteName: common.siteShort,
     page,
