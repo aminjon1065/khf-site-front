@@ -2,13 +2,13 @@
 
 Budget: performance >= 90, accessibility >= 95 (mobile).
 
-Last run: 2026-07-27T06:46:00.000Z
+Last run: 2026-08-02T12:33:40.709Z
 
 | Page | URL | Performance | Accessibility | Status |
 |---|---|---|---|---|
-| home | `/ru` | 87 | 98 | ❌ |
-| news-list | `/ru/news` | 91 | 98 | ✅ |
-| news-article | `/ru/news/bolee-4-000-zhiteley-gbao-proshli-obuchenie-deystviyam-pri-lavinnoy-opasnosti` | 92 | 98 | ✅ |
-| risk-map | `/ru/map` | 91 | 98 | ✅ |
+| home | `/ru` | 99 | 100 | ✅ |
+| news-list | `/ru/news` | 99 | 100 | ✅ |
+| news-article | `/ru/news/test-news` | 99 | 100 | ✅ |
+| risk-map | `/ru/map` | 99 | 100 | ✅ |
 
 Regenerate: `node scripts/lighthouse-budgets.mjs [baseUrl]` against a running server (`npm run build && npm run start`, matches production more closely than `npm run dev`).

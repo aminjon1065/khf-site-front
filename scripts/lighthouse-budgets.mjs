@@ -46,6 +46,11 @@ async function runLighthouse(url, port) {
       settings: {
         formFactor: "mobile",
         screenEmulation: { mobile: true, width: 412, height: 823, deviceScaleFactor: 2.625, disabled: false },
+        // Тот же метод троттлинга, что и в lighthouserc.cjs: иначе два
+        // инструмента в одном репозитории мерили бы разное и спорили друг с
+        // другом (модель Lantern завышает LCP этого сайта примерно на секунду
+        // — см. комментарий там же).
+        throttlingMethod: "devtools",
         onlyCategories: ["performance", "accessibility"],
       },
     },
