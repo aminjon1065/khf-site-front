@@ -78,11 +78,16 @@ export function ImageSlot({
         ...style,
       }}
     >
+      {/* Размеры объявлены по фактическому размеру в вёрстке (не больше 88 CSS
+          px), а не по размеру файла. Раньше здесь стояло 512×506 — при
+          мобильном DPR 2,6 Next выбирал вариант шириной 1080 px и грузил
+          46 KiB ради заглушки в 88 px. */}
       <Image
         src={`/assets/logo-kchs-${locale}.webp`}
         alt=""
-        width={512}
-        height={506}
+        width={88}
+        height={87}
+        sizes="88px"
         style={{ width: "38%", maxWidth: 88, height: "auto" }}
       />
       {label && (
