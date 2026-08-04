@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<url>
+<loc>http://localhost:3000/ru</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en" />
+</url>
+<url>
+<loc>http://localhost:3000/ru/news</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/news" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/news" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/news" />
+</url>
+<url>
+<loc>http://localhost:3000/ru/guides</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/guides" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/guides" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/guides" />
+</url>
+<url>
+<loc>http://localhost:3000/ru/map</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/map" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/map" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/map" />
+</url>
+<url>
+<loc>http://localhost:3000/ru/documents</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/documents" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/documents" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/documents" />
+</url>
+<url>
+<loc>http://localhost:3000/ru/contacts</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/contacts" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/contacts" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/contacts" />
+</url>
+<url>
+<loc>http://localhost:3000/ru/projects</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/projects" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/projects" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/projects" />
+</url>
+<url>
+<loc>http://localhost:3000/ru/announcements</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/announcements" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/announcements" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/announcements" />
+</url>
+<url>
+<loc>http://localhost:3000/ru/alerts</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/alerts" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/alerts" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/alerts" />
+</url>
+<url>
+<loc>http://localhost:3000/ru/leadership</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/leadership" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/leadership" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/leadership" />
+</url>
+<url>
+<loc>http://localhost:3000/ru/structure</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/structure" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/structure" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/structure" />
+</url>
+<url>
+<loc>http://localhost:3000/ru/symbols</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/symbols" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/symbols" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/symbols" />
+</url>
+<url>
+<loc>http://localhost:3000/ru/sos</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/sos" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/sos" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/sos" />
+</url>
+<url>
+<loc>http://localhost:3000/ru/sitemap</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/sitemap" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/sitemap" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/sitemap" />
+</url>
+<url>
+<loc>http://localhost:3000/tj</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en" />
+</url>
+<url>
+<loc>http://localhost:3000/tj/news</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/news" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/news" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/news" />
+</url>
+<url>
+<loc>http://localhost:3000/tj/guides</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/guides" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/guides" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/guides" />
+</url>
+<url>
+<loc>http://localhost:3000/tj/map</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/map" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/map" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/map" />
+</url>
+<url>
+<loc>http://localhost:3000/tj/documents</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/documents" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/documents" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/documents" />
+</url>
+<url>
+<loc>http://localhost:3000/tj/contacts</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/contacts" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/contacts" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/contacts" />
+</url>
+<url>
+<loc>http://localhost:3000/tj/projects</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/projects" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/projects" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/projects" />
+</url>
+<url>
+<loc>http://localhost:3000/tj/announcements</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/announcements" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/announcements" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/announcements" />
+</url>
+<url>
+<loc>http://localhost:3000/tj/alerts</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/alerts" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/alerts" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/alerts" />
+</url>
+<url>
+<loc>http://localhost:3000/tj/leadership</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/leadership" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/leadership" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/leadership" />
+</url>
+<url>
+<loc>http://localhost:3000/tj/structure</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/structure" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/structure" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/structure" />
+</url>
+<url>
+<loc>http://localhost:3000/tj/symbols</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/symbols" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/symbols" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/symbols" />
+</url>
+<url>
+<loc>http://localhost:3000/tj/sos</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/sos" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/sos" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/sos" />
+</url>
+<url>
+<loc>http://localhost:3000/tj/sitemap</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/sitemap" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/sitemap" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/sitemap" />
+</url>
+<url>
+<loc>http://localhost:3000/en</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en" />
+</url>
+<url>
+<loc>http://localhost:3000/en/news</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/news" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/news" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/news" />
+</url>
+<url>
+<loc>http://localhost:3000/en/guides</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/guides" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/guides" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/guides" />
+</url>
+<url>
+<loc>http://localhost:3000/en/map</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/map" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/map" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/map" />
+</url>
+<url>
+<loc>http://localhost:3000/en/documents</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/documents" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/documents" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/documents" />
+</url>
+<url>
+<loc>http://localhost:3000/en/contacts</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/contacts" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/contacts" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/contacts" />
+</url>
+<url>
+<loc>http://localhost:3000/en/projects</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/projects" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/projects" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/projects" />
+</url>
+<url>
+<loc>http://localhost:3000/en/announcements</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/announcements" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/announcements" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/announcements" />
+</url>
+<url>
+<loc>http://localhost:3000/en/alerts</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/alerts" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/alerts" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/alerts" />
+</url>
+<url>
+<loc>http://localhost:3000/en/leadership</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/leadership" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/leadership" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/leadership" />
+</url>
+<url>
+<loc>http://localhost:3000/en/structure</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/structure" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/structure" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/structure" />
+</url>
+<url>
+<loc>http://localhost:3000/en/symbols</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/symbols" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/symbols" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/symbols" />
+</url>
+<url>
+<loc>http://localhost:3000/en/sos</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/sos" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/sos" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/sos" />
+</url>
+<url>
+<loc>http://localhost:3000/en/sitemap</loc>
+<xhtml:link rel="alternate" hreflang="ru" href="http://localhost:3000/ru/sitemap" />
+<xhtml:link rel="alternate" hreflang="tg" href="http://localhost:3000/tj/sitemap" />
+<xhtml:link rel="alternate" hreflang="en" href="http://localhost:3000/en/sitemap" />
+</url>
+</urlset>

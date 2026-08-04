@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/[locale]/layout,_N_T_/[locale]/leadership/layout,_N_T_/[locale]/leadership/page,_N_T_/en/leadership,cms"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/$d$locale/leadership/__PAGE__",
+    "/$d$locale/leadership",
+    "/$d$locale",
+    "/_index",
+    "/_head"
+  ]
+}
