@@ -14,16 +14,11 @@ import NavLink from "@/components/public/header/NavLink";
 import NavSummary from "@/components/public/header/NavSummary";
 import ThemeToggle from "@/components/public/header/ThemeToggle";
 import { muted } from "@/components/public/muted";
+import { cmsMenuToNavItems } from "@/lib/cms-menu";
 import type { ApiMenuItem } from "@/lib/api";
 import { withLocale, type Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
 import { routes } from "@/lib/routes";
-
-interface NavItem {
-  label: string;
-  href: string;
-  children: { label: string; href: string }[];
-}
 
 export default function PublicHeader({
   trustPhone,
@@ -49,7 +44,7 @@ export default function PublicHeader({
     [routes.leadership]: navCopy.leadership,
     [routes.structure]: navCopy.structure,
   };
-  const staticNav: NavItem[] = [
+  const staticNav = [
     { label: navCopy.news, href: routes.news, children: [] },
     { label: navCopy.guides, href: routes.guides, children: [] },
     { label: navCopy.map, href: routes.map, children: [] },
@@ -63,47 +58,16 @@ export default function PublicHeader({
     { label: navCopy.contacts, href: routes.contacts, children: [] },
   ];
 
-  const toNavItem = (item: ApiMenuItem): NavItem | null => {
-    const href = item.url ?? "";
-    if (!href || href === "/") {
-      return null;
-    }
-
-    const label = navLabelByUrl[href] ?? item.label;
-    if (!label.trim()) {
-      return null;
-    }
-
-    const children = (item.children ?? [])
-      .map((child): { label: string; href: string } | null => {
-        const childHref = child.url ?? "";
-        const childLabel = childHref
-          ? (navLabelByUrl[childHref] ?? child.label)
-          : child.label;
-
-        return childHref && childLabel.trim()
-          ? { label: childLabel, href: childHref }
-          : null;
-      })
-      .filter(
-        (child): child is { label: string; href: string } => child !== null,
-      );
-
-    return { label, href, children };
-  };
-
-  const cmsNav = (mainMenu ?? [])
-    .map(toNavItem)
-    .filter((item): item is NavItem => item !== null);
+  const cmsNav = cmsMenuToNavItems(mainMenu, navLabelByUrl);
   const navItems = cmsNav.length > 0 ? cmsNav : staticNav;
   const phone = trustPhone || header.trustPhone;
   const phoneHref = `tel:${phone.replace(/[^+\d]/g, "")}`;
   const localize = (href: string): string => withLocale(locale, href);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[var(--color-divider)] bg-[var(--color-bg)]">
+    <header className="ksite-header sticky top-0 z-40 border-b border-[var(--color-divider)]">
       <HeaderOverlays />
-      <div className="border-b border-[var(--color-divider)]">
+      <div className="ksite-utility border-b border-[var(--color-divider)]">
         <div
           className="mx-auto flex w-full max-w-[1160px] items-center gap-3 px-6 py-1.5 text-xs max-[920px]:px-4"
           style={{ color: muted(65) }}
@@ -289,11 +253,20 @@ export default function PublicHeader({
           >
             {header.stateSymbols}
           </NextLink>
-          {navItems.map((item) => (
-            <Fragment key={item.href}>
-              <NextLink className="mnav-link" href={localize(item.href)}>
-                {item.label}
-              </NextLink>
+          {navItems.map((item, index) => (
+            <Fragment key={`${item.href || item.label}-${index}`}>
+              {item.href ? (
+                <NextLink className="mnav-link" href={localize(item.href)}>
+                  {item.label}
+                </NextLink>
+              ) : (
+                <span
+                  className="flex min-h-[40px] items-center px-5 pt-2.5 text-[11px] uppercase tracking-[.1em]"
+                  style={{ color: muted(50) }}
+                >
+                  {item.label}
+                </span>
+              )}
               {item.children.map((child) => (
                 <NextLink
                   key={child.href}
@@ -358,7 +331,7 @@ export default function PublicHeader({
             />
             <span
               role="menu"
-              className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-bg)] py-1 [box-shadow:var(--shadow-md)]"
+              className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-card)] py-1 [box-shadow:var(--shadow-md)]"
             >
               <NextLink
                 role="menuitem"
@@ -383,16 +356,22 @@ export default function PublicHeader({
               </NextLink>
             </span>
           </details>
-          {navItems.map((item) =>
+          {navItems.map((item, index) =>
             item.children.length > 0 ? (
               <details
-                key={item.href}
+                key={`${item.href || item.label}-${index}`}
                 className="group relative inline-block shrink-0"
               >
-                <NavSummary label={item.label} matches={[item.href]} />
+                <NavSummary
+                  label={item.label}
+                  matches={[
+                    item.href,
+                    ...item.children.map((child) => child.href),
+                  ].filter(Boolean)}
+                />
                 <span
                   role="menu"
-                  className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-bg)] py-1 [box-shadow:var(--shadow-md)]"
+                  className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-card)] py-1 [box-shadow:var(--shadow-md)]"
                 >
                   {item.children.map((child) => (
                     <NextLink
@@ -408,7 +387,7 @@ export default function PublicHeader({
               </details>
             ) : (
               <NavLink
-                key={item.href}
+                key={`${item.href}-${index}`}
                 href={localize(item.href)}
                 match={item.href}
               >

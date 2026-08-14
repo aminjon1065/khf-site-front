@@ -14,12 +14,16 @@
 }
 
 :root {
-  --color-bg: #f2f2f3;
-  --color-surface: #e9e9ea;
+  --color-bg: #eef0f2;
+  --color-surface: #e4e6e8;
+  /* Бумага поверх холодного технического фона. */
+  --color-card: #ffffff;
   --color-text: #1d1f20;
   --color-accent: #416180;
   --color-accent-2: #728fab;
   --color-divider: color-mix(in srgb, #1d1f20 16%, transparent);
+  --motion-duration: 160ms;
+  --motion-ease: ease;
 
   /* Тональные шкалы — единая шкала светлоты OKLCH. */
   --color-neutral-100: #f5f5f8;
@@ -104,6 +108,7 @@
 [data-theme="dark"] {
   --color-bg: #15181b;
   --color-surface: #1e2226;
+  --color-card: #22272c;
   --color-text: #e4e7ea;
   --color-divider: color-mix(in srgb, #e4e7ea 16%, transparent);
   --color-accent: #8fb2d4;
@@ -144,6 +149,16 @@
 
 html {
   background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Липкая шапка не перекрывает якоря и skip-to-content. */
+  scroll-padding-top: 176px;
+}
+
+@media (max-width: 920px) {
+  html {
+    scroll-padding-top: 112px;
+  }
 }
 
 @layer base {
@@ -197,15 +212,22 @@ html {
   .text-muted { color: color-mix(in srgb, var(--color-text) 65%, transparent); }
 
   /* — карточка-«blueprint»: спокойный режим без крестиков по углам,
-       тонкая рамка + мягкая тень (решение заказчика). — */
+       тонкая рамка + мягкая тень (решение заказчика). Фон — бумага
+       (--color-card), чтобы плитки отделялись от технического --color-bg. — */
   .blueprint {
     position: relative;
     border: 1px solid var(--color-divider);
     border-radius: 0;
-    background: var(--color-surface);
+    background: var(--color-card);
     box-shadow: var(--shadow-sm);
   }
   .blueprint > .corner { display: none; }
+  /* Только тень: border-color на hover затёр бы цветную верхнюю кромку
+     предупреждений (inline border-top). */
+  a.blueprint:hover,
+  button.blueprint:hover {
+    box-shadow: var(--shadow-md);
+  }
 
   .duotone { position: relative; overflow: hidden; }
   .duotone::after {
@@ -215,6 +237,88 @@ html {
     pointer-events: none;
     background: var(--color-accent);
     mix-blend-mode: color;
+  }
+
+  /* Пустой медиа-слот: стальная плита с печатью, а не «битая картинка». */
+  .media-plate {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: inherit;
+    padding: 20px 16px;
+    background: linear-gradient(165deg, #1a2836 0%, #2c455d 100%);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 8%, transparent);
+    color: color-mix(in srgb, #fff 72%, transparent);
+  }
+  .media-plate::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(color-mix(in srgb, #fff 10%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, #fff 10%, transparent) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: radial-gradient(ellipse at center, #000 35%, transparent 78%);
+    pointer-events: none;
+  }
+  .media-plate-seal {
+    position: relative;
+    z-index: 1;
+    width: 38% !important;
+    max-width: 88px;
+    height: auto !important;
+    opacity: 0.42;
+  }
+  .media-plate-label {
+    position: relative;
+    z-index: 1;
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    text-align: center;
+    color: color-mix(in srgb, #fff 70%, transparent);
+  }
+  .media-plate-index {
+    position: absolute;
+    right: 16px;
+    bottom: 8px;
+    z-index: 1;
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-size: clamp(64px, 12vw, 96px);
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    color: color-mix(in srgb, #fff 12%, transparent);
+    pointer-events: none;
+  }
+
+  .section-tick {
+    width: 3px;
+    height: 0.92em;
+    flex: none;
+    align-self: center;
+    background: var(--color-accent);
+  }
+  .section-index {
+    font-variant-numeric: tabular-nums;
+    color: var(--color-accent-700);
+  }
+
+  .quick-ico {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex: none;
+    background: var(--color-accent-100);
+  }
+
+  .kpi-value {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
   }
 
   /* — линейки — */
@@ -323,6 +427,11 @@ html {
     background: transparent; border: 1px solid var(--color-divider);
     padding: var(--space-2) calc(var(--space-3) * 1.2);
     border-radius: 0;
+    transition:
+      background-color var(--motion-duration) var(--motion-ease),
+      border-color var(--motion-duration) var(--motion-ease),
+      color var(--motion-duration) var(--motion-ease),
+      box-shadow var(--motion-duration) var(--motion-ease);
   }
   .btn svg { display: block; }
   .btn:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -348,6 +457,8 @@ html {
     font-size: 14px; color: var(--color-text); caret-color: var(--color-accent);
     background: var(--color-surface);
     border: 1px solid var(--color-divider); border-radius: 0;
+    transition: border-color var(--motion-duration) var(--motion-ease),
+      background-color var(--motion-duration) var(--motion-ease);
   }
   .input:hover { border-color: color-mix(in srgb, var(--color-text) 45%, transparent); }
   .input:focus-visible { border-color: var(--color-accent); outline-offset: 0; }
@@ -428,19 +539,46 @@ html {
   .dialog {
     width: min(440px, 100%); display: flex; flex-direction: column; gap: var(--space-3);
     padding: var(--space-4); border-radius: 0;
-    background: var(--color-surface); box-shadow: var(--shadow-lg);
+    background: var(--color-card); box-shadow: var(--shadow-lg);
   }
   .dialog-title { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: 20px; }
   .dialog-body { font-size: 14px; opacity: 0.85; }
   .dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-2); }
 
-  /* ── Шапка: основная навигация ── */
-  .knav a {
+  /* ── Шапка: три яруса (служебная / бренд / навигация) ── */
+  .ksite-header {
+    background: var(--color-bg);
+    box-shadow:
+      0 1px 0 var(--color-divider),
+      0 10px 28px color-mix(in srgb, #2b2b2d 7%, transparent);
+  }
+  [data-theme="dark"] .ksite-header {
+    box-shadow:
+      0 1px 0 var(--color-divider),
+      0 12px 28px rgba(0, 0, 0, 0.38);
+  }
+  .ksite-utility {
+    background: color-mix(in srgb, var(--color-text) 3.5%, var(--color-bg));
+  }
+  .knav {
+    background: var(--color-card);
+  }
+  .knav a,
+  .knav summary {
     color: var(--color-text); text-decoration: none; font-size: 14px;
     padding: 9px 13px; border-bottom: 2px solid transparent;
-    display: inline-block; flex: none; white-space: nowrap;
+    flex: none; white-space: nowrap;
+    transition:
+      background-color var(--motion-duration) var(--motion-ease),
+      color var(--motion-duration) var(--motion-ease),
+      border-color var(--motion-duration) var(--motion-ease);
   }
-  .knav a:hover { color: var(--color-accent-700); background: color-mix(in srgb, var(--color-accent) 8%, transparent); }
+  .knav a { display: inline-block; }
+  .knav a:hover,
+  .knav summary:hover {
+    color: var(--color-accent-700);
+    background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  }
   .knav a[aria-current="page"] { color: var(--color-accent-700); border-bottom-color: var(--color-accent); font-weight: 500; }
 
   /* ── Служебные ссылки шапки (hover) ── */
@@ -466,11 +604,49 @@ html {
   .mnav .mnav-link:hover { color: var(--color-accent-700); background: color-mix(in srgb, var(--color-accent) 8%, transparent); }
   .mnav .mnav-sub { min-height: 42px; font-size: 15px; padding-left: 34px; color: color-mix(in srgb, var(--color-text) 78%, transparent); }
 
-  /* ── Подвал ── */
+  /* ── Подвал: отдельный слой, чтобы страница «опиралась» на землю ── */
+  .kfoot {
+    background: var(--color-card);
+  }
   .kfoot a { color: color-mix(in srgb, var(--color-text) 72%, transparent); text-decoration: none; font-size: 13px; line-height: 1.5; }
   .kfoot a:hover { color: var(--color-accent-700); text-decoration: underline; text-underline-offset: 3px; }
 
+  /* Заголовок внутренней страницы: кегль сжимается на узких экранах. */
+  .page-title {
+    margin: 0;
+    font-size: clamp(26px, 2.2vw + 18px, 36px);
+    line-height: 1.12;
+  }
+  .page-title-caps {
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  /* Ссылки в шапке секции и крошках — подчёркивание только по hover. */
+  .section-link,
+  .crumb-link {
+    text-decoration: none;
+    text-underline-offset: 3px;
+    transition: color var(--motion-duration) var(--motion-ease);
+  }
+  .section-link:hover,
+  .crumb-link:hover {
+    color: var(--color-accent-700);
+    text-decoration: underline;
+  }
+
   /* ── Ссылка-хайлайт по hover для карточек/строк ── */
+  .row-link,
+  .surface-hover,
+  .surface-hover-6,
+  .accent-900-hover,
+  a.blueprint {
+    transition:
+      background-color var(--motion-duration) var(--motion-ease),
+      border-color var(--motion-duration) var(--motion-ease),
+      color var(--motion-duration) var(--motion-ease),
+      box-shadow var(--motion-duration) var(--motion-ease);
+  }
   .row-link:hover { color: var(--color-accent-700); }
   .surface-hover:hover { background: color-mix(in srgb, var(--color-accent) 7%, transparent); }
   .surface-hover-6:hover { background: color-mix(in srgb, var(--color-accent) 6%, transparent); }
@@ -493,9 +669,28 @@ html:not([data-theme="dark"]) .ico-sun { display: none; }
 /* Пульс критического баннера — плавный, без мигания. */
 @keyframes critPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 .crit-dot { animation: critPulse 2.4s ease-in-out infinite; }
+
+/* Смена слайда: один article в DOM (см. smoke e2e), появление — коротким fade. */
+@keyframes slideFade { from { opacity: 0; } to { opacity: 1; } }
+.slide-fade { animation: slideFade 0.35s var(--motion-ease); }
+
 @media (prefers-reduced-motion: reduce) {
   .crit-dot { animation: none !important; }
+  .slide-fade { animation: none !important; }
   .no-motion-reduce { transition: none !important; }
+  .btn,
+  .input,
+  .knav a,
+  .knav summary,
+  .row-link,
+  .surface-hover,
+  .surface-hover-6,
+  .accent-900-hover,
+  a.blueprint,
+  .section-link,
+  .crumb-link {
+    transition: none !important;
+  }
 }
 
 /* Индикатор перехода между страницами (см. components/public/NavigationProgress.tsx).

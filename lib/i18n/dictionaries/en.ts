@@ -209,7 +209,7 @@ export const en: Dictionary = {
     },
 
     ops: {
-      title: "Operational summary · 18.07",
+      title: "Operational summary",
       items: [
         { n: "2", color: "var(--hz-danger)", label: "active events" },
         { n: "3", color: "var(--hz-warning)", label: "under control" },

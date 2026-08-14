@@ -66,9 +66,7 @@ export default async function ProjectsPage({
 
       {/* Заголовок раздела */}
       <div className="border-b border-[var(--color-divider)] pb-[14px]">
-        <h1 className="m-0 mb-2 text-[36px] uppercase tracking-[.02em]">
-          {c.title}
-        </h1>
+        <h1 className="page-title page-title-caps mb-2">{c.title}</h1>
         <p
           className="m-0 max-w-[70ch] text-[14.5px] leading-[1.6]"
           style={{ color: muted(70) }}

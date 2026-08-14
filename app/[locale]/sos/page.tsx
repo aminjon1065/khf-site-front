@@ -86,7 +86,7 @@ export default async function SosPage({
           >
             {hero.kicker}
           </span>
-          <h1 className="mb-4 mt-3 text-[46px] uppercase leading-[1.05]">
+          <h1 className="page-title-caps mb-4 mt-3 text-[clamp(30px,6.4vw,46px)] leading-[1.05]">
             {hero.titleLines[0]}
             <br />
             {hero.titleLines[1]}

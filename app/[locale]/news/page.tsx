@@ -114,9 +114,7 @@ export default async function NewsPage({
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-8 max-[920px]:px-4"
     >
       <div className="flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">
-        <h1 className="m-0 text-[36px] uppercase tracking-[.02em]">
-          {news.header.title}
-        </h1>
+        <h1 className="page-title page-title-caps">{news.header.title}</h1>
         <span className="text-xs" style={{ color: muted(50) }}>
           {news.header.kicker}
         </span>

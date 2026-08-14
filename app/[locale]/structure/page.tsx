@@ -59,7 +59,7 @@ export default async function StructurePage({
       {/* Шапка: заголовок + вводный абзац + ключевые цифры */}
       <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(280px,1fr)] items-end gap-8 border-b border-[var(--color-divider)] pb-5 max-[920px]:grid-cols-1">
         <div>
-          <h1 className="m-0 mb-2.5 text-[36px] uppercase tracking-[.02em]">
+          <h1 className="page-title page-title-caps mb-2.5">
             {structure.title}
           </h1>
           <p

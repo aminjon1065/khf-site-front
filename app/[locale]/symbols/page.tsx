@@ -60,7 +60,7 @@ export default async function SymbolsPage({
 
       {/* Заголовок раздела */}
       <div className="border-b border-[var(--color-divider)] pb-3.5">
-        <h1 className="mb-2.5 mt-0 text-[36px] uppercase tracking-[.02em]">
+        <h1 className="page-title page-title-caps mb-2.5 mt-0">
           {hero.title}
         </h1>
         <p

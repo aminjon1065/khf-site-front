@@ -182,7 +182,7 @@ export const tj: Dictionary = {
     },
 
     ops: {
-      title: "Ҳисоботи оперативӣ · 18.07",
+      title: "Ҳисоботи оперативӣ",
       items: [
         { n: "2", color: "var(--hz-danger)", label: "рӯйдоди фаъол" },
         { n: "3", color: "var(--hz-warning)", label: "таҳти назорат" },

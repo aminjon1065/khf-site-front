@@ -219,9 +219,7 @@ export default async function GuidePage({ params }: GuideRouteProps) {
           >
             {pages.guideDetail.kicker}
           </span>
-          <h1 className="mb-3.5 mt-2.5 text-[36px] leading-[1.1]">
-            {item.title}
-          </h1>
+          <h1 className="page-title mb-3.5 mt-2.5">{item.title}</h1>
 
           {/* Главное */}
           {item.summary && (

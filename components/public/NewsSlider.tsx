@@ -15,6 +15,8 @@ export interface Slide {
   excerpt: string;
   photoLabel: string;
   href?: string;
+  /** URL фото из CMS. Без него справа — стальная плита с номером слайда. */
+  imageSrc?: string | null;
 }
 
 /**
@@ -33,6 +35,10 @@ export default function NewsSlider({
   const paused = useRef(false);
   const n = slides.length;
   const activeSlide = slides[slide];
+
+  if (n === 0 || !activeSlide) {
+    return null;
+  }
 
   useEffect(() => {
     const rm = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -57,15 +63,20 @@ export default function NewsSlider({
       onMouseLeave={() => (paused.current = false)}
     >
       <div className="min-h-[430px] overflow-hidden">
-        <article className="grid min-h-[430px] w-full grid-cols-[minmax(0,1fr)_42%] max-[920px]:grid-cols-1">
+        <article
+          key={slide}
+          className="slide-fade grid min-h-[430px] w-full grid-cols-[minmax(0,1fr)_42%] max-[920px]:grid-cols-1"
+        >
           <div className="flex min-w-0 flex-col justify-center gap-3 px-7 py-[26px] max-[920px]:px-[18px] max-[920px]:pb-[60px] max-[920px]:pt-[18px]">
-            <div
-              className="text-[11px] uppercase tracking-[.1em]"
-              style={{ color: "var(--color-accent-700)" }}
-            >
-              {activeSlide.kicker}
-            </div>
-            <h2 className="m-0 text-[27px] leading-[1.15]">
+            {activeSlide.kicker ? (
+              <div
+                className="text-[11px] uppercase tracking-[.1em]"
+                style={{ color: "var(--color-accent-700)" }}
+              >
+                {activeSlide.kicker}
+              </div>
+            ) : null}
+            <h2 className="m-0 text-[clamp(22px,2.1vw+14px,32px)] leading-[1.12]">
               <Link
                 href={activeSlide.href ?? routes.article()}
                 style={{ color: "inherit", textDecoration: "none" }}
@@ -81,13 +92,28 @@ export default function NewsSlider({
             </p>
             <Link
               href={activeSlide.href ?? routes.article()}
-              className="btn btn-secondary mt-1.5 self-start"
+              className="btn btn-primary mt-1.5 self-start"
             >
               {readMore}
             </Link>
           </div>
           <div className="min-h-full max-[920px]:order-first max-[920px]:min-h-[210px]">
-            <ImageSlot label={activeSlide.photoLabel} duotone />
+            {activeSlide.imageSrc ? (
+              <ImageSlot
+                src={activeSlide.imageSrc}
+                alt=""
+                duotone
+                eager={slide === 0}
+                preload={slide === 0}
+                sizes="(max-width: 920px) 100vw, 420px"
+              />
+            ) : (
+              <div className="media-plate h-full min-h-[210px]" aria-hidden="true">
+                <span className="media-plate-index">
+                  {String(slide + 1).padStart(2, "0")}
+                </span>
+              </div>
+            )}
           </div>
         </article>
       </div>

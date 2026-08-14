@@ -261,7 +261,20 @@ export default async function HomePage({
         className="grid grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] items-stretch gap-7 max-[920px]:grid-cols-1"
       >
         <NewsSlider
-          slides={home.slider.slides}
+          slides={
+            data.news.length >= 2
+              ? data.news.slice(0, 3).map((item) => ({
+                  kicker: [item.category, item.date]
+                    .filter(Boolean)
+                    .join(" · "),
+                  title: item.title,
+                  excerpt: item.excerpt ?? "",
+                  photoLabel: home.news.featured.photoLabel,
+                  href: routes.article(item.slug),
+                  imageSrc: cmsImageSource(item.image_data),
+                }))
+              : home.slider.slides
+          }
           readMore={home.slider.readMore}
         />
         <a
@@ -300,6 +313,37 @@ export default async function HomePage({
             </span>
           </span>
         </a>
+      </section>
+
+      {/* Оперативная сводка */}
+      <section
+        aria-label={home.ops.title}
+        className="blueprint mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-3 max-[560px]:flex-col max-[560px]:items-start"
+      >
+        <h2 className="kicker-heading m-0" style={{ color: muted(55) }}>
+          {home.ops.title}
+        </h2>
+        {home.ops.items.map((item) => (
+          <span key={item.label} className="inline-flex items-baseline gap-2">
+            <span
+              className="text-2xl font-semibold [font-family:var(--font-heading)]"
+              style={{ color: item.color }}
+            >
+              {item.n}
+            </span>
+            <span className="text-xs" style={{ color: muted(60) }}>
+              {item.label}
+            </span>
+          </span>
+        ))}
+        <span className="flex-1" />
+        <Link
+          href={routes.map}
+          className="section-link text-[13px]"
+          style={{ color: "var(--color-accent-700)" }}
+        >
+          {home.ops.mapLink}
+        </Link>
       </section>
 
       {/* Быстрые действия */}
@@ -350,7 +394,9 @@ export default async function HomePage({
               className="blueprint surface-hover flex items-start gap-3 p-4"
               style={{ textDecoration: "none", color: "inherit" }}
             >
-              <QuickIcon name={s.icon} />
+              <span className="quick-ico">
+                <QuickIcon name={s.icon} />
+              </span>
               <span>
                 <span className="block text-[17px] font-semibold [font-family:var(--font-heading)]">
                   {s.title}
@@ -502,25 +548,35 @@ export default async function HomePage({
               className="flex flex-col gap-3"
               style={{ textDecoration: "none", color: "inherit" }}
             >
-              <span className="blueprint duotone relative block h-[220px]">
-                {featuredHasImage && featured.image_data ? (
+              {featuredHasImage && featured.image_data ? (
+                <span className="blueprint duotone relative block h-[260px]">
                   <CmsImage
                     image={featured.image_data}
                     sizes="(max-width: 920px) 100vw, 620px"
                   />
-                ) : (
-                  <ImageSlot label={home.news.featured.photoLabel} />
-                )}
-              </span>
+                </span>
+              ) : null}
               <span
                 className="text-[11px] uppercase tracking-[.1em]"
                 style={{ color: "var(--color-accent-700)" }}
               >
                 {[featured.category, featured.date].filter(Boolean).join(" · ")}
               </span>
-              <span className="text-[21px] font-semibold leading-[1.2] [font-family:var(--font-heading)]">
+              <span
+                className={`font-semibold leading-[1.2] [font-family:var(--font-heading)] ${
+                  featuredHasImage ? "text-[21px]" : "text-[26px]"
+                }`}
+              >
                 {featured.title}
               </span>
+              {featured.excerpt ? (
+                <span
+                  className="text-[14px] leading-[1.55]"
+                  style={{ color: muted(70) }}
+                >
+                  {featured.excerpt}
+                </span>
+              ) : null}
             </Link>
             <div className="flex flex-col">
               {newsList.map((it, i) => (
@@ -558,7 +614,7 @@ export default async function HomePage({
           {home.kpis.map((k, i) => (
             <div
               key={k.value}
-              className="px-[22px] py-[18px]"
+              className="px-[22px] py-[22px]"
               style={{
                 borderRight:
                   i === home.kpis.length - 1
@@ -566,7 +622,10 @@ export default async function HomePage({
                     : "1px solid var(--color-divider)",
               }}
             >
-              <div className="text-[34px] font-semibold [font-family:var(--font-heading)]">
+              <div
+                className="kpi-value text-[42px] font-semibold [font-family:var(--font-heading)]"
+                style={{ color: "var(--color-accent-800)" }}
+              >
                 {k.value}
               </div>
               <div

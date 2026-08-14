@@ -78,7 +78,7 @@ export const home = {
   },
 
   ops: {
-    title: "Оперативная сводка · 18.07",
+    title: "Оперативная сводка",
     items: [
       { n: "2", color: "var(--hz-danger)", label: "активных события" },
       { n: "3", color: "var(--hz-warning)", label: "под контролем" },

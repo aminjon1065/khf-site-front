@@ -33,10 +33,7 @@ export function Breadcrumbs({
                 {it.label}
               </span>
             ) : it.href ? (
-              <Link
-                href={it.href}
-                style={{ color: "inherit", textDecoration: "none" }}
-              >
+              <Link href={it.href} className="crumb-link" style={{ color: "inherit" }}>
                 {it.label}
               </Link>
             ) : (

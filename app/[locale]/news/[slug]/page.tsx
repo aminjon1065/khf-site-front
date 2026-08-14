@@ -200,9 +200,7 @@ export default async function ArticlePage({
           >
             {article.kicker}
           </span>
-          <h1 className="mb-3 mt-2.5 text-[34px] leading-[1.12]">
-            {article.title}
-          </h1>
+          <h1 className="page-title mb-3 mt-2.5">{article.title}</h1>
           <p
             className="text-[16.5px] font-medium leading-[1.55]"
             style={{ color: muted(78) }}

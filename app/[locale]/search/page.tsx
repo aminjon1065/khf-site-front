@@ -54,7 +54,7 @@ export default async function SearchPage({
     <PageShell
       mainClassName="mx-auto w-full max-w-[900px] px-6 pt-8 max-[920px]:px-4"
     >
-      <h1 className="m-0 mb-4 text-[36px] uppercase tracking-[.02em]">{s.title}</h1>
+      <h1 className="page-title page-title-caps mb-4">{s.title}</h1>
 
       {/* GET-форма без JS: сабмит перезагружает /{locale}/search?q=… */}
       <form role="search" method="get" className="flex items-center gap-2">

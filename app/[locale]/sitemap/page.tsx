@@ -51,9 +51,7 @@ export default async function SitemapPage({
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-8 max-[920px]:px-4"
     >
       <div className="border-b border-[var(--color-divider)] pb-[14px]">
-        <h1 className="m-0 text-[36px] uppercase tracking-[.02em]">
-          {sitemap.title}
-        </h1>
+        <h1 className="page-title page-title-caps">{sitemap.title}</h1>
         <p className="m-0 mt-2 text-[13px]" style={{ color: muted(60) }}>
           {sitemap.intro}
         </p>

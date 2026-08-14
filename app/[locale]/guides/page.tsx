@@ -71,7 +71,7 @@ export default async function GuidesPage({
       {/* Заголовок + единый номер 112 */}
       <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(280px,1fr)] items-end gap-8 border-b border-[var(--color-divider)] pb-5 max-[920px]:grid-cols-1">
         <div>
-          <h1 className="mt-0 mb-2.5 text-[36px] uppercase tracking-[.02em]">
+          <h1 className="page-title page-title-caps mb-2.5 mt-0">
             {hero.title}
           </h1>
           <p

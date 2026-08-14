@@ -1,6 +1,5 @@
 import Link from "@/components/i18n/LocaleLink";
 import type { CSSProperties, ReactNode } from "react";
-import { muted } from "@/components/public/muted";
 
 // Пресентационные примитивы публичной части. `muted` и клиентские
 // `Breadcrumbs`/`ImageSlot` (им нужна локаль из URL) живут в отдельных файлах и
@@ -51,17 +50,14 @@ export function SectionHeader({
       id={id}
       className="mb-5 flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[10px]"
     >
+      <span className="section-tick" aria-hidden="true" />
       <h3 className="m-0 text-2xl uppercase tracking-[.02em]">{title}</h3>
-      {index && (
-        <span className="text-xs" style={{ color: muted(50) }}>
-          {index}
-        </span>
-      )}
+      {index && <span className="section-index text-xs">{index}</span>}
       <span className="flex-1" />
       {link && (
         <Link
           href={link.href}
-          className="text-[13px]"
+          className="section-link text-[13px]"
           style={{ color: "var(--color-accent-700)" }}
         >
           {link.label}

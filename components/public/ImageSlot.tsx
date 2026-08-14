@@ -5,11 +5,9 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { localeFromPathname } from "@/lib/i18n/config";
 import { getUiStrings } from "@/lib/i18n/ui-strings";
-import { muted } from "@/components/public/muted";
-
 /**
  * Слот изображения. С `src` — реальное фото (next/image, fill + object-fit),
- * без него — логотип Комитета на нейтральном фоне (заменяется фото пресс-службы
+ * без него — стальная плита с эмблемой Комитета (заменяется фото пресс-службы
  * при загрузке в CMS). Клиентский компонент: локаль (для логотипа и запасной
  * aria-метки) берёт из URL.
  *
@@ -70,13 +68,8 @@ export function ImageSlot({
     <div
       role="img"
       aria-label={label ?? ui.imageSlot}
-      className={`flex h-full w-full flex-col items-center justify-center gap-2 p-4 text-center ${className}`}
-      style={{
-        minHeight: "inherit",
-        background: "var(--color-neutral-200)",
-        color: muted(42),
-        ...style,
-      }}
+      className={`media-plate h-full w-full ${className}`}
+      style={style}
     >
       {/* Размеры объявлены по фактическому размеру в вёрстке (не больше 88 CSS
           px), а не по размеру файла. Раньше здесь стояло 512×506 — при
@@ -88,13 +81,9 @@ export function ImageSlot({
         width={88}
         height={87}
         sizes="88px"
-        style={{ width: "38%", maxWidth: 88, height: "auto" }}
+        className="media-plate-seal"
       />
-      {label && (
-        <span className="text-[11.5px] leading-snug tracking-[.02em]">
-          {label}
-        </span>
-      )}
+      {label && <span className="media-plate-label">{label}</span>}
     </div>
   );
 }

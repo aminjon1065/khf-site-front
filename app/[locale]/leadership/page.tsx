@@ -44,9 +44,7 @@ export default async function LeadershipPage({
       <Breadcrumbs items={leadership.breadcrumbs} />
 
       <div className="border-b border-[var(--color-divider)] pb-[14px]">
-        <h1 className="m-0 text-[36px] uppercase tracking-[.02em]">
-          {leadership.title}
-        </h1>
+        <h1 className="page-title page-title-caps">{leadership.title}</h1>
       </div>
 
       {/* Председатель — одна широкая карточка. Может отсутствовать, пока в CMS

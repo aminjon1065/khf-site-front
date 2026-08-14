@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "@/components/i18n/LocaleLink";
 import { muted } from "@/components/public/ui";
 import logoImage from "@/public/assets/logo-kchs-ru.webp";
+import { flattenFooterMenu } from "@/lib/cms-menu";
 import type { ApiMenuItem, ApiSettings } from "@/lib/api";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
 
@@ -33,12 +34,7 @@ export default function PublicFooter({
   );
   const sections =
     footerMenu && footerMenu.length > 0
-      ? footerMenu
-          .map((m) => {
-            const href = m.url ?? "#";
-            return { label: footerLabelByUrl[href] ?? m.label, href };
-          })
-          .filter((s) => s.label != null && s.label.trim() !== "")
+      ? flattenFooterMenu(footerMenu, footerLabelByUrl)
       : footer.sections;
 
   const emergency =
