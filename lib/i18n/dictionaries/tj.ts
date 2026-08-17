@@ -11,6 +11,7 @@ export const tj: Dictionary = {
     siteDescription:
       "Кумитаи ҳолатҳои фавқулода ва мудофиаи граждании назди Ҳукумати Ҷумҳурии Тоҷикистон",
     skipToContent: "Гузаштан ба муҳтаво",
+    backToTop: "Ба боло",
 
     header: {
       committeeTitle: ["Кумитаи ҳолатҳои фавқулода", "ва мудофиаи гражданӣ"],
@@ -29,6 +30,7 @@ export const tj: Dictionary = {
       closeMenu: "Бастани меню",
       menu: "Меню",
       searchPlaceholder: "Ҷустуҷӯ дар портал",
+      searchShort: "Ҷустуҷӯ",
       sosApp: "Барномаи SOS",
       aboutMenu: "Дар бораи мо",
       emergencyCallMobile: "112 — занги фавқулодда",

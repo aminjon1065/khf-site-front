@@ -9,6 +9,7 @@ import flagImage from "@/public/assets/flag-tj.png";
 import logoImage from "@/public/assets/logo-kchs-ru.webp";
 import LocaleSwitcher from "@/components/public/header/LocaleSwitcher";
 import MobileMenuButton from "@/components/public/header/MobileMenuButton";
+import CompactOnScroll from "@/components/public/header/CompactOnScroll";
 import HeaderOverlays from "@/components/public/header/HeaderOverlays";
 import NavLink from "@/components/public/header/NavLink";
 import NavSummary from "@/components/public/header/NavSummary";
@@ -65,8 +66,9 @@ export default function PublicHeader({
   const localize = (href: string): string => withLocale(locale, href);
 
   return (
-    <header className="ksite-header sticky top-0 z-40 border-b border-[var(--color-divider)]">
+    <header className="ksite-header">
       <HeaderOverlays />
+      <CompactOnScroll />
       <div className="ksite-utility border-b border-[var(--color-divider)]">
         <div
           className="mx-auto flex w-full max-w-[1160px] items-center gap-3 px-6 py-1.5 text-xs max-[920px]:px-4"
@@ -113,65 +115,67 @@ export default function PublicHeader({
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-[1160px] flex-wrap items-center gap-4 px-6 py-4 max-[920px]:flex-nowrap max-[920px]:gap-2.5 max-[920px]:px-4 max-[920px]:py-2.5">
-        <NextLink
-          href={localize(routes.home)}
-          className="flex min-w-0 items-center gap-[14px] max-[920px]:flex-1"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <Image
-            src={logoImage}
-            alt={header.logoAlt}
-            width={57}
-            height={56}
-            className="h-14 w-auto max-[920px]:h-11"
-            style={{ width: "auto" }}
-          />
-          <span className="block min-w-0">
-            <span className="block text-[19px] font-semibold uppercase leading-[1.15] tracking-[.01em] [font-family:var(--font-heading)] max-[920px]:text-[14.5px]">
-              {header.committeeTitle[0]}
-              <br />
-              {header.committeeTitle[1]}
-            </span>
-            <span
-              className="mt-[3px] block text-xs max-[920px]:hidden"
-              style={{ color: muted(60) }}
-            >
-              {header.committeeSub}
-            </span>
-          </span>
-        </NextLink>
-        <span className="flex-1 max-[920px]:hidden" />
-        <span
-          className="text-right text-xs leading-[1.4] max-[920px]:hidden"
-          style={{ color: muted(60) }}
-        >
-          {header.trustPhoneLabel}
-          <br />
-          <a
-            href={phoneHref}
-            className="text-[13px] font-medium"
-            style={{ color: "var(--color-accent-700)", textDecoration: "none" }}
+      <div className="ksite-brand">
+        <div className="mx-auto flex w-full max-w-[1160px] flex-wrap items-center gap-4 px-6 py-4 max-[920px]:flex-nowrap max-[920px]:gap-2.5 max-[920px]:px-4 max-[920px]:py-2.5">
+          <NextLink
+            href={localize(routes.home)}
+            className="flex min-w-0 items-center gap-[14px] max-[920px]:flex-1"
+            style={{ textDecoration: "none", color: "inherit" }}
           >
-            {phone}
+            <Image
+              src={logoImage}
+              alt={header.logoAlt}
+              width={57}
+              height={56}
+              className="h-14 w-auto max-[920px]:h-11"
+              style={{ width: "auto" }}
+            />
+            <span className="block min-w-0">
+              <span className="block text-[19px] font-semibold uppercase leading-[1.15] tracking-[.01em] [font-family:var(--font-heading)] max-[920px]:text-[14.5px]">
+                {header.committeeTitle[0]}
+                <br />
+                {header.committeeTitle[1]}
+              </span>
+              <span
+                className="mt-[3px] block text-xs max-[920px]:hidden"
+                style={{ color: muted(60) }}
+              >
+                {header.committeeSub}
+              </span>
+            </span>
+          </NextLink>
+          <span className="flex-1 max-[920px]:hidden" />
+          <span
+            className="text-right text-xs leading-[1.4] max-[920px]:hidden"
+            style={{ color: muted(60) }}
+          >
+            {header.trustPhoneLabel}
+            <br />
+            <a
+              href={phoneHref}
+              className="text-[13px] font-medium"
+              style={{ color: "var(--color-accent-700)", textDecoration: "none" }}
+            >
+              {phone}
+            </a>
+          </span>
+          <a
+            href="tel:112"
+            className="call-112 inline-flex items-center gap-2 border border-[var(--color-divider)] px-[18px] py-2.5 text-[16px] font-semibold uppercase tracking-[.03em] text-white [box-shadow:var(--shadow-sm)] [font-family:var(--font-heading)] max-[920px]:ml-auto max-[920px]:px-[13px] max-[920px]:py-[9px] max-[920px]:text-[15px]"
+            aria-label={header.emergencyAria}
+            style={{
+              background: "var(--hz-critical-solid)",
+              textDecoration: "none",
+            }}
+          >
+            <Phone size={16} strokeWidth={1.5} aria-hidden="true" />
+            112
           </a>
-        </span>
-        <a
-          href="tel:112"
-          className="call-112 inline-flex items-center gap-2 border border-[var(--color-divider)] px-[18px] py-2.5 text-[16px] font-semibold uppercase tracking-[.03em] text-white [box-shadow:var(--shadow-sm)] [font-family:var(--font-heading)] max-[920px]:ml-auto max-[920px]:px-[13px] max-[920px]:py-[9px] max-[920px]:text-[15px]"
-          aria-label={header.emergencyAria}
-          style={{
-            background: "var(--hz-critical-solid)",
-            textDecoration: "none",
-          }}
-        >
-          <Phone size={16} strokeWidth={1.5} aria-hidden="true" />
-          112
-        </a>
-        <MobileMenuButton
-          menuId="public-mobile-menu"
-          openLabel={header.openMenu}
-        />
+          <MobileMenuButton
+            menuId="public-mobile-menu"
+            openLabel={header.openMenu}
+          />
+        </div>
       </div>
 
       <dialog
@@ -317,7 +321,7 @@ export default function PublicHeader({
       </dialog>
 
       <nav
-        className="knav border-t border-[var(--color-divider)] max-[920px]:hidden"
+        className="knav border-y border-[var(--color-divider)] max-[920px]:hidden"
         aria-label={header.navAria}
       >
         <div className="mx-auto flex w-full max-w-[1160px] flex-nowrap items-center gap-0.5 px-6">
@@ -396,6 +400,18 @@ export default function PublicHeader({
             ),
           )}
           <span className="flex-1" />
+          <a
+            href="tel:112"
+            className="ksite-nav-112 call-112 mr-2.5 items-center gap-[7px] px-[14px] py-1.5 text-[13.5px] font-semibold uppercase tracking-[.03em] text-white [font-family:var(--font-heading)]"
+            aria-label={header.emergencyAria}
+            style={{
+              background: "var(--hz-critical-solid)",
+              textDecoration: "none",
+            }}
+          >
+            <Phone size={14} strokeWidth={1.5} aria-hidden="true" />
+            112
+          </a>
           <NextLink
             href={localize(routes.sos)}
             className="sos-outline mr-2.5 inline-flex items-center gap-[7px] border border-[var(--color-accent)] px-[14px] py-1.5 text-[13.5px] font-semibold [font-family:var(--font-heading)]"
@@ -411,7 +427,7 @@ export default function PublicHeader({
             role="search"
             method="get"
             action={localize("/search")}
-            className="relative flex min-w-[116px] shrink grow-0 basis-[190px] items-center py-1"
+            className="relative flex min-w-[132px] shrink grow-0 basis-[168px] items-center py-1"
           >
             <Search
               size={14}
@@ -426,7 +442,7 @@ export default function PublicHeader({
               name="q"
               minLength={2}
               required
-              placeholder={header.searchPlaceholder}
+              placeholder={header.searchShort}
               aria-label={header.searchPlaceholder}
             />
           </form>

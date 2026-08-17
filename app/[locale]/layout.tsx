@@ -11,6 +11,7 @@ import { WebVitalsReporter } from "@/components/public/WebVitalsReporter";
 import NavigationProgress from "@/components/public/NavigationProgress";
 import PublicHeader from "@/components/public/PublicHeader";
 import PublicFooter from "@/components/public/PublicFooter";
+import BackToTop from "@/components/public/BackToTop";
 import { OrganizationJsonLd } from "@/components/public/JsonLd";
 import { fetchMenu, fetchSettings } from "@/lib/api";
 
@@ -144,6 +145,7 @@ export default async function LocaleLayout({
             footerMenu={menu.footer}
             copy={common}
           />
+          <BackToTop label={common.backToTop} />
         </div>
       </body>
     </html>

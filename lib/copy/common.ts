@@ -10,6 +10,7 @@ export const common = {
   siteDescription:
     "Комитет по чрезвычайным ситуациям и гражданской обороне при Правительстве Республики Таджикистан",
   skipToContent: "Перейти к содержанию",
+  backToTop: "Наверх",
 
   header: {
     committeeTitle: ["Комитет по чрезвычайным ситуациям", "и гражданской обороне"],
@@ -28,6 +29,7 @@ export const common = {
     closeMenu: "Закрыть меню",
     menu: "Меню",
     searchPlaceholder: "Поиск по порталу",
+    searchShort: "Поиск",
     sosApp: "Приложение SOS",
     aboutMenu: "О нас",
     emergencyCallMobile: "112 — экстренный вызов",

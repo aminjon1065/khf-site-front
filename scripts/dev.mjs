@@ -51,12 +51,14 @@ export function mkcertRootCa({ run = spawnSync, exists = existsSync } = {}) {
  * Окружение для дочернего процесса: добавляем NODE_EXTRA_CA_CERTS, только если
  * его не задали снаружи и локальный CA действительно есть.
  */
-export function devEnv(baseEnv, lookup = mkcertRootCa) {
+const LARAGON_CA = "C:/laragon/etc/ssl/laragon.crt";
+
+export function devEnv(baseEnv, lookup = mkcertRootCa, exists = existsSync) {
   if (baseEnv.NODE_EXTRA_CA_CERTS) {
     return { ...baseEnv };
   }
 
-  const rootCa = lookup();
+  const rootCa = lookup() || (exists(LARAGON_CA) ? LARAGON_CA : null);
 
   return rootCa ? { ...baseEnv, NODE_EXTRA_CA_CERTS: rootCa } : { ...baseEnv };
 }
@@ -65,7 +67,7 @@ function main() {
   const env = devEnv(process.env);
 
   if (env.NODE_EXTRA_CA_CERTS && !process.env.NODE_EXTRA_CA_CERTS) {
-    console.log(`[dev] локальный CA mkcert подключён: ${env.NODE_EXTRA_CA_CERTS}`);
+    console.log(`[dev] локальный CA подключён: ${env.NODE_EXTRA_CA_CERTS}`);
   }
 
   const require = createRequire(import.meta.url);

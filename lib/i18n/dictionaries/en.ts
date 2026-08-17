@@ -12,6 +12,7 @@ export const en: Dictionary = {
     siteDescription:
       "Committee of Emergency Situations and Civil Defence under the Government of the Republic of Tajikistan",
     skipToContent: "Skip to content",
+    backToTop: "Back to top",
 
     header: {
       committeeTitle: [
@@ -33,6 +34,7 @@ export const en: Dictionary = {
       closeMenu: "Close menu",
       menu: "Menu",
       searchPlaceholder: "Search the portal",
+      searchShort: "Search",
       sosApp: "SOS app",
       aboutMenu: "About us",
       emergencyCallMobile: "112 — emergency call",

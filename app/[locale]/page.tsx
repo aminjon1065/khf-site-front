@@ -545,7 +545,11 @@ export default async function HomePage({
           <div className="grid grid-cols-2 gap-7 max-[920px]:grid-cols-1">
             <Link
               href={`/news/${featured.slug}`}
-              className="flex flex-col gap-3"
+              className={
+                featuredHasImage
+                  ? "flex flex-col gap-3"
+                  : "home-featured-card blueprint surface-hover flex flex-col gap-3 p-5"
+              }
               style={{ textDecoration: "none", color: "inherit" }}
             >
               {featuredHasImage && featured.image_data ? (
@@ -575,6 +579,14 @@ export default async function HomePage({
                   style={{ color: muted(70) }}
                 >
                   {featured.excerpt}
+                </span>
+              ) : null}
+              {!featuredHasImage ? (
+                <span
+                  className="mt-auto pt-2 text-[13px]"
+                  style={{ color: "var(--color-accent-700)" }}
+                >
+                  {home.slider.readMore}
                 </span>
               ) : null}
             </Link>
@@ -610,7 +622,7 @@ export default async function HomePage({
 
       {/* Ключевые показатели */}
       <section aria-label={pages.home.kpis} className="mt-[52px]">
-        <div className="blueprint grid grid-cols-4 py-2 max-[920px]:grid-cols-2 max-[560px]:grid-cols-1">
+        <div className="kpi-strip blueprint grid grid-cols-4 py-2 max-[920px]:grid-cols-2 max-[560px]:grid-cols-1">
           {home.kpis.map((k, i) => (
             <div
               key={k.value}

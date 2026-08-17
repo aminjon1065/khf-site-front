@@ -52,8 +52,16 @@ describe("devEnv", () => {
   });
 
   it("оставляет окружение как есть, когда mkcert не найден (Windows/CI/прод)", () => {
-    const env = devEnv({ PATH: "/usr/bin" }, () => null);
+    const env = devEnv({ PATH: "/usr/bin" }, () => null, () => false);
 
     expect(env).not.toHaveProperty("NODE_EXTRA_CA_CERTS");
+  });
+
+  it("берёт сертификат Laragon, если mkcert нет, а файл есть", () => {
+    const env = devEnv({ PATH: "/usr/bin" }, () => null, (path) =>
+      path.endsWith("laragon.crt"),
+    );
+
+    expect(env.NODE_EXTRA_CA_CERTS).toBe("C:/laragon/etc/ssl/laragon.crt");
   });
 });

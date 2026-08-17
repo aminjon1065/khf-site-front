@@ -151,12 +151,13 @@ html {
   background: var(--color-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Липкая шапка не перекрывает якоря и skip-to-content. */
-  scroll-padding-top: 176px;
+  /* Липкая строка навигации (~45px), не вся трёхъярусная шапка. */
+  scroll-padding-top: 52px;
 }
 
 @media (max-width: 920px) {
   html {
+    /* На узком экране липнет бренд-ряд с 112 и меню. */
     scroll-padding-top: 112px;
   }
 }
@@ -293,6 +294,53 @@ html {
     letter-spacing: -0.04em;
     color: color-mix(in srgb, #fff 12%, transparent);
     pointer-events: none;
+  }
+
+  /* Слайд без фото: не оставляем пустую стальную плиту — место занимает
+     крупный заголовок, номер слайда остаётся как газетная пагинация. */
+  .slide-editorial {
+    background:
+      linear-gradient(
+        165deg,
+        color-mix(in srgb, var(--color-accent) 7%, var(--color-card)) 0%,
+        var(--color-card) 46%
+      );
+  }
+  .slide-editorial::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--color-accent);
+  }
+  .slide-editorial-index {
+    position: absolute;
+    right: 22px;
+    bottom: 10px;
+    z-index: 0;
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-size: clamp(72px, 10vw, 112px);
+    line-height: 0.8;
+    letter-spacing: -0.05em;
+    color: color-mix(in srgb, var(--color-accent) 16%, transparent);
+    pointer-events: none;
+  }
+
+  .home-featured-card {
+    position: relative;
+    min-height: 100%;
+  }
+  .home-featured-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--color-accent);
   }
 
   .section-tick {
@@ -500,6 +548,9 @@ html {
   /* Мелкий заголовок карточки. Раньше на его месте стоял <h6> — ради размера,
      а не иерархии: после <h1> это давало разрыв уровней, и скринридер терял
      структуру страницы. Тег теперь по смыслу, а внешний вид — отсюда. */
+  .kpi-strip {
+    border-top: 3px solid var(--color-accent);
+  }
   .kicker-heading { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
   .card-title { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: 17px; line-height: 1.2; }
   .card-body { margin: 0; font-size: 13px; opacity: 0.8; flex: 1; }
@@ -546,27 +597,56 @@ html {
   .dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-2); }
 
   /* ── Шапка: три яруса (служебная / бренд / навигация) ── */
-  .ksite-header {
-    background: var(--color-bg);
-    box-shadow:
-      0 1px 0 var(--color-divider),
-      0 10px 28px color-mix(in srgb, #2b2b2d 7%, transparent);
-  }
-  [data-theme="dark"] .ksite-header {
-    box-shadow:
-      0 1px 0 var(--color-divider),
-      0 12px 28px rgba(0, 0, 0, 0.38);
-  }
+  /* <header> без собственного бокса: иначе sticky-навигация упирается в
+     нижний край короткой шапки и уезжает вместе с ней. Дети участвуют в
+     потоке родителя и фиксируются независимо. */
+  .ksite-header { display: contents; }
   .ksite-utility {
     background: color-mix(in srgb, var(--color-text) 3.5%, var(--color-bg));
+  }
+  .ksite-brand {
+    background: var(--color-bg);
   }
   .knav {
     background: var(--color-card);
   }
+  @media (min-width: 921px) {
+    .knav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+    .ksite-header[data-compact] .knav {
+      box-shadow:
+        0 1px 0 var(--color-divider),
+        0 10px 28px color-mix(in srgb, #2b2b2d 7%, transparent);
+    }
+    [data-theme="dark"] .ksite-header[data-compact] .knav {
+      box-shadow:
+        0 1px 0 var(--color-divider),
+        0 12px 28px rgba(0, 0, 0, 0.38);
+    }
+  }
+  @media (max-width: 920px) {
+    .ksite-brand {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      border-bottom: 1px solid var(--color-divider);
+      box-shadow:
+        0 1px 0 var(--color-divider),
+        0 10px 28px color-mix(in srgb, #2b2b2d 7%, transparent);
+    }
+    [data-theme="dark"] .ksite-brand {
+      box-shadow:
+        0 1px 0 var(--color-divider),
+        0 12px 28px rgba(0, 0, 0, 0.38);
+    }
+  }
   .knav a,
   .knav summary {
     color: var(--color-text); text-decoration: none; font-size: 14px;
-    padding: 9px 13px; border-bottom: 2px solid transparent;
+    padding: 9px 11px; border-bottom: 2px solid transparent;
     flex: none; white-space: nowrap;
     transition:
       background-color var(--motion-duration) var(--motion-ease),
@@ -580,6 +660,17 @@ html {
     background: color-mix(in srgb, var(--color-accent) 8%, transparent);
   }
   .knav a[aria-current="page"] { color: var(--color-accent-700); border-bottom-color: var(--color-accent); font-weight: 500; }
+  /* Специфичнее `.knav a`, иначе кнопка 112 видна в строке меню всегда. */
+  .knav a.ksite-nav-112 {
+    display: none;
+    color: #fff;
+    border-bottom-color: transparent;
+  }
+  .ksite-header[data-compact] .knav a.ksite-nav-112 { display: inline-flex; }
+  .knav a.ksite-nav-112:hover {
+    color: #fff;
+    background: var(--hz-critical-strong);
+  }
 
   /* ── Служебные ссылки шапки (hover) ── */
   .toplink:hover { color: var(--color-accent-700) !important; }
@@ -666,6 +757,34 @@ html:not([data-theme="dark"]) .ico-sun { display: none; }
 }
 .skip-link:focus-visible { transform: translateY(0); }
 
+/* Кнопка «Наверх»: слева снизу, только после прокрутки (`hidden` снимает клиент). */
+.back-to-top {
+  position: fixed;
+  left: max(16px, env(safe-area-inset-left));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-accent-700);
+  background: var(--color-card);
+  border: 1px solid var(--color-divider);
+  box-shadow: var(--shadow-md);
+  transition:
+    background-color var(--motion-duration) var(--motion-ease),
+    color var(--motion-duration) var(--motion-ease),
+    border-color var(--motion-duration) var(--motion-ease);
+}
+.back-to-top:hover {
+  color: var(--color-accent-800);
+  background: color-mix(in srgb, var(--color-accent) 10%, var(--color-card));
+}
+.back-to-top[hidden] { display: none; }
+
 /* Пульс критического баннера — плавный, без мигания. */
 @keyframes critPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 .crit-dot { animation: critPulse 2.4s ease-in-out infinite; }
@@ -688,7 +807,8 @@ html:not([data-theme="dark"]) .ico-sun { display: none; }
   .accent-900-hover,
   a.blueprint,
   .section-link,
-  .crumb-link {
+  .crumb-link,
+  .back-to-top {
     transition: none !important;
   }
 }

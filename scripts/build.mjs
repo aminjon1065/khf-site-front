@@ -23,7 +23,7 @@ function main() {
   const env = devEnv(process.env);
 
   if (env.NODE_EXTRA_CA_CERTS && !process.env.NODE_EXTRA_CA_CERTS) {
-    console.log(`[build] локальный CA mkcert подключён: ${env.NODE_EXTRA_CA_CERTS}`);
+    console.log(`[build] локальный CA подключён: ${env.NODE_EXTRA_CA_CERTS}`);
   }
 
   const require = createRequire(import.meta.url);

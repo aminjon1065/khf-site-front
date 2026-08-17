@@ -126,6 +126,7 @@ const nextConfig: NextConfig = {
       { protocol: "http", hostname: "localhost" },
       // Локальная CMS через lerd (медиатека отдаёт /storage/... по https).
       { protocol: "https", hostname: "khf-site-cms.test" },
+      { protocol: "https", hostname: "khf-site-cms.test", port: "8443" },
       { protocol: "https", hostname: "**.khf.tj" },
       { protocol: "https", hostname: "khf.tj" },
     ],

@@ -18,7 +18,12 @@ describe("public header client boundary", () => {
     expect(source).not.toContain("useRouter");
   });
 
-  it.each(["ThemeToggle", "LocaleSwitcher", "MobileMenuButton"])(
+  it.each([
+    "ThemeToggle",
+    "LocaleSwitcher",
+    "MobileMenuButton",
+    "CompactOnScroll",
+  ])(
     "isolates %s behind an explicit client boundary",
     (component) => {
       const source = readFileSync(

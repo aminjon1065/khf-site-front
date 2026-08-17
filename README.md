@@ -25,7 +25,9 @@ npm run dev                  # http://localhost:3000
 
 ### Windows / Laragon
 
-CMS обычно поднята на `http://127.0.0.1:8848` (`php artisan serve --port=8848`). В `.env.local` раскомментируйте блок Laragon (порт `8848`) — он включён по умолчанию в `.env.example`.
+Типичный vhost — `https://khf-site-cms.test:8443/`. В `.env.local` укажите `API_URL=https://khf-site-cms.test:8443/api/v1` (так в `.env.example` по умолчанию). `npm run dev` сам подключает CA Laragon (`C:\laragon\etc\ssl\laragon.crt`): без него серверный `fetch` падает с `DEPTH_ZERO_SELF_SIGNED_CERT`, и страницы приходят пустыми.
+
+Если CMS запущена как `php artisan serve --port=8848`, в `.env.local` используйте блок `http://127.0.0.1:8848/api/v1`.
 
 ### macOS / Laravel Herd
 

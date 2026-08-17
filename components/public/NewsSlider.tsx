@@ -15,7 +15,7 @@ export interface Slide {
   excerpt: string;
   photoLabel: string;
   href?: string;
-  /** URL фото из CMS. Без него справа — стальная плита с номером слайда. */
+  /** URL фото из CMS. Без него слайд становится редакционным, без пустой плиты. */
   imageSrc?: string | null;
 }
 
@@ -36,17 +36,21 @@ export default function NewsSlider({
   const n = slides.length;
   const activeSlide = slides[slide];
 
-  if (n === 0 || !activeSlide) {
-    return null;
-  }
-
   useEffect(() => {
+    if (n === 0) {
+      return;
+    }
+
     const rm = window.matchMedia("(prefers-reduced-motion: reduce)");
     const timer = setInterval(() => {
       if (!paused.current && !rm.matches) setSlide((s) => (s + 1) % n);
     }, 7000);
     return () => clearInterval(timer);
   }, [n]);
+
+  if (n === 0 || !activeSlide) {
+    return null;
+  }
 
   const dot = (i: number) =>
     i === slide
@@ -65,7 +69,11 @@ export default function NewsSlider({
       <div className="min-h-[430px] overflow-hidden">
         <article
           key={slide}
-          className="slide-fade grid min-h-[430px] w-full grid-cols-[minmax(0,1fr)_42%] max-[920px]:grid-cols-1"
+          className={
+            activeSlide.imageSrc
+              ? "slide-fade grid min-h-[430px] w-full grid-cols-[minmax(0,1fr)_42%] max-[920px]:grid-cols-1"
+              : "slide-editorial slide-fade relative grid min-h-[430px] w-full grid-cols-1"
+          }
         >
           <div className="flex min-w-0 flex-col justify-center gap-3 px-7 py-[26px] max-[920px]:px-[18px] max-[920px]:pb-[60px] max-[920px]:pt-[18px]">
             {activeSlide.kicker ? (
@@ -76,7 +84,13 @@ export default function NewsSlider({
                 {activeSlide.kicker}
               </div>
             ) : null}
-            <h2 className="m-0 text-[clamp(22px,2.1vw+14px,32px)] leading-[1.12]">
+            <h2
+              className={`m-0 leading-[1.12] ${
+                activeSlide.imageSrc
+                  ? "text-[clamp(22px,2.1vw+14px,32px)]"
+                  : "max-w-[34rem] text-[clamp(26px,2.6vw+16px,38px)]"
+              }`}
+            >
               <Link
                 href={activeSlide.href ?? routes.article()}
                 style={{ color: "inherit", textDecoration: "none" }}
@@ -84,12 +98,14 @@ export default function NewsSlider({
                 {activeSlide.title}
               </Link>
             </h2>
-            <p
-              className="m-0 text-sm leading-[1.55]"
-              style={{ color: muted(72) }}
-            >
-              {activeSlide.excerpt}
-            </p>
+            {activeSlide.excerpt ? (
+              <p
+                className="m-0 max-w-[36rem] text-sm leading-[1.55]"
+                style={{ color: muted(72) }}
+              >
+                {activeSlide.excerpt}
+              </p>
+            ) : null}
             <Link
               href={activeSlide.href ?? routes.article()}
               className="btn btn-primary mt-1.5 self-start"
@@ -97,8 +113,8 @@ export default function NewsSlider({
               {readMore}
             </Link>
           </div>
-          <div className="min-h-full max-[920px]:order-first max-[920px]:min-h-[210px]">
-            {activeSlide.imageSrc ? (
+          {activeSlide.imageSrc ? (
+            <div className="min-h-full max-[920px]:order-first max-[920px]:min-h-[210px]">
               <ImageSlot
                 src={activeSlide.imageSrc}
                 alt=""
@@ -107,14 +123,12 @@ export default function NewsSlider({
                 preload={slide === 0}
                 sizes="(max-width: 920px) 100vw, 420px"
               />
-            ) : (
-              <div className="media-plate h-full min-h-[210px]" aria-hidden="true">
-                <span className="media-plate-index">
-                  {String(slide + 1).padStart(2, "0")}
-                </span>
-              </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <span className="slide-editorial-index" aria-hidden="true">
+              {String(slide + 1).padStart(2, "0")}
+            </span>
+          )}
         </article>
       </div>
       <div className="absolute bottom-[18px] left-7 flex items-center gap-2.5">
