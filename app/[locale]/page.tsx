@@ -1,11 +1,22 @@
 import Link from "@/components/i18n/LocaleLink";
-import { TriangleAlert } from "lucide-react";
+import {
+  Activity,
+  Flame,
+  Mountain,
+  MountainSnow,
+  ShieldAlert,
+  Snowflake,
+  ThermometerSun,
+  TriangleAlert,
+  Waves,
+  Wind,
+} from "lucide-react";
 import PageShell from "@/components/public/PageShell";
 import CmsImage from "@/components/public/CmsImage";
 import { SectionHeader, ImageSlot, muted } from "@/components/public/ui";
 import NewsSlider from "@/components/public/NewsSlider";
 import TjRiskMap from "@/components/public/TjRiskMap";
-import { fetchHome, type ApiAlert } from "@/lib/api";
+import { EMPTY_HOME, fetchHome, type ApiAlert } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
@@ -13,7 +24,7 @@ import { routes } from "@/lib/routes";
 import { cmsImageSource } from "@/lib/media";
 import {
   legendItems,
-  levelBadge,
+  levelBadges,
   levelDotColor,
   levelMapFill,
 } from "@/lib/levels";
@@ -22,6 +33,40 @@ import type { AlertLevel, RegionStatus } from "@/lib/types";
 export const revalidate = 60;
 
 /** Иконка малой плитки «быстрых действий». */
+/**
+ * Иконка типа опасности. `hazard_icon` в API — закрытый перечень имён Lucide,
+ * поэтому компоненты импортируются поимённо (дерево тряхнётся) вместо
+ * динамического импорта всей библиотеки. Неизвестное или пустое значение
+ * даёт нейтральный знак, а не пустоту в вёрстке.
+ */
+const HAZARD_ICONS = {
+  activity: Activity,
+  flame: Flame,
+  mountain: Mountain,
+  "mountain-snow": MountainSnow,
+  snowflake: Snowflake,
+  "thermometer-sun": ThermometerSun,
+  waves: Waves,
+  wind: Wind,
+} as const;
+
+function HazardIcon({
+  name,
+  size = 22,
+  tone = "var(--color-accent-700)",
+}: {
+  name: string | null;
+  size?: number;
+  tone?: string;
+}) {
+  const Icon =
+    (name && HAZARD_ICONS[name as keyof typeof HAZARD_ICONS]) || ShieldAlert;
+
+  return (
+    <Icon size={size} strokeWidth={1.5} aria-hidden="true" style={{ color: tone }} />
+  );
+}
+
 function QuickIcon({ name }: { name: string }) {
   const common = {
     width: 22,
@@ -75,16 +120,51 @@ function QuickIcon({ name }: { name: string }) {
   }
 }
 
-/** Верхний баннер обстановки — состояние приходит из CMS. */
+/**
+ * Верхний баннер обстановки — состояние приходит из CMS.
+ *
+ * `unavailable` не приходит из CMS: так страница помечает, что запрос за
+ * обстановкой не удался. Без этого признака отказ бэкенда выглядел как
+ * подтверждённое спокойствие — худшая из возможных ошибок для портала,
+ * по которому люди судят о наличии угрозы.
+ */
 function AlertBanner({
   state,
   top,
   copy,
 }: {
-  state: "calm" | "warning" | "critical";
+  state: "calm" | "warning" | "critical" | "unavailable";
   top?: ApiAlert;
   copy: Dictionary["home"];
 }) {
+  if (state === "unavailable") {
+    const u = copy.unavailable;
+    return (
+      <section
+        aria-label={u.aria}
+        aria-live="polite"
+        className="border-b border-[var(--color-divider)]"
+        style={{ background: "var(--hz-warning-bg)" }}
+      >
+        <div className="mx-auto flex w-full max-w-[1160px] flex-wrap items-center gap-2.5 px-6 py-2.5 text-[13px] max-[920px]:px-4">
+          <TriangleAlert
+            size={17}
+            strokeWidth={1.5}
+            aria-hidden="true"
+            style={{ color: "var(--hz-warning)", flex: "none" }}
+          />
+          <span>
+            <strong>{u.strong}</strong>
+            {u.text}
+          </span>
+          <span className="flex-1" />
+          <a href="tel:112" style={{ color: "var(--color-accent-700)" }}>
+            {u.call112}
+          </a>
+        </div>
+      </section>
+    );
+  }
   if (state === "critical") {
     const c = copy.critical;
     const href = top ? `/alerts/${top.slug}` : routes.alert;
@@ -188,19 +268,23 @@ function AlertBanner({
   return (
     <section
       aria-label={copy.banner.calmAria}
-      className="border-b border-[var(--color-divider)]"
+      className="status-calm border-b border-[var(--color-divider)]"
     >
-      <div className="mx-auto flex w-full max-w-[1160px] flex-wrap items-center gap-2.5 px-6 py-2.5 text-[13px] max-[920px]:px-4">
+      <div className="mx-auto flex w-full max-w-[1160px] flex-wrap items-center gap-2.5 px-6 py-2.5 text-sm max-[920px]:px-4">
         <span
           className="h-[9px] w-[9px] rounded-full"
           style={{ background: "var(--hz-success)" }}
+          aria-hidden="true"
         />
-        <span>
+        <span className="min-w-0 flex-1">
           <strong>{c.strong}</strong>
           {c.text}
         </span>
-        <span className="flex-1" />
-        <Link href={routes.map} style={{ color: "var(--color-accent-700)" }}>
+        <Link
+          href={routes.map}
+          className="shrink-0"
+          style={{ color: "var(--color-accent-700)" }}
+        >
           {c.mapLink}
         </Link>
       </div>
@@ -233,8 +317,12 @@ export default async function HomePage({
   params: Promise<{ locale: string }>;
 }) {
   const locale = toLocale((await params).locale);
-  const { home, pages } = getDictionary(locale);
-  const data = await fetchHome(locale);
+  const { common, home, pages } = getDictionary(locale);
+  // `null` — CMS не ответила. Пустую главную подставляем сами, но помним об
+  // этом: ни один блок не вправе выдать отсутствие данных за факт.
+  const payload = await fetchHome(locale);
+  const unavailable = payload === null;
+  const data = payload ?? EMPTY_HOME;
   const isOn = (type: string) => data.blocks.some((b) => b.type === type);
   const top = data.alerts.items[0];
 
@@ -246,6 +334,20 @@ export default async function HomePage({
     statusText: r.statusText,
   }));
 
+  const slides = data.news.slice(0, 4).map((item) => ({
+    kicker: [item.category, item.date].filter(Boolean).join(" · "),
+    title: item.title,
+    excerpt: item.excerpt ?? "",
+    photoLabel: home.news.featured.photoLabel,
+    href: routes.article(item.slug),
+    imageSrc: cmsImageSource(item.image_data),
+  }));
+
+  // Первая инструкция — крупной плиткой, следующие две — малыми. Порядок
+  // задаёт CMS (приоритетные идут первыми, см. Instruction::scopeOrdered).
+  const [leadInstruction, ...restInstructions] = data.instructions;
+  const sideInstructions = restInstructions.slice(0, 2);
+
   const featured = data.news[0];
   const featuredHasImage = cmsImageSource(featured?.image_data) !== null;
   const newsList = data.news.slice(1, 5);
@@ -253,35 +355,44 @@ export default async function HomePage({
 
   return (
     <PageShell
-      topSlot={<AlertBanner state={data.alerts.state} top={top} copy={home} />}
+      topSlot={
+        <AlertBanner
+          state={unavailable ? "unavailable" : data.alerts.state}
+          top={top}
+          copy={home}
+        />
+      }
     >
-      {/* Главное: слайдер + карточка Президента */}
+      {/* У главной нет отдельного визуального титула: первый экран занят
+          обязательными слайдером и карточкой Президента. Оставляем одно
+          локализованное h1 для структуры документа, объявления маршрута
+          скринридером и навигации по заголовкам, не добавляя маркетинговый
+          заголовок поверх правительственного интерфейса. */}
+      <h1 className="sr-only">{common.siteName}</h1>
+
+      {/* Главное: слайдер + карточка Президента.
+          Слайдер строится только из материалов CMS. Раньше при нехватке
+          новостей подставлялись три демонстрационных слайда из словаря — с
+          выдуманными заголовками, датами и ссылками на несуществующие
+          материалы. Нет новостей — нет и слайдера: карточка Президента
+          занимает всю ширину. */}
       <section
         aria-label={pages.home.main}
-        className="grid grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] items-stretch gap-7 max-[920px]:grid-cols-1"
+        className={
+          slides.length > 0
+            ? "grid grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] items-stretch gap-7 max-[920px]:grid-cols-1"
+            : "grid grid-cols-1 items-stretch gap-7"
+        }
       >
-        <NewsSlider
-          slides={
-            data.news.length >= 2
-              ? data.news.slice(0, 3).map((item) => ({
-                  kicker: [item.category, item.date]
-                    .filter(Boolean)
-                    .join(" · "),
-                  title: item.title,
-                  excerpt: item.excerpt ?? "",
-                  photoLabel: home.news.featured.photoLabel,
-                  href: routes.article(item.slug),
-                  imageSrc: cmsImageSource(item.image_data),
-                }))
-              : home.slider.slides
-          }
-          readMore={home.slider.readMore}
-        />
+        {slides.length > 0 && (
+          <NewsSlider slides={slides} readMore={home.slider.readMore} />
+        )}
         <a
           href={p.href}
           target="_blank"
-          rel="noopener"
-          className="blueprint surface-hover flex min-w-0 flex-col"
+          rel="noopener noreferrer"
+          aria-label={p.aria}
+          className="blueprint mast-card surface-hover flex min-w-0 flex-col"
           style={{ textDecoration: "none", color: "inherit" }}
         >
           <span className="block min-h-[240px] flex-1">
@@ -294,7 +405,7 @@ export default async function HomePage({
           </span>
           <span className="flex flex-col gap-1 px-4 pb-4 pt-[14px]">
             <span
-              className="text-[10.5px] uppercase tracking-[.1em]"
+              className="text-[13px] tracking-[.04em]"
               style={{ color: "var(--color-accent-700)" }}
             >
               {p.kicker}
@@ -302,12 +413,12 @@ export default async function HomePage({
             <span className="text-[19px] font-semibold leading-[1.15] [font-family:var(--font-heading)]">
               {p.name}
             </span>
-            <span className="text-xs" style={{ color: muted(60) }}>
+            <span className="text-sm" style={{ color: muted(75) }}>
               {p.role}
             </span>
             <span
-              className="mt-2 border-t border-[var(--color-divider)] pt-2 text-xs leading-[1.5]"
-              style={{ color: muted(62) }}
+              className="mt-2 border-t border-[var(--color-divider)] pt-2 text-sm leading-[1.5]"
+              style={{ color: muted(78) }}
             >
               {p.quote}
             </span>
@@ -318,28 +429,35 @@ export default async function HomePage({
       {/* Оперативная сводка */}
       <section
         aria-label={home.ops.title}
-        className="blueprint mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-3 max-[560px]:flex-col max-[560px]:items-start"
+        className="blueprint command-strip mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-3 max-[560px]:flex-col max-[560px]:items-start"
       >
-        <h2 className="kicker-heading m-0" style={{ color: muted(55) }}>
+        <h2 className="kicker-heading m-0" style={{ color: muted(72) }}>
           {home.ops.title}
         </h2>
-        {home.ops.items.map((item) => (
-          <span key={item.label} className="inline-flex items-baseline gap-2">
+        {/* Число показываем только когда оно несёт смысл. Голый «0» рядом со
+            строкой «предупреждений нет» читался как противоречие; пустое
+            состояние объясняется фразой, а не цифрой. */}
+        {data.alerts.count > 0 ? (
+          <span className="inline-flex items-baseline gap-2">
+            <span className="text-sm" style={{ color: muted(75) }}>
+              {home.ops.activeLabel}
+            </span>
             <span
               className="text-2xl font-semibold [font-family:var(--font-heading)]"
-              style={{ color: item.color }}
+              style={{ color: "var(--hz-danger)" }}
             >
-              {item.n}
-            </span>
-            <span className="text-xs" style={{ color: muted(60) }}>
-              {item.label}
+              {data.alerts.count}
             </span>
           </span>
-        ))}
+        ) : (
+          <span className="text-sm" style={{ color: muted(80) }}>
+            {home.ops.noneText}
+          </span>
+        )}
         <span className="flex-1" />
         <Link
           href={routes.map}
-          className="section-link text-[13px]"
+          className="section-link shrink-0 text-[13px]"
           style={{ color: "var(--color-accent-700)" }}
         >
           {home.ops.mapLink}
@@ -354,40 +472,50 @@ export default async function HomePage({
           link={{ label: home.quickActions.allLink, href: routes.guides }}
         />
         <div className="grid grid-cols-4 grid-rows-[auto_auto] gap-[14px] max-[920px]:grid-cols-2 max-[560px]:grid-cols-1">
-          <Link
-            href={home.quickActions.big.href}
-            className="blueprint accent-900-hover row-span-2 flex flex-col gap-2.5 p-5 max-[560px]:row-span-1"
-            style={{
-              background: "var(--color-accent-900)",
-              textDecoration: "none",
-              color: "inherit",
-            }}
-          >
-            <svg
-              width="30"
-              height="30"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#d6ebff"
-              strokeWidth={1.5}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
+          {/* Инструкции приходят из CMS: и состав, и адреса. Раньше все шесть
+              плиток были зашиты в словарь со слагами earthquake/flood/first-aid,
+              которых в CMS нет — реальные слаги это транслит русских названий,
+              так что каждая плитка вела в 404. Три навигационные плитки ниже
+              ведут в разделы сайта, а не к материалам, и остаются статичными. */}
+          {leadInstruction && (
+            <Link
+              href={routes.guide(leadInstruction.slug)}
+              className="blueprint accent-900-hover row-span-2 flex flex-col gap-2.5 p-5 max-[560px]:row-span-1"
+              style={{ textDecoration: "none", color: "inherit" }}
             >
-              <path d="m2 12 5.25 5 2.625-5H8.75l2.625-5L14 12h-1.125l2.625 5L21 12" />
-              <path d="M12 2v3M4.22 4.22l2.12 2.12M17.66 6.34l2.12-2.12" />
-            </svg>
-            <span className="text-[22px] font-semibold leading-[1.15] text-white [font-family:var(--font-heading)]">
-              {home.quickActions.big.title}
-            </span>
-            <span className="text-[13px] leading-[1.5] text-white/75">
-              {home.quickActions.big.desc}
-            </span>
-            <span className="mt-auto text-[13px]" style={{ color: "#d6ebff" }}>
-              {home.quickActions.big.cta}
-            </span>
-          </Link>
-          {home.quickActions.small.map((s) => (
+              <HazardIcon name={leadInstruction.hazard_icon} size={30} tone="#d6ebff" />
+              <span className="text-[22px] font-semibold leading-[1.15] text-white [font-family:var(--font-heading)]">
+                {leadInstruction.title}
+              </span>
+              <span className="text-[13px] leading-[1.5] text-white/75">
+                {leadInstruction.summary}
+              </span>
+              <span className="mt-auto text-[13px]" style={{ color: "#d6ebff" }}>
+                {home.quickActions.openInstruction}
+              </span>
+            </Link>
+          )}
+          {sideInstructions.map((item) => (
+            <Link
+              key={item.slug}
+              href={routes.guide(item.slug)}
+              className="blueprint surface-hover flex items-start gap-3 p-4"
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <span className="quick-ico">
+                <HazardIcon name={item.hazard_icon} />
+              </span>
+              <span>
+                <span className="block text-[17px] font-semibold [font-family:var(--font-heading)]">
+                  {item.title}
+                </span>
+                <span className="text-[12.5px]" style={{ color: muted(62) }}>
+                  {item.summary}
+                </span>
+              </span>
+            </Link>
+          ))}
+          {home.quickActions.links.map((s) => (
             <Link
               key={s.title}
               href={s.href}
@@ -424,7 +552,7 @@ export default async function HomePage({
                 className="mt-2.5 flex flex-wrap gap-4 border-t border-[var(--color-divider)] px-2 pb-1 pt-2.5 text-xs"
                 aria-label={pages.home.mapLegend}
               >
-                {legendItems.map((l) => (
+                {legendItems(locale).map((l) => (
                   <span
                     key={l.level}
                     className="inline-flex items-center gap-1.5"
@@ -459,7 +587,7 @@ export default async function HomePage({
                       </span>
                     </span>
                     <span className="tag tag-neutral flex-none">
-                      {levelBadge[r.level]}
+                      {levelBadges(locale)[r.level]}
                     </span>
                   </div>
                 ))}
@@ -553,7 +681,7 @@ export default async function HomePage({
               style={{ textDecoration: "none", color: "inherit" }}
             >
               {featuredHasImage && featured.image_data ? (
-                <span className="blueprint duotone relative block h-[260px]">
+                <span className="blueprint duotone relative block h-[220px]">
                   <CmsImage
                     image={featured.image_data}
                     sizes="(max-width: 920px) 100vw, 620px"
@@ -620,38 +748,42 @@ export default async function HomePage({
         </section>
       )}
 
-      {/* Ключевые показатели */}
-      <section aria-label={pages.home.kpis} className="mt-[52px]">
-        <div className="kpi-strip blueprint grid grid-cols-4 py-2 max-[920px]:grid-cols-2 max-[560px]:grid-cols-1">
-          {home.kpis.map((k, i) => (
-            <div
-              key={k.value}
-              className="px-[22px] py-[22px]"
-              style={{
-                borderRight:
-                  i === home.kpis.length - 1
-                    ? undefined
-                    : "1px solid var(--color-divider)",
-              }}
-            >
+      {/* Ключевые показатели. Раньше это были константы словаря — «247
+          спасательных операций», «86 500 обучено» — которые не менялись ни при
+          каких данных и выдавали статистику ведомства за актуальную. Теперь
+          цифры вводит редактор в настройках блока: считать их система не может,
+          таких данных в CMS нет. Нет записей — нет и блока. */}
+      {isOn("indicators") && (data.indicators ?? []).length > 0 && (
+        <section aria-label={pages.home.kpis} className="mt-[52px]">
+          <div className="blueprint grid grid-cols-4 py-2 max-[920px]:grid-cols-2 max-[560px]:grid-cols-1">
+            {(data.indicators ?? []).map((item, i) => (
               <div
-                className="kpi-value text-[42px] font-semibold [font-family:var(--font-heading)]"
-                style={{ color: "var(--color-accent-800)" }}
+                key={item.label}
+                className="px-[22px] py-[22px]"
+                style={{
+                  borderRight:
+                    i === (data.indicators ?? []).length - 1
+                      ? undefined
+                      : "1px solid var(--color-divider)",
+                }}
               >
-                {k.value}
+                <div
+                  className="text-[34px] font-semibold [font-family:var(--font-heading)]"
+                  style={{ color: "var(--color-accent-800)" }}
+                >
+                  {item.value}
+                </div>
+                <div
+                  className="text-[12.5px] leading-[1.4]"
+                  style={{ color: muted(62) }}
+                >
+                  {item.label}
+                </div>
               </div>
-              <div
-                className="text-[12.5px] leading-[1.4]"
-                style={{ color: muted(62) }}
-              >
-                {k.label[0]}
-                <br />
-                {k.label[1]}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Официальная информация: документы + объявления / проекты */}
       <section
@@ -699,8 +831,10 @@ export default async function HomePage({
               />
               {data.announcements.map((a) => (
                 <Link
-                  key={a.title}
-                  href={routes.announcements}
+                  key={a.slug}
+                  // Каждое объявление ведёт на свою страницу: раньше все строки
+                  // вели в общий список, и найти нужное приходилось заново.
+                  href={routes.announcement(a.slug)}
                   className="row-link flex items-center gap-3 border-b border-[var(--color-divider)] px-0.5 py-3"
                   style={{ textDecoration: "none", color: "inherit" }}
                 >

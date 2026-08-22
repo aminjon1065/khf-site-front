@@ -41,12 +41,14 @@ const ru = {
       email: "press@khf.tj →",
       href: routes.contacts,
     },
-    subscribe: {
-      title: "Подписка на оповещения",
-      text: "Получайте предупреждения о ЧС по вашему региону.",
-      emailPlaceholder: "Электронная почта",
-      emailAria: "Электронная почта",
-      submit: "Подписаться",
+    // Раньше здесь стояла форма подписки на оповещения о ЧС: поле и кнопка
+    // вне <form>, без обработчика, при отсутствующем эндпоинте подписки в API.
+    // Портал обещал предупреждения по региону и молча ничего не отправлял.
+    alerts: {
+      title: "Действующие предупреждения",
+      text: "Обстановка по регионам и активные предупреждения публикуются на портале.",
+      link: "Все предупреждения →",
+      href: routes.alert,
     },
   },
 };
@@ -89,12 +91,11 @@ const tj: NewsContent = {
       email: "press@khf.tj →",
       href: routes.contacts,
     },
-    subscribe: {
-      title: "Обуна ба огоҳиҳо",
-      text: "Огоҳиҳо оид ба ҲФ-ро аз рӯи минтақаи худ гиред.",
-      emailPlaceholder: "Почтаи электронӣ",
-      emailAria: "Почтаи электронӣ",
-      submit: "Обуна шудан",
+    alerts: {
+      title: "Огоҳиҳои амалкунанда",
+      text: "Вазъият аз рӯи минтақаҳо ва огоҳиҳои фаъол дар портал нашр мешаванд.",
+      link: "Ҳамаи огоҳиҳо →",
+      href: routes.alert,
     },
   },
 };
@@ -135,12 +136,11 @@ const en: NewsContent = {
       email: "press@khf.tj →",
       href: routes.contacts,
     },
-    subscribe: {
-      title: "Alert subscription",
-      text: "Receive emergency alerts for your region.",
-      emailPlaceholder: "Email",
-      emailAria: "Email",
-      submit: "Subscribe",
+    alerts: {
+      title: "Active alerts",
+      text: "Regional conditions and active alerts are published on the portal.",
+      link: "All alerts →",
+      href: routes.alert,
     },
   },
 };

@@ -40,7 +40,15 @@ describe("scrollToTop", () => {
 
 describe("withoutScrollPadding", () => {
   it("clears scroll-padding-top and restores the previous value", () => {
-    const style = {
+    // Тип объявлен явно: из-за приведения `as unknown as` в конце литерала
+    // TypeScript выводил `this` как `{}`, и обращения к `this.stored` не
+    // компилировались.
+    const stub: {
+      stored: string;
+      getPropertyValue(name: string): string;
+      setProperty(name: string, value: string): void;
+      removeProperty(name: string): void;
+    } = {
       stored: "176px",
       getPropertyValue(name: string) {
         return name === "scroll-padding-top" ? this.stored : "";
@@ -55,7 +63,9 @@ describe("withoutScrollPadding", () => {
           this.stored = "";
         }
       },
-    } as unknown as CSSStyleDeclaration & { stored: string };
+    };
+
+    const style = stub as unknown as CSSStyleDeclaration & { stored: string };
 
     const restore = withoutScrollPadding(style);
 

@@ -25,17 +25,25 @@ test("document type and search are server-side shareable filters", async ({
   await page.goto("/ru/documents");
   await expect(page.locator("tbody tr")).toHaveCount(2);
 
-  await page.getByLabel("Тип документа").selectOption("law");
+  // Тип — группа кнопок-ссылок (был <select>): состояние видно без раскрытия
+  // и живёт в адресе, поэтому фильтр работает и без JS.
+  const typeFilter = page.getByRole("group", { name: "Тип документа" });
+  await typeFilter.getByRole("link", { name: "Закон", exact: true }).click();
+  await expect(page).toHaveURL(/type=law/);
+
   await page.getByLabel("Поиск документов").fill("123");
   await page.getByRole("button", { name: "Найти" }).click();
 
+  // Поиск не должен сбрасывать выбранный тип — форма несёт его скрытым полем.
   await expect(page).toHaveURL(/type=law/);
   await expect(page).toHaveURL(/q=123/);
   await expect(page.locator("tbody tr")).toHaveCount(1);
   await expect(page.getByText("Закон № 123")).toBeVisible();
 
   await page.reload();
-  await expect(page.getByLabel("Тип документа")).toHaveValue("law");
+  await expect(
+    typeFilter.getByRole("link", { name: "Закон", exact: true }),
+  ).toHaveAttribute("aria-current", "true");
   await expect(page.getByLabel("Поиск документов")).toHaveValue("123");
 });
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/public/PageShell";
 import { muted } from "@/components/public/ui";
-import { fetchAlerts } from "@/lib/api";
+import { fetchAlerts, fetchRegions } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { buildMetadata } from "@/lib/seo";
@@ -37,7 +37,14 @@ export default async function MapPage({
 }) {
   const locale = toLocale((await params).locale);
   const map = getMap(locale);
-  const alerts = await fetchAlerts(locale);
+  // Кроме предупреждений на карту влияет базовый статус региона, который
+  // выставляет редактор: регион может быть помечен как опасный и без активного
+  // предупреждения. Раньше `/regions` не запрашивался вовсе, и такие пометки
+  // на карту не попадали.
+  const [alerts, baseline] = await Promise.all([
+    fetchAlerts(locale),
+    fetchRegions(locale),
+  ]);
 
   // Каждое предупреждение раскрывается в событие по каждому затронутому региону.
   const incidents: LiveIncident[] = alerts.flatMap((a) =>
@@ -61,7 +68,7 @@ export default async function MapPage({
         </span>
       </div>
 
-      <MapExplorer incidents={incidents} />
+      <MapExplorer incidents={incidents} baseline={baseline} />
     </PageShell>
   );
 }

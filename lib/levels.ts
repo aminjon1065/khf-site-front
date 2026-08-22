@@ -1,7 +1,14 @@
+import { htmlLang, type Locale } from "@/lib/i18n/config";
+import { getUiStrings } from "@/lib/i18n/ui-strings";
 import type { AlertLevel, RegionKey } from "@/lib/types";
 
 // Семантическая шкала опасности — единый источник цветов, подписей и заливок.
 // Правило: красный только для danger/critical; уровень всегда дублируется текстом.
+//
+// Цвета, порядок регионов и сопоставление ключей от языка не зависят и остаются
+// константами. Подписи зависят: раньше они были русскими литералами и выводились
+// как есть на /tj и /en, из-за чего рядом с локализованным названием региона из
+// CMS стоял русский бейдж. Теперь они берутся из lib/i18n/ui-strings по локали.
 
 export const levelDotColor: Record<AlertLevel, string> = {
   none: "var(--hz-success)",
@@ -11,21 +18,15 @@ export const levelDotColor: Record<AlertLevel, string> = {
   critical: "var(--hz-critical)",
 };
 
-export const levelBadge: Record<AlertLevel, string> = {
-  none: "штатно",
-  info: "инфо",
-  warning: "внимание",
-  danger: "опасно",
-  critical: "критично",
-};
+/** Короткий бейдж уровня для конкретной локали. */
+export function levelBadges(locale: Locale): Record<AlertLevel, string> {
+  return getUiStrings(locale).levels.badge;
+}
 
-export const levelStatusText: Record<AlertLevel, string> = {
-  none: "Обстановка штатная",
-  info: "Информационное уведомление",
-  warning: "Действует предупреждение",
-  danger: "Опасная обстановка",
-  critical: "Критическая ситуация",
-};
+/** Фраза статуса региона для конкретной локали. */
+export function levelStatusTexts(locale: Locale): Record<AlertLevel, string> {
+  return getUiStrings(locale).levels.status;
+}
 
 // Заливка региона на SVG-карте (полупрозрачная, поверх фона карты).
 export const levelMapFill: Record<AlertLevel, string> = {
@@ -36,13 +37,21 @@ export const levelMapFill: Record<AlertLevel, string> = {
   critical: "color-mix(in srgb, var(--hz-critical) 60%, transparent)",
 };
 
-// Легенда карты.
-export const legendItems: { level: AlertLevel; label: string }[] = [
-  { level: "none", label: "Штатно" },
-  { level: "info", label: "Информация" },
-  { level: "warning", label: "Предупреждение" },
-  { level: "danger", label: "Опасность" },
-  { level: "critical", label: "Критично" },
+/** Легенда карты в порядке возрастания опасности. */
+export function legendItems(
+  locale: Locale,
+): { level: AlertLevel; label: string }[] {
+  const legend = getUiStrings(locale).levels.legend;
+
+  return LEGEND_ORDER.map((level) => ({ level, label: legend[level] }));
+}
+
+const LEGEND_ORDER: AlertLevel[] = [
+  "none",
+  "info",
+  "warning",
+  "danger",
+  "critical",
 ];
 
 // Порядок и названия регионов.
@@ -54,24 +63,32 @@ export const regionOrder: RegionKey[] = [
   "gbao",
 ];
 
-export const regionName: Record<RegionKey, string> = {
-  dushanbe: "г. Душанбе",
-  sughd: "Согдийская область",
-  khatlon: "Хатлонская область",
-  rrp: "Районы республиканского подчинения",
-  gbao: "ГБАО",
-};
+/** Полные названия регионов для конкретной локали. */
+export function regionNames(locale: Locale): Record<RegionKey, string> {
+  return getUiStrings(locale).regions.name;
+}
 
-export const regionShort: Record<RegionKey, string> = {
-  dushanbe: "Душанбе",
-  sughd: "Согдийская обл.",
-  khatlon: "Хатлонская обл.",
-  rrp: "РРП",
-  gbao: "ГБАО",
-};
+/** Сокращённые названия регионов — для подписей на карте. */
+export function regionShorts(locale: Locale): Record<RegionKey, string> {
+  return getUiStrings(locale).regions.short;
+}
 
-export function countLabel(n: number): string {
-  return n === 1 ? "событие" : n < 5 ? "события" : "событий";
+/**
+ * Склонение слова «событие». Правило берётся у Intl.PluralRules, а не пишется
+ * руками: у русского три формы с исключениями на 11–14, у таджикского и
+ * английского — свои. Для локали без данных в среде выполнения остаётся `other`.
+ */
+export function countLabel(locale: Locale, n: number): string {
+  const forms = getUiStrings(locale).eventForms;
+
+  let category: Intl.LDMLPluralRule = "other";
+  try {
+    category = new Intl.PluralRules(htmlLang(locale)).select(n);
+  } catch {
+    // Среда не знает эту локаль — остаётся общая форма.
+  }
+
+  return forms[category] ?? forms.other;
 }
 
 // Сопоставление стабильного hc-key из TopoJSON (@highcharts/map-collection)

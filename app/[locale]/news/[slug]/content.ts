@@ -31,7 +31,8 @@ export interface Article {
   datetime: string; // «17 июля 2026, 11:40»
   source: string; // «Пресс-центр КЧС»
   photoLabel: string; // подпись-плейсхолдер для ImageSlot
-  caption: string; // подпись под фото
+  /** Подпись под фото из CMS. null — подпись не выводится. */
+  caption: string | null;
   blocks: ArticleBlock[];
   materials: ArticleMaterial[];
   related: RelatedArticle[];

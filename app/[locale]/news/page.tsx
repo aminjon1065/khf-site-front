@@ -41,7 +41,7 @@ export const revalidate = 60;
 
 /** Правая колонка: фото пресс-службы (duotone) + блоки для СМI и подписки. */
 function NewsAside({ news }: { news: ReturnType<typeof getNews> }) {
-  const { media, subscribe } = news.aside;
+  const { media, alerts } = news.aside;
   return (
     <aside className="flex flex-col gap-5">
       <div className="blueprint h-[170px]">
@@ -49,7 +49,7 @@ function NewsAside({ news }: { news: ReturnType<typeof getNews> }) {
       </div>
 
       <div className="blueprint flex flex-col gap-2 p-[18px]">
-        <h2 className="m-0 text-base" style={{ color: muted(55) }}>
+        <h2 className="m-0 kicker-heading" style={{ color: muted(55) }}>
           {media.title}
         </h2>
         <p
@@ -68,24 +68,22 @@ function NewsAside({ news }: { news: ReturnType<typeof getNews> }) {
       </div>
 
       <div className="blueprint flex flex-col gap-2 p-[18px]">
-        <h2 className="m-0 text-base" style={{ color: muted(55) }}>
-          {subscribe.title}
+        <h2 className="m-0 kicker-heading" style={{ color: muted(55) }}>
+          {alerts.title}
         </h2>
         <p
           className="m-0 text-[13px] leading-[1.55]"
           style={{ color: muted(70) }}
         >
-          {subscribe.text}
+          {alerts.text}
         </p>
-        <input
-          className="input text-[13px]"
-          type="email"
-          placeholder={subscribe.emailPlaceholder}
-          aria-label={subscribe.emailAria}
-        />
-        <button type="button" className="btn btn-primary btn-block">
-          {subscribe.submit}
-        </button>
+        <Link
+          href={alerts.href}
+          className="text-[13px]"
+          style={{ color: "var(--color-accent-700)" }}
+        >
+          {alerts.link}
+        </Link>
       </div>
     </aside>
   );
@@ -110,9 +108,7 @@ export default async function NewsPage({
   ]);
 
   return (
-    <PageShell
-      mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-8 max-[920px]:px-4"
-    >
+    <PageShell mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-8 max-[920px]:px-4">
       <div className="flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">
         <h1 className="page-title page-title-caps">{news.header.title}</h1>
         <span className="text-xs" style={{ color: muted(50) }}>

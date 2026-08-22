@@ -4,30 +4,23 @@ import { useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "@/components/i18n/LocaleLink";
 import TjRiskMap from "@/components/public/TjRiskMap";
+import type { ApiRegionStatus } from "@/lib/api";
 import { muted } from "@/components/public/ui";
 import { localeFromPathname } from "@/lib/i18n/config";
 import {
   regionOrder,
-  regionName,
-  levelStatusText,
+  regionNames,
+  levelStatusTexts,
   levelDotColor,
   levelMapFill,
   legendItems,
   countLabel,
 } from "@/lib/levels";
-import type { AlertLevel, RegionKey, RegionStatus } from "@/lib/types";
+import type { AlertLevel, RegionStatus } from "@/lib/types";
 import { getMap } from "./content";
+import { uniqueAlerts, type LiveIncident } from "./incidents";
 
-/** Активное событие карты, построенное из предупреждения CMS. */
-export interface LiveIncident {
-  kind: string;
-  level: AlertLevel;
-  time: string;
-  title: string;
-  region: string;
-  regionKey: RegionKey;
-  slug: string;
-}
+export type { LiveIncident };
 
 const ALL = "Все";
 
@@ -47,10 +40,14 @@ const rank: Record<AlertLevel, number> = {
  */
 export default function MapExplorer({
   incidents,
+  baseline = [],
 }: {
   incidents: LiveIncident[];
+  /** Базовые статусы регионов из CMS: уровень, выставленный редактором. */
+  baseline?: ApiRegionStatus[];
 }) {
-  const map = getMap(localeFromPathname(usePathname()));
+  const locale = localeFromPathname(usePathname());
+  const map = getMap(locale);
   const [kind, setKind] = useState<string>(ALL);
 
   const kinds = useMemo<string[]>(
@@ -58,28 +55,48 @@ export default function MapExplorer({
     [incidents],
   );
 
+  // Для заливки карты нужна запись на каждый затронутый регион, а для списка
+  // и счётчика — на каждое предупреждение. Раньше в списке использовался тот же
+  // развёрнутый массив: предупреждение по трём регионам давало три одинаковых
+  // строки (поле `region` у всех копий одно и то же) и утраивало счётчик, а
+  // республиканское (`territory_type=country`) — пять строк и «5 событий».
   const list = incidents.filter((i) => kind === ALL || i.kind === kind);
+  const alertsInView = uniqueAlerts(list);
+
+  const baseByKey = new Map(baseline.map((r) => [r.key, r]));
+  const names = regionNames(locale);
+  const statuses = levelStatusTexts(locale);
 
   // Уровень и число событий по каждому региону из отфильтрованного списка.
   const mapRegions: RegionStatus[] = regionOrder.map((k) => {
     const rs = list.filter((i) => i.regionKey === k);
-    const level = rs.reduce<AlertLevel>(
+    const fromIncidents = rs.reduce<AlertLevel>(
       (top, i) => (rank[i.level] > rank[top] ? i.level : top),
       "none",
     );
+    const base = baseByKey.get(k);
+    // Базовый уровень региона учитывается только без фильтра: он относится к
+    // обстановке в целом, а не к выбранному типу риска, и под фильтром
+    // «сель» пометка о лавинной опасности вводила бы в заблуждение.
+    const level: AlertLevel =
+      kind === ALL && base && rank[base.level] > rank[fromIncidents]
+        ? base.level
+        : fromIncidents;
+
     return {
       key: k,
-      name: regionName[k],
+      // Название из CMS приоритетнее: оно локализовано редакцией.
+      name: base?.name || names[k],
       level,
       count: rs.length,
-      statusText: levelStatusText[level],
+      statusText: statuses[level],
     };
   });
 
   const kindLabel = kind === ALL ? map.allFilter : kind;
   const countLine =
-    list.length > 0
-      ? `${list.length} ${countLabel(list.length)} · ${map.countFilterPrefix} ${kindLabel}`
+    alertsInView.length > 0
+      ? `${alertsInView.length} ${countLabel(locale, alertsInView.length)} · ${map.countFilterPrefix} ${kindLabel}`
       : `${map.countFilterPrefix} ${kindLabel}`;
 
   return (
@@ -128,7 +145,7 @@ export default function MapExplorer({
             className="mt-3 flex flex-wrap gap-4 border-t border-[var(--color-divider)] px-2 pb-1 pt-3 text-xs"
             aria-label={map.legendAria}
           >
-            {legendItems.map((l) => (
+            {legendItems(locale).map((l) => (
               <span key={l.level} className="inline-flex items-center gap-1.5">
                 <span
                   className="h-3 w-3 border border-[var(--color-divider)]"
@@ -148,13 +165,13 @@ export default function MapExplorer({
             {countLine}
           </p>
 
-          {list.length > 0 ? (
+          {alertsInView.length > 0 ? (
             <ul
               className="m-0 list-none p-0"
               aria-label={map.incidentsListAria}
             >
-              {list.map((i, idx) => (
-                <li key={`${i.slug}-${idx}`}>
+              {alertsInView.map((i) => (
+                <li key={i.slug}>
                   <Link
                     href={`/alerts/${i.slug}`}
                     className="row-link block border-b border-[var(--color-divider)] py-3"
@@ -197,7 +214,7 @@ export default function MapExplorer({
           )}
 
           <div className="blueprint mt-5 flex flex-col gap-1.5 p-4">
-            <h2 className="m-0 text-base" style={{ color: muted(55) }}>
+            <h2 className="m-0 kicker-heading" style={{ color: muted(55) }}>
               {map.howToRead.title}
             </h2>
             <p

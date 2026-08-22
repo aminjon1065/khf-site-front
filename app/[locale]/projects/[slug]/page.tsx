@@ -150,16 +150,20 @@ export default async function ProjectDetailPage({
         </div>
         <h1 className="m-0 text-[32px] leading-[1.12]">{p.title}</h1>
         {meta.length > 0 && (
-          <div className="grid grid-cols-4 gap-[14px] border-t border-[var(--color-divider)] pt-[14px] max-[920px]:grid-cols-2 max-[560px]:grid-cols-1">
+          /* «Статус», «Сроки», «Партнёр», «Бюджет» — подписи к значениям, а не
+             заголовки разделов: как <h6> они рвали иерархию после <h1> и
+             засоряли оглавление четырьмя пунктами. Список определений передаёт
+             связь подписи со значением точнее любого заголовка. */
+          <dl className="m-0 grid grid-cols-4 gap-[14px] border-t border-[var(--color-divider)] pt-[14px] max-[920px]:grid-cols-2 max-[560px]:grid-cols-1">
             {meta.map((m) => (
               <div key={m.label}>
-                <h6 className="m-0 mb-1" style={{ color: muted(55) }}>
+                <dt className="kicker-heading mb-1" style={{ color: muted(55) }}>
                   {m.label}
-                </h6>
-                <span className="text-[13.5px]">{m.value}</span>
+                </dt>
+                <dd className="m-0 text-[13.5px]">{m.value}</dd>
               </div>
             ))}
-          </div>
+          </dl>
         )}
       </section>
 
@@ -242,7 +246,11 @@ export default async function ProjectDetailPage({
 
           {/* Фото */}
           <section aria-label={pages.projectDetail.photoAria} className="mt-7">
-            <figure className="blueprint duotone relative mb-1.5 h-[300px]">
+            <figure
+              className={`blueprint relative mb-1.5 h-[300px] ${
+                hasImage ? "duotone" : ""
+              }`}
+            >
               {hasImage && p.image_data ? (
                 <CmsImage
                   image={p.image_data}
@@ -263,9 +271,9 @@ export default async function ProjectDetailPage({
               p.direction.phone ||
               p.direction.email) && (
               <div className="blueprint flex flex-col gap-2 p-[18px]">
-                <h6 className="m-0" style={{ color: muted(55) }}>
+                <h2 className="kicker-heading m-0" style={{ color: muted(55) }}>
                   {pages.projectDetail.direction}
-                </h6>
+                </h2>
                 <p
                   className="m-0 text-[13px] leading-[1.55]"
                   style={{ color: muted(70) }}
@@ -292,9 +300,9 @@ export default async function ProjectDetailPage({
           {/* Другие проекты */}
           {related.length > 0 && (
             <div>
-              <h6 className="m-0 mb-2.5" style={{ color: muted(55) }}>
+              <h2 className="kicker-heading m-0 mb-2.5" style={{ color: muted(55) }}>
                 {pages.projectDetail.otherProjects}
-              </h6>
+              </h2>
               {related.map((r, i) => (
                 <Link
                   key={r.slug}

@@ -51,9 +51,7 @@ export default async function SearchPage({
   const items = result.data;
 
   return (
-    <PageShell
-      mainClassName="mx-auto w-full max-w-[900px] px-6 pt-8 max-[920px]:px-4"
-    >
+    <PageShell mainClassName="mx-auto w-full max-w-[900px] px-6 pt-8 max-[920px]:px-4">
       <h1 className="page-title page-title-caps mb-4">{s.title}</h1>
 
       {/* GET-форма без JS: сабмит перезагружает /{locale}/search?q=… */}
@@ -85,39 +83,45 @@ export default async function SearchPage({
           <p className="mb-2 mt-6 text-xs" style={{ color: muted(55) }}>
             {s.resultsPrefix} «{q}» · {result.meta.total}
           </p>
-          <div role="list">
+          {/* role="listitem" стоял на самой ссылке и перекрывал её неявную роль
+              link: для скринридера вся выдача переставала быть ссылками и
+              пропадала из списка ссылок страницы. Роль несёт обёртка. */}
+          <ul className="m-0 list-none p-0" role="list">
             {items.map((it) => (
-              <Link
-                key={`${it.type}:${it.path}`}
-                href={it.path}
-                role="listitem"
-                className="row-link block border-b border-[var(--color-divider)] py-4"
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <span className="flex flex-wrap items-center gap-2.5">
-                  <span className="tag tag-neutral flex-none">
-                    {s.typeLabels[it.type]}
+              <li key={`${it.type}:${it.path}`}>
+                <Link
+                  href={it.path}
+                  className="row-link block border-b border-[var(--color-divider)] py-4"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <span className="flex flex-wrap items-center gap-2.5">
+                    <span className="tag tag-neutral flex-none">
+                      {s.typeLabels[it.type]}
+                    </span>
+                    {it.published_at && (
+                      <span
+                        className="text-[11.5px]"
+                        style={{ color: muted(50) }}
+                      >
+                        {it.published_at.slice(0, 10)}
+                      </span>
+                    )}
                   </span>
-                  {it.published_at && (
-                    <span className="text-[11.5px]" style={{ color: muted(50) }}>
-                      {it.published_at.slice(0, 10)}
+                  <span className="mt-1 block text-[17px] font-semibold leading-[1.25] [font-family:var(--font-heading)]">
+                    {it.title}
+                  </span>
+                  {it.excerpt && (
+                    <span
+                      className="mt-0.5 block text-[13.5px] leading-[1.5]"
+                      style={{ color: muted(65) }}
+                    >
+                      {it.excerpt}
                     </span>
                   )}
-                </span>
-                <span className="mt-1 block text-[17px] font-semibold leading-[1.25] [font-family:var(--font-heading)]">
-                  {it.title}
-                </span>
-                {it.excerpt && (
-                  <span
-                    className="mt-0.5 block text-[13.5px] leading-[1.5]"
-                    style={{ color: muted(65) }}
-                  >
-                    {it.excerpt}
-                  </span>
-                )}
-              </Link>
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
           <Pagination
             locale={locale}
             currentPage={result.meta.current_page}

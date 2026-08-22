@@ -123,16 +123,16 @@ export default async function AnnouncementDetailPage({
         <div className="grid grid-cols-2 gap-[14px] border-t border-[var(--color-divider)] pt-[14px] max-[560px]:grid-cols-1">
           {announcement.org && (
             <div>
-              <h6 className="m-0 mb-1" style={{ color: muted(55) }}>
+              <h2 className="kicker-heading m-0 mb-1" style={{ color: muted(55) }}>
                 {d.org}
-              </h6>
+              </h2>
               <span className="text-[13.5px]">{announcement.org}</span>
             </div>
           )}
           <div>
-            <h6 className="m-0 mb-1" style={{ color: muted(55) }}>
+            <h2 className="kicker-heading m-0 mb-1" style={{ color: muted(55) }}>
               {d.deadline}
-            </h6>
+            </h2>
             <span
               className="text-[13.5px] font-medium"
               style={{ color: announcement.open ? "var(--hz-warning)" : undefined }}
@@ -171,9 +171,9 @@ export default async function AnnouncementDetailPage({
               </>
             ) : (
               <>
-                <h6 className="m-0" style={{ color: muted(55) }}>
+                <h2 className="kicker-heading m-0" style={{ color: muted(55) }}>
                   {d.contacts}
-                </h6>
+                </h2>
                 <span className="text-[13px] leading-[1.55]" style={{ color: muted(70) }}>
                   {d.noApplyUrl}
                 </span>
@@ -186,9 +186,9 @@ export default async function AnnouncementDetailPage({
 
           {related.length > 0 && (
             <div>
-              <h6 className="m-0 mb-2.5" style={{ color: muted(55) }}>
+              <h2 className="kicker-heading m-0 mb-2.5" style={{ color: muted(55) }}>
                 {d.otherAnnouncements}
-              </h6>
+              </h2>
               {related.map((a) =>
                 a.slug ? (
                   <Link

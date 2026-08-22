@@ -594,7 +594,14 @@ export async function fetchRegions(
 
 // ----------------------------------------------------------------- главная
 
-const EMPTY_HOME: ApiHome = {
+/**
+ * Пустая главная. Раньше её отдавал `fetchHome` при любой ошибке, и страница
+ * не могла отличить «CMS сказала, что предупреждений нет» от «CMS не ответила»:
+ * `state: "calm"` в обоих случаях давал зелёный баннер «обстановка штатная».
+ * Теперь `fetchHome` возвращает `null` при отказе, а это значение страница
+ * подставляет сама — уже зная, что данные недостоверны.
+ */
+export const EMPTY_HOME: ApiHome = {
   blocks: [],
   alerts: { state: "calm", count: 0, regions: [], items: [] },
   news: [],
@@ -605,10 +612,14 @@ const EMPTY_HOME: ApiHome = {
   emergency_contacts: {},
 };
 
-/** Всё, что нужно главной странице, одним запросом. */
+/**
+ * Всё, что нужно главной странице, одним запросом.
+ * `null` — CMS не ответила; отличать это от пустой выдачи обязательно, иначе
+ * портал заявит об отсутствии угроз, когда на самом деле не знает обстановки.
+ */
 export async function fetchHome(
   locale: Locale = DEFAULT_LOCALE,
-): Promise<ApiHome> {
+): Promise<ApiHome | null> {
   const url = buildUrl("/home", { locale });
 
   try {
@@ -625,7 +636,7 @@ export async function fetchHome(
     return body.data;
   } catch (error) {
     reportCmsFailure("fetchHome", error);
-    return EMPTY_HOME;
+    return null;
   }
 }
 

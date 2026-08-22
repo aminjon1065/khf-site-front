@@ -48,16 +48,15 @@ export function SectionHeader({
   return (
     <div
       id={id}
-      className="mb-5 flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[10px]"
+      className="section-head mb-5 flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[10px] max-[560px]:flex-wrap max-[560px]:gap-x-3 max-[560px]:gap-y-2"
     >
-      <span className="section-tick" aria-hidden="true" />
-      <h3 className="m-0 text-2xl uppercase tracking-[.02em]">{title}</h3>
+      <h3 className="m-0 min-w-0 text-2xl tracking-[.01em]">{title}</h3>
       {index && <span className="section-index text-xs">{index}</span>}
-      <span className="flex-1" />
+      <span className="flex-1 max-[560px]:hidden" />
       {link && (
         <Link
           href={link.href}
-          className="section-link text-[13px]"
+          className="section-link text-[13px] max-[560px]:ml-auto"
           style={{ color: "var(--color-accent-700)" }}
         >
           {link.label}

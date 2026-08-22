@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Phone, Search, Smartphone, X } from "lucide-react";
 import emblemImage from "@/public/assets/emblem-tj.png";
 import flagImage from "@/public/assets/flag-tj.png";
-import logoImage from "@/public/assets/logo-kchs-ru.webp";
+import { logoByLocale } from "@/components/public/logo";
 import LocaleSwitcher from "@/components/public/header/LocaleSwitcher";
 import MobileMenuButton from "@/components/public/header/MobileMenuButton";
 import CompactOnScroll from "@/components/public/header/CompactOnScroll";
@@ -64,6 +64,7 @@ export default function PublicHeader({
   const phone = trustPhone || header.trustPhone;
   const phoneHref = `tel:${phone.replace(/[^+\d]/g, "")}`;
   const localize = (href: string): string => withLocale(locale, href);
+  const logoImage = logoByLocale[locale];
 
   return (
     <header className="ksite-header">
@@ -71,29 +72,29 @@ export default function PublicHeader({
       <CompactOnScroll />
       <div className="ksite-utility border-b border-[var(--color-divider)]">
         <div
-          className="mx-auto flex w-full max-w-[1160px] items-center gap-3 px-6 py-1.5 text-xs max-[920px]:px-4"
-          style={{ color: muted(65) }}
+          className="mx-auto flex w-full max-w-[1160px] items-center gap-3 px-6 py-1.5 text-xs max-[920px]:gap-1.5 max-[920px]:px-4 max-[920px]:py-0"
+          style={{ color: muted(80) }}
         >
-          <Image
-            src={flagImage}
-            alt={header.flagAlt}
-            width={26}
-            height={13}
-            className="h-[13px] w-auto border border-[var(--color-divider)]"
-          />
-          <Image
-            src={emblemImage}
-            alt={header.emblemAlt}
-            width={18}
-            height={18}
-            className="h-[18px] w-auto"
-          />
           <NextLink
             href={localize(routes.symbols)}
-            className="toplink text-[11px] uppercase tracking-[.04em]"
+            className="toplink flex items-center gap-2 text-[11px] uppercase tracking-[.04em] max-[920px]:min-h-11 max-[920px]:min-w-11 max-[920px]:justify-center"
             style={{ color: "inherit", textDecoration: "none" }}
           >
-            {header.stateSymbols}
+            <Image
+              src={flagImage}
+              alt={header.flagAlt}
+              width={26}
+              height={13}
+              className="h-[13px] w-auto border border-[var(--color-divider)]"
+            />
+            <Image
+              src={emblemImage}
+              alt=""
+              width={18}
+              height={18}
+              className="h-[18px] w-auto"
+            />
+            <span className="max-[400px]:sr-only">{header.stateSymbols}</span>
           </NextLink>
           <span className="flex-1" />
           <NextLink
@@ -125,8 +126,6 @@ export default function PublicHeader({
             <Image
               src={logoImage}
               alt={header.logoAlt}
-              width={57}
-              height={56}
               className="h-14 w-auto max-[920px]:h-11"
               style={{ width: "auto" }}
             />
@@ -154,14 +153,17 @@ export default function PublicHeader({
             <a
               href={phoneHref}
               className="text-[13px] font-medium"
-              style={{ color: "var(--color-accent-700)", textDecoration: "none" }}
+              style={{
+                color: "var(--color-accent-700)",
+                textDecoration: "none",
+              }}
             >
               {phone}
             </a>
           </span>
           <a
             href="tel:112"
-            className="call-112 inline-flex items-center gap-2 border border-[var(--color-divider)] px-[18px] py-2.5 text-[16px] font-semibold uppercase tracking-[.03em] text-white [box-shadow:var(--shadow-sm)] [font-family:var(--font-heading)] max-[920px]:ml-auto max-[920px]:px-[13px] max-[920px]:py-[9px] max-[920px]:text-[15px]"
+            className="call-112 inline-flex min-h-11 items-center gap-2 border border-[var(--color-divider)] px-[18px] py-2.5 text-[16px] font-semibold uppercase tracking-[.03em] text-white [box-shadow:var(--shadow-sm)] [font-family:var(--font-heading)] max-[920px]:ml-auto max-[920px]:px-[13px] max-[920px]:py-[9px] max-[920px]:text-[15px]"
             aria-label={header.emergencyAria}
             style={{
               background: "var(--hz-critical-solid)",
@@ -183,13 +185,11 @@ export default function PublicHeader({
         className="mnav m-0 ml-auto border-0 p-0"
         aria-label={header.menu}
       >
-        <div className="flex items-center gap-3 border-b border-[var(--color-divider)] py-[14px] pl-5 pr-4">
+        <div className="mnav-head flex items-center gap-3 border-b border-[var(--color-divider)] py-[14px] pl-5 pr-4">
           <Image
             src={logoImage}
             alt=""
-            width={35}
-            height={34}
-            className="h-[34px] w-[35px]"
+            className="h-[34px] w-auto"
           />
           <span className="flex-1 text-[15px] font-semibold uppercase [font-family:var(--font-heading)]">
             {header.menu}
@@ -301,7 +301,10 @@ export default function PublicHeader({
             href="tel:112"
             className="flex min-h-[48px] items-center justify-center gap-2 text-[17px] font-semibold uppercase tracking-[.03em] text-white [font-family:var(--font-heading)]"
             style={{
-              background: "var(--hz-critical)",
+              // Сплошная заливка под белым текстом — только --hz-critical-solid.
+              // Базовый --hz-critical в тёмной теме равен #e26a60: белый 17px
+              // на нём даёт 3.25:1 при требуемых по WCAG AA 4.5:1.
+              background: "var(--hz-critical-solid)",
               textDecoration: "none",
             }}
           >
@@ -324,128 +327,136 @@ export default function PublicHeader({
         className="knav border-y border-[var(--color-divider)] max-[920px]:hidden"
         aria-label={header.navAria}
       >
-        <div className="mx-auto flex w-full max-w-[1160px] flex-nowrap items-center gap-0.5 px-6">
-          <NavLink href={localize(routes.home)} match={routes.home}>
-            {navCopy.home}
-          </NavLink>
-          <details className="group relative inline-block shrink-0">
-            <NavSummary
-              label={header.aboutMenu}
-              matches={[routes.leadership, routes.structure, routes.symbols]}
-            />
-            <span
-              role="menu"
-              className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-card)] py-1 [box-shadow:var(--shadow-md)]"
-            >
-              <NextLink
-                role="menuitem"
-                href={localize(routes.leadership)}
-                className="!border-b-0 px-[14px] py-2"
+        {/* Две зоны: пункты (`.knav-primary`, переносятся) и инструменты
+            (`.knav-tools`, не сжимаются). Иначе 112 в компактном режиме
+            наезжает на последний пункт — пункты `flex: none`. */}
+        <div className="knav-row mx-auto flex w-full max-w-[1160px] items-center px-6">
+          <div className="knav-primary">
+            <NavLink href={localize(routes.home)} match={routes.home}>
+              {navCopy.home}
+            </NavLink>
+            <details className="group relative inline-block shrink-0">
+              <NavSummary
+                label={header.aboutMenu}
+                matches={[routes.leadership, routes.structure, routes.symbols]}
+              />
+              <span
+                role="menu"
+                className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-card)] py-1 [box-shadow:var(--shadow-md)]"
               >
-                {navCopy.leadership}
-              </NextLink>
-              <NextLink
-                role="menuitem"
-                href={localize(routes.structure)}
-                className="!border-b-0 px-[14px] py-2"
-              >
-                {navCopy.structure}
-              </NextLink>
-              <NextLink
-                role="menuitem"
-                href={localize(routes.symbols)}
-                className="!border-b-0 px-[14px] py-2"
-              >
-                {header.stateSymbols}
-              </NextLink>
-            </span>
-          </details>
-          {navItems.map((item, index) =>
-            item.children.length > 0 ? (
-              <details
-                key={`${item.href || item.label}-${index}`}
-                className="group relative inline-block shrink-0"
-              >
-                <NavSummary
-                  label={item.label}
-                  matches={[
-                    item.href,
-                    ...item.children.map((child) => child.href),
-                  ].filter(Boolean)}
-                />
-                <span
-                  role="menu"
-                  className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-card)] py-1 [box-shadow:var(--shadow-md)]"
+                <NextLink
+                  role="menuitem"
+                  href={localize(routes.leadership)}
+                  className="!border-b-0 px-[14px] py-2"
                 >
-                  {item.children.map((child) => (
-                    <NextLink
-                      key={child.href}
-                      role="menuitem"
-                      href={localize(child.href)}
-                      className="!border-b-0 px-[14px] py-2"
-                    >
-                      {child.label}
-                    </NextLink>
-                  ))}
-                </span>
-              </details>
-            ) : (
-              <NavLink
-                key={`${item.href}-${index}`}
-                href={localize(item.href)}
-                match={item.href}
-              >
-                {item.label}
-              </NavLink>
-            ),
-          )}
-          <span className="flex-1" />
-          <a
-            href="tel:112"
-            className="ksite-nav-112 call-112 mr-2.5 items-center gap-[7px] px-[14px] py-1.5 text-[13.5px] font-semibold uppercase tracking-[.03em] text-white [font-family:var(--font-heading)]"
-            aria-label={header.emergencyAria}
-            style={{
-              background: "var(--hz-critical-solid)",
-              textDecoration: "none",
-            }}
-          >
-            <Phone size={14} strokeWidth={1.5} aria-hidden="true" />
-            112
-          </a>
-          <NextLink
-            href={localize(routes.sos)}
-            className="sos-outline mr-2.5 inline-flex items-center gap-[7px] border border-[var(--color-accent)] px-[14px] py-1.5 text-[13.5px] font-semibold [font-family:var(--font-heading)]"
-            style={{
-              color: "var(--color-accent-700)",
-              background: "transparent",
-            }}
-          >
-            <Smartphone size={14} strokeWidth={1.5} aria-hidden="true" />
-            {header.sosApp}
-          </NextLink>
-          <form
-            role="search"
-            method="get"
-            action={localize("/search")}
-            className="relative flex min-w-[132px] shrink grow-0 basis-[168px] items-center py-1"
-          >
-            <Search
-              size={14}
-              strokeWidth={1.5}
-              aria-hidden="true"
-              className="pointer-events-none absolute left-[9px] top-1/2 -translate-y-1/2"
-              style={{ color: muted(55) }}
-            />
-            <input
-              className="input h-[30px] min-h-[30px] w-full min-w-0 pl-[28px] text-[13px]"
-              type="search"
-              name="q"
-              minLength={2}
-              required
-              placeholder={header.searchShort}
-              aria-label={header.searchPlaceholder}
-            />
-          </form>
+                  {navCopy.leadership}
+                </NextLink>
+                <NextLink
+                  role="menuitem"
+                  href={localize(routes.structure)}
+                  className="!border-b-0 px-[14px] py-2"
+                >
+                  {navCopy.structure}
+                </NextLink>
+                <NextLink
+                  role="menuitem"
+                  href={localize(routes.symbols)}
+                  className="!border-b-0 px-[14px] py-2"
+                >
+                  {header.stateSymbols}
+                </NextLink>
+              </span>
+            </details>
+            {navItems.map((item, index) =>
+              item.children.length > 0 ? (
+                <details
+                  key={`${item.href || item.label}-${index}`}
+                  className="group relative inline-block shrink-0"
+                >
+                  <NavSummary
+                    label={item.label}
+                    matches={[
+                      item.href,
+                      ...item.children.map((child) => child.href),
+                    ].filter(Boolean)}
+                  />
+                  <span
+                    role="menu"
+                    className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-card)] py-1 [box-shadow:var(--shadow-md)]"
+                  >
+                    {item.children.map((child) => (
+                      <NextLink
+                        key={child.href}
+                        role="menuitem"
+                        href={localize(child.href)}
+                        className="!border-b-0 px-[14px] py-2"
+                      >
+                        {child.label}
+                      </NextLink>
+                    ))}
+                  </span>
+                </details>
+              ) : (
+                <NavLink
+                  key={`${item.href}-${index}`}
+                  href={localize(item.href)}
+                  match={item.href}
+                >
+                  {item.label}
+                </NavLink>
+              ),
+            )}
+          </div>
+          <div className="knav-tools">
+            <a
+              href="tel:112"
+              className="ksite-nav-112 call-112 items-center gap-[7px] px-3 py-1.5 text-[13.5px] font-semibold uppercase tracking-[.03em] text-white [font-family:var(--font-heading)]"
+              aria-label={header.emergencyAria}
+              style={{
+                background: "var(--hz-critical-solid)",
+                textDecoration: "none",
+              }}
+            >
+              <Phone size={14} strokeWidth={1.5} aria-hidden="true" />
+              112
+            </a>
+            <NextLink
+              href={localize(routes.sos)}
+              className="sos-outline inline-flex items-center gap-[7px] border border-[var(--color-accent)] px-3 py-1.5 text-[13.5px] font-semibold [font-family:var(--font-heading)]"
+              aria-label={header.sosApp}
+              title={header.sosApp}
+              style={{
+                color: "var(--color-accent-700)",
+                background: "transparent",
+              }}
+            >
+              <Smartphone size={14} strokeWidth={1.5} aria-hidden="true" />
+              <span className="sos-label">{header.sosApp}</span>
+            </NextLink>
+            <form
+              role="search"
+              method="get"
+              action={localize("/search")}
+              className="knav-search relative flex items-center py-1"
+            >
+              <Search
+                size={14}
+                strokeWidth={1.5}
+                aria-hidden="true"
+                className="pointer-events-none absolute left-[9px] top-1/2 -translate-y-1/2"
+                style={{ color: muted(55) }}
+              />
+              <input
+                className="input h-[30px] min-h-[30px] w-full min-w-0 pl-[28px] text-[13px]"
+                type="search"
+                name="q"
+                minLength={2}
+                required
+                placeholder={header.searchShort}
+                aria-label={header.searchPlaceholder}
+              />
+            </form>
+          </div>
         </div>
       </nav>
     </header>

@@ -7,18 +7,10 @@ import { fetchDocuments } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { buildMetadata, metaDescription } from "@/lib/seo";
-import { getDocuments } from "./content";
+import { DOCUMENT_TYPE_VALUES, getDocuments } from "./content";
 import DocumentsTable from "./DocumentsTable";
 
 const PER_PAGE = 20;
-const DOCUMENT_TYPE_VALUES = [
-  "law",
-  "resolution",
-  "order",
-  "report",
-  "instruction",
-] as const;
-
 interface DocumentSearchParams {
   page?: string;
   type?: string;
@@ -73,10 +65,25 @@ export default async function DocumentsPage({
     type,
     q,
   });
-  const typeOptions = DOCUMENT_TYPE_VALUES.map((value, index) => ({
+  const typeOptions = DOCUMENT_TYPE_VALUES.map((value) => ({
     value,
-    label: documents.types[index + 1],
+    label: documents.types[value],
   }));
+
+  /** Адрес фильтра: тип меняется, поисковый запрос сохраняется. */
+  const typeHref = (value?: string) => {
+    const params = new URLSearchParams();
+    if (value) {
+      params.set("type", value);
+    }
+    if (q) {
+      params.set("q", q);
+    }
+    const query = params.toString();
+
+    // Локаль подставляет LocaleLink — как у кнопки сброса ниже.
+    return `/documents${query ? `?${query}` : ""}`;
+  };
 
   return (
     <PageShell>
@@ -87,25 +94,63 @@ export default async function DocumentsPage({
         </span>
       </div>
 
+      {/* Тип — группа кнопок-переключателей ссылками, как в макете и как в
+          списке новостей: выбранный тип виден с одного взгляда, состояние
+          остаётся в адресе и работает без JS. Раньше здесь стоял <select>,
+          и выбранный тип приходилось раскрывать. */}
+      <div
+        className="flex flex-wrap items-center gap-2 border-b border-[var(--color-divider)] py-4"
+        role="group"
+        aria-label={documents.typeGroupLabel}
+      >
+        <Link
+          href={typeHref()}
+          aria-current={!type ? "true" : undefined}
+          className="btn px-[14px] py-1.5 text-[13px] no-underline hover:border-[var(--color-accent)]"
+          style={
+            !type
+              ? {
+                  background: "var(--color-accent-solid)",
+                  color: "var(--color-bg)",
+                  borderColor: "var(--color-accent-solid)",
+                }
+              : { color: "inherit" }
+          }
+        >
+          {documents.allType}
+        </Link>
+        {typeOptions.map((option) => {
+          const active = option.value === type;
+
+          return (
+            <Link
+              key={option.value}
+              href={typeHref(option.value)}
+              aria-current={active ? "true" : undefined}
+              className="btn px-[14px] py-1.5 text-[13px] no-underline hover:border-[var(--color-accent)]"
+              style={
+                active
+                  ? {
+                      background: "var(--color-accent-solid)",
+                      color: "var(--color-bg)",
+                      borderColor: "var(--color-accent-solid)",
+                    }
+                  : { color: "inherit" }
+              }
+            >
+              {option.label}
+            </Link>
+          );
+        })}
+      </div>
+
       <form
         method="get"
         className="flex flex-wrap items-end gap-[14px] border-b border-[var(--color-divider)] py-4"
       >
-        <label className="flex min-w-[210px] flex-col gap-1.5 text-[13px]">
-          <span>{documents.typeGroupLabel}</span>
-          <select
-            className="input min-h-11"
-            name="type"
-            defaultValue={type ?? ""}
-          >
-            <option value="">{documents.allType}</option>
-            {typeOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        {/* Выбранный тип переносится в форму поиска скрытым полем: иначе
+            отправка запроса сбрасывала бы фильтр. */}
+        {type && <input type="hidden" name="type" value={type} />}
         <label className="flex min-w-[260px] flex-1 flex-col gap-1.5 text-[13px]">
           <span>{documents.search.ariaLabel}</span>
           <input

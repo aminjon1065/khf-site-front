@@ -4,6 +4,25 @@
 import type { DocItem } from "@/lib/types";
 import type { Locale } from "@/lib/i18n/config";
 
+/**
+ * Типы документа CMS. Полный перечень объявлен в OpenAPI-схеме
+ * (`lib/api-types.generated.ts`, поле `type_value`); тест
+ * `documents-types.test.ts` следит, чтобы списки не разошлись.
+ */
+export const DOCUMENT_TYPE_VALUES = [
+  "law",
+  "resolution",
+  "order",
+  "report",
+  "plan",
+  "norm",
+  "instruction",
+  "open_data",
+  "form",
+] as const;
+
+export type DocTypeValue = (typeof DOCUMENT_TYPE_VALUES)[number];
+
 export interface DocumentsContent {
   title: string;
   subtitle: string;
@@ -11,8 +30,13 @@ export interface DocumentsContent {
   typeGroupLabel: string;
   /** Значение «показать все типы» — первый и стартовый фильтр. */
   allType: string;
-  /** Полный список типов (включая «Все»). */
-  types: string[];
+  /**
+   * Подписи типов документа по слагу CMS (`type_value`). Раньше это был
+   * массив, а страница брала подпись по индексу — из-за смещения слаг
+   * `instruction` был подписан «Памятка», хотя CMS называет его «Инструкция».
+   * Ключи фиксируются тестом против перечня в lib/api-types.generated.ts.
+   */
+  types: Record<DocTypeValue, string>;
   search: { placeholder: string; ariaLabel: string; submit: string };
   columns: {
     type: string;
@@ -33,7 +57,17 @@ const ru: DocumentsContent = {
   subtitle: "Нормативные акты, отчёты и памятки",
   typeGroupLabel: "Тип документа",
   allType: "Все",
-  types: ["Все", "Закон", "Постановление", "Приказ", "Отчёт", "Памятка"],
+  types: {
+    law: "Закон",
+    resolution: "Постановление",
+    order: "Приказ",
+    report: "Отчёт",
+    plan: "План",
+    norm: "Норматив",
+    instruction: "Инструкция",
+    open_data: "Открытые данные",
+    form: "Форма",
+  },
   search: {
     placeholder: "Название или номер документа",
     ariaLabel: "Поиск документов",
@@ -137,7 +171,17 @@ const tj: DocumentsContent = {
   subtitle: "Санадҳои меъёрӣ, ҳисоботҳо ва ёддоштҳо",
   typeGroupLabel: "Навъи ҳуҷҷат",
   allType: "Ҳама",
-  types: ["Ҳама", "Қонун", "Қарор", "Фармоиш", "Ҳисобот", "Ёддошт"],
+  types: {
+    law: "Қонун",
+    resolution: "Қарор",
+    order: "Фармоиш",
+    report: "Ҳисобот",
+    plan: "Нақша",
+    norm: "Меъёр",
+    instruction: "Дастур",
+    open_data: "Маълумоти кушода",
+    form: "Шакл",
+  },
   search: {
     placeholder: "Ном ё рақами ҳуҷҷат",
     ariaLabel: "Ҷустуҷӯи ҳуҷҷатҳо",
@@ -240,7 +284,17 @@ const en: DocumentsContent = {
   subtitle: "Regulations, reports and leaflets",
   typeGroupLabel: "Document type",
   allType: "All",
-  types: ["All", "Law", "Resolution", "Order", "Report", "Leaflet"],
+  types: {
+    law: "Law",
+    resolution: "Resolution",
+    order: "Order",
+    report: "Report",
+    plan: "Plan",
+    norm: "Standard",
+    instruction: "Instruction",
+    open_data: "Open data",
+    form: "Form",
+  },
   search: {
     placeholder: "Document title or number",
     ariaLabel: "Search documents",

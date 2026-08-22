@@ -1,6 +1,6 @@
 /**
  * Generated from khf-site-cms/openapi/openapi.json.
- * Schema SHA-256: b33157572c5d5614
+ * Schema SHA-256: bc0f530bbc8d55e2
  * Do not edit by hand; run `npm run api:types`.
  */
 
@@ -68,12 +68,20 @@ export interface ApiNewsItem {
     title: string;
     description: string;
   };
+  attachments?: Array<{
+    title: string;
+    url: string;
+    ext: string;
+    size: string;
+    size_bytes: number;
+  }>;
 }
 
 export interface ApiInstruction {
   slug: string;
   title: string;
   summary: string;
+  key_point?: string | null;
   hazard: string | null;
   hazard_label: string | null;
   hazard_icon: string | null;
@@ -88,6 +96,13 @@ export interface ApiInstruction {
     prohibited: Array<string>;
   };
   body?: string;
+  attachments?: Array<{
+    title: string;
+    url: string;
+    ext: string;
+    size: string;
+    size_bytes: number;
+  }>;
 }
 
 export interface ApiDocumentFile {
@@ -143,6 +158,12 @@ export interface ApiProject {
     phone: string;
     email: string;
   };
+  tenders?: Array<{
+    slug: string;
+    title: string;
+    deadline: string | null;
+    open: boolean;
+  }>;
 }
 
 export interface ApiAnnouncement {
@@ -151,6 +172,10 @@ export interface ApiAnnouncement {
   kind_label: string;
   title: string;
   org: string | null;
+  project?: {
+    slug: string;
+    title: string;
+  } | null;
   desc: string;
   deadline: string;
   deadline_at: string | null;
@@ -196,6 +221,10 @@ export interface ApiAlert {
   territory_type?: string;
   regions?: Array<ApiAlertRegion>;
   meta?: Array<ApiAlertMeta>;
+  updates?: Array<{
+    at: string;
+    text: string;
+  }>;
 }
 
 export interface ApiRegionStatus {
@@ -232,6 +261,10 @@ export interface ApiHome {
   announcements: Array<ApiAnnouncement>;
   projects: Array<ApiProject>;
   emergency_contacts: Record<string, unknown>;
+  indicators?: Array<{
+    value: string;
+    label: string;
+  }>;
 }
 
 export interface ApiSettings {

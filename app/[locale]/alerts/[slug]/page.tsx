@@ -7,12 +7,12 @@ import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import TjRiskMap from "@/components/public/TjRiskMap";
 import { fetchAlert, fetchAlerts, fetchSlugs } from "@/lib/api";
-import { toLocale } from "@/lib/i18n/config";
+import { htmlLang, toLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import {
   levelDotColor,
-  levelStatusText,
-  regionName,
+  levelStatusTexts,
+  regionNames,
   regionOrder,
 } from "@/lib/levels";
 import { routes } from "@/lib/routes";
@@ -61,6 +61,27 @@ export async function generateMetadata({
   });
 }
 
+/**
+ * Дата и время записи истории на языке страницы. При неразобранной метке
+ * возвращаем её как есть — лучше показать сырое значение, чем пустую строку
+ * там, где читатель ждёт время события.
+ */
+function updateTime(iso: string, locale: Locale): string {
+  const parsed = new Date(iso);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return iso;
+  }
+
+  return new Intl.DateTimeFormat(htmlLang(locale), {
+    day: "2-digit",
+    month: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Asia/Dushanbe",
+  }).format(parsed);
+}
+
 export default async function AlertDetailPage({
   params,
 }: {
@@ -102,15 +123,17 @@ export default async function AlertDetailPage({
       ? regionOrder
       : (alert.regions ?? []).map((r) => r.code),
   );
+  const names = regionNames(locale);
+  const statuses = levelStatusTexts(locale);
   const zoneRegions: RegionStatus[] = regionOrder.map((k) => {
     const inZone = zoneCodes.has(k);
     const lvl: AlertLevel = inZone ? level : "none";
     return {
       key: k,
-      name: regionName[k],
+      name: names[k],
       level: lvl,
       count: inZone ? 1 : 0,
-      statusText: levelStatusText[lvl],
+      statusText: statuses[lvl],
     };
   });
 
@@ -219,21 +242,54 @@ export default async function AlertDetailPage({
               ))}
             </section>
           )}
+
+          {/* История обновлений. Предупреждение живёт часами и меняется: зона
+              расширилась, уровень снижен, угроза снята. Без этого блока
+              читателю неоткуда узнать, свежая ли перед ним информация. */}
+          {(alert.updates ?? []).length > 0 && (
+            <section
+              aria-label={pages.alertDetail.updateHistory}
+              className="mt-7 max-w-[70ch]"
+            >
+              <h2 className="text-[22px] uppercase tracking-[.02em]">
+                {pages.alertDetail.updateHistory}
+              </h2>
+              <ol className="m-0 list-none p-0">
+                {(alert.updates ?? []).map((entry) => (
+                  <li
+                    key={entry.at}
+                    className="border-l-2 border-[var(--color-divider)] py-2 pl-4"
+                  >
+                    <time
+                      dateTime={entry.at}
+                      className="block text-xs"
+                      style={{ color: muted(55) }}
+                    >
+                      {updateTime(entry.at, locale)}
+                    </time>
+                    <p className="m-0 text-[15px] leading-[1.6]">
+                      {entry.text}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
         </div>
 
         {/* Боковая колонка */}
         <aside className="flex min-w-0 flex-col gap-5">
           <div className="blueprint p-3">
-            <h6 className="mx-1.5 mt-1 mb-2" style={{ color: muted(55) }}>
+            <h2 className="kicker-heading mx-1.5 mt-1 mb-2" style={{ color: muted(55) }}>
               {pages.alertDetail.zone}
-            </h6>
+            </h2>
             <TjRiskMap regions={zoneRegions} height={300} showLabels={false} />
           </div>
 
           <div className="blueprint flex flex-col gap-2 p-[18px]">
-            <h6 className="m-0" style={{ color: muted(55) }}>
+            <h2 className="kicker-heading m-0" style={{ color: muted(55) }}>
               {pages.alertDetail.emergencyHelp}
-            </h6>
+            </h2>
             <a
               href="tel:112"
               className="text-[26px] font-semibold no-underline [font-family:var(--font-heading)]"
@@ -250,9 +306,9 @@ export default async function AlertDetailPage({
 
           {related.length > 0 && (
             <div>
-              <h6 className="m-0 mb-2.5" style={{ color: muted(55) }}>
+              <h2 className="kicker-heading m-0 mb-2.5" style={{ color: muted(55) }}>
                 {pages.alertDetail.related}
-              </h6>
+              </h2>
               {related.map((r) => (
                 <Link
                   key={r.slug}

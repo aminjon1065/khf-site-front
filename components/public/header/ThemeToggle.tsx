@@ -28,7 +28,7 @@ export default function ThemeToggle({
       onClick={toggleTheme}
       aria-label={label}
       title={title}
-      className="toplink inline-flex cursor-pointer items-center gap-1.5 border border-transparent bg-transparent px-1.5 py-1 [font:inherit]"
+      className="toplink inline-flex cursor-pointer items-center gap-1.5 border border-transparent bg-transparent px-1.5 py-1 [font:inherit] max-[920px]:min-h-11 max-[920px]:min-w-11 max-[920px]:justify-center max-[920px]:p-0"
       style={{ color: "inherit" }}
     >
       <Moon

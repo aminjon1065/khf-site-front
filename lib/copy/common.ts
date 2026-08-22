@@ -95,8 +95,6 @@ export const common = {
       { label: "Защита персональных данных", href: "/pages/privacy" },
       { label: "Доступность", href: "/pages/accessibility" },
     ],
-    visitsToday: "Посещений сегодня: 4 218",
-    updated: "Обновлено: 18.07.2026",
   },
 
   breadcrumbHome: "Главная",

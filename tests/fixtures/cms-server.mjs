@@ -92,6 +92,54 @@ const linkedNewsSlugs = new Set([
   "undrr-programme",
   "zamin-2026",
 ]);
+// Инструкция и проект нужны, чтобы axe сканировал их детальные страницы:
+// именно там жили заголовки с пропущенным уровнем. Раньше обе коллекции были
+// пустыми, страницы не открывались, и проверять было нечего.
+const instructions = [
+  {
+    slug: "zemletryasenie",
+    title: "Землетрясение",
+    summary: "Действия до, во время и после подземных толчков",
+    hazard: "earthquake",
+    hazard_label: "Землетрясение",
+    hazard_icon: "activity",
+    priority: true,
+    image: null,
+    image_srcset: null,
+    image_data: null,
+    sections: {
+      before: ["Соберите тревожный чемоданчик."],
+      during: ["Укройтесь под несущей конструкцией."],
+      after: ["Проверьте утечку газа."],
+      prohibited: ["Не пользуйтесь лифтом."],
+    },
+    body: "",
+  },
+];
+
+const projects = [
+  {
+    slug: "early-warning-system",
+    title: "Модернизация системы раннего оповещения",
+    status: "Реализуется",
+    status_code: "active",
+    status_tone: "success",
+    years: "2026–2030",
+    partner: "УСРБ ООН",
+    budget: "18,4 млн долл.",
+    desc: "Описание проекта.",
+    image: null,
+    image_srcset: null,
+    image_data: null,
+    code: null,
+    customer: null,
+    body: "",
+    goals: ["Расширить сеть датчиков."],
+    timeline: [{ date: "2026", text: "Начало работ", tone: "info" }],
+    direction: { address: "г. Душанбе", phone: "112", email: "ews@khf.tj" },
+  },
+];
+
 const announcements = [
   {
     slug: "vacancy-test",
@@ -377,7 +425,11 @@ const server = createServer((request, response) => {
           regions: [region],
           items: [alertItem],
         },
-        news: [newsItem],
+        // Обе новости, а не одна: карусель на главной строится только из
+        // материалов CMS, и с единственным материалом её проверять нечем.
+        // Раньше при одной новости страница подставляла демонстрационные
+        // слайды из словаря — тест «следующий слайд» проходил по ним.
+        news: allNewsItems,
         instructions: [],
         documents: [],
         announcements: [],
@@ -518,12 +570,45 @@ const server = createServer((request, response) => {
     return;
   }
 
-  const emptyCollections = new Set([
-    "/instructions",
-    "/pages",
-    "/projects",
-    "/regions",
-  ]);
+  if (path === "/instructions") {
+    json(response, {
+      data: instructions,
+      meta: { ...emptyPagination, total: instructions.length, last_page: 1 },
+    });
+    return;
+  }
+
+  const instructionSlug = path.match(/^\/instructions\/([^/]+)$/)?.[1];
+  const instruction = instructions.find((i) => i.slug === instructionSlug);
+  if (instructionSlug) {
+    if (instruction) {
+      json(response, { data: instruction });
+    } else {
+      json(response, { message: "Not found" }, 404);
+    }
+    return;
+  }
+
+  if (path === "/projects") {
+    json(response, {
+      data: projects,
+      meta: { ...emptyPagination, total: projects.length, last_page: 1 },
+    });
+    return;
+  }
+
+  const projectSlug = path.match(/^\/projects\/([^/]+)$/)?.[1];
+  const project = projects.find((pr) => pr.slug === projectSlug);
+  if (projectSlug) {
+    if (project) {
+      json(response, { data: project });
+    } else {
+      json(response, { message: "Not found" }, 404);
+    }
+    return;
+  }
+
+  const emptyCollections = new Set(["/pages", "/regions"]);
 
   if (emptyCollections.has(path)) {
     json(response, { data: [], meta: emptyPagination });

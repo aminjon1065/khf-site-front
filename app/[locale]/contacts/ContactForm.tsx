@@ -4,8 +4,7 @@ import { useState, type FormEvent } from "react";
 import { muted } from "@/components/public/ui";
 import type { ReceptionContent } from "./content";
 
-const API =
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8848/api/v1";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8848/api/v1";
 
 /**
  * Форма электронной приёмной: отправляет обращение в CMS (POST /submissions),
@@ -22,13 +21,18 @@ export default function ContactForm({
   const [error, setError] = useState(false);
   const [busy, setBusy] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+  // Пофайловые сообщения валидации от CMS: { email: "Некорректный адрес…" }.
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [tracking, setTracking] = useState<string | null>(null);
 
   if (tracking) {
     return (
       <div
         className="p-[14px] text-[13.5px] leading-[1.5]"
-        style={{ background: "var(--hz-success-bg)", color: "var(--hz-success)" }}
+        style={{
+          background: "var(--hz-success-bg)",
+          color: "var(--hz-success)",
+        }}
       >
         <strong>{success.strong}</strong> {success.trackingLabel}{" "}
         <strong>{tracking}</strong>. {success.copySent}
@@ -39,6 +43,7 @@ export default function ContactForm({
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setServerError(null);
+    setFieldErrors({});
 
     if (!consent) {
       setError(true);
@@ -59,11 +64,37 @@ export default function ContactForm({
     try {
       const res = await fetch(`${API}/submissions`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        throw new Error(`API ${res.status}`);
+        // Раньше любой не-2xx превращался в `new Error("API " + status)`, а
+        // человеку показывалось общее «попробуйте позже» — даже когда CMS
+        // прислала точную причину («Некорректный адрес электронной почты»)
+        // и её достаточно было показать рядом с полем.
+        const body = (await res.json().catch(() => null)) as {
+          message?: string;
+          errors?: Record<string, string[]>;
+        } | null;
+
+        if (res.status === 422 && body?.errors) {
+          setFieldErrors(
+            Object.fromEntries(
+              Object.entries(body.errors).map(([field, messages]) => [
+                field,
+                messages[0],
+              ]),
+            ),
+          );
+          return;
+        }
+
+        // 429 и прочие: CMS присылает готовую фразу — она полезнее общей.
+        setServerError(body?.message || form.serverError);
+        return;
       }
       const data = (await res.json()) as { tracking_number: string };
       setTracking(data.tracking_number);
@@ -81,24 +112,71 @@ export default function ContactForm({
     </span>
   );
 
+  /** Сообщение CMS под полем: связано с ним через aria-describedby. */
+  const fieldError = (field: string) =>
+    fieldErrors[field] ? (
+      <span
+        id={`err-${field}`}
+        className="mt-1 block text-[12px]"
+        style={{ color: "var(--hz-critical)" }}
+      >
+        {fieldErrors[field]}
+      </span>
+    ) : null;
+
   return (
     <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
       <div className="field">
-        <label htmlFor="f-name">{form.name.label} {required}</label>
-        <input id="f-name" name="name" className="input" type="text" autoComplete="name" required />
+        <label htmlFor="f-name">
+          {form.name.label} {required}
+        </label>
+        <input
+          id="f-name"
+          name="name"
+          className="input"
+          type="text"
+          autoComplete="name"
+          required
+          maxLength={255}
+          aria-invalid={fieldErrors.name ? true : undefined}
+          aria-describedby={fieldErrors.name ? "err-name" : undefined}
+        />
+        {fieldError("name")}
       </div>
 
       <div className="field">
-        <label htmlFor="f-email">{form.email.label} {required}</label>
-        <input id="f-email" name="email" className="input" type="email" autoComplete="email" required />
-        <span className="mt-1 block text-[11.5px]" style={{ color: muted(50) }}>
+        <label htmlFor="f-email">
+          {form.email.label} {required}
+        </label>
+        <input
+          id="f-email"
+          name="email"
+          className="input"
+          type="email"
+          autoComplete="email"
+          required
+          maxLength={255}
+          aria-invalid={fieldErrors.email ? true : undefined}
+          aria-describedby={fieldErrors.email ? "err-email" : "hint-email"}
+        />
+        <span
+          id="hint-email"
+          className="mt-1 block text-[11.5px]"
+          style={{ color: muted(50) }}
+        >
           {form.email.hint}
         </span>
+        {fieldError("email")}
       </div>
 
       <div className="field">
         <label htmlFor="f-topic">{form.topic.label}</label>
-        <select id="f-topic" name="topic" className="input" style={{ appearance: "auto" }}>
+        <select
+          id="f-topic"
+          name="topic"
+          className="input"
+          style={{ appearance: "auto" }}
+        >
           {form.topic.options.map((o) => (
             <option key={o}>{o}</option>
           ))}
@@ -106,8 +184,20 @@ export default function ContactForm({
       </div>
 
       <div className="field">
-        <label htmlFor="f-text">{form.text.label} {required}</label>
-        <textarea id="f-text" name="text" className="input" required minLength={10} />
+        <label htmlFor="f-text">
+          {form.text.label} {required}
+        </label>
+        <textarea
+          id="f-text"
+          name="text"
+          className="input"
+          required
+          minLength={10}
+          maxLength={5000}
+          aria-invalid={fieldErrors.message ? true : undefined}
+          aria-describedby={fieldErrors.message ? "err-message" : undefined}
+        />
+        {fieldError("message")}
       </div>
 
       {/* honeypot — скрыто от людей, заполняется только ботами */}
@@ -117,7 +207,13 @@ export default function ContactForm({
         tabIndex={-1}
         autoComplete="off"
         aria-hidden="true"
-        style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          width: 1,
+          height: 1,
+          opacity: 0,
+        }}
       />
 
       <label className="radio items-start text-[12.5px] leading-[1.45]">
@@ -134,13 +230,21 @@ export default function ContactForm({
       </label>
 
       {error && (
-        <div role="alert" className="text-[12.5px]" style={{ color: "var(--hz-critical)" }}>
+        <div
+          role="alert"
+          className="text-[12.5px]"
+          style={{ color: "var(--hz-critical)" }}
+        >
           {form.consentError}
         </div>
       )}
 
       {serverError && (
-        <div role="alert" className="text-[12.5px]" style={{ color: "var(--hz-critical)" }}>
+        <div
+          role="alert"
+          className="text-[12.5px]"
+          style={{ color: "var(--hz-critical)" }}
+        >
           {serverError}
         </div>
       )}

@@ -14,14 +14,23 @@
 }
 
 :root {
-  --color-bg: #eef0f2;
-  --color-surface: #e4e6e8;
+  --color-bg: #e7ecf1;
+  --color-surface: #dde4ea;
   /* Бумага поверх холодного технического фона. */
   --color-card: #ffffff;
-  --color-text: #1d1f20;
+  --color-text: #161a1e;
   --color-accent: #416180;
   --color-accent-2: #728fab;
-  --color-divider: color-mix(in srgb, #1d1f20 16%, transparent);
+  --color-divider: color-mix(in srgb, #161a1e 16%, transparent);
+  color-scheme: light;
+
+  /* Командный хром (служебная полоса, подвал): тёмный в обеих темах. */
+  --command-bg: #0e1a24;
+  --command-fg: #e8eef3;
+  --command-accent: #c5d6e6;
+  --command-line: color-mix(in srgb, #e8eef3 14%, transparent);
+  --tj-red: #cc0000;
+  --tj-green: #006600;
   --motion-duration: 160ms;
   --motion-ease: ease;
 
@@ -64,16 +73,21 @@
   --space-2: 6.8px;
   --space-3: 10.2px;
   --space-4: 13.6px;
+  /* Шаг 5 в шкале отсутствовал, хотя на него ссылались четыре правила
+     (.article-prose h3, обтекание картинок, <hr>). Из-за неизвестной
+     переменной вся декларация margin становилась недействительной и
+     обнулялась — заголовки в теле материала теряли верхний отступ. */
+  --space-5: 17px;
   --space-6: 20.4px;
   --space-8: 27.2px;
 
-  --radius-sm: 2px;
-  --radius-md: 4px;
-  --radius-lg: 7px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
 
-  --shadow-sm: 0 1px 2px color-mix(in srgb, #2b2b2d 14%, transparent);
-  --shadow-md: 0 3px 10px color-mix(in srgb, #2b2b2d 16%, transparent);
-  --shadow-lg: 0 12px 32px color-mix(in srgb, #2b2b2d 22%, transparent);
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #14181c 12%, transparent);
+  --shadow-md: 0 4px 14px color-mix(in srgb, #14181c 12%, transparent);
+  --shadow-lg: 0 16px 40px color-mix(in srgb, #14181c 18%, transparent);
 
   /* Семантическая шкала опасности (светлая). success/warning/danger приведены
      на пару оттенков темнее оригинала — на своих -bg подложках не проходили
@@ -99,6 +113,11 @@
   --color-accent-solid-hover: var(--color-accent-800);
   --color-accent-solid-active: var(--color-accent-900);
 
+  /* Наведение на акцентную плитку (--color-accent-900 под белым текстом).
+     Отдельный токен, а не accent-800 напрямую: в тёмной теме рампа инвертирована
+     и accent-800 становится светлым #c8dcee — белый текст на нём пропадал. */
+  --color-accent-900-hover: var(--color-accent-800);
+
   /* Критический как сплошная заливка под белым текстом (кнопка/баннер «112»):
      светлый --hz-critical уже проходит 4.5:1 (7.19:1), поэтому здесь без
      изменений. */
@@ -106,11 +125,16 @@
 }
 
 [data-theme="dark"] {
-  --color-bg: #15181b;
-  --color-surface: #1e2226;
-  --color-card: #22272c;
+  color-scheme: dark;
+  --color-bg: #101418;
+  --color-surface: #171c21;
+  --color-card: #1b2228;
   --color-text: #e4e7ea;
-  --color-divider: color-mix(in srgb, #e4e7ea 16%, transparent);
+  --color-divider: color-mix(in srgb, #e4e7ea 14%, transparent);
+  --command-bg: #080e14;
+  --command-fg: #e8eef3;
+  --command-accent: #c5d6e6;
+  --command-line: color-mix(in srgb, #e8eef3 12%, transparent);
   --color-accent: #8fb2d4;
   --color-accent-600: #a4c2de;
   --color-accent-700: #bdd3e8;
@@ -145,14 +169,16 @@
      текста поверх (3.25:1) — кнопка/баннер «112» используют отдельный, более
      тёмный оттенок только для этого сплошного варианта. */
   --hz-critical-solid: #cb3225;
+  /* Чуть светлее базового #1d2d3d, но всё ещё тёмный: белый текст читается. */
+  --color-accent-900-hover: #2a4056;
 }
 
 html {
   background: var(--color-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Липкая строка навигации (~45px), не вся трёхъярусная шапка. */
-  scroll-padding-top: 52px;
+  /* Липкая строка навигации (~49px), не вся трёхъярусная шапка. */
+  scroll-padding-top: 56px;
 }
 
 @media (max-width: 920px) {
@@ -170,10 +196,16 @@ html {
   }
   body {
     margin: 0;
-    background: var(--color-bg);
+    background-color: var(--color-bg);
+    background-image:
+      radial-gradient(
+        80rem 28rem at 50% -10rem,
+        color-mix(in srgb, var(--color-accent) 11%, transparent),
+        transparent 72%
+      );
     color: var(--color-text);
     font-family: var(--font-body);
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.55;
     font-weight: 400;
   }
@@ -218,16 +250,46 @@ html {
   .blueprint {
     position: relative;
     border: 1px solid var(--color-divider);
-    border-radius: 0;
+    border-radius: var(--radius-sm);
     background: var(--color-card);
-    box-shadow: var(--shadow-sm);
+    box-shadow:
+      var(--shadow-sm),
+      inset 0 1px 0 color-mix(in srgb, #fff 72%, transparent);
   }
   .blueprint > .corner { display: none; }
   /* Только тень: border-color на hover затёр бы цветную верхнюю кромку
      предупреждений (inline border-top). */
   a.blueprint:hover,
   button.blueprint:hover {
-    box-shadow: var(--shadow-md);
+    box-shadow:
+      var(--shadow-md),
+      inset 0 1px 0 color-mix(in srgb, #fff 72%, transparent);
+  }
+  .blueprint.command-strip {
+    box-shadow:
+      inset 3px 0 0 var(--color-accent),
+      var(--shadow-sm),
+      inset 0 1px 0 color-mix(in srgb, #fff 72%, transparent);
+  }
+  .mast-card {
+    border-top: 3px solid var(--color-accent);
+  }
+  [data-theme="dark"] .blueprint {
+    box-shadow:
+      var(--shadow-sm),
+      inset 0 1px 0 color-mix(in srgb, #fff 6%, transparent);
+  }
+  [data-theme="dark"] a.blueprint:hover,
+  [data-theme="dark"] button.blueprint:hover {
+    box-shadow:
+      var(--shadow-md),
+      inset 0 1px 0 color-mix(in srgb, #fff 8%, transparent);
+  }
+  [data-theme="dark"] .blueprint.command-strip {
+    box-shadow:
+      inset 3px 0 0 var(--color-accent),
+      var(--shadow-sm),
+      inset 0 1px 0 color-mix(in srgb, #fff 6%, transparent);
   }
 
   .duotone { position: relative; overflow: hidden; }
@@ -343,16 +405,22 @@ html {
     background: var(--color-accent);
   }
 
-  .section-tick {
-    width: 3px;
-    height: 0.92em;
-    flex: none;
-    align-self: center;
-    background: var(--color-accent);
-  }
   .section-index {
     font-variant-numeric: tabular-nums;
     color: var(--color-accent-700);
+  }
+  .section-head h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-head h3::before {
+    content: "";
+    display: block;
+    width: 3px;
+    height: 0.78em;
+    flex: none;
+    background: var(--color-accent);
   }
 
   .quick-ico {
@@ -373,7 +441,7 @@ html {
   .hr { height: 1px; border: 0; margin: var(--space-4) 0; background: var(--color-divider); }
 
   /* — тело статьи: HTML из WYSIWYG-редактора CMS (санитайзен на бэкенде) — */
-  .article-prose { font-size: 15px; line-height: 1.7; }
+  .article-prose { font-size: 16px; line-height: 1.7; }
   .article-prose > * + * { margin-top: var(--space-3); }
   .article-prose :where(h2, h3, h4):first-child { margin-top: 0; }
   .article-prose h2 { font-size: 26px; margin: var(--space-6) 0 var(--space-2); }
@@ -474,7 +542,7 @@ html {
     font-size: 14px; line-height: 1.2; color: var(--color-text);
     background: transparent; border: 1px solid var(--color-divider);
     padding: var(--space-2) calc(var(--space-3) * 1.2);
-    border-radius: 0;
+    border-radius: var(--radius-sm);
     transition:
       background-color var(--motion-duration) var(--motion-ease),
       border-color var(--motion-duration) var(--motion-ease),
@@ -493,6 +561,29 @@ html {
   .btn-ghost:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
   .btn-ghost:active { background: color-mix(in srgb, var(--color-accent) 18%, transparent); }
   .btn-icon { width: 36px; height: 36px; padding: 0; }
+
+  /* Зоны касания. На мобильном палец не попадает в 33-пиксельную кнопку:
+     базовый .btn складывается из padding var(--space-2) и line-height 14×1.2.
+     Поднимаем только на мобильной раскладке — на десктопе плотность нужна. */
+  @media (max-width: 920px) {
+    .btn { min-height: 44px; }
+    .btn-icon { min-width: 44px; }
+  }
+
+  /* Точка слайдера: по макету это полоска 22×4px, увеличивать её нельзя.
+     Зона касания расширяется псевдоэлементом до 32×44 — ровно шаг между
+     точками (22px + gap 10px), чтобы области соседних не перекрывались и
+     нажатие не уходило не на ту точку. 32×44 проходит WCAG 2.5.8 (24×24). */
+  .slider-dot { position: relative; }
+  .slider-dot::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 32px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
   .btn-block { width: 100%; margin-top: var(--space-2); }
 
   /* — формы — */
@@ -503,8 +594,8 @@ html {
   .input {
     width: 100%; min-height: 36px; padding: 6px 10px; font: inherit;
     font-size: 14px; color: var(--color-text); caret-color: var(--color-accent);
-    background: var(--color-surface);
-    border: 1px solid var(--color-divider); border-radius: 0;
+    background: var(--color-card);
+    border: 1px solid var(--color-divider); border-radius: var(--radius-sm);
     transition: border-color var(--motion-duration) var(--motion-ease),
       background-color var(--motion-duration) var(--motion-ease);
   }
@@ -527,7 +618,7 @@ html {
   .radio input:focus-visible + .dot { outline: 2px solid var(--color-accent); outline-offset: 2px; }
   .seg {
     display: inline-flex; overflow: hidden;
-    border: 1px solid var(--color-divider); border-radius: 0;
+    border: 1px solid var(--color-divider); border-radius: var(--radius-sm);
   }
   .seg-opt {
     display: inline-flex; align-items: center; gap: 6px;
@@ -541,22 +632,19 @@ html {
   /* — карточки-«card» — */
   .card {
     display: flex; flex-direction: column; gap: var(--space-2);
-    padding: var(--space-3); border-radius: 0;
+    padding: var(--space-3); border-radius: var(--radius-sm);
     background: transparent; border: 1px solid var(--color-divider);
   }
   .card-kicker { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); }
   /* Мелкий заголовок карточки. Раньше на его месте стоял <h6> — ради размера,
      а не иерархии: после <h1> это давало разрыв уровней, и скринридер терял
      структуру страницы. Тег теперь по смыслу, а внешний вид — отсюда. */
-  .kpi-strip {
-    border-top: 3px solid var(--color-accent);
-  }
   .kicker-heading { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
   .card-title { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: 17px; line-height: 1.2; }
-  .card-body { margin: 0; font-size: 13px; opacity: 0.8; flex: 1; }
+  .card-body { margin: 0; font-size: 14px; opacity: 0.85; flex: 1; }
   .card-meta {
-    display: flex; align-items: center; gap: 6px; font-size: 11px;
-    color: color-mix(in srgb, var(--color-text) 50%, transparent);
+    display: flex; align-items: center; gap: 6px; font-size: 13px;
+    color: color-mix(in srgb, var(--color-text) 65%, transparent);
   }
   .elev-sm { box-shadow: var(--shadow-sm); }
   .elev-md { box-shadow: var(--shadow-md); }
@@ -565,7 +653,7 @@ html {
   /* — теги — */
   .tag {
     display: inline-flex; align-items: center; font-size: 11px;
-    letter-spacing: 0.02em; padding: 3px 10px; border-radius: calc(var(--radius-md) * 0.75);
+    letter-spacing: 0.02em; padding: 3px 10px; border-radius: var(--radius-sm);
   }
   .tag-accent { background: var(--color-accent-100); color: var(--color-accent-800); }
   .tag-accent-2 { background: var(--color-accent-2-100); color: var(--color-accent-2-800); }
@@ -589,7 +677,7 @@ html {
   }
   .dialog {
     width: min(440px, 100%); display: flex; flex-direction: column; gap: var(--space-3);
-    padding: var(--space-4); border-radius: 0;
+    padding: var(--space-4); border-radius: var(--radius-sm);
     background: var(--color-card); box-shadow: var(--shadow-lg);
   }
   .dialog-title { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: 20px; }
@@ -602,10 +690,30 @@ html {
      потоке родителя и фиксируются независимо. */
   .ksite-header { display: contents; }
   .ksite-utility {
-    background: color-mix(in srgb, var(--color-text) 3.5%, var(--color-bg));
+    background: var(--command-bg);
+    color: var(--command-fg);
+    /* Переопределяем текстовые токены, чтобы muted() и сегмент языка
+       оставались читаемыми на командном фоне в обеих темах. */
+    --color-bg: var(--command-bg);
+    --color-text: var(--command-fg);
+    --color-accent: var(--command-accent);
+    --color-accent-700: var(--command-accent);
+    --color-accent-solid: var(--command-fg);
+    --color-divider: var(--command-line);
+  }
+  .ksite-utility::before {
+    content: "";
+    display: block;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      var(--tj-red) 0 33.333%,
+      #fff 33.333% 66.666%,
+      var(--tj-green) 66.666% 100%
+    );
   }
   .ksite-brand {
-    background: var(--color-bg);
+    background: var(--color-card);
   }
   .knav {
     background: var(--color-card);
@@ -646,7 +754,7 @@ html {
   .knav a,
   .knav summary {
     color: var(--color-text); text-decoration: none; font-size: 14px;
-    padding: 9px 11px; border-bottom: 2px solid transparent;
+    padding: 9px 8px; border-bottom: 2px solid transparent;
     flex: none; white-space: nowrap;
     transition:
       background-color var(--motion-duration) var(--motion-ease),
@@ -660,6 +768,52 @@ html {
     background: color-mix(in srgb, var(--color-accent) 8%, transparent);
   }
   .knav a[aria-current="page"] { color: var(--color-accent-700); border-bottom-color: var(--color-accent); font-weight: 500; }
+  .knav .input,
+  .mnav .input {
+    background: var(--color-surface);
+  }
+
+  /* Пункты и инструменты — разные зоны: инструменты не отнимают ширину
+     у пунктов и не перекрывают их, когда появляется компактный 112. */
+  .knav-row {
+    flex-wrap: nowrap;
+    gap: 8px;
+    container-type: inline-size;
+    container-name: knav;
+  }
+  .knav-primary {
+    display: flex;
+    flex-wrap: wrap;
+    flex: 1 1 auto;
+    min-width: 0;
+    align-items: center;
+  }
+  .knav-tools {
+    display: flex;
+    flex-wrap: nowrap;
+    flex: 0 0 auto;
+    align-items: center;
+    align-self: stretch;
+    gap: 8px;
+    padding-left: 12px;
+    border-left: 1px solid var(--color-divider);
+  }
+  .knav-tools a {
+    border-bottom-color: transparent;
+  }
+  .knav-tools a:hover {
+    color: inherit;
+    background: transparent;
+  }
+  .knav-tools a.sos-outline:hover {
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    color: var(--color-accent-700);
+  }
+  .knav-search {
+    width: 136px;
+    flex: none;
+  }
+
   /* Специфичнее `.knav a`, иначе кнопка 112 видна в строке меню всегда. */
   .knav a.ksite-nav-112 {
     display: none;
@@ -672,19 +826,44 @@ html {
     background: var(--hz-critical-strong);
   }
 
+  /* Компактная шапка: 112 занимает место подписи SOS, поиск чуть уже.
+     Доступное имя — aria-label на ссылке. */
+  .ksite-header[data-compact] .sos-label { display: none; }
+  .ksite-header[data-compact] .knav-search { width: 118px; }
+
+  @container knav (max-width: 1080px) {
+    .knav a,
+    .knav summary { padding-inline: 6px; font-size: 13px; }
+    .sos-label { display: none; }
+    .knav-search { width: 112px; }
+  }
+
   /* ── Служебные ссылки шапки (hover) ── */
   .toplink:hover { color: var(--color-accent-700) !important; }
+  .call-112 {
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--hz-critical-solid) 40%, transparent);
+  }
   .call-112:hover { background: var(--hz-critical-strong) !important; }
   .sos-outline:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
 
+  .status-calm {
+    background: color-mix(in srgb, var(--hz-success) 10%, var(--color-card));
+  }
+
   /* ── Выдвижное мобильное меню ── */
   body:has(.mnav[open]) { overflow: hidden; }
-  .mnav::backdrop { background: rgba(10, 14, 18, 0.5); }
+  .mnav::backdrop { background: rgba(8, 14, 20, 0.58); }
   .mnav:not([open]) { display: none; }
   .mnav {
     position: fixed; top: 0; right: 0; bottom: 0; z-index: 95;
-    width: min(340px, 90vw); background: var(--color-bg); box-shadow: var(--shadow-lg);
+    width: min(340px, 90vw); background: var(--color-card); box-shadow: var(--shadow-lg);
     display: flex; flex-direction: column; overflow-y: auto;
+  }
+  .mnav-head {
+    background: var(--command-bg);
+    color: var(--command-fg);
+    --color-text: var(--command-fg);
+    --color-divider: var(--command-line);
   }
   .mnav a { color: var(--color-text); text-decoration: none; }
   .mnav .mnav-link {
@@ -697,20 +876,32 @@ html {
 
   /* ── Подвал: отдельный слой, чтобы страница «опиралась» на землю ── */
   .kfoot {
-    background: var(--color-card);
+    background: var(--command-bg);
+    color: var(--command-fg);
+    --color-bg: var(--command-bg);
+    --color-text: var(--command-fg);
+    --color-accent: var(--command-accent);
+    --color-accent-700: var(--command-accent);
+    --color-divider: var(--command-line);
+    --hz-critical: #e8877f;
+    border-top: 3px solid color-mix(in srgb, var(--command-accent) 45%, transparent);
   }
-  .kfoot a { color: color-mix(in srgb, var(--color-text) 72%, transparent); text-decoration: none; font-size: 13px; line-height: 1.5; }
+  .kfoot a { color: color-mix(in srgb, var(--color-text) 78%, transparent); text-decoration: none; font-size: 13px; line-height: 1.5; }
   .kfoot a:hover { color: var(--color-accent-700); text-decoration: underline; text-underline-offset: 3px; }
+  .kfoot-legal {
+    background: color-mix(in srgb, #000 22%, var(--command-bg));
+  }
+  .kfoot-sos { color: var(--hz-critical); }
 
   /* Заголовок внутренней страницы: кегль сжимается на узких экранах. */
   .page-title {
     margin: 0;
-    font-size: clamp(26px, 2.2vw + 18px, 36px);
+    font-size: clamp(28px, 2.4vw + 18px, 40px);
     line-height: 1.12;
   }
   .page-title-caps {
     text-transform: uppercase;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.04em;
   }
 
   /* Ссылки в шапке секции и крошках — подчёркивание только по hover. */
@@ -741,7 +932,10 @@ html {
   .row-link:hover { color: var(--color-accent-700); }
   .surface-hover:hover { background: color-mix(in srgb, var(--color-accent) 7%, transparent); }
   .surface-hover-6:hover { background: color-mix(in srgb, var(--color-accent) 6%, transparent); }
-  .accent-900-hover:hover { background: var(--color-accent-800); }
+  /* Базовый фон задаётся здесь, а не inline: inline-стиль перебивает
+     правило :hover по специфичности, и плитка не реагировала на наведение. */
+  .accent-900-hover { background: var(--color-accent-900); }
+  .accent-900-hover:hover { background: var(--color-accent-900-hover); }
 }
 
 /* Переключатель темы: показываем нужную иконку. */
@@ -842,4 +1036,44 @@ html:not([data-theme="dark"]) .ico-sun { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .nav-progress { transition: opacity 0.1s !important; }
   .nav-progress[data-state="loading"] { transform: scaleX(1); }
+}
+
+
+/* Версия для печати. Кнопка «Версия для печати» вызывает window.print(), но
+   правил печати не было: на бумагу уходили шапка, навигация, подвал и
+   служебные панели, а сам материал занимал часть листа. */
+@media print {
+  header.ksite-header,
+  footer,
+  .skip-link,
+  .knav,
+  nav,
+  aside,
+  [data-testid="cms-diagnostic-banner"] {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+    background-image: none;
+    color: #000;
+  }
+
+  main {
+    max-width: none;
+    padding: 0;
+  }
+
+  /* Адрес ссылки на бумаге не виден — печатаем его рядом. */
+  .article-prose a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    word-break: break-all;
+  }
+
+  .article-prose,
+  figure,
+  img {
+    break-inside: avoid;
+  }
 }

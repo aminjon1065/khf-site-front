@@ -33,7 +33,10 @@ export default function LocaleSwitcher({
   return (
     <span className="seg" role="group" aria-label={label}>
       {LOCALES.map((candidate) => (
-        <label key={candidate} className="seg-opt px-2.5 py-[3px] text-xs">
+        <label
+          key={candidate}
+          className="seg-opt px-2.5 py-[3px] text-xs max-[920px]:min-h-11 max-[920px]:min-w-11 max-[920px]:justify-center max-[920px]:py-0"
+        >
           <input
             type="radio"
             name="lang"

@@ -57,12 +57,32 @@ test("a news article has no axe violations at all", async ({ page }) => {
   await scan(page, href!, "none");
 });
 
-// Остальные локали оболочки: планка «нет serious/critical».
+// Нерусские локали — та же жёсткая планка, что и у /ru. Раньше здесь
+// допускались нарушения ниже serious: разной планкой легко не заметить, что
+// проблема живёт только в одной локали (так на /tj и /en долго оставались
+// русские подписи уровней опасности).
 for (const route of ["/tj", "/en"] as const) {
-  test(`${route} has no serious or critical axe violations`, async ({
+  test(`${route} has no axe violations at all`, async ({ page }) => {
+    await scan(page, route, "none");
+  });
+}
+
+// Детальные страницы. Сканировалась только новость, а <h6> ради размера и
+// прочие разрывы иерархии накопились именно здесь. Slug берём из списка:
+// страница должна быть чистой для любого материала, а не для фикстурного.
+for (const [name, listRoute, linkSelector] of [
+  ["guide", "/ru/guides", "main a[href*='/guides/']"],
+  ["project", "/ru/projects", "main a[href*='/projects/']"],
+  ["announcement", "/ru/announcements", "main a[href*='/announcements/']"],
+] as const) {
+  test(`a ${name} detail page has no axe violations at all`, async ({
     page,
   }) => {
-    await scan(page, route, "blocking");
+    await page.goto(listRoute);
+    const href = await page.locator(linkSelector).first().getAttribute("href");
+
+    test.skip(!href, `нет ни одного материала в ${listRoute}`);
+    await scan(page, href!, "none");
   });
 }
 

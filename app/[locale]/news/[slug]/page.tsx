@@ -16,7 +16,7 @@ import {
   fetchSlugs,
   type ApiNewsItem,
 } from "@/lib/api";
-import { toLocale, type Locale } from "@/lib/i18n/config";
+import { htmlLang, toLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { routes } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
@@ -38,6 +38,7 @@ function toArticle(
   related: RelatedArticle[],
   articleUi: ReturnType<typeof getArticleUi>,
   press: { pressKicker: string; pressSource: string; newsCategory: string },
+  locale: Locale,
 ): Article {
   const paragraphs = (item.body ?? item.excerpt ?? "")
     .split(/\n{2,}|\r?\n/)
@@ -56,12 +57,29 @@ function toArticle(
       : press.pressKicker,
     title: item.title,
     lead: item.excerpt ?? "",
-    datetime: item.date ?? "",
+    // Дата плюс время публикации. Дату CMS отдаёт готовой строкой на языке
+    // страницы, время берём из ISO-метки `datetime` — она уже приходит, и
+    // добавлять формат в API ради этого не требуется. Для читателя новостей
+    // время публикации — часть смысла: «сегодня в 10:00» и «сегодня» разные
+    // сообщения.
+    datetime: [item.date, publishTime(item.datetime, locale)]
+      .filter(Boolean)
+      .join(" · "),
     source: press.pressSource,
     photoLabel: articleUi.photoCaptionSource,
-    caption: articleUi.photoCaptionSource,
+    // Подпись — из CMS, у каждого материала своя. Раньше сюда подставлялась
+    // общая строка словаря «Фото: пресс-служба КЧС», и она стояла под любым
+    // снимком независимо от того, что на нём изображено.
+    caption: item.image_data?.caption ?? null,
     blocks,
-    materials: [],
+    // Вложения материала из CMS. Блок «Материалы» под них уже был свёрстан,
+    // но всегда получал пустой список — приложить памятку было нечем.
+    materials: (item.attachments ?? []).map((file) => ({
+      tag: file.ext,
+      title: file.title,
+      size: file.size,
+      href: file.url,
+    })),
     related,
   };
 }
@@ -120,6 +138,28 @@ export async function generateMetadata({
   });
 }
 
+/**
+ * Время публикации «10:00» на языке страницы. Пустая строка, если CMS не
+ * прислала ISO-метку, — тогда в шапке остаётся только дата.
+ */
+function publishTime(iso: string | null | undefined, locale: Locale): string {
+  if (!iso) {
+    return "";
+  }
+
+  const parsed = new Date(iso);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat(htmlLang(locale), {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Asia/Dushanbe",
+  }).format(parsed);
+}
+
 export default async function ArticlePage({
   params,
 }: {
@@ -157,7 +197,13 @@ export default async function ArticlePage({
     relatedFor(slug, locale, pages.newsDetail.newsCategory),
     fetchSettings(locale),
   ]);
-  const article = toArticle(item, related, articleUi, pages.newsDetail);
+  const article = toArticle(
+    item,
+    related,
+    articleUi,
+    pages.newsDetail,
+    locale,
+  );
 
   // Тело из CMS: у новых материалов — санитайзенный HTML из WYSIWYG-редактора,
   // у старых — простой текст. HTML выводим как есть; текст разбиваем на абзацы
@@ -222,19 +268,30 @@ export default async function ArticlePage({
             />
           </div>
 
-          <figure className="blueprint duotone relative mb-2 h-[340px]">
-            {hasImage && item.image_data ? (
-              <CmsImage
-                image={item.image_data}
-                sizes="(max-width: 920px) 100vw, 760px"
-                fetchPriority="high"
-                loading="eager"
-              />
-            ) : (
-              <ImageSlot label={article.photoLabel} />
+          {/* duotone только когда есть настоящее фото: тот же слой поверх
+              логотипа-заглушки перекрашивал сам логотип. Подпись — внутри
+              <figure>, иначе она не связана с изображением. */}
+          <figure className="mb-5">
+            <span
+              className={`blueprint relative block h-[340px] ${
+                hasImage ? "duotone" : ""
+              }`}
+            >
+              {hasImage && item.image_data ? (
+                <CmsImage
+                  image={item.image_data}
+                  sizes="(max-width: 920px) 100vw, 760px"
+                  fetchPriority="high"
+                  loading="eager"
+                />
+              ) : (
+                <ImageSlot label={article.photoLabel} />
+              )}
+            </span>
+            {article.caption && (
+              <figcaption className="mt-2">{article.caption}</figcaption>
             )}
           </figure>
-          <figcaption className="mb-5">{article.caption}</figcaption>
 
           {bodyIsHtml ? (
             <div
@@ -260,7 +317,7 @@ export default async function ArticlePage({
 
           {article.materials.length > 0 && (
             <div className="mt-6">
-              <h2 className="text-base" style={{ color: muted(55) }}>
+              <h2 className="kicker-heading" style={{ color: muted(55) }}>
                 {articleUi.materialsTitle}
               </h2>
               {article.materials.map((m) => (
@@ -288,7 +345,7 @@ export default async function ArticlePage({
         <aside className="flex flex-col gap-5">
           {article.related.length > 0 && (
             <div>
-              <h2 className="mb-2.5 text-base" style={{ color: muted(55) }}>
+              <h2 className="mb-2.5 kicker-heading" style={{ color: muted(55) }}>
                 {articleUi.relatedTitle}
               </h2>
               {article.related.map((r, i) => (
@@ -320,7 +377,7 @@ export default async function ArticlePage({
           )}
 
           <div className="blueprint flex flex-col gap-2 p-[18px]">
-            <h2 className="m-0 text-base" style={{ color: muted(55) }}>
+            <h2 className="m-0 kicker-heading" style={{ color: muted(55) }}>
               {articleUi.sourceBoxTitle}
             </h2>
             <p

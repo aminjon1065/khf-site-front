@@ -112,8 +112,6 @@ export const en: Dictionary = {
         { label: "Personal data protection", href: "/pages/privacy" },
         { label: "Accessibility", href: "/pages/accessibility" },
       ],
-      visitsToday: "Visits today: 4,218",
-      updated: "Updated: 18.07.2026",
     },
 
     breadcrumbHome: "Home",
@@ -128,36 +126,29 @@ export const en: Dictionary = {
 
   home: {
     critical: {
-      kicker: "Red level · Critical situation",
-      updated: "Updated 18.07.2026, 14:20 · Source: CoES Crisis Centre",
-      title:
-        "Mudflows and flooding in Khatlon region — Kulob and Vose districts",
-      text: "Heavy rainfall has triggered mudflows. Evacuation of residents from riverside villages is under way. Do not approach riverbeds or mudflow channels.",
-      actions: [
-        {
-          label: "What to do in a mudflow",
-          href: routes.guide("flood"),
-          primary: true,
-        },
-        { label: "Details and map", href: routes.alert },
-        { label: "Call 112", href: "tel:112" },
-      ],
+      kicker: "Critical situation",
+      title: "A critical alert is in effect",
+      text: "Details are being confirmed. Follow the instructions of the emergency services. In a life-threatening emergency call 112.",
     },
     warning: {
-      levelLabel: "Orange level",
-      strong: "Mudflow hazard — Khatlon region.",
-      text: " Mudflows are possible in foothill districts until 20 July. Avoid riverbeds.",
-      time: "18.07.2026, 09:00",
-      more: "Read the active alert",
-      moreHref: routes.alert,
+      levelLabel: "Alert",
+      strong: "An alert is in effect.",
+      text: " Details are on the risk map.",
+      time: "",
+      more: "Details",
     },
     calm: {
       strong: "No emergency alerts.",
       text: " The situation across the republic is normal.",
-      updated: "Updated 18.07.2026, 14:00",
       mapLink: "Risk map",
     },
 
+    unavailable: {
+      aria: "Situation data unavailable",
+      strong: "Situation data is currently unavailable.",
+      text: " Alert information may be incomplete. In a life-threatening emergency call 112.",
+      call112: "Call 112",
+    },
     banner: {
       criticalAria: "Critical alert",
       warningAria: "Active alert",
@@ -169,35 +160,6 @@ export const en: Dictionary = {
 
     slider: {
       readMore: "Read in full",
-      slides: [
-        {
-          kicker: "Official · 17 July 2026",
-          title:
-            "Command-and-staff exercise “Zamin-2026” completed in Khatlon region",
-          excerpt:
-            "Over 1,200 rescuers and representatives of international organisations practised response scenarios for a magnitude 7.0 earthquake.",
-          photoLabel: "Photo: command-and-staff exercise",
-          href: routes.article("zamin-2026"),
-        },
-        {
-          kicker: "Rescue operations · 16 July 2026",
-          title:
-            "Rescuers evacuated a group of climbers from the slope of Ismoili Somoni Peak",
-          excerpt:
-            "A CoES helicopter lifted seven climbers from an altitude of 5,900 metres after a sharp deterioration in the weather. No casualties.",
-          photoLabel: "Photo: CoES helicopter over the Pamirs",
-          href: routes.article("alpinists-rescue"),
-        },
-        {
-          kicker: "Cooperation · 16 July 2026",
-          title:
-            "Tajikistan and UNDRR signed a disaster risk reduction programme for 2026–2030",
-          excerpt:
-            "The document provides for upgrading early-warning systems and training specialists in the regions.",
-          photoLabel: "Photo: signing of the programme",
-          href: routes.article("undrr-programme"),
-        },
-      ],
     },
 
     president: {
@@ -212,11 +174,8 @@ export const en: Dictionary = {
 
     ops: {
       title: "Operational summary",
-      items: [
-        { n: "2", color: "var(--hz-danger)", label: "active events" },
-        { n: "3", color: "var(--hz-warning)", label: "under control" },
-        { n: "14", color: "var(--hz-success)", label: "resolved this month" },
-      ],
+      activeLabel: "Active alerts",
+      noneText: "There are no active alerts. Conditions are normal.",
       mapLink: "Risk map →",
     },
 
@@ -224,50 +183,17 @@ export const en: Dictionary = {
       title: "What to do in an emergency",
       index: "01 / Guides",
       allLink: "All guides →",
-      big: {
-        title: "Earthquake",
-        desc: "Step-by-step actions before, during and after tremors. Tajikistan is a seismic zone of intensity 8–9.",
-        cta: "Open the guide →",
-        href: routes.guide("earthquake"),
-      },
-      small: [
-        {
-          icon: "waves",
-          title: "Mudflow & flood",
-          desc: "How to act when a mudflow threatens",
-          href: routes.guide("flood"),
-        },
-        {
-          icon: "aid",
-          title: "First aid",
-          desc: "Basic techniques before medics arrive",
-          href: routes.guide("first-aid"),
-        },
-        {
-          icon: "map",
-          title: "Risk map",
-          desc: "Situation across the regions of the republic",
-          href: routes.map,
-        },
-        {
-          icon: "phone",
-          title: "Emergency phones",
-          desc: "112, regional offices, reception",
-          href: routes.contacts,
-        },
-        {
-          icon: "message",
-          title: "Report an incident",
-          desc: "Electronic reception for citizens",
-          href: routes.contacts,
-        },
+      openInstruction: "Open the guide →",
+      links: [
+        { icon: "map", title: "Risk map", desc: "Situation across the regions of the republic", href: routes.map },
+        { icon: "phone", title: "Emergency numbers", desc: "112, regional departments, public office", href: routes.contacts },
+        { icon: "message", title: "Report an incident", desc: "Citizens' electronic office", href: routes.contacts },
       ],
     },
 
     regionSection: {
       title: "Situation by region",
       index: "02 / Map",
-      updated: "Updated 18.07.2026, 14:00",
       openFull: "Open full map",
     },
 
@@ -275,38 +201,6 @@ export const en: Dictionary = {
       title: "Alerts",
       index: "03 / Warning",
       allLink: "All alerts →",
-      cards: [
-        {
-          border: "var(--hz-warning)",
-          tagBg: "var(--hz-warning-bg)",
-          tagFg: "var(--hz-warning)",
-          tag: "Warning",
-          status: "Active",
-          title: "Mudflow hazard in foothill districts",
-          meta: "Khatlon region · 18.07.2026, 09:00",
-          text: "Heavy rain raises the risk of mudflows. Do not leave vehicles in riverbeds or floodplains.",
-        },
-        {
-          border: "var(--hz-info)",
-          tagBg: "var(--hz-info-bg)",
-          tagFg: "var(--hz-info)",
-          tag: "Information",
-          status: "Active",
-          title: "Heat up to +43 °C in southern districts",
-          meta: "Khatlon, DRS · 17.07.2026, 16:00",
-          text: "Limit sun exposure between 11:00 and 17:00, drink more water, and look after the elderly.",
-        },
-        {
-          border: "var(--hz-success)",
-          tagBg: "var(--hz-success-bg)",
-          tagFg: "var(--hz-success)",
-          tag: "Resolved",
-          status: "14.07.2026",
-          title: "Flood on the Zeravshan River",
-          meta: "Sughd region · 10–14.07.2026",
-          text: "The water level has returned to seasonal norm. Recovery works are complete.",
-        },
-      ],
     },
 
     news: {
@@ -315,42 +209,8 @@ export const en: Dictionary = {
       allLink: "All news →",
       featured: {
         photoLabel: "Photo: CoES helicopter over the Pamirs",
-        kicker: "Rescue operations · 16 July",
-        title:
-          "Rescuers evacuated a group of climbers from the slope of Ismoili Somoni Peak",
-        href: routes.article("alpinists-rescue"),
       },
-      list: [
-        {
-          kicker: "Civil defence · 15 July",
-          title: "Action plan for the civil defence month approved",
-          href: routes.article("civil-defense-month"),
-        },
-        {
-          kicker: "International · 14 July",
-          title:
-            "CoES delegation took part in the regional disaster risk reduction forum in Almaty",
-          href: routes.article("almaty-forum"),
-        },
-        {
-          kicker: "Equipment · 12 July",
-          title: "Regional offices received 18 units of new rescue equipment",
-          href: routes.article("new-equipment"),
-        },
-        {
-          kicker: "Training · 11 July",
-          title: "Over 4,000 GBAO residents trained in avalanche safety",
-          href: routes.article("gbao-training"),
-        },
-      ],
     },
-
-    kpis: [
-      { value: "247", label: ["rescue operations", "since the start of 2026"] },
-      { value: "1,318", label: ["people rescued", "in January–June 2026"] },
-      { value: "86,500", label: ["citizens trained", "in civil defence"] },
-      { value: "68", label: ["city and district", "CoES units"] },
-    ],
 
     documents: {
       title: "Official documents",
@@ -407,22 +267,6 @@ export const en: Dictionary = {
     projects: {
       title: "Projects",
       allLink: "All projects →",
-      cards: [
-        {
-          status: "In progress",
-          years: "2026–2030",
-          title: "Modernisation of the public early-warning system",
-          meta: "UNDRR, World Bank · USD 18.4M",
-          href: routes.project("early-warning-system"),
-        },
-        {
-          status: "In progress",
-          years: "2025–2027",
-          title: "Modernisation of the 112 unified rescue service",
-          meta: "European Union · EUR 6.2M",
-          href: routes.projects,
-        },
-      ],
     },
   },
 
@@ -493,6 +337,7 @@ export const en: Dictionary = {
       aria: "Alert",
       whatToDo: "What to do now",
       officialDescription: "Official description",
+      updateHistory: "Update history",
       officialInfo: "Official information",
       guidesLink: "Public safety guides",
       zone: "Coverage area",
@@ -533,6 +378,7 @@ export const en: Dictionary = {
       keyPoint: "Key point",
       prohibited: "What not to do",
       more: "More",
+      materials: "Materials",
       emergencyHelp: "Emergency help",
       emergencyNote: "Unified rescue service, 24/7",
       related: "Related guides",

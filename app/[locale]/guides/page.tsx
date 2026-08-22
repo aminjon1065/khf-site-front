@@ -38,8 +38,16 @@ export const revalidate = 60;
 // Пресентационное «оформление» приоритетных плиток (данные — из CMS). Подпись
 // (kickerKey) берётся из словаря активной локали; цвет/тон — общие.
 const tileChrome = [
-  { kickerKey: "mainRisk", kickerColor: "var(--color-accent-300)", accent: true },
-  { kickerKey: "priorityGuide", kickerColor: "var(--hz-warning)", accent: false },
+  {
+    kickerKey: "mainRisk",
+    kickerColor: "var(--color-accent-300)",
+    accent: true,
+  },
+  {
+    kickerKey: "priorityGuide",
+    kickerColor: "var(--hz-warning)",
+    accent: false,
+  },
   { kickerKey: "priorityGuide", kickerColor: "var(--hz-info)", accent: false },
 ] as const;
 
@@ -54,20 +62,23 @@ export default async function GuidesPage({
   const { hero, emergency, priorityCta } = getGuidesContent(locale);
   const { pages } = getDictionary(locale);
   const page = Math.max(1, Number((await searchParams).page) || 1);
-  const { data: items, meta } = await fetchInstructions({ locale, page, perPage: PER_PAGE });
+  const { data: items, meta } = await fetchInstructions({
+    locale,
+    page,
+    perPage: PER_PAGE,
+  });
 
   // Приоритетные плитки — только на первой странице (на CMS-стороне приоритет
   // и так сортируется первым, см. Instruction::scopeOrdered), дальше — обычная
   // сетка каталога без выделения.
   const flagged = page === 1 ? items.filter((i) => i.priority).slice(0, 3) : [];
-  const priorityItems = flagged.length > 0 ? flagged : page === 1 ? items.slice(0, 3) : [];
+  const priorityItems =
+    flagged.length > 0 ? flagged : page === 1 ? items.slice(0, 3) : [];
   const tileSlugs = new Set(priorityItems.map((i) => i.slug));
   const catalogItems = items.filter((i) => !tileSlugs.has(i.slug));
 
   return (
-    <PageShell
-      mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-8 max-[920px]:px-4"
-    >
+    <PageShell mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-8 max-[920px]:px-4">
       {/* Заголовок + единый номер 112 */}
       <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(280px,1fr)] items-end gap-8 border-b border-[var(--color-divider)] pb-5 max-[920px]:grid-cols-1">
         <div>
@@ -81,7 +92,7 @@ export default async function GuidesPage({
             {hero.lead}
           </p>
         </div>
-        <div className="blueprint flex items-center gap-3 px-4 py-[14px]">
+        <div className="blueprint mast-card flex items-center gap-3 px-4 py-[14px]">
           <span
             className="text-2xl font-semibold [font-family:var(--font-heading)]"
             style={{ color: "var(--hz-critical)" }}
@@ -100,7 +111,19 @@ export default async function GuidesPage({
       {/* Основные угрозы — приоритетные плитки */}
       {priorityItems.length > 0 && (
         <section aria-label={pages.guidesList.mainThreats} className="mt-7">
-          <div className="grid grid-cols-3 gap-[14px] max-[920px]:grid-cols-1">
+          {/* Колонок ровно столько, сколько плиток. Раньше сетка всегда была
+              трёхколоночной, и при одной-двух приоритетных инструкциях в ряду
+              оставались пустые ячейки — на /en это видно постоянно, там
+              помечена не каждая инструкция. */}
+          <div
+            className={`grid gap-[14px] max-[920px]:grid-cols-1 ${
+              priorityItems.length === 1
+                ? "grid-cols-1"
+                : priorityItems.length === 2
+                  ? "grid-cols-2"
+                  : "grid-cols-3"
+            }`}
+          >
             {priorityItems.map((t, i) => {
               const chrome = tileChrome[i] ?? tileChrome[tileChrome.length - 1];
               return (
@@ -110,13 +133,7 @@ export default async function GuidesPage({
                   className={`blueprint flex flex-col gap-2.5 p-[22px] ${
                     chrome.accent ? "accent-900-hover" : "surface-hover"
                   }`}
-                  style={{
-                    textDecoration: "none",
-                    color: "inherit",
-                    ...(chrome.accent
-                      ? { background: "var(--color-accent-900)" }
-                      : {}),
-                  }}
+                  style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <span
                     className="text-[10.5px] uppercase tracking-[.1em]"
@@ -179,7 +196,7 @@ export default async function GuidesPage({
                     className="text-[13px] font-semibold [font-family:var(--font-heading)]"
                     style={{ color: muted(40) }}
                   >
-                    {topicNum(i)}
+                    {topicNum(i + (page - 1) * PER_PAGE)}
                   </span>
                   <span className="text-[17px] font-semibold [font-family:var(--font-heading)]">
                     {g.title}

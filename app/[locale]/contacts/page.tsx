@@ -67,7 +67,7 @@ export default async function ContactsPage({
         className="mt-6 grid grid-cols-3 gap-[14px] max-[920px]:grid-cols-1"
       >
         {/* Угроза жизни — 112 */}
-        <div className="blueprint p-5" style={{ borderTop: "3px solid var(--hz-critical)" }}>
+        <div className="blueprint p-5" style={{ borderTop: "3px solid var(--hz-critical-solid)" }}>
           <h2 className="kicker-heading m-0 mb-1.5" style={{ color: muted(55) }}>
             {emergency.critical.kicker}
           </h2>

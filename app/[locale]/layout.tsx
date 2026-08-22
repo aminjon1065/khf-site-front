@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import "../globals.css";
 import { LOCALES, isLocale, htmlLang } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { THEME_INIT } from "@/lib/theme-init";
 import { buildMetadata, siteUrl } from "@/lib/seo";
 import { cmsDiagnosticEnabled } from "@/lib/cms-readiness.mjs";
 import { WebVitalsReporter } from "@/components/public/WebVitalsReporter";
@@ -69,8 +70,6 @@ export async function generateMetadata({
 }
 
 // Применяем сохранённую тему до первой отрисовки — без вспышки светлой темы.
-const themeInit = `try{if(localStorage.getItem('kchs-theme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}`;
-
 export default async function LocaleLayout({
   children,
   params,
@@ -102,7 +101,7 @@ export default async function LocaleLayout({
       className={`${sans.variable} ${condensed.variable}`}
     >
       <body>
-        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
         <WebVitalsReporter />
         {/* useSearchParams внутри требует Suspense-границы при статическом
             пре-рендере, иначе весь маршрут уходит в динамический рендер. */}
@@ -127,7 +126,6 @@ export default async function LocaleLayout({
         <div
           style={{
             minHeight: "100vh",
-            background: "var(--color-bg)",
             color: "var(--color-text)",
             fontFamily: "var(--font-body)",
           }}
@@ -141,6 +139,7 @@ export default async function LocaleLayout({
           />
           <main id="main">{children}</main>
           <PublicFooter
+            locale={locale}
             settings={settings}
             footerMenu={menu.footer}
             copy={common}

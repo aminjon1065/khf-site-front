@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   buildUrl,
   fetchAnnouncements,
+  fetchHome,
   fetchDocuments,
   fetchNews,
   fetchNewsItem,
@@ -284,6 +285,42 @@ describe("lib/api", () => {
       fetchMock.mockResolvedValueOnce(jsonResponse({ message: "oops" }, 503));
 
       await expect(fetchSlugs("project", "ru")).resolves.toEqual([]);
+    });
+  });
+
+  describe("fetchHome", () => {
+    // Раньше при любой ошибке возвращалась пустая главная со `state: "calm"`,
+    // и страница не могла отличить «CMS сообщила, что предупреждений нет» от
+    // «CMS не ответила»: в обоих случаях портал заявлял, что обстановка
+    // штатная. Теперь отказ обязан быть отличим — это `null`.
+    it("returns the payload when the CMS answers", async () => {
+      const payload = {
+        blocks: [],
+        alerts: { state: "warning", count: 3, regions: [], items: [] },
+        news: [],
+        instructions: [],
+        documents: [],
+        announcements: [],
+        projects: [],
+        emergency_contacts: {},
+      };
+      fetchMock.mockResolvedValue(jsonResponse({ data: payload }));
+
+      await expect(fetchHome("ru")).resolves.toMatchObject({
+        alerts: { state: "warning", count: 3 },
+      });
+    });
+
+    it("returns null on a non-2xx response", async () => {
+      fetchMock.mockResolvedValue(jsonResponse({ message: "boom" }, 503));
+
+      await expect(fetchHome("ru")).resolves.toBeNull();
+    });
+
+    it("returns null when the request fails outright", async () => {
+      fetchMock.mockRejectedValue(new Error("network down"));
+
+      await expect(fetchHome("ru")).resolves.toBeNull();
     });
   });
 });

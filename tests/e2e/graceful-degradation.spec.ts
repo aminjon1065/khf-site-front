@@ -42,6 +42,31 @@ test("home page still renders header/nav/footer when every CMS section is empty"
   await expect(page.getByRole("contentinfo").or(page.locator("footer"))).toBeVisible();
 });
 
+test("home page does not claim calm conditions when the CMS is unreachable", async ({ page }) => {
+  // Худшая ошибка портала ЧС: выдать молчание бэкенда за подтверждённое
+  // спокойствие. Раньше `fetchHome` при любом сбое возвращал пустую главную
+  // со `state: "calm"`, и страница печатала зелёное «Чрезвычайных
+  // предупреждений нет. Обстановка на территории республики штатная.»
+  await page.goto("/ru");
+
+  await expect(
+    page.getByText("Чрезвычайных предупреждений нет"),
+  ).toHaveCount(0);
+  await expect(
+    page.getByText("Данные об обстановке сейчас недоступны."),
+  ).toBeVisible();
+});
+
+test("home page invents neither news nor instruction links when the CMS is unreachable", async ({ page }) => {
+  // Слайдер и плитки «Что делать в ЧС» брали контент из словаря, когда CMS
+  // отдавала мало данных: три выдуманные новости и шесть адресов инструкций,
+  // которых в CMS нет. Ни одной ссылки на материал быть не должно.
+  await page.goto("/ru");
+
+  await expect(page.locator('a[href*="/news/"]')).toHaveCount(0);
+  await expect(page.locator('a[href*="/guides/"]')).toHaveCount(0);
+});
+
 test("a detail page shows a friendly message, not a crash, when its fetch fails", async ({ page }) => {
   const response = await page.goto("/ru/news/any-slug-at-all");
   expect(response?.status()).toBeGreaterThanOrEqual(200);

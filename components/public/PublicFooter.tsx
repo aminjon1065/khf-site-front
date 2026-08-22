@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "@/components/i18n/LocaleLink";
 import { muted } from "@/components/public/ui";
-import logoImage from "@/public/assets/logo-kchs-ru.webp";
+import type { Locale } from "@/lib/i18n/config";
+import { logoByLocale } from "@/components/public/logo";
 import { flattenFooterMenu } from "@/lib/cms-menu";
 import type { ApiMenuItem, ApiSettings } from "@/lib/api";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
@@ -11,15 +12,18 @@ import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
  * из CMS (settings/menu) с фолбэком на статические строки из словаря локали.
  */
 export default function PublicFooter({
+  locale,
   settings,
   footerMenu,
   copy,
 }: {
+  locale: Locale;
   settings?: ApiSettings | null;
   footerMenu?: ApiMenuItem[];
   copy: Dictionary["common"];
 }) {
   const { footer, header } = copy;
+  const logoImage = logoByLocale[locale];
   const orgTitle = settings?.org.short_name || footer.orgTitle;
   const about = settings?.org.about || footer.about;
   const address = settings?.org.address || footer.address[0];
@@ -49,15 +53,13 @@ export default function PublicFooter({
   const socialEntries = Object.entries(social).filter(([, v]) => v);
 
   return (
-    <footer className="kfoot mt-16 border-t border-[var(--color-divider)]">
+    <footer className="kfoot mt-16">
       <div className="mx-auto grid w-full max-w-[1160px] grid-cols-[minmax(240px,1.3fr)_repeat(3,minmax(160px,1fr))] gap-8 px-6 pb-7 pt-10 max-[920px]:grid-cols-2 max-[920px]:px-4 max-[560px]:grid-cols-1">
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
             <Image
               src={logoImage}
               alt=""
-              width={45}
-              height={44}
               className="h-11 w-auto"
               style={{ width: "auto" }}
             />
@@ -67,11 +69,11 @@ export default function PublicFooter({
           </div>
           <p
             className="m-0 text-[13px] leading-[1.55]"
-            style={{ color: muted(62) }}
+            style={{ color: muted(78) }}
           >
             {about}
           </p>
-          <p className="m-0 text-xs" style={{ color: muted(50) }}>
+          <p className="m-0 text-xs" style={{ color: muted(70) }}>
             {address}
             <br />
             {email}
@@ -94,7 +96,7 @@ export default function PublicFooter({
         </div>
 
         <div>
-          <h2 className="mb-3 text-base" style={{ color: muted(55) }}>
+          <h2 className="mb-3 kicker-heading" style={{ color: muted(72) }}>
             {footer.sectionsTitle}
           </h2>
           <div className="flex flex-col gap-2">
@@ -107,13 +109,15 @@ export default function PublicFooter({
         </div>
 
         <div>
-          <h2 className="mb-3 text-base" style={{ color: muted(55) }}>
+          <h2 className="mb-3 kicker-heading" style={{ color: muted(72) }}>
             {footer.emergencyTitle}
           </h2>
           <div className="flex flex-col gap-2 text-[13px]">
             {emergency.map((e) => (
               <span key={e.num}>
-                <strong className="text-[15px] [font-family:var(--font-heading)]">
+                <strong
+                  className={`text-[15px] [font-family:var(--font-heading)]${e.num === "112" ? " kfoot-sos" : ""}`}
+                >
                   {e.num}
                 </strong>{" "}
                 — {e.label}
@@ -126,7 +130,7 @@ export default function PublicFooter({
         </div>
 
         <div>
-          <h2 className="mb-3 text-base" style={{ color: muted(55) }}>
+          <h2 className="mb-3 kicker-heading" style={{ color: muted(72) }}>
             {footer.resourcesTitle}
           </h2>
           <div className="flex flex-col gap-2">
@@ -145,10 +149,10 @@ export default function PublicFooter({
         </div>
       </div>
 
-      <div className="border-t border-[var(--color-divider)]">
+      <div className="kfoot-legal border-t border-[var(--color-divider)]">
         <div
           className="mx-auto flex w-full max-w-[1160px] flex-wrap items-center gap-4 px-6 py-[14px] text-xs max-[920px]:px-4"
-          style={{ color: muted(50) }}
+          style={{ color: muted(70) }}
         >
           <span>{copyright}</span>
           <span className="flex-1" />
@@ -157,7 +161,6 @@ export default function PublicFooter({
               {l.label}
             </Link>
           ))}
-          <span>{footer.updated}</span>
         </div>
       </div>
     </footer>

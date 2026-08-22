@@ -60,14 +60,12 @@ const ru: SitemapContent = {
           label: "Новости и заявления",
           href: routes.news,
           spaced: true,
-          children: [{ label: "Страница новости", href: routes.article() }],
         },
         { label: "Документы", href: routes.documents, spaced: true },
         { label: "Объявления — вакансии и тендеры", href: routes.announcements },
         {
           label: "Проекты и программы",
           href: routes.projects,
-          children: [{ label: "Страница проекта", href: routes.project() }],
         },
       ],
     },
@@ -77,10 +75,6 @@ const ru: SitemapContent = {
         {
           label: "Безопасность населения",
           href: routes.guides,
-          children: [
-            { label: "Действия при землетрясении", href: routes.guide("earthquake") },
-            { label: "Все инструкции (12 тем)", href: routes.guides },
-          ],
         },
         {
           label: "Контакты и региональные управления",
@@ -125,14 +119,12 @@ const tj: SitemapContent = {
           label: "Хабарҳо ва баёнияҳо",
           href: routes.news,
           spaced: true,
-          children: [{ label: "Саҳифаи хабар", href: routes.article() }],
         },
         { label: "Ҳуҷҷатҳо", href: routes.documents, spaced: true },
         { label: "Эълонҳо — ҷойҳои холӣ ва тендерҳо", href: routes.announcements },
         {
           label: "Лоиҳаҳо ва барномаҳо",
           href: routes.projects,
-          children: [{ label: "Саҳифаи лоиҳа", href: routes.project() }],
         },
       ],
     },
@@ -142,10 +134,6 @@ const tj: SitemapContent = {
         {
           label: "Бехатарии аҳолӣ",
           href: routes.guides,
-          children: [
-            { label: "Амалҳо ҳангоми заминҷунбӣ", href: routes.guide("earthquake") },
-            { label: "Ҳамаи дастурҳо (12 мавзӯъ)", href: routes.guides },
-          ],
         },
         {
           label: "Тамос ва идораҳои минтақавӣ",
@@ -190,14 +178,12 @@ const en: SitemapContent = {
           label: "News & statements",
           href: routes.news,
           spaced: true,
-          children: [{ label: "News page", href: routes.article() }],
         },
         { label: "Documents", href: routes.documents, spaced: true },
         { label: "Announcements — vacancies and tenders", href: routes.announcements },
         {
           label: "Projects & programmes",
           href: routes.projects,
-          children: [{ label: "Project page", href: routes.project() }],
         },
       ],
     },
@@ -207,10 +193,6 @@ const en: SitemapContent = {
         {
           label: "Public safety",
           href: routes.guides,
-          children: [
-            { label: "What to do in an earthquake", href: routes.guide("earthquake") },
-            { label: "All guides (12 topics)", href: routes.guides },
-          ],
         },
         {
           label: "Contacts and regional offices",

@@ -221,8 +221,11 @@ export default async function GuidePage({ params }: GuideRouteProps) {
           </span>
           <h1 className="page-title mb-3.5 mt-2.5">{item.title}</h1>
 
-          {/* Главное */}
-          {item.summary && (
+          {/* Главное за 10 секунд — отдельное поле CMS, а не `summary`.
+              Раньше сюда подставлялось краткое описание темы из каталожной
+              плитки: под заголовком «что делать прямо сейчас» стояло «о чём
+              эта инструкция». Пустое поле — блока нет. */}
+          {item.key_point && (
             <div
               className="blueprint px-5 py-[18px]"
               style={{
@@ -230,10 +233,10 @@ export default async function GuidePage({ params }: GuideRouteProps) {
                   "color-mix(in srgb,var(--color-accent) 8%,transparent)",
               }}
             >
-              <h6 className="m-0 mb-2" style={{ color: muted(55) }}>
+              <h2 className="kicker-heading m-0 mb-2" style={{ color: muted(55) }}>
                 {pages.guideDetail.keyPoint}
-              </h6>
-              <p className="m-0 text-[15px] leading-[1.6]">{item.summary}</p>
+              </h2>
+              <p className="m-0 text-[15px] leading-[1.6]">{item.key_point}</p>
             </div>
           )}
 
@@ -289,9 +292,9 @@ export default async function GuidePage({ params }: GuideRouteProps) {
               className="blueprint mt-7 px-5 py-[18px]"
               style={{ borderTop: "3px solid var(--hz-critical)" }}
             >
-              <h6 className="m-0 mb-2.5" style={{ color: "var(--hz-critical)" }}>
+              <h2 className="kicker-heading m-0 mb-2.5" style={{ color: "var(--hz-critical)" }}>
                 {pages.guideDetail.prohibited}
-              </h6>
+              </h2>
               <ul className="m-0 flex list-disc flex-col gap-1.5 pl-[18px] text-sm leading-[1.5]">
                 {dont.map((d) => (
                   <li key={d}>{d}</li>
@@ -314,12 +317,39 @@ export default async function GuidePage({ params }: GuideRouteProps) {
           )}
         </div>
 
-        {/* Боковая колонка: экстренная помощь, связанные */}
+        {/* Боковая колонка: материалы, экстренная помощь, связанные */}
         <aside className="flex flex-col gap-5">
+          {/* Памятка в PDF: человек скачивает её и держит под рукой, когда
+              связи может не быть. Блока не было вовсе — приложить файл к
+              инструкции в CMS было нечем. */}
+          {(item.attachments ?? []).length > 0 && (
+            <div className="blueprint flex flex-col gap-2 p-[18px]">
+              <h2 className="kicker-heading m-0" style={{ color: muted(55) }}>
+                {pages.guideDetail.materials}
+              </h2>
+              {(item.attachments ?? []).map((file) => (
+                <a
+                  key={file.url}
+                  href={file.url}
+                  className="row-link flex items-center gap-2.5 border-b border-[var(--color-divider)] py-2.5 last:border-b-0"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <span className="tag tag-neutral flex-none">{file.ext}</span>
+                  <span className="flex-1 text-[13.5px]">{file.title}</span>
+                  <span
+                    className="flex-none text-xs"
+                    style={{ color: muted(50) }}
+                  >
+                    {file.size}
+                  </span>
+                </a>
+              ))}
+            </div>
+          )}
           <div className="blueprint flex flex-col gap-2 p-[18px]">
-            <h6 className="m-0" style={{ color: muted(55) }}>
+            <h2 className="kicker-heading m-0" style={{ color: muted(55) }}>
               {pages.guideDetail.emergencyHelp}
-            </h6>
+            </h2>
             <a
               href="tel:112"
               className="text-[26px] font-semibold no-underline [font-family:var(--font-heading)]"
@@ -334,9 +364,9 @@ export default async function GuidePage({ params }: GuideRouteProps) {
 
           {related.length > 0 && (
             <div>
-              <h6 className="m-0 mb-2.5" style={{ color: muted(55) }}>
+              <h2 className="kicker-heading m-0 mb-2.5" style={{ color: muted(55) }}>
                 {pages.guideDetail.related}
-              </h6>
+              </h2>
               {related.map((r, i) => {
                 const last = i === related.length - 1;
                 return (

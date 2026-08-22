@@ -8,7 +8,7 @@ import type { RegionStatus } from "@/lib/types";
 import {
   levelMapFill,
   regionKeyOfHc,
-  regionShort,
+  regionShorts,
   countLabel,
 } from "@/lib/levels";
 import { localeFromPathname } from "@/lib/i18n/config";
@@ -37,7 +37,8 @@ export default function TjRiskMapImpl({
   height?: number;
   showLabels?: boolean;
 }) {
-  const ui = getUiStrings(localeFromPathname(usePathname())).riskMap;
+  const locale = localeFromPathname(usePathname());
+  const ui = getUiStrings(locale).riskMap;
   const [features, setFeatures] = useState<AnyFeature | null>(null);
   const [error, setError] = useState(false);
   const [hover, setHover] = useState<string | null>(null);
@@ -181,7 +182,7 @@ export default function TjRiskMapImpl({
                     letterSpacing: ".02em",
                   }}
                 >
-                  {regionShort[key as RegionStatus["key"]] ?? key}
+                  {regionShorts(locale)[key as RegionStatus["key"]] ?? key}
                 </text>
                 {data && data.count > 0 && (
                   <text
@@ -194,7 +195,7 @@ export default function TjRiskMapImpl({
                       fill: "color-mix(in srgb, var(--color-text) 65%, transparent)",
                     }}
                   >
-                    {data.count} {countLabel(data.count)}
+                    {data.count} {countLabel(locale, data.count)}
                   </text>
                 )}
               </g>
