@@ -34,6 +34,7 @@ const HOME_TYPES = new Set<CmsContentType>([
 
 const SITEMAP_TYPES = new Set<CmsContentType>([
   "alert",
+  "announcement",
   "instruction",
   "news",
   "page",

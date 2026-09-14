@@ -41,7 +41,12 @@ export default async function AlertsPage({
     fetchAlertsActive(locale),
   ]);
 
-  const regions: RegionStatus[] = active.regions.map((r) => ({
+  // null = CMS не ответила. Молчание бэкенда — не подтверждённое спокойствие:
+  // сводка и карта обязаны показать недоступность данных, а не «обстановку
+  // штатная» с пустой картой регионов.
+  const unavailable = active === null;
+
+  const regions: RegionStatus[] = (active?.regions ?? []).map((r) => ({
     key: r.key as RegionStatus["key"],
     name: r.name,
     level: r.level,
@@ -49,7 +54,13 @@ export default async function AlertsPage({
     statusText: r.statusText,
   }));
 
-  const chrome = stateChrome[active.state];
+  const chrome = unavailable
+    ? {
+        border: "var(--color-divider)",
+        label: pages.alertsList.unavailable.label,
+        text: pages.alertsList.unavailable.text,
+      }
+    : stateChrome[active.state];
 
   return (
     <PageShell
@@ -78,9 +89,11 @@ export default async function AlertsPage({
         <div className="flex items-baseline gap-3">
           <h1 className="m-0 text-[32px] leading-[1.12]">{pages.alertsList.heading}</h1>
           <span className="text-xs" style={{ color: muted(50) }}>
-            {active.count > 0
-              ? `${active.count} ${pages.alertsList.activeCountSuffix}`
-              : pages.alertsList.noneActive}
+            {unavailable
+              ? pages.alertsList.unavailable.badge
+              : active.count > 0
+                ? `${active.count} ${pages.alertsList.activeCountSuffix}`
+                : pages.alertsList.noneActive}
           </span>
         </div>
         <p
@@ -95,7 +108,23 @@ export default async function AlertsPage({
       <div className="mt-7 grid grid-cols-[minmax(0,1.7fr)_minmax(280px,1fr)] items-start gap-7 max-[920px]:grid-cols-1">
         {/* Список активных предупреждений */}
         <div className="min-w-0" role="feed" aria-label={pages.alertsList.listAria}>
-          {alerts.length > 0 ? (
+          {alerts === null ? (
+            <div
+              className="border border-dashed px-6 py-14 text-center"
+              style={{
+                borderColor: "var(--hz-critical)",
+                background: "var(--hz-critical-bg, transparent)",
+              }}
+              role="status"
+            >
+              <p className="m-0 mb-1 text-lg font-semibold [font-family:var(--font-heading)]">
+                {pages.alertsList.unavailable.emptyTitle}
+              </p>
+              <p className="m-0 text-[13px]" style={{ color: muted(60) }}>
+                {pages.alertsList.unavailable.emptyText}
+              </p>
+            </div>
+          ) : alerts.length > 0 ? (
             alerts.map((a) => (
               <article
                 key={a.slug}

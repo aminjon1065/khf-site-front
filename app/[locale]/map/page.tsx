@@ -46,6 +46,36 @@ export default async function MapPage({
     fetchRegions(locale),
   ]);
 
+  // null = CMS не ответила. Пустая карта с подписью «событий нет» выдавала бы
+  // сбой сервиса за подтверждённое спокойствие — показываем недоступность данных.
+  if (alerts === null || baseline === null) {
+    return (
+      <PageShell>
+        <div className="flex flex-wrap items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">
+          <h1 className="page-title page-title-caps">{map.title}</h1>
+          <span className="text-xs" style={{ color: muted(50) }}>
+            {map.subtitle}
+          </span>
+        </div>
+        <div
+          className="mt-7 border px-6 py-14 text-center"
+          style={{
+            borderColor: "var(--hz-critical)",
+            background: "var(--hz-critical-bg)",
+          }}
+          role="status"
+        >
+          <p className="m-0 mb-1 text-lg font-semibold [font-family:var(--font-heading)]">
+            {map.unavailable.title}
+          </p>
+          <p className="m-0 text-[13px]" style={{ color: muted(60) }}>
+            {map.unavailable.text}
+          </p>
+        </div>
+      </PageShell>
+    );
+  }
+
   // Каждое предупреждение раскрывается в событие по каждому затронутому региону.
   const incidents: LiveIncident[] = alerts.flatMap((a) =>
     a.region_codes.map((code) => ({

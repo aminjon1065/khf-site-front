@@ -983,8 +983,11 @@ html:not([data-theme="dark"]) .ico-sun { display: none; }
 @keyframes critPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
 .crit-dot { animation: critPulse 2.4s ease-in-out infinite; }
 
-/* Смена слайда: один article в DOM (см. smoke e2e), появление — коротким fade. */
-@keyframes slideFade { from { opacity: 0; } to { opacity: 1; } }
+/* Смена слайда: один article в DOM (см. smoke e2e), появление — коротким
+   скольжением. Без opacity-фейда намеренно: полупрозрачный текст в середине
+   анимации проваливал контраст (axe фиксировал 2–2.9:1), а WCAG требует
+   держать порог в любой момент времени. */
+@keyframes slideFade { from { transform: translateY(6px); } to { transform: none; } }
 .slide-fade { animation: slideFade 0.35s var(--motion-ease); }
 
 @media (prefers-reduced-motion: reduce) {

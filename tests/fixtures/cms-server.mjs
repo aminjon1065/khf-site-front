@@ -351,7 +351,17 @@ function json(response, body, status = 200) {
   response.end(JSON.stringify(body));
 }
 
-const server = createServer((request, response) => {
+const server = createServer(async (request, response) => {
+  // Тело POST-запросов читаем до маршрутизации (нужно для /submissions).
+  let rawBody = "";
+  for await (const chunk of request) {
+    rawBody += chunk;
+    if (rawBody.length > 64 * 1024) {
+      request.destroy();
+      break;
+    }
+  }
+
   if (request.method === "OPTIONS") {
     response.writeHead(204, {
       "Access-Control-Allow-Headers": "content-type",
@@ -367,6 +377,66 @@ const server = createServer((request, response) => {
 
   if (request.method === "POST" && path === "/vitals") {
     json(response, { accepted: true }, 202);
+    return;
+  }
+
+  if (request.method === "POST" && path === "/submissions") {
+    // Минимальная имитация валидации SubmissionController: пустые name/email
+    // и короткое сообщение дают 422 с сообщениями на языке Accept-Language
+    // (tj → tg), валидное обращение — tracking number.
+    let body;
+    try {
+      body = JSON.parse(rawBody);
+    } catch {
+      json(response, { message: "Invalid JSON." }, 400);
+      return;
+    }
+    if (String(body.website ?? "") !== "") {
+      json(response, { tracking_number: "КЧС-2026-00001" }, 201);
+      return;
+    }
+    const errors = {};
+    if (!body.name) errors.name = ["name required"];
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(body.email ?? ""))) {
+      errors.email = ["email invalid"];
+    }
+    if (String(body.message ?? "").length < 20) errors.message = ["message too short"];
+    if (Object.keys(errors).length > 0) {
+      const lang = String(request.headers["accept-language"] ?? "ru");
+      const messages = {
+        tg: {
+          "name required": "Ному насабро ворид кунед.",
+          "email invalid": "Суроғаи почтаи электронӣ нодуруст аст.",
+          "message too short": "Матни муроҷиат хеле кӯтоҳ аст.",
+        },
+        en: {
+          "name required": "Enter your name.",
+          "email invalid": "Enter a valid email address.",
+          "message too short": "The message is too short.",
+        },
+        ru: {
+          "name required": "Укажите ваше имя.",
+          "email invalid": "Укажите корректную электронную почту.",
+          "message too short": "Слишком короткий текст обращения.",
+        },
+      }[lang] ?? {};
+      const localized = Object.fromEntries(
+        Object.entries(errors).map(([field, [code]]) => [
+          field,
+          [messages[code] ?? code],
+        ]),
+      );
+      json(
+        response,
+        {
+          message: Object.values(localized)[0][0],
+          errors: localized,
+        },
+        422,
+      );
+      return;
+    }
+    json(response, { tracking_number: "КЧС-2026-00042" }, 201);
     return;
   }
 

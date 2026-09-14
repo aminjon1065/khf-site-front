@@ -46,7 +46,7 @@ export interface ReceptionContent {
     strong: string;
     text: string;
     trackingLabel: string;
-    copySent: string;
+    note: string;
   };
 }
 
@@ -170,7 +170,7 @@ const ru: ContactsContent = {
       strong: "Обращение отправлено.",
       text: " Номер для отслеживания: КЧС-2026-08412. Копия направлена на указанную почту.",
       trackingLabel: "Номер для отслеживания:",
-      copySent: "Копия направлена на указанную почту.",
+      note: "Сохраните номер: по нему можно уточнить статус обращения.",
     },
   },
 };
@@ -278,7 +278,7 @@ const tj: ContactsContent = {
       strong: "Муроҷиат фиристода шуд.",
       text: " Рақами пайгирӣ: КҲФ-2026-08412. Нусха ба почтаи зикршуда фиристода шуд.",
       trackingLabel: "Рақами пайгирӣ:",
-      copySent: "Нусха ба почтаи зикршуда фиристода шуд.",
+      note: "Рақамро нигоҳ доред: бо он метавонед вазъияти муроҷиатро равшан кунед.",
     },
   },
 };
@@ -386,7 +386,7 @@ const en: ContactsContent = {
       strong: "Appeal submitted.",
       text: " Tracking number: CoES-2026-08412. A copy has been sent to the specified email.",
       trackingLabel: "Tracking number:",
-      copySent: "A copy has been sent to the specified email.",
+      note: "Keep this number: it can be used to check the status of your appeal.",
     },
   },
 };

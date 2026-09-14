@@ -61,18 +61,35 @@ export const API_BASE =
 /** Как часто ISR перепроверяет данные (сек). */
 const REVALIDATE = 60;
 
+/**
+ * Верхний лимит ожидания ответа CMS для запросов контента (мс). Без него
+ * зависший upstream держал SSR-рендер до системного TCP-таймаута; 8 секунд —
+ * больше любого разумного ответа API и меньше, чем пользователь готов ждать
+ * страницу обстановки. Внимание: `signal` отключает мемоизацию запроса в
+ * пределах рендера (документация Next), но не ISR-кэш — это осознанный размен.
+ */
+export const CMS_TIMEOUT_MS = 8_000;
+
+function timeoutSignal(): AbortSignal {
+  return AbortSignal.timeout(CMS_TIMEOUT_MS);
+}
+
 export type ContentLocale = "ru" | "tg" | "en";
 
 function cmsFetchOptions(
   type: Exclude<CmsContentType, "shell">,
   locale: Locale,
   slug?: string,
-): { next: { revalidate: number; tags: string[] } } {
+): {
+  next: { revalidate: number; tags: string[] };
+  signal: AbortSignal;
+} {
   return {
     next: {
       revalidate: REVALIDATE,
       tags: cmsRequestTags(type, locale, slug),
     },
+    signal: timeoutSignal(),
   };
 }
 
@@ -209,6 +226,7 @@ export async function fetchCategories(
   try {
     const res = await fetch(url, {
       next: { revalidate: REVALIDATE, tags: ["cms"] },
+      signal: timeoutSignal(),
     });
     if (!res.ok) {
       throw cmsResponseError(res);
@@ -258,7 +276,10 @@ export async function fetchSearch(
 
   try {
     // Поиск не тегируем `cms` (запросы уникальны, инвалидировать не нужно).
-    const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(url, {
+      next: { revalidate: REVALIDATE },
+      signal: timeoutSignal(),
+    });
     if (!res.ok) {
       throw cmsResponseError(res);
     }
@@ -485,9 +506,7 @@ export const fetchAnnouncement = cache(async function fetchAnnouncement(
   });
 
   try {
-    const res = await fetch(url, {
-      next: { revalidate: REVALIDATE, tags: ["cms"] },
-    });
+    const res = await fetch(url, cmsFetchOptions("announcement", locale, slug));
     if (res.status === 404) {
       return null;
     }
@@ -497,7 +516,7 @@ export const fetchAnnouncement = cache(async function fetchAnnouncement(
     const body = (await res.json()) as { data: ApiAnnouncement };
     return body.data;
   } catch (error) {
-    reportCmsFailure("fetchAnnouncements", error);
+    reportCmsFailure("fetchAnnouncement", error);
     throw error;
   }
 });
@@ -507,10 +526,14 @@ export const fetchAnnouncement = cache(async function fetchAnnouncement(
 export type PublicAlertLevel =
   "none" | "info" | "warning" | "danger" | "critical";
 
-/** Активные предупреждения (наиболее серьёзные первыми). */
+/**
+ * Активные предупреждения (наиболее серьёзные первыми).
+ * `null` — CMS не ответила; это НЕ «предупреждений нет»: вызывающая сторона
+ * обязана показать состояние недоступности данных вместо пустого списка.
+ */
 export async function fetchAlerts(
   locale: Locale = DEFAULT_LOCALE,
-): Promise<ApiAlert[]> {
+): Promise<ApiAlert[] | null> {
   const url = buildUrl("/alerts", { locale });
 
   try {
@@ -522,7 +545,7 @@ export async function fetchAlerts(
     return body.data;
   } catch (error) {
     reportCmsFailure("fetchAlerts", error);
-    return [];
+    return null;
   }
 }
 
@@ -549,10 +572,15 @@ export const fetchAlert = cache(async function fetchAlert(
   }
 });
 
-/** Глобальная сводка обстановки + статусы регионов (для баннера и карты). */
+/**
+ * Глобальная сводка обстановки + статусы регионов (для баннера и карты).
+ * `null` — CMS не ответила. Раньше сбой подставлял `state: "calm"`, и портал
+ * выдавал молчание бэкенда за подтверждённое отсутствие угроз — для сайта ЧС
+ * это худший из возможных исходов деградации.
+ */
 export async function fetchAlertsActive(
   locale: Locale = DEFAULT_LOCALE,
-): Promise<ApiAlertsActive> {
+): Promise<ApiAlertsActive | null> {
   const url = buildUrl("/alerts/active", { locale });
 
   try {
@@ -564,14 +592,17 @@ export async function fetchAlertsActive(
     return body.data;
   } catch (error) {
     reportCmsFailure("fetchAlertsActive", error);
-    return { state: "calm", count: 0, regions: [] };
+    return null;
   }
 }
 
-/** Статусы регионов для карты рисков. */
+/**
+ * Статусы регионов для карты рисков. `null` — CMS не ответила; карта в этом
+ * состоянии не должна раскрашивать регионы «спокойным» цветом как проверенные.
+ */
 export async function fetchRegions(
   locale: Locale = DEFAULT_LOCALE,
-): Promise<ApiRegionStatus[]> {
+): Promise<ApiRegionStatus[] | null> {
   const url = buildUrl("/regions", { locale });
 
   try {
@@ -580,6 +611,7 @@ export async function fetchRegions(
         revalidate: REVALIDATE,
         tags: [...cmsRequestTags("alert", locale), `cms:regions:${locale}`],
       },
+      signal: timeoutSignal(),
     });
     if (!res.ok) {
       throw cmsResponseError(res);
@@ -588,7 +620,7 @@ export async function fetchRegions(
     return body.data;
   } catch (error) {
     reportCmsFailure("fetchRegions", error);
-    return [];
+    return null;
   }
 }
 
@@ -628,6 +660,7 @@ export async function fetchHome(
         revalidate: REVALIDATE,
         tags: [cmsCacheTags.home(locale)],
       },
+      signal: timeoutSignal(),
     });
     if (!res.ok) {
       throw cmsResponseError(res);
@@ -654,6 +687,7 @@ export async function fetchSettings(
         revalidate: REVALIDATE,
         tags: [cmsCacheTags.shell(locale)],
       },
+      signal: timeoutSignal(),
     });
     if (!res.ok) {
       throw cmsResponseError(res);
@@ -678,6 +712,7 @@ export async function fetchMenu(
         revalidate: REVALIDATE,
         tags: [cmsCacheTags.shell(locale)],
       },
+      signal: timeoutSignal(),
     });
     if (!res.ok) {
       throw cmsResponseError(res);
@@ -702,6 +737,7 @@ export async function fetchRegionsDirectory(
         revalidate: REVALIDATE,
         tags: [`cms:regions:${locale}`],
       },
+      signal: timeoutSignal(),
     });
     if (!res.ok) {
       throw cmsResponseError(res);
@@ -734,6 +770,7 @@ export async function fetchLeadership(
   try {
     const res = await fetch(url, {
       next: { revalidate: REVALIDATE, tags: ["cms"] },
+      signal: timeoutSignal(),
     });
     if (!res.ok) {
       throw cmsResponseError(res);
@@ -762,6 +799,7 @@ export async function fetchStructureUnits(
   try {
     const res = await fetch(url, {
       next: { revalidate: REVALIDATE, tags: ["cms"] },
+      signal: timeoutSignal(),
     });
     if (!res.ok) {
       throw cmsResponseError(res);

@@ -316,6 +316,13 @@ export const en: Dictionary = {
       openMap: "Open risk map",
       emergencyHelp: "Emergency help",
       emergencyNote: "Single emergency number, 24/7",
+      unavailable: {
+        label: "Data unavailable",
+        badge: "no reliable data",
+        text: "Situation information could not be retrieved. It is being clarified; if lives are at risk, call 112.",
+        emptyTitle: "Situation data is currently unavailable",
+        emptyText: "The list of active alerts could not be retrieved. Check your connection or refresh the page later.",
+      },
       state: {
         calm: {
           label: "Situation normal",

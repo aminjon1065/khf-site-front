@@ -137,7 +137,7 @@ export default async function AlertDetailPage({
     };
   });
 
-  const related = (await fetchAlerts(locale))
+  const related = ((await fetchAlerts(locale)) ?? [])
     .filter((a) => a.slug !== slug)
     .slice(0, 3);
 

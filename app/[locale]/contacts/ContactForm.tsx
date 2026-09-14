@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { muted } from "@/components/public/ui";
+import { toApiLocale, type Locale } from "@/lib/i18n/config";
 import type { ReceptionContent } from "./content";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8848/api/v1";
@@ -13,8 +14,10 @@ const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8848/api/v1";
  */
 export default function ContactForm({
   reception,
+  locale,
 }: {
   reception: ReceptionContent;
+  locale: Locale;
 }) {
   const { form, success } = reception;
   const [consent, setConsent] = useState(false);
@@ -35,7 +38,7 @@ export default function ContactForm({
         }}
       >
         <strong>{success.strong}</strong> {success.trackingLabel}{" "}
-        <strong>{tracking}</strong>. {success.copySent}
+        <strong>{tracking}</strong>. {success.note}
       </div>
     );
   }
@@ -67,8 +70,15 @@ export default function ContactForm({
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
+          // Язык валидационных сообщений CMS (422) определяется по этому
+          // заголовку (ResolveApiLocale), иначе он зависит от настроек
+          // браузера, а не от выбранного языка портала. tj → tg (API-код).
+          "Accept-Language": toApiLocale(locale),
         },
         body: JSON.stringify(payload),
+        // Обрыв связи не должен превращаться в вечный «Отправка…»; повтор
+        // выполняет только сам пользователь (защита от дублей обращений).
+        signal: AbortSignal.timeout(15_000),
       });
       if (!res.ok) {
         // Раньше любой не-2xx превращался в `new Error("API " + status)`, а

@@ -17,6 +17,7 @@ interface MapContent {
   incidentsListAria: string;
   countFilterPrefix: string;
   empty: { title: string; text: string };
+  unavailable: { title: string; text: string };
   howToRead: { title: string; text: string };
 }
 
@@ -34,6 +35,10 @@ const ru: MapContent = {
   empty: {
     title: "Событий этого типа нет",
     text: "По выбранному типу риска активных событий не зарегистрировано.",
+  },
+  unavailable: {
+    title: "Данные об обстановке сейчас недоступны",
+    text: "Не удалось получить сведения о предупреждениях и статусах регионов. Ситуация уточняется; при угрозе жизни звоните 112.",
   },
   howToRead: {
     title: "Как читать карту",
@@ -56,6 +61,10 @@ const tj: MapContent = {
     title: "Рӯйдоди ин навъ нест",
     text: "Аз рӯи навъи интихобшудаи хатар рӯйдоди фаъол сабт нашудааст.",
   },
+  unavailable: {
+    title: "Иттилооти вазъият ҳоло дастрас нест",
+    text: "Маълумот дар бораи огоҳиҳо ва вазъияти минтақаҳо гирифта нашуд. Вазъият равшан карда мешавад; дар хатари ҷон занг занед — 112.",
+  },
   howToRead: {
     title: "Харитаро чӣ гуна хондан",
     text: "Ранги минтақа сатҳи баландтарини огоҳии амалкунандаро нишон медиҳад. Сатҳ ҳамеша бо матн ва аломат такрор мешавад — на танҳо бо ранг.",
@@ -76,6 +85,10 @@ const en: MapContent = {
   empty: {
     title: "No events of this type",
     text: "No active events are registered for the selected risk type.",
+  },
+  unavailable: {
+    title: "Situation data is currently unavailable",
+    text: "Information about alerts and region statuses could not be retrieved. The situation is being clarified; if lives are at risk, call 112.",
   },
   howToRead: {
     title: "How to read the map",

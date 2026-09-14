@@ -160,7 +160,7 @@ export default async function ContactsPage({
           <p className="m-0 text-[13px] leading-[1.55]" style={{ color: muted(65) }}>
             {reception.intro}
           </p>
-          <ContactForm reception={reception} />
+          <ContactForm reception={reception} locale={locale} />
         </aside>
       </div>
     </PageShell>
