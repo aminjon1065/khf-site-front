@@ -23,7 +23,7 @@ export default function MobileMenuButton({
       onClick={openMenu}
       aria-controls={menuId}
       aria-label={openLabel}
-      className="hidden h-[46px] w-[46px] flex-none cursor-pointer items-center justify-center border border-[var(--color-divider)] bg-transparent max-[920px]:inline-flex"
+      className="icon-btn hidden h-[46px] w-[46px] flex-none cursor-pointer items-center justify-center border border-[var(--color-divider)] bg-transparent max-[920px]:inline-flex"
       style={{ color: "var(--color-text)" }}
     >
       <Menu size={20} strokeWidth={1.5} aria-hidden="true" />

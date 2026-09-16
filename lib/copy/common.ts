@@ -30,6 +30,13 @@ export const common = {
     menu: "Меню",
     searchPlaceholder: "Поиск по порталу",
     searchShort: "Поиск",
+    // Поиск в строке навигации открывается модальным окном: раскрывать поле
+    // прямо в строке нельзя — оно отнимало ширину у пунктов меню и вся
+    // навигация перестраивалась при каждом фокусе.
+    searchOpen: "Открыть поиск",
+    searchClose: "Закрыть поиск",
+    searchSubmit: "Найти",
+    searchHint: "Минимум 2 символа. Enter — показать все результаты.",
     sosApp: "Приложение SOS",
     aboutMenu: "О нас",
     emergencyCallMobile: "112 — экстренный вызов",
@@ -86,7 +93,9 @@ export const common = {
       { label: "Президент Республики Таджикистан", href: "https://president.tj", external: true },
       { label: "МИД Республики Таджикистан", href: "https://mfa.tj", external: true },
       { label: "khf.tj — официальный сайт", href: "https://khf.tj", external: true },
-      { label: "Открытые данные", href: "#", external: false },
+      // «Открытые данные» — существующий фильтр каталога документов,
+      // а не заглушка «#»: ссылка ведёт на локализованный каталог.
+      { label: "Открытые данные", href: "/documents?type=open_data", external: false },
       { label: "Карта сайта", href: routes.sitemap, external: false },
     ],
     copyright:

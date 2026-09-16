@@ -35,6 +35,10 @@ export const en: Dictionary = {
       menu: "Menu",
       searchPlaceholder: "Search the portal",
       searchShort: "Search",
+      searchOpen: "Open search",
+      searchClose: "Close search",
+      searchSubmit: "Search",
+      searchHint: "At least 2 characters. Enter shows all results.",
       sosApp: "SOS app",
       aboutMenu: "About us",
       emergencyCallMobile: "112 — emergency call",
@@ -103,7 +107,7 @@ export const en: Dictionary = {
           href: "https://khf.tj",
           external: true,
         },
-        { label: "Open data", href: "#", external: false },
+        { label: "Open data", href: "/documents?type=open_data", external: false },
         { label: "Sitemap", href: routes.sitemap, external: false },
       ],
       copyright:
@@ -140,7 +144,6 @@ export const en: Dictionary = {
     calm: {
       strong: "No emergency alerts.",
       text: " The situation across the republic is normal.",
-      mapLink: "Risk map",
     },
 
     unavailable: {
@@ -175,37 +178,38 @@ export const en: Dictionary = {
     ops: {
       title: "Operational summary",
       activeLabel: "Active alerts",
-      noneText: "There are no active alerts. Conditions are normal.",
+      noneText: "There are no active alerts.",
+      unavailableText:
+        "Situation data is temporarily unavailable. Please refresh the page later.",
+      watchedRegions: "Regions monitored",
+      affectedRegions: "Regions affected",
+      staleText: "Data may be out of date — refreshing…",
       mapLink: "Risk map →",
     },
 
     quickActions: {
       title: "What to do in an emergency",
-      index: "01 / Guides",
       allLink: "All guides →",
       openInstruction: "Open the guide →",
       links: [
         { icon: "map", title: "Risk map", desc: "Situation across the regions of the republic", href: routes.map },
         { icon: "phone", title: "Emergency numbers", desc: "112, regional departments, public office", href: routes.contacts },
-        { icon: "message", title: "Report an incident", desc: "Citizens' electronic office", href: routes.contacts },
+        { icon: "message", title: "Send an appeal", desc: "Electronic reception — non-urgent appeals", href: `${routes.contacts}#reception` },
       ],
     },
 
     regionSection: {
       title: "Situation by region",
-      index: "02 / Map",
       openFull: "Open full map",
     },
 
     warnings: {
       title: "Alerts",
-      index: "03 / Warning",
       allLink: "All alerts →",
     },
 
     news: {
       title: "News & statements",
-      index: "04 / Press office",
       allLink: "All news →",
       featured: {
         photoLabel: "Photo: CoES helicopter over the Pamirs",
@@ -214,7 +218,6 @@ export const en: Dictionary = {
 
     documents: {
       title: "Official documents",
-      index: "05 / Documents",
       allLink: "Catalogue →",
       rows: [
         {
@@ -239,7 +242,6 @@ export const en: Dictionary = {
 
     announcements: {
       title: "Announcements",
-      index: "06 / Vacancies & tenders",
       allLink: "All announcements →",
       rows: [
         {
@@ -383,6 +385,7 @@ export const en: Dictionary = {
     guideDetail: {
       kicker: "Public guidance",
       keyPoint: "Key point",
+      contents: "Sections of this guide",
       prohibited: "What not to do",
       more: "More",
       materials: "Materials",
@@ -418,6 +421,11 @@ export const en: Dictionary = {
       promptShort: "Enter at least 2 characters to search.",
       emptyPrefix: "Nothing found for",
       resultsPrefix: "Results for",
+      unavailableTitle: "Search is temporarily unavailable",
+      unavailableText:
+        "The search service did not respond. Check your connection and try again.",
+      retry: "Retry search",
+      sitemapNav: "Open the site map",
       typeLabels: {
         news: "News",
         alert: "Alert",
@@ -428,7 +436,11 @@ export const en: Dictionary = {
         page: "Page",
       },
     },
-    projectsList: { empty: "No projects have been published yet." },
+    projectsList: {
+      empty: "No projects have been published yet.",
+      unavailable:
+        "The project list is temporarily unavailable. Please refresh the page later.",
+    },
     leadership: { chairmanAria: "Chairman", deputiesAria: "Deputies" },
     guidesList: {
       mainThreats: "Main threats",
@@ -437,12 +449,22 @@ export const en: Dictionary = {
       priorityGuide: "Priority guide",
       topicsSuffix: "topics",
       empty: "No guides have been published yet.",
+      unavailable:
+        "The guide list is temporarily unavailable. Please refresh the page later.",
     },
     sosPage: { app: "SOS app", features: "Features", how: "How SOS works" },
     newsDetail: {
       pressKicker: "CoES press office",
       pressSource: "CoES press centre",
       newsCategory: "News",
+      translationNotice:
+        "A translation into this language has not been published yet — the available version is shown.",
+      readIn: "Read in",
+    },
+    languageNames: {
+      ru: "Russian",
+      tj: "Tajik",
+      en: "English",
     },
   },
 };

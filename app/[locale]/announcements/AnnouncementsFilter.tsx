@@ -25,12 +25,15 @@ export default function AnnouncementsFilter({
   locale,
   active,
   total,
+  unavailable,
 }: {
   children: ReactNode;
   data: ApiAnnouncement[];
   locale: Locale;
   active: FilterKey;
   total: number;
+  /** CMS не ответила: пустая лента — не «объявления не найдены». */
+  unavailable?: boolean;
 }) {
   const c = getAnnouncementsContent(locale);
   const kindMeta = getKindMeta(locale);
@@ -78,7 +81,7 @@ export default function AnnouncementsFilter({
         <div role="feed" aria-label={c.feedLabel} className="min-w-0">
           {data.length === 0 && (
             <p className="py-6 text-[14px]" style={{ color: muted(60) }}>
-              {c.empty}
+              {unavailable ? c.unavailable : c.empty}
             </p>
           )}
           {data.map((a) => {

@@ -3,10 +3,16 @@ import Link from "@/components/i18n/LocaleLink";
 import { notFound } from "next/navigation";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
+import TranslationNotice from "@/components/public/TranslationNotice";
 import CmsImage from "@/components/public/CmsImage";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
-import { fetchProject, fetchProjects, fetchSlugs } from "@/lib/api";
+import {
+  availableLocalesFor,
+  fetchProject,
+  fetchProjects,
+  fetchStaticParamSlugs,
+} from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { routes } from "@/lib/routes";
@@ -38,8 +44,7 @@ export async function generateStaticParams({
 }: {
   params: { locale: string };
 }) {
-  const slugs = await fetchSlugs("project", toLocale(locale));
-  return slugs.map((slug) => ({ slug }));
+  return fetchStaticParamSlugs("project", toLocale(locale));
 }
 
 export async function generateMetadata({
@@ -57,17 +62,26 @@ export async function generateMetadata({
   if (!p) {
     return { title: pages.meta.projectFallback, robots: { index: false } };
   }
+  // hreflang и индексируемость — по реально опубликованным переводам, а не
+  // по трём локалям механически: CMS отдаёт русский fallback на любой
+  // запрошенный язык, и без этой проверки он выдавал бы себя за перевод.
+  const availableLocales = await availableLocalesFor("project", slug);
+  const untranslated = !availableLocales.includes(loc);
   const image = cmsImageSource(p.image_data);
 
-  return buildMetadata({
-    locale: loc,
-    title: p.title,
-    description: p.desc,
-    path: `/projects/${slug}`,
-    images: image ? [image] : undefined,
-    type: "article",
-    siteName: common.siteShort,
-  });
+  return {
+    ...buildMetadata({
+      locale: loc,
+      title: p.title,
+      description: p.desc,
+      path: `/projects/${slug}`,
+      images: image ? [image] : undefined,
+      type: "article",
+      siteName: common.siteShort,
+      availableLocales,
+    }),
+    ...(untranslated ? { robots: { index: false, follow: true } } : {}),
+  };
 }
 
 export default async function ProjectDetailPage({
@@ -115,6 +129,10 @@ export default async function ProjectDetailPage({
   const { data: allProjects } = await fetchProjects({ locale, perPage: 50 });
   const related = allProjects.filter((r) => r.slug !== slug).slice(0, 3);
 
+  // Те же данные, что и в generateMetadata: наличие перевода на язык
+  // страницы. Кэш fetch общий, поэтому это не повторный поход в CMS.
+  const availableLocales = await availableLocalesFor("project", slug);
+
   return (
     <PageShell>
       <BreadcrumbJsonLd
@@ -131,6 +149,14 @@ export default async function ProjectDetailPage({
           { label: projectBreadcrumb.projects, href: routes.projects },
           { label: p.title },
         ]}
+      />
+
+      {/* Перевода на язык страницы нет — показываем это честно и ведём
+          к опубликованной версии (страница при этом noindex). */}
+      <TranslationNotice
+        locale={locale}
+        available={availableLocales}
+        path={`/projects/${slug}`}
       />
 
       {/* Шапка проекта */}

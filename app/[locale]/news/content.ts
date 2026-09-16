@@ -21,6 +21,11 @@ const ru = {
     searchPlaceholder: "Поиск по новостям",
     searchAria: "Поиск по новостям",
     submit: "Найти",
+    // Мобильное представление фильтра: вместо ряда кнопок — select в той же
+    // GET-форме (состояние живёт в адресе, работает и без JS).
+    categorySelect: "Категория",
+    resultsPrefix: "Результатов",
+    reload: "Обновить страницу",
   },
 
   feed: {
@@ -31,15 +36,19 @@ const ru = {
     title: "Ничего не найдено",
     text: "Попробуйте изменить запрос или выбрать другую категорию.",
     reset: "Сбросить фильтры",
+    // CMS не ответила — это не «ничего не найдено»: список может быть непустым.
+    unavailableTitle: "Новости временно недоступны",
+    unavailableText:
+      "Не удалось получить список новостей. Проверьте подключение или обновите страницу позже.",
   },
 
   aside: {
-    photoLabel: "Фото пресс-службы",
     media: {
       title: "Для СМИ",
       text: "Аккредитация журналистов и официальные комментарии — через пресс-службу Комитета.",
-      email: "press@khf.tj →",
-      href: routes.contacts,
+      email: "press@khf.tj",
+      emailAria: "Написать в пресс-службу",
+      href: "mailto:press@khf.tj",
     },
     // Раньше здесь стояла форма подписки на оповещения о ЧС: поле и кнопка
     // вне <form>, без обработчика, при отсутствующем эндпоинте подписки в API.
@@ -71,6 +80,9 @@ const tj: NewsContent = {
     searchPlaceholder: "Ҷустуҷӯ дар хабарҳо",
     searchAria: "Ҷустуҷӯ дар хабарҳо",
     submit: "Ҷустуҷӯ",
+    categorySelect: "Категория",
+    resultsPrefix: "Натиҷаҳо",
+    reload: "Саҳифаро нав кардан",
   },
 
   feed: {
@@ -81,15 +93,18 @@ const tj: NewsContent = {
     title: "Ҳеҷ чиз ёфт нашуд",
     text: "Дархостро тағйир диҳед ё категорияи дигар интихоб кунед.",
     reset: "Тоза кардани полоишҳо",
+    unavailableTitle: "Хабарҳо муваққатан дастрас нестанд",
+    unavailableText:
+      "Рӯйхати хабарҳо гирифта нашуд. Пайвастшавиро тафтиш кунед ё саҳифаро баъдтар нав кунед.",
   },
 
   aside: {
-    photoLabel: "Акси хадамоти матбуот",
     media: {
       title: "Барои ВАО",
       text: "Аккредитатсияи рӯзноманигорон ва шарҳҳои расмӣ — тавассути хадамоти матбуоти Кумита.",
-      email: "press@khf.tj →",
-      href: routes.contacts,
+      email: "press@khf.tj",
+      emailAria: "Навиштан ба хадамоти матбуот",
+      href: "mailto:press@khf.tj",
     },
     alerts: {
       title: "Огоҳиҳои амалкунанда",
@@ -116,6 +131,9 @@ const en: NewsContent = {
     searchPlaceholder: "Search the news",
     searchAria: "Search the news",
     submit: "Search",
+    categorySelect: "Category",
+    resultsPrefix: "Results",
+    reload: "Refresh page",
   },
 
   feed: {
@@ -126,15 +144,18 @@ const en: NewsContent = {
     title: "Nothing found",
     text: "Try changing your query or selecting another category.",
     reset: "Reset filters",
+    unavailableTitle: "News is temporarily unavailable",
+    unavailableText:
+      "The news list could not be retrieved. Check your connection or refresh the page later.",
   },
 
   aside: {
-    photoLabel: "Press office photo",
     media: {
       title: "For media",
       text: "Journalist accreditation and official comments — via the Committee's press office.",
-      email: "press@khf.tj →",
-      href: routes.contacts,
+      email: "press@khf.tj",
+      emailAria: "Write to the press office",
+      href: "mailto:press@khf.tj",
     },
     alerts: {
       title: "Active alerts",

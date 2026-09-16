@@ -30,16 +30,27 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common, pages } = getDictionary(locale);
-  const page = Math.max(1, Number((await searchParams).page) || 1);
-  return buildMetadata({
-    locale,
-    title:
-      page > 1 ? `${pages.meta.documents} — ${page}` : pages.meta.documents,
-    description: metaDescription(getDocuments(locale).subtitle),
-    path: "/documents",
-    siteName: common.siteShort,
-    page,
-  });
+  const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const type = documentType(sp.type);
+  const q = sp.q?.trim() || undefined;
+
+  // Политика query-параметров (как у новостей): тип документа — индексируемая
+  // грань каталога (в canonical и hreflang), свободный поиск q — внутренняя
+  // поисковая выдача: noindex + self-canonical.
+  return {
+    ...buildMetadata({
+      locale,
+      title:
+        page > 1 ? `${pages.meta.documents} — ${page}` : pages.meta.documents,
+      description: metaDescription(getDocuments(locale).subtitle),
+      path: "/documents",
+      siteName: common.siteShort,
+      page,
+      query: { type },
+    }),
+    ...(q ? { robots: { index: false, follow: true } } : {}),
+  };
 }
 
 // ISR: библиотека документов перечитывается из CMS не чаще раза в минуту.
@@ -58,7 +69,7 @@ export default async function DocumentsPage({
   const page = Math.max(1, Number(resolvedSearchParams.page) || 1);
   const type = documentType(resolvedSearchParams.type);
   const q = resolvedSearchParams.q?.trim() || undefined;
-  const { data: docs, meta } = await fetchDocuments({
+  const { data: docs, meta, unavailable } = await fetchDocuments({
     locale,
     page,
     perPage: PER_PAGE,
@@ -87,19 +98,19 @@ export default async function DocumentsPage({
 
   return (
     <PageShell>
-      <div className="flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">
+      <div className="page-head">
         <h1 className="page-title page-title-caps">{documents.title}</h1>
-        <span className="text-xs" style={{ color: muted(50) }}>
+        <span className="page-subtitle">
           {documents.subtitle}
         </span>
       </div>
 
-      {/* Тип — группа кнопок-переключателей ссылками, как в макете и как в
-          списке новостей: выбранный тип виден с одного взгляда, состояние
-          остаётся в адресе и работает без JS. Раньше здесь стоял <select>,
-          и выбранный тип приходилось раскрывать. */}
+      {/* Тип — группа кнопок-переключателей ссылками (desktop), как в списке
+          новостей: выбранный тип виден с одного взгляда, состояние остаётся в
+          адресе и работает без JS. На мобильном ряд кнопок скрыт — тип
+          выбирается select'ом в форме поиска ниже. */}
       <div
-        className="flex flex-wrap items-center gap-2 border-b border-[var(--color-divider)] py-4"
+        className="flex flex-wrap items-center gap-2 border-b border-[var(--color-divider)] py-4 max-[560px]:hidden"
         role="group"
         aria-label={documents.typeGroupLabel}
       >
@@ -148,13 +159,33 @@ export default async function DocumentsPage({
         method="get"
         className="flex flex-wrap items-end gap-[14px] border-b border-[var(--color-divider)] py-4"
       >
-        {/* Выбранный тип переносится в форму поиска скрытым полем: иначе
-            отправка запроса сбрасывала бы фильтр. */}
-        {type && <input type="hidden" name="type" value={type} />}
+        {/* Мобильный фильтр типа — select в этой же GET-форме (на desktop
+            скрыт и играет роль прежнего скрытого поля type: скрытые, в
+            отличие от disabled, поля отправляются).
+            key: defaultValue у неуправляемого поля применяется ТОЛЬКО при
+            монтировании. При клиентском переходе (ссылки-кнопки типа выше)
+            React переиспользует тот же DOM-узел, и select сохранял значение
+            со старого адреса — отправка поиска сбрасывала выбранный тип в
+            пустой. Ключ от значения из URL заставляет узел пересоздаться. */}
+        <select
+          key={type ?? "all"}
+          name="type"
+          defaultValue={type ?? ""}
+          aria-label={documents.typeGroupLabel}
+          className="input min-h-11 text-[14px] hidden max-[560px]:block max-[560px]:w-full"
+        >
+          <option value="">{documents.allType}</option>
+          {typeOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
         <label className="flex min-w-[260px] flex-1 flex-col gap-1.5 text-[13px]">
           <span>{documents.search.ariaLabel}</span>
           <input
             className="input min-h-11"
+            key={q ?? ""}
             name="q"
             type="search"
             defaultValue={q ?? ""}
@@ -171,10 +202,22 @@ export default async function DocumentsPage({
         )}
       </form>
 
+      {/* Число результатов при активном фильтре: подтверждает, что отбор
+          применился; данные берутся из meta.total CMS. */}
+      {(type || q) && !unavailable && (
+        <p
+          className="m-0 py-2.5 text-xs [font-variant-numeric:tabular-nums]"
+          style={{ color: muted(55) }}
+        >
+          {documents.search.resultsPrefix}: {meta.total}
+        </p>
+      )}
+
       <DocumentsTable
         content={documents}
         docs={docs}
         hasFilters={Boolean(type || q)}
+        unavailable={unavailable}
       />
       <Pagination
         locale={locale}

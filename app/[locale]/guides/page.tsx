@@ -62,7 +62,7 @@ export default async function GuidesPage({
   const { hero, emergency, priorityCta } = getGuidesContent(locale);
   const { pages } = getDictionary(locale);
   const page = Math.max(1, Number((await searchParams).page) || 1);
-  const { data: items, meta } = await fetchInstructions({
+  const { data: items, meta, unavailable } = await fetchInstructions({
     locale,
     page,
     perPage: PER_PAGE,
@@ -213,7 +213,7 @@ export default async function GuidesPage({
           </div>
         ) : (
           <p className="py-8 text-[14px]" style={{ color: muted(60) }}>
-            {pages.guidesList.empty}
+            {unavailable ? pages.guidesList.unavailable : pages.guidesList.empty}
           </p>
         )}
         <Pagination

@@ -55,7 +55,7 @@ export default async function ProjectsPage({
   const c = getProjectsContent(locale);
   const { pages } = getDictionary(locale);
   const page = Math.max(1, Number((await searchParams).page) || 1);
-  const { data: projects, meta } = await fetchProjects({ locale, page, perPage: PER_PAGE });
+  const { data: projects, meta, unavailable } = await fetchProjects({ locale, page, perPage: PER_PAGE });
 
   return (
     <PageShell
@@ -138,7 +138,7 @@ export default async function ProjectsPage({
         </div>
       ) : (
         <p className="mt-6 text-[14px]" style={{ color: muted(60) }}>
-          {pages.projectsList.empty}
+          {unavailable ? pages.projectsList.unavailable : pages.projectsList.empty}
         </p>
       )}
 

@@ -134,9 +134,12 @@ describe("lib/api", () => {
 
       const result = await fetchNews();
 
+      // Пустой список помечен unavailable: страница обязана показать
+      // «временно недоступно», а не «ничего не найдено».
       expect(result).toEqual({
         data: [],
         meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 },
+        unavailable: true,
       });
     });
 
@@ -146,6 +149,7 @@ describe("lib/api", () => {
       const result = await fetchNews();
 
       expect(result.data).toEqual([]);
+      expect(result.unavailable).toBe(true);
     });
   });
 
@@ -281,10 +285,12 @@ describe("lib/api", () => {
       });
     });
 
-    it("degrades to an empty list so a CMS outage cannot break the build", async () => {
+    it("degrades to null so a CMS outage cannot masquerade as «no content»", async () => {
       fetchMock.mockResolvedValueOnce(jsonResponse({ message: "oops" }, 503));
 
-      await expect(fetchSlugs("project", "ru")).resolves.toEqual([]);
+      // null (а не []) — сигнал сбоя: пустой массив означал бы «материалов
+      // нет» и урезал бы карту сайта при временном отказе CMS.
+      await expect(fetchSlugs("project", "ru")).resolves.toBeNull();
     });
   });
 

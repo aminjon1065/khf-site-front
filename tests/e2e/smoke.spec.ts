@@ -78,18 +78,61 @@ for (const { label, locale, lang } of [
   });
 }
 
-test("header search navigates to the localized results route", async ({
+test("header search opens a dialog and navigates to the localized results route", async ({
   page,
 }) => {
   await page.goto("/ru");
 
-  const search = page.locator("header form[role=search]:visible");
-  await search.getByRole("searchbox").fill("лавина");
-  await search.getByRole("searchbox").press("Enter");
+  // Поиск в строке навигации — кнопка, открывающая модальное окно: поле,
+  // раскрывавшееся прямо в строке, перестраивало навигацию на каждом фокусе.
+  const dialog = page.locator("dialog#public-search");
+  await expect(dialog).toBeHidden();
+
+  await page.getByRole("link", { name: "Открыть поиск" }).click();
+  await expect(dialog).toBeVisible();
+  // Фокус сразу в поле — иначе окно пришлось бы «доклинуть».
+  await expect(dialog.getByRole("searchbox")).toBeFocused();
+
+  await dialog.getByRole("searchbox").fill("лавина");
+  await dialog.getByRole("searchbox").press("Enter");
 
   await expect(page).toHaveURL(
     /\/ru\/search\?q=%D0%BB%D0%B0%D0%B2%D0%B8%D0%BD%D0%B0$/,
   );
+});
+
+test("search dialog closes with Escape and returns focus to its trigger", async ({
+  page,
+}) => {
+  await page.goto("/ru");
+
+  const trigger = page.getByRole("link", { name: "Открыть поиск" });
+  const dialog = page.locator("dialog#public-search");
+
+  await trigger.click();
+  await expect(dialog).toBeVisible();
+
+  // Escape, ::backdrop и возврат фокуса даёт нативный <dialog>.showModal() —
+  // проверяем, что мы его не сломали своим обработчиком.
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(trigger).toBeFocused();
+});
+
+test("header search still works without JavaScript", async ({ browser }) => {
+  // Кнопка поиска — ссылка на /{locale}/search: с выключенным JS клик просто
+  // уводит на страницу поиска, где та же форма с автофокусом. Поиск не должен
+  // зависеть от того, выполнился ли скрипт.
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+
+  await page.goto("/ru");
+  await page.getByRole("link", { name: "Открыть поиск" }).click();
+
+  await expect(page).toHaveURL(/\/ru\/search$/);
+  await expect(page.getByRole("searchbox").first()).toBeVisible();
+
+  await context.close();
 });
 
 test("a genuinely unmatched route returns 404", async ({ page }) => {

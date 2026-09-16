@@ -7,13 +7,15 @@ import {
   NewsArticleJsonLd,
 } from "@/components/public/JsonLd";
 import PageShell from "@/components/public/PageShell";
+import TranslationNotice from "@/components/public/TranslationNotice";
 import CmsImage from "@/components/public/CmsImage";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
 import {
   fetchNews,
   fetchNewsItem,
   fetchSettings,
-  fetchSlugs,
+  fetchStaticParamSlugs,
+  availableLocalesFor,
   type ApiNewsItem,
 } from "@/lib/api";
 import { htmlLang, toLocale, type Locale } from "@/lib/i18n/config";
@@ -105,8 +107,7 @@ export async function generateStaticParams({
 }: {
   params: { locale: string };
 }) {
-  const slugs = await fetchSlugs("news", toLocale(locale));
-  return slugs.map((slug) => ({ slug }));
+  return fetchStaticParamSlugs("news", toLocale(locale));
 }
 
 export async function generateMetadata({
@@ -125,17 +126,25 @@ export async function generateMetadata({
     return { title: pages.meta.newsFallback, robots: { index: false } };
   }
   const image = cmsImageSource(item.image_data);
+  const availableLocales = await availableLocalesFor("news", slug);
+  // Непереведённый fallback не индексируем как «английскую публикацию»:
+  // страница честно показывает заметку о переводе, canonical остаётся своим.
+  const untranslated = !availableLocales.includes(loc);
 
-  return buildMetadata({
-    locale: loc,
-    title: item.seo?.title ?? item.title,
-    description: item.seo?.description ?? item.excerpt,
-    path: `/news/${slug}`,
-    images: image ? [image] : undefined,
-    type: "article",
-    publishedTime: item.datetime,
-    siteName: common.siteShort,
-  });
+  return {
+    ...buildMetadata({
+      locale: loc,
+      title: item.seo?.title ?? item.title,
+      description: item.seo?.description ?? item.excerpt,
+      path: `/news/${slug}`,
+      images: image ? [image] : undefined,
+      type: "article",
+      publishedTime: item.datetime,
+      siteName: common.siteShort,
+      availableLocales,
+    }),
+    ...(untranslated ? { robots: { index: false, follow: true } } : {}),
+  };
 }
 
 /**
@@ -211,6 +220,10 @@ export default async function ArticlePage({
   const bodyHtml = item.body ?? "";
   const bodyIsHtml = /<[a-z][\s\S]*>/i.test(bodyHtml);
 
+  // Есть ли настоящий перевод: CMS отдала контент (возможно, fallback'ом
+  // на русский), а списки slug'ов говорят, в каких локали он опубликован.
+  const availableLocales = await availableLocalesFor("news", slug);
+
   return (
     <PageShell
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
@@ -240,6 +253,11 @@ export default async function ArticlePage({
       <div className="mt-6 grid grid-cols-[minmax(0,1.9fr)_minmax(260px,1fr)] items-start gap-9 max-[920px]:grid-cols-1">
         {/* Тело статьи */}
         <article className="min-w-0 max-w-[72ch]">
+          <TranslationNotice
+            locale={locale}
+            available={availableLocales}
+            path={`/news/${slug}`}
+          />
           <span
             className="text-[11px] uppercase tracking-[.1em]"
             style={{ color: "var(--color-accent-700)" }}
@@ -262,6 +280,8 @@ export default async function ArticlePage({
             <span>{article.source}</span>
             <span className="flex-1" />
             <ArticleActions
+              title={article.title}
+              excerpt={article.lead}
               shareLabel={articleUi.share}
               sharedLabel={articleUi.shared}
               printLabel={articleUi.print}

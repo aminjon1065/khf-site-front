@@ -28,6 +28,9 @@ export default function PublicFooter({
   const about = settings?.org.about || footer.about;
   const address = settings?.org.address || footer.address[0];
   const email = settings?.org.email || footer.address[1];
+  // Email — контакт, а не упоминание: делаем его mailto-ссылкой, сохраняя
+  // оформление (без подчёркивания до hover, как у остальных ссылок подвала).
+  const emailHref = email.includes("@") ? `mailto:${email}` : null;
 
   // CMS-меню подвала задаёт состав/порядок пунктов, но его подписи не
   // локализованы (на /tj приходит русский фолбэк, на /en — пусто). Поэтому для
@@ -57,9 +60,12 @@ export default function PublicFooter({
       <div className="mx-auto grid w-full max-w-[1160px] grid-cols-[minmax(240px,1.3fr)_repeat(3,minmax(160px,1fr))] gap-8 px-6 pb-7 pt-10 max-[920px]:grid-cols-2 max-[920px]:px-4 max-[560px]:grid-cols-1">
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3">
+            {/* См. комментарий в PublicHeader: sizes по размеру в вёрстке,
+                иначе Next отдаёт вариант 1080 px под эмблему в 44 px. */}
             <Image
               src={logoImage}
               alt=""
+              sizes="45px"
               className="h-11 w-auto"
               style={{ width: "auto" }}
             />
@@ -76,7 +82,13 @@ export default function PublicFooter({
           <p className="m-0 text-xs" style={{ color: muted(70) }}>
             {address}
             <br />
-            {email}
+            {emailHref ? (
+              <a href={emailHref} className="no-underline">
+                {email}
+              </a>
+            ) : (
+              email
+            )}
           </p>
           {socialEntries.length > 0 && (
             <div className="flex flex-wrap gap-3 text-[12.5px]">
@@ -112,16 +124,23 @@ export default function PublicFooter({
           <h2 className="mb-3 kicker-heading" style={{ color: muted(72) }}>
             {footer.emergencyTitle}
           </h2>
-          <div className="flex flex-col gap-2 text-[13px]">
+          <div className="flex flex-col items-start gap-2 text-[13px]">
             {emergency.map((e) => (
-              <span key={e.num}>
+              // Номер — телефонная ссылка: на мобильном телефонный номер в
+              // подвале обязан начинать звонок, а не быть текстом.
+              <a
+                key={e.num}
+                href={`tel:${e.num}`}
+                className="no-underline"
+                aria-label={`${e.num} — ${e.label}`}
+              >
                 <strong
                   className={`text-[15px] [font-family:var(--font-heading)]${e.num === "112" ? " kfoot-sos" : ""}`}
                 >
                   {e.num}
                 </strong>{" "}
                 — {e.label}
-              </span>
+              </a>
             ))}
             <a href={trustHref}>
               {footer.trustLine}: {trustPhone}

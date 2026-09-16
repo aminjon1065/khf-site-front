@@ -5,12 +5,14 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
+import TranslationNotice from "@/components/public/TranslationNotice";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import {
   fetchInstruction,
   fetchInstructions,
-  fetchSlugs,
+  availableLocalesFor,
+  fetchStaticParamSlugs,
   type ApiInstruction,
 } from "@/lib/api";
 import { toLocale, type Locale } from "@/lib/i18n/config";
@@ -82,8 +84,7 @@ export async function generateStaticParams({
 }: {
   params: { locale: string };
 }) {
-  const slugs = await fetchSlugs("instruction", toLocale(locale));
-  return slugs.map((slug) => ({ slug }));
+  return fetchStaticParamSlugs("instruction", toLocale(locale));
 }
 
 type GuideRouteProps = { params: Promise<{ locale: string; slug: string }> };
@@ -101,17 +102,26 @@ export async function generateMetadata({
   if (!item) {
     return { title: pages.meta.guideFallback, robots: { index: false } };
   }
+  // hreflang и индексируемость — по реально опубликованным переводам, а не
+  // по трём локалям механически: CMS отдаёт русский fallback на любой
+  // запрошенный язык, и без этой проверки он выдавал бы себя за перевод.
+  const availableLocales = await availableLocalesFor("instruction", slug);
+  const untranslated = !availableLocales.includes(loc);
   const image = cmsImageSource(item.image_data);
 
-  return buildMetadata({
-    locale: loc,
-    title: item.title,
-    description: item.summary,
-    path: `/guides/${slug}`,
-    images: image ? [image] : undefined,
-    type: "article",
-    siteName: common.siteShort,
-  });
+  return {
+    ...buildMetadata({
+      locale: loc,
+      title: item.title,
+      description: item.summary,
+      path: `/guides/${slug}`,
+      images: image ? [image] : undefined,
+      type: "article",
+      siteName: common.siteShort,
+      availableLocales,
+    }),
+    ...(untranslated ? { robots: { index: false, follow: true } } : {}),
+  };
 }
 
 const toneConfig: Record<
@@ -190,6 +200,24 @@ export default async function GuidePage({ params }: GuideRouteProps) {
   const bodyHtml = item.body ?? "";
   const bodyIsHtml = /<[a-z][\s\S]*>/i.test(bodyHtml);
 
+  // Навигация по разделам: строится из фактически показанных блоков, поэтому
+  // не может сослаться на пустое место. Показываем только когда разделов
+  // действительно несколько — ради двух пунктов оглавление не нужно.
+  const toc: { id: string; label: string }[] = [
+    ...sections.map((s, i) => ({ id: `guide-step-${i}`, label: s.title })),
+    ...(dont.length > 0
+      ? [{ id: "guide-prohibited", label: pages.guideDetail.prohibited }]
+      : []),
+    ...(bodyIsHtml
+      ? [{ id: "guide-more", label: pages.guideDetail.more }]
+      : []),
+  ];
+  const showToc = toc.length >= 3;
+
+  // Те же данные, что и в generateMetadata: наличие перевода на язык
+  // страницы. Кэш fetch общий, поэтому это не повторный поход в CMS.
+  const availableLocales = await availableLocalesFor("instruction", slug);
+
   return (
     <PageShell
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
@@ -208,6 +236,14 @@ export default async function GuidePage({ params }: GuideRouteProps) {
           { label: common.nav.guides, href: routes.guides },
           { label: item.title },
         ]}
+      />
+
+      {/* Перевода на язык страницы нет — показываем это честно и ведём
+          к опубликованной версии (страница при этом noindex). */}
+      <TranslationNotice
+        locale={locale}
+        available={availableLocales}
+        path={`/guides/${slug}`}
       />
 
       <div className="mt-2 grid grid-cols-[minmax(0,1.9fr)_minmax(260px,1fr)] items-start gap-9 max-[920px]:grid-cols-1">
@@ -240,14 +276,41 @@ export default async function GuidePage({ params }: GuideRouteProps) {
             </div>
           )}
 
+          {/* Компактная навигация по разделам. Обычные якорные ссылки: работают
+              без JS, переживают шаринг адреса и не прячут содержимое — ключевые
+              действия остаются видимыми на странице целиком. */}
+          {showToc && (
+            <nav
+              aria-label={pages.guideDetail.contents}
+              className="mt-6 border-y border-[var(--color-divider)] py-3"
+            >
+              <h2 className="kicker-heading m-0 mb-2" style={{ color: muted(55) }}>
+                {pages.guideDetail.contents}
+              </h2>
+              <ul className="m-0 flex list-none flex-wrap gap-x-2 gap-y-1.5 p-0">
+                {toc.map((t) => (
+                  <li key={t.id}>
+                    <a
+                      href={`#${t.id}`}
+                      className="btn btn-secondary text-[13px]"
+                    >
+                      {t.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
+
           {/* Блоки До / Во время / После */}
           {sections.map((section, si) => {
             const tone = toneConfig[section.tone];
             return (
               <section
                 key={section.tag}
+                id={`guide-step-${si}`}
                 aria-label={section.aria}
-                className={si === 0 ? "mt-7" : "mt-6"}
+                className={si === 0 ? "scroll-mt-28 mt-7" : "scroll-mt-28 mt-6"}
               >
                 <h2 className="flex items-center gap-2.5 text-[22px] uppercase tracking-[.02em]">
                   <span className={tone.tagClassName} style={tone.tagStyle}>
@@ -288,8 +351,9 @@ export default async function GuidePage({ params }: GuideRouteProps) {
           {/* Чего делать нельзя */}
           {dont.length > 0 && (
             <section
+              id="guide-prohibited"
               aria-label={pages.guideDetail.prohibited}
-              className="blueprint mt-7 px-5 py-[18px]"
+              className="blueprint mt-7 scroll-mt-28 px-5 py-[18px]"
               style={{ borderTop: "3px solid var(--hz-critical)" }}
             >
               <h2 className="kicker-heading m-0 mb-2.5" style={{ color: "var(--hz-critical)" }}>
@@ -305,7 +369,11 @@ export default async function GuidePage({ params }: GuideRouteProps) {
 
           {/* Подробнее — развёрнутое описание */}
           {bodyIsHtml && (
-            <section aria-label={pages.guideDetail.more} className="mt-7">
+            <section
+              id="guide-more"
+              aria-label={pages.guideDetail.more}
+              className="mt-7 scroll-mt-28"
+            >
               <h2 className="text-[22px] uppercase tracking-[.02em]">
                 {pages.guideDetail.more}
               </h2>

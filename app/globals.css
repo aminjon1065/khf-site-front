@@ -14,8 +14,12 @@
 }
 
 :root {
-  --color-bg: #e7ecf1;
-  --color-surface: #dde4ea;
+  /* Светлый общий фон поднят до почти белого: холодный #E7ECF1 читался
+     «пасмурно» и съедал контраст белых карточек. #F5F7FA — тот же холодный
+     оттенок, но поверхности отделяются тонкой границей, а не тональным
+     перепадом. Пары проверены по контрасту в обеих темах. */
+  --color-bg: #f5f7fa;
+  --color-surface: #edf1f5;
   /* Бумага поверх холодного технического фона. */
   --color-card: #ffffff;
   --color-text: #161a1e;
@@ -81,11 +85,11 @@
   --space-6: 20.4px;
   --space-8: 27.2px;
 
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
 
-  --shadow-sm: 0 1px 2px color-mix(in srgb, #14181c 12%, transparent);
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #14181c 8%, transparent);
   --shadow-md: 0 4px 14px color-mix(in srgb, #14181c 12%, transparent);
   --shadow-lg: 0 16px 40px color-mix(in srgb, #14181c 18%, transparent);
 
@@ -245,51 +249,42 @@ html {
   .text-muted { color: color-mix(in srgb, var(--color-text) 65%, transparent); }
 
   /* — карточка-«blueprint»: спокойный режим без крестиков по углам,
-       тонкая рамка + мягкая тень (решение заказчика). Фон — бумага
+       тонкая рамка + минимальная тень (решение заказчика; рамка — главный
+       способ отделения, тень едва заметна). Фон — бумага
        (--color-card), чтобы плитки отделялись от технического --color-bg. — */
   .blueprint {
     position: relative;
     border: 1px solid var(--color-divider);
     border-radius: var(--radius-sm);
     background: var(--color-card);
-    box-shadow:
-      var(--shadow-sm),
-      inset 0 1px 0 color-mix(in srgb, #fff 72%, transparent);
+    box-shadow: var(--shadow-sm);
   }
   .blueprint > .corner { display: none; }
   /* Только тень: border-color на hover затёр бы цветную верхнюю кромку
      предупреждений (inline border-top). */
   a.blueprint:hover,
   button.blueprint:hover {
-    box-shadow:
-      var(--shadow-md),
-      inset 0 1px 0 color-mix(in srgb, #fff 72%, transparent);
+    box-shadow: var(--shadow-md);
   }
   .blueprint.command-strip {
     box-shadow:
       inset 3px 0 0 var(--color-accent),
-      var(--shadow-sm),
-      inset 0 1px 0 color-mix(in srgb, #fff 72%, transparent);
+      var(--shadow-sm);
   }
   .mast-card {
     border-top: 3px solid var(--color-accent);
   }
   [data-theme="dark"] .blueprint {
-    box-shadow:
-      var(--shadow-sm),
-      inset 0 1px 0 color-mix(in srgb, #fff 6%, transparent);
+    box-shadow: var(--shadow-sm);
   }
   [data-theme="dark"] a.blueprint:hover,
   [data-theme="dark"] button.blueprint:hover {
-    box-shadow:
-      var(--shadow-md),
-      inset 0 1px 0 color-mix(in srgb, #fff 8%, transparent);
+    box-shadow: var(--shadow-md);
   }
   [data-theme="dark"] .blueprint.command-strip {
     box-shadow:
       inset 3px 0 0 var(--color-accent),
-      var(--shadow-sm),
-      inset 0 1px 0 color-mix(in srgb, #fff 6%, transparent);
+      var(--shadow-sm);
   }
 
   .duotone { position: relative; overflow: hidden; }
@@ -339,7 +334,7 @@ html {
   .media-plate-label {
     position: relative;
     z-index: 1;
-    font-size: 11.5px;
+    font-size: 12.5px;
     letter-spacing: 0.04em;
     text-align: center;
     color: color-mix(in srgb, #fff 70%, transparent);
@@ -356,6 +351,35 @@ html {
     letter-spacing: -0.04em;
     color: color-mix(in srgb, #fff 12%, transparent);
     pointer-events: none;
+  }
+
+  /* — слайдер: бронь высоты по самому высокому слайду —
+     Оба слоя (габарит и активный слайд) занимают одну и ту же ячейку grid,
+     поэтому её высота равна максимуму из них и не меняется при переключении.
+     Без этого длинный заголовок одного слайда делал блок на ~300 px выше
+     остальных, и каждая автопрокрутка дёргала вверх карточку Президента и
+     все секции ниже. */
+  .slider-stack {
+    display: grid;
+    grid-template-areas: "slide";
+  }
+  .slider-stack > * {
+    grid-area: slide;
+    min-width: 0;
+  }
+  /* Слой-габарит: все слайды друг поверх друга (нужен МАКСИМУМ их высот, а не
+     сумма), поэтому внутри — та же одноячеечная сетка.
+     visibility: hidden — место занимает, но из дерева доступности и порядка
+     табуляции слой выпадает (в отличие от opacity: 0). */
+  .slider-gauge {
+    display: grid;
+    grid-template-areas: "slide";
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .slider-gauge > * {
+    grid-area: slide;
+    min-width: 0;
   }
 
   /* Слайд без фото: не оставляем пустую стальную плиту — место занимает
@@ -405,16 +429,15 @@ html {
     background: var(--color-accent);
   }
 
-  .section-index {
-    font-variant-numeric: tabular-nums;
-    color: var(--color-accent-700);
-  }
-  .section-head h3 {
+  /* Декоративная нумерация «01 / …» убрана: условные блоки главной
+     пропускали номер, и последовательность врала. Название раздела —
+     главный ориентир. */
+  .section-head :is(h2, h3) {
     display: flex;
     align-items: center;
     gap: 10px;
   }
-  .section-head h3::before {
+  .section-head :is(h2, h3)::before {
     content: "";
     display: block;
     width: 3px;
@@ -551,6 +574,30 @@ html {
   }
   .btn svg { display: block; }
   .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  /* Полный набор состояний кнопки: default / hover / :focus-visible (общий
+     контур из base) / disabled / loading / error. Два последних задаются
+     атрибутами, а не классами: aria-busy и aria-invalid — это то, что и так
+     обязано стоять в разметке для вспомогательных технологий, поэтому вид и
+     семантика не могут разойтись. */
+  .btn[aria-busy="true"] {
+    cursor: progress;
+    opacity: 0.75;
+  }
+  .btn[aria-busy="true"]::before {
+    content: "";
+    width: 13px;
+    height: 13px;
+    flex: none;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: btnSpin 0.7s linear infinite;
+  }
+  @keyframes btnSpin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    /* Крутящийся индикатор — движение: оставляем статичное кольцо-метку. */
+    .btn[aria-busy="true"]::before { animation: none; border-top-color: currentColor; opacity: 0.5; }
+  }
   .btn-primary { background: var(--color-accent-solid); color: var(--color-bg); border-color: var(--color-accent-solid); }
   .btn-primary:hover { background: var(--color-accent-solid-hover); }
   .btn-primary:active { background: var(--color-accent-solid-active); }
@@ -561,6 +608,11 @@ html {
   .btn-ghost:hover { background: color-mix(in srgb, var(--color-accent) 10%, transparent); }
   .btn-ghost:active { background: color-mix(in srgb, var(--color-accent) 18%, transparent); }
   .btn-icon { width: 36px; height: 36px; padding: 0; }
+  /* Компактная кнопка. Введена вместо россыпи inline-исключений
+     `text-[12.5px]` на кнопках скачивания, «Поделиться» и «Печать»: у
+     значимого действия не должно быть 11–12px подписи, а единый класс
+     держит нижнюю границу в одном месте. */
+  .btn-sm { font-size: 13px; padding: var(--space-1) var(--space-3); }
 
   /* Зоны касания. На мобильном палец не попадает в 33-пиксельную кнопку:
      базовый .btn складывается из padding var(--space-2) и line-height 14×1.2.
@@ -601,6 +653,20 @@ html {
   }
   .input:hover { border-color: color-mix(in srgb, var(--color-text) 45%, transparent); }
   .input:focus-visible { border-color: var(--color-accent); outline-offset: 0; }
+  /* Те же шесть состояний у полей. error — по aria-invalid (атрибут уже
+     проставляет форма приёмной), поэтому рамка не может показать «ошибку»
+     там, где её нет для скринридера, и наоборот. Цвет — не единственный
+     признак: рядом обязателен текст сообщения (WCAG 1.4.1). */
+  .input:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background: color-mix(in srgb, var(--color-text) 5%, var(--color-card));
+  }
+  .input[aria-invalid="true"] {
+    border-color: var(--hz-critical);
+    background: color-mix(in srgb, var(--hz-critical) 5%, var(--color-card));
+  }
+  .input[aria-invalid="true"]:focus-visible { outline-color: var(--hz-critical); }
   textarea.input { min-height: 90px; resize: vertical; }
   .radio { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
   .radio input, .seg-opt input {
@@ -639,6 +705,30 @@ html {
   /* Мелкий заголовок карточки. Раньше на его месте стоял <h6> — ради размера,
      а не иерархии: после <h1> это давало разрыв уровней, и скринридер терял
      структуру страницы. Тег теперь по смыслу, а внешний вид — отсюда. */
+  /* Шапка раздела: h1 + подзаголовок. На широком экране — одна строка по
+     базовой линии, как в макете; на узком подзаголовок уходит ПОД заголовок,
+     а не сжимается в тесный столбец рядом с ним. Кегль подзаголовка 14px
+     вместо 12: это пояснение к разделу, а не подпись-сноска. */
+  .page-head {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-4);
+    border-bottom: 1px solid var(--color-divider);
+    padding-bottom: var(--space-4);
+  }
+  .page-head > .page-subtitle {
+    font-size: 14px;
+    line-height: 1.5;
+    color: color-mix(in srgb, var(--color-text) 62%, transparent);
+  }
+  @media (max-width: 560px) {
+    .page-head {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-2);
+    }
+  }
+
   .kicker-heading { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
   .card-title { font-family: var(--font-heading); font-weight: var(--font-heading-weight); font-size: 17px; line-height: 1.2; }
   .card-body { margin: 0; font-size: 14px; opacity: 0.85; flex: 1; }
@@ -651,8 +741,11 @@ html {
   .elev-lg { box-shadow: var(--shadow-lg); }
 
   /* — теги — */
+  /* Тег — это подпись статуса (уровень предупреждения, тип документа, вид
+     объявления), а не декоративная мелочь: 11px для значимого статуса мал.
+     13px — нижняя граница шкалы пояснений, размер всё ещё компактный. */
   .tag {
-    display: inline-flex; align-items: center; font-size: 11px;
+    display: inline-flex; align-items: center; font-size: 13px;
     letter-spacing: 0.02em; padding: 3px 10px; border-radius: var(--radius-sm);
   }
   .tag-accent { background: var(--color-accent-100); color: var(--color-accent-800); }
@@ -809,9 +902,20 @@ html {
     background: color-mix(in srgb, var(--color-accent) 10%, transparent);
     color: var(--color-accent-700);
   }
-  .knav-search {
-    width: 136px;
+  /* Кнопка поиска в строке навигации (окно поиска — .ksearch ниже).
+     Раньше здесь стояло поле ввода: узкое в покое и расширявшееся по фокусу.
+     Оба состояния были плохи — в 136px не виден собственный запрос, а
+     расширение отнимало ширину у пунктов меню, и вся навигация
+     перестраивалась на каждом фокусе. Кнопка имеет постоянный размер. */
+  .knav-search-btn {
     flex: none;
+    border-radius: var(--radius-sm);
+    transition: background-color var(--motion-duration) var(--motion-ease),
+      border-color var(--motion-duration) var(--motion-ease);
+  }
+  .knav-search-btn:hover {
+    border-color: var(--color-accent);
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
   }
 
   /* Специфичнее `.knav a`, иначе кнопка 112 видна в строке меню всегда. */
@@ -829,17 +933,35 @@ html {
   /* Компактная шапка: 112 занимает место подписи SOS, поиск чуть уже.
      Доступное имя — aria-label на ссылке. */
   .ksite-header[data-compact] .sos-label { display: none; }
-  .ksite-header[data-compact] .knav-search { width: 118px; }
+  /* Подпись кнопки поиска прячется там же, где подпись SOS: остаётся лупа,
+     доступное имя даёт aria-label. */
+  .ksite-header[data-compact] .knav-search-label { display: none; }
 
   @container knav (max-width: 1080px) {
     .knav a,
     .knav summary { padding-inline: 6px; font-size: 13px; }
     .sos-label { display: none; }
-    .knav-search { width: 112px; }
+    .knav-search-label { display: none; }
   }
 
   /* ── Служебные ссылки шапки (hover) ── */
   .toplink:hover { color: var(--color-accent-700) !important; }
+
+  /* Единый радиус у всех элементов управления.
+     Карточки, кнопки, поля, теги и переключатель языка давно скруглены по
+     --radius-sm, а 112, «Приложение SOS» и служебные иконочные кнопки были
+     собраны инлайновыми классами и остались квадратными — рядом это читалось
+     как недоделка. Радиус задаётся здесь, а не утилитами у каждого элемента:
+     тогда шкала остаётся в одном месте и не расходится снова. */
+  .call-112,
+  .knav a.ksite-nav-112,
+  .sos-outline,
+  .knav-search-btn,
+  .icon-btn,
+  .knav-dropdown {
+    border-radius: var(--radius-sm);
+  }
+
   .call-112 {
     box-shadow: 0 1px 2px color-mix(in srgb, var(--hz-critical-solid) 40%, transparent);
   }
@@ -848,6 +970,28 @@ html {
 
   .status-calm {
     background: color-mix(in srgb, var(--hz-success) 10%, var(--color-card));
+  }
+
+  /* ── Модальное окно поиска ──
+     Полотно у верхней трети экрана, а не по центру: поле ввода оказывается
+     там, куда и так смотрит человек, нажавший «Поиск» в шапке, и не
+     перекрывается экранной клавиатурой на мобильном. */
+  body:has(.ksearch[open]) { overflow: hidden; }
+  .ksearch::backdrop { background: rgba(8, 14, 20, 0.58); }
+  .ksearch:not([open]) { display: none; }
+  .ksearch {
+    position: fixed;
+    top: max(12vh, calc(env(safe-area-inset-top, 0px) + 16px));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 96;
+    width: min(620px, calc(100vw - 32px));
+    max-height: calc(100vh - 24vh);
+    overflow-y: auto;
+    background: var(--color-card);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    color: var(--color-text);
   }
 
   /* ── Выдвижное мобильное меню ── */
@@ -967,6 +1111,8 @@ html:not([data-theme="dark"]) .ico-sun { display: none; }
   color: var(--color-accent-700);
   background: var(--color-card);
   border: 1px solid var(--color-divider);
+  /* Та же шкала скругления, что и у остальных элементов управления. */
+  border-radius: var(--radius-sm);
   box-shadow: var(--shadow-md);
   transition:
     background-color var(--motion-duration) var(--motion-ease),
@@ -998,6 +1144,7 @@ html:not([data-theme="dark"]) .ico-sun { display: none; }
   .input,
   .knav a,
   .knav summary,
+  .knav-search-btn,
   .row-link,
   .surface-hover,
   .surface-hover-6,

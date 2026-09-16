@@ -3,10 +3,16 @@ import Link from "@/components/i18n/LocaleLink";
 import { notFound } from "next/navigation";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
+import TranslationNotice from "@/components/public/TranslationNotice";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import TjRiskMap from "@/components/public/TjRiskMap";
-import { fetchAlert, fetchAlerts, fetchSlugs } from "@/lib/api";
+import {
+  availableLocalesFor,
+  fetchAlert,
+  fetchAlerts,
+  fetchStaticParamSlugs,
+} from "@/lib/api";
 import { htmlLang, toLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import {
@@ -29,10 +35,7 @@ export async function generateStaticParams({
 }: {
   params: { locale: string };
 }) {
-  // Пустые slug'и отсеивает сам эндпоинт: адрес без сегмента всё равно не
-  // разрешился бы в маршрут.
-  const slugs = await fetchSlugs("alert", toLocale(locale));
-  return slugs.map((slug) => ({ slug }));
+  return fetchStaticParamSlugs("alert", toLocale(locale));
 }
 
 export async function generateMetadata({
@@ -50,15 +53,24 @@ export async function generateMetadata({
   if (!a) {
     return { title: pages.meta.alertFallback, robots: { index: false } };
   }
-  return buildMetadata({
-    locale: loc,
-    title: a.title,
-    description: a.summary,
-    path: `/alerts/${slug}`,
-    type: "article",
-    publishedTime: a.datetime,
-    siteName: common.siteShort,
-  });
+  // hreflang и индексируемость — по реально опубликованным переводам, а не
+  // по трём локалям механически: CMS отдаёт русский fallback на любой
+  // запрошенный язык, и без этой проверки он выдавал бы себя за перевод.
+  const availableLocales = await availableLocalesFor("alert", slug);
+  const untranslated = !availableLocales.includes(loc);
+  return {
+    ...buildMetadata({
+      locale: loc,
+      title: a.title,
+      description: a.summary,
+      path: `/alerts/${slug}`,
+      type: "article",
+      publishedTime: a.datetime,
+      siteName: common.siteShort,
+      availableLocales,
+    }),
+    ...(untranslated ? { robots: { index: false, follow: true } } : {}),
+  };
 }
 
 /**
@@ -141,6 +153,10 @@ export default async function AlertDetailPage({
     .filter((a) => a.slug !== slug)
     .slice(0, 3);
 
+  // Те же данные, что и в generateMetadata: наличие перевода на язык
+  // страницы. Кэш fetch общий, поэтому это не повторный поход в CMS.
+  const availableLocales = await availableLocalesFor("alert", slug);
+
   return (
     <PageShell
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
@@ -159,6 +175,14 @@ export default async function AlertDetailPage({
           { label: pages.alertDetail.breadcrumbAlerts, href: routes.alert },
           { label: alert.title },
         ]}
+      />
+
+      {/* Перевода на язык страницы нет — показываем это честно и ведём
+          к опубликованной версии (страница при этом noindex). */}
+      <TranslationNotice
+        locale={locale}
+        available={availableLocales}
+        path={`/alerts/${slug}`}
       />
 
       {/* Шапка предупреждения */}
@@ -182,7 +206,12 @@ export default async function AlertDetailPage({
           </span>
           <span className="tag tag-neutral">{alert.hazard_label}</span>
           <span className="flex-1" />
-          <ShareButton idle={pages.alertDetail.share} copied={pages.alertDetail.shared} />
+          <ShareButton
+            title={alert.title}
+            summary={alert.summary}
+            idle={pages.alertDetail.share}
+            copied={pages.alertDetail.shared}
+          />
         </div>
 
         <h1 className="m-0 text-[32px] leading-[1.12]">{alert.title}</h1>

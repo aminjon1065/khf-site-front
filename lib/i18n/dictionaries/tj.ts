@@ -31,6 +31,10 @@ export const tj: Dictionary = {
       menu: "Меню",
       searchPlaceholder: "Ҷустуҷӯ дар портал",
       searchShort: "Ҷустуҷӯ",
+      searchOpen: "Кушодани ҷустуҷӯ",
+      searchClose: "Бастани ҷустуҷӯ",
+      searchSubmit: "Ҷустуҷӯ",
+      searchHint: "Ҳадди ақал 2 аломат. Enter — ҳамаи натиҷаҳо.",
       sosApp: "Барномаи SOS",
       aboutMenu: "Дар бораи мо",
       emergencyCallMobile: "112 — занги фавқулодда",
@@ -87,7 +91,7 @@ export const tj: Dictionary = {
         { label: "Президенти Ҷумҳурии Тоҷикистон", href: "https://president.tj", external: true },
         { label: "ВКХ Ҷумҳурии Тоҷикистон", href: "https://mfa.tj", external: true },
         { label: "khf.tj — сомонаи расмӣ", href: "https://khf.tj", external: true },
-        { label: "Маълумоти кушода", href: "#", external: false },
+        { label: "Маълумоти кушода", href: "/documents?type=open_data", external: false },
         { label: "Харитаи сомона", href: routes.sitemap, external: false },
       ],
       copyright:
@@ -124,7 +128,6 @@ export const tj: Dictionary = {
     calm: {
       strong: "Огоҳиҳои фавқулодда нестанд.",
       text: " Вазъият дар ҳудуди ҷумҳурӣ муътадил аст.",
-      mapLink: "Харитаи хатарҳо",
     },
 
     unavailable: {
@@ -159,37 +162,37 @@ export const tj: Dictionary = {
     ops: {
       title: "Хулосаи оперативӣ",
       activeLabel: "Огоҳиҳои фаъол",
-      noneText: "Огоҳиҳои фаъол нест. Вазъият муқаррарӣ аст.",
+      noneText: "Огоҳиҳои фаъол нест.",
+      unavailableText: "Маълумот дар бораи вазъият муваққатан дастрас нест. Саҳифаро баъдтар нав кунед.",
+      watchedRegions: "Минтақаҳои зери назорат",
+      affectedRegions: "Минтақаҳои фарогирифташуда",
+      staleText: "Маълумот метавонад кӯҳна бошад — нав карда истодаем…",
       mapLink: "Харитаи хатарҳо →",
     },
 
     quickActions: {
       title: "Ҳангоми ҳолати фавқулода чӣ бояд кард",
-      index: "01 / Дастурҳо",
       allLink: "Ҳамаи дастурҳо →",
       openInstruction: "Кушодани дастур →",
       links: [
         { icon: "map", title: "Харитаи хатарҳо", desc: "Вазъият аз рӯи минтақаҳои ҷумҳурӣ", href: routes.map },
         { icon: "phone", title: "Телефонҳои фавқулода", desc: "112, раёсатҳои минтақавӣ, қабулгоҳ", href: routes.contacts },
-        { icon: "message", title: "Хабар додан дар бораи ҳодиса", desc: "Қабулгоҳи электронии шаҳрвандон", href: routes.contacts },
+        { icon: "message", title: "Навиштани муроҷиат", desc: "Қабулгоҳи электронӣ — муроҷиатҳои ғайрифаврӣ", href: `${routes.contacts}#reception` },
       ],
     },
 
     regionSection: {
       title: "Вазъият аз рӯи минтақаҳо",
-      index: "02 / Харита",
       openFull: "Кушодани харитаи пурра",
     },
 
     warnings: {
       title: "Огоҳиҳо",
-      index: "03 / Огоҳонӣ",
       allLink: "Ҳамаи огоҳиҳо →",
     },
 
     news: {
       title: "Хабарҳо ва баёнияҳо",
-      index: "04 / Хадамоти матбуот",
       allLink: "Ҳамаи хабарҳо →",
       featured: {
         photoLabel: "Акс: чархболи КҲФ дар болои Помир",
@@ -198,7 +201,6 @@ export const tj: Dictionary = {
 
     documents: {
       title: "Ҳуҷҷатҳои расмӣ",
-      index: "05 / Ҳуҷҷатҳо",
       allLink: "Феҳраст →",
       rows: [
         { tag: "Қонун", title: "Қонуни ҶТ «Дар бораи ҳифзи аҳолӣ ва ҳудуд аз ҳолатҳои фавқулодаи табиӣ ва техногенӣ»", size: "PDF · 0,4 МБ" },
@@ -209,7 +211,6 @@ export const tj: Dictionary = {
 
     announcements: {
       title: "Эълонҳо",
-      index: "06 / Ҷойҳои холӣ ва тендерҳо",
       allLink: "Ҳамаи эълонҳо →",
       rows: [
         { tag: "Ҷойи холӣ", tagClass: "tag-accent", title: "Наҷотдиҳандаи гурӯҳи ҳавоӣ — ш. Душанбе, 2 вазифа", deadline: "то 31.07.2026" },
@@ -337,6 +338,7 @@ export const tj: Dictionary = {
     guideDetail: {
       kicker: "Дастур ба аҳолӣ",
       keyPoint: "Муҳим",
+      contents: "Бахшҳои дастур",
       prohibited: "Чиро набояд кард",
       more: "Муфассал",
       materials: "Маводҳо",
@@ -360,6 +362,12 @@ export const tj: Dictionary = {
       promptShort: "Барои ҷустуҷӯ ҳадди ақал 2 аломат ворид кунед.",
       emptyPrefix: "Аз рӯи дархост чизе ёфт нашуд",
       resultsPrefix: "Натиҷаҳо аз рӯи дархост",
+      // Сбой API поиска — не «ничего не найдено»: сохранённый запрос
+      // остаётся в поле, посетителю предлагаем повторить попытку.
+      unavailableTitle: "Ҷустуҷӯ муваққатан дастрас нест",
+      unavailableText: "Хидмати ҷустуҷӯ ҷавоб надод. Пайвастшавиро тафтиш кунед ва боз кӯшиш кунед.",
+      retry: "Такрори ҷустуҷӯ",
+      sitemapNav: "Кушодани харитаи сомона",
       typeLabels: {
         news: "Хабарҳо",
         alert: "Огоҳӣ",
@@ -370,7 +378,10 @@ export const tj: Dictionary = {
         page: "Саҳифа",
       },
     },
-    projectsList: { empty: "Лоиҳаҳо ҳанӯз нашр нашудаанд." },
+    projectsList: {
+      empty: "Лоиҳаҳо ҳанӯз нашр нашудаанд.",
+      unavailable: "Рӯйхати лоиҳаҳо муваққатан дастрас нест. Саҳифаро баъдтар нав кунед.",
+    },
     leadership: { chairmanAria: "Раис", deputiesAria: "Муовинон" },
     guidesList: {
       mainThreats: "Хатарҳои асосӣ",
@@ -379,12 +390,20 @@ export const tj: Dictionary = {
       priorityGuide: "Дастури аввалиндараҷа",
       topicsSuffix: "мавзӯъ",
       empty: "Дастурҳо ҳанӯз нашр нашудаанд.",
+      unavailable: "Рӯйхати дастурҳо муваққатан дастрас нест. Саҳифаро баъдтар нав кунед.",
     },
     sosPage: { app: "Барномаи SOS", features: "Имконот", how: "SOS чӣ гуна кор мекунад" },
     newsDetail: {
       pressKicker: "Хадамоти матбуоти КҲФ",
       pressSource: "Маркази матбуоти КҲФ",
       newsCategory: "Хабарҳо",
+      translationNotice: "Тарҷума ба ин забон ҳанӯз нашр нашудааст — варианти дастрас нишон дода шудааст.",
+      readIn: "Хондан дар",
+    },
+    languageNames: {
+      ru: "русӣ",
+      tj: "тоҷикӣ",
+      en: "англисӣ",
     },
   },
 };

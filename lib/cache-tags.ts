@@ -41,6 +41,38 @@ const SITEMAP_TYPES = new Set<CmsContentType>([
   "project",
 ]);
 
+/**
+ * Максимальная длина slug'а, которую контракт с CMS считает допустимой.
+ *
+ * Число не взято с потолка: ровно его уже проверяет `parseRevalidationPayload`
+ * у входящего вебхука — то есть 180 символов и есть договорённость сторон.
+ * Оно же с запасом удерживает три жёстких границы, о которые slug длиннее
+ * разбивается:
+ *
+ *  - тег кэша `cms:announcements:<slug>:<locale>` — у Next.js лимит 256
+ *    символов, иначе `fetch` печатает «invalid tags passed to fetch» и
+ *    адресная ревалидация для материала молча не работает;
+ *  - имя файла в `.next/server/app/.../<slug>.segments` — 255 БАЙТ на
+ *    компонент пути и в NTFS, и в ext4 (это не лимит Windows MAX_PATH,
+ *    его не обойти ни длинными путями, ни коротким distDir): такой slug
+ *    роняет весь production-билд с ENOENT на mkdir;
+ *  - `?page=`/`?category=` в canonical и hreflang — длина URL у поисковиков.
+ *
+ * Материал с более длинным slug'ом остаётся полностью рабочим: он просто не
+ * пре-рендерится на сборке (отдаётся по запросу) и обновляется по таймеру ISR,
+ * а не по вебхуку. Настоящее исправление — на стороне CMS (ограничить длину
+ * slug при генерации из заголовка); см. docs/CMS_CONTRACT_REQUESTS.md.
+ */
+export const MAX_CMS_SLUG_LENGTH = 180;
+
+/**
+ * Можно ли безопасно пре-рендерить и адресно ревалидировать этот slug.
+ * Пустая строка — не адрес: такой записи в маршруте всё равно не бывает.
+ */
+export function isAddressableSlug(slug: string): boolean {
+  return slug.length > 0 && slug.length <= MAX_CMS_SLUG_LENGTH;
+}
+
 export interface CmsRevalidationPayload {
   type: CmsContentType;
   id: number | null;
@@ -69,7 +101,10 @@ export function cmsRequestTags(
   slug?: string,
 ): string[] {
   const tags = [cmsCacheTags.list(type, locale)];
-  if (slug) {
+  // Тег длиннее 256 символов Next.js отвергает целиком, с предупреждением в
+  // лог сборки. Лучше отдать только списочный тег (он валиден и всё равно
+  // обновит материал вместе с разделом), чем передать заведомо битый набор.
+  if (slug && isAddressableSlug(slug)) {
     tags.push(cmsCacheTags.detail(type, slug, locale));
   }
   return tags;

@@ -4,9 +4,15 @@ import Link from "@/components/i18n/LocaleLink";
 import { notFound } from "next/navigation";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
+import TranslationNotice from "@/components/public/TranslationNotice";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
-import { fetchAnnouncement, fetchAnnouncements, fetchSlugs } from "@/lib/api";
+import {
+  availableLocalesFor,
+  fetchAnnouncement,
+  fetchAnnouncements,
+  fetchStaticParamSlugs,
+} from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getKindMeta, getStatusMeta } from "../content";
@@ -25,8 +31,7 @@ export async function generateStaticParams({
 }) {
   // Пустые slug'и отсеивает сам эндпоинт: адрес без сегмента всё равно не
   // разрешился бы в маршрут.
-  const slugs = await fetchSlugs("announcement", toLocale(locale));
-  return slugs.map((slug) => ({ slug }));
+  return fetchStaticParamSlugs("announcement", toLocale(locale));
 }
 
 export async function generateMetadata({
@@ -44,14 +49,23 @@ export async function generateMetadata({
   if (!a) {
     return { title: pages.meta.announcementFallback, robots: { index: false } };
   }
-  return buildMetadata({
-    locale: loc,
-    title: a.title,
-    description: a.desc,
-    path: `/announcements/${slug}`,
-    type: "article",
-    siteName: common.siteShort,
-  });
+  // hreflang и индексируемость — по реально опубликованным переводам, а не
+  // по трём локалям механически: CMS отдаёт русский fallback на любой
+  // запрошенный язык, и без этой проверки он выдавал бы себя за перевод.
+  const availableLocales = await availableLocalesFor("announcement", slug);
+  const untranslated = !availableLocales.includes(loc);
+  return {
+    ...buildMetadata({
+      locale: loc,
+      title: a.title,
+      description: a.desc,
+      path: `/announcements/${slug}`,
+      type: "article",
+      siteName: common.siteShort,
+      availableLocales,
+    }),
+    ...(untranslated ? { robots: { index: false, follow: true } } : {}),
+  };
 }
 
 export default async function AnnouncementDetailPage({
@@ -89,6 +103,10 @@ export default async function AnnouncementDetailPage({
   const { data: allAnnouncements } = await fetchAnnouncements({ locale, perPage: 50 });
   const related = allAnnouncements.filter((a) => a.slug !== slug).slice(0, 3);
 
+  // Те же данные, что и в generateMetadata: наличие перевода на язык
+  // страницы. Кэш fetch общий, поэтому это не повторный поход в CMS.
+  const availableLocales = await availableLocalesFor("announcement", slug);
+
   return (
     <PageShell>
       <BreadcrumbJsonLd
@@ -105,6 +123,14 @@ export default async function AnnouncementDetailPage({
           { label: d.breadcrumbAnnouncements, href: routes.announcements },
           { label: announcement.title },
         ]}
+      />
+
+      {/* Перевода на язык страницы нет — показываем это честно и ведём
+          к опубликованной версии (страница при этом noindex). */}
+      <TranslationNotice
+        locale={locale}
+        available={availableLocales}
+        path={`/announcements/${slug}`}
       />
 
       {/* Шапка объявления */}

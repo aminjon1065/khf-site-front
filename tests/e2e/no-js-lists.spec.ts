@@ -36,7 +36,12 @@ test("поиск по документам — обычная GET-форма и 
 
   await expect(page).toHaveURL(/q=123/);
   await expect(page.locator("tbody tr")).toHaveCount(1);
-  await expect(page.getByText("Закон № 123")).toBeVisible();
+  // Каталог рендерит два представления одних данных — таблицу (desktop) и
+  // карточки (≤920px). Поэтому запрос сужаем до таблицы: без этого
+  // getByText находит оба и падает на strict mode. Что представления несут
+  // одно и то же и что видно всегда ровно одно — проверяет
+  // documents-responsive.spec.ts.
+  await expect(page.locator("tbody").getByText("Закон № 123")).toBeVisible();
 });
 
 test("страницы списка — настоящие ссылки, а не клиентское состояние", async ({

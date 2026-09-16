@@ -9,6 +9,7 @@ import flagImage from "@/public/assets/flag-tj.png";
 import { logoByLocale } from "@/components/public/logo";
 import LocaleSwitcher from "@/components/public/header/LocaleSwitcher";
 import MobileMenuButton from "@/components/public/header/MobileMenuButton";
+import SearchButton from "@/components/public/header/SearchButton";
 import CompactOnScroll from "@/components/public/header/CompactOnScroll";
 import HeaderOverlays from "@/components/public/header/HeaderOverlays";
 import NavLink from "@/components/public/header/NavLink";
@@ -20,6 +21,9 @@ import type { ApiMenuItem } from "@/lib/api";
 import { withLocale, type Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
 import { routes } from "@/lib/routes";
+
+/** id модального окна поиска: связывает кнопку-триггер и сам <dialog>. */
+const SEARCH_DIALOG_ID = "public-search";
 
 export default function PublicHeader({
   trustPhone,
@@ -71,8 +75,13 @@ export default function PublicHeader({
       <HeaderOverlays />
       <CompactOnScroll />
       <div className="ksite-utility border-b border-[var(--color-divider)]">
+        {/* flex-wrap: при увеличении текста до 200% (WCAG 1.4.4) на экране
+            360–390px служебная полоса — символы, тема, переключатель языка —
+            не помещалась в строку и вызывала горизонтальную прокрутку всей
+            страницы. С переносом она занимает две строки, а прокрутки нет.
+            На обычном кегле состав строки не меняется: там она и так влезает. */}
         <div
-          className="mx-auto flex w-full max-w-[1160px] items-center gap-3 px-6 py-1.5 text-xs max-[920px]:gap-1.5 max-[920px]:px-4 max-[920px]:py-0"
+          className="mx-auto flex w-full max-w-[1160px] flex-wrap items-center gap-3 px-6 py-1.5 text-xs max-[920px]:gap-1.5 max-[920px]:px-4 max-[920px]:py-0"
           style={{ color: muted(80) }}
         >
           <NextLink
@@ -123,9 +132,15 @@ export default function PublicHeader({
             className="flex min-w-0 items-center gap-[14px] max-[920px]:flex-1"
             style={{ textDecoration: "none", color: "inherit" }}
           >
+            {/* sizes по фактическому размеру в вёрстке, а не по размеру
+                файла. Статический импорт объявляет 512×506, и без подсказки
+                Next строит srcset «640w 1x, 1080w 2x» — на мобильном с DPR
+                2,625 браузер скачивал вариант 1080 px (46 KiB) ради эмблемы
+                высотой 44 px. Герб почти квадратный, поэтому ширина ≈ высоте. */}
             <Image
               src={logoImage}
               alt={header.logoAlt}
+              sizes="(max-width: 920px) 45px, 57px"
               className="h-14 w-auto max-[920px]:h-11"
               style={{ width: "auto" }}
             />
@@ -189,6 +204,7 @@ export default function PublicHeader({
           <Image
             src={logoImage}
             alt=""
+            sizes="35px"
             className="h-[34px] w-auto"
           />
           <span className="flex-1 text-[15px] font-semibold uppercase [font-family:var(--font-heading)]">
@@ -197,7 +213,7 @@ export default function PublicHeader({
           <form method="dialog">
             <button
               aria-label={header.closeMenu}
-              className="inline-flex h-11 w-11 cursor-pointer items-center justify-center border border-[var(--color-divider)] bg-transparent"
+              className="icon-btn inline-flex h-11 w-11 cursor-pointer items-center justify-center border border-[var(--color-divider)] bg-transparent"
               style={{ color: "var(--color-text)" }}
             >
               <X size={18} strokeWidth={1.5} aria-hidden="true" />
@@ -342,7 +358,7 @@ export default function PublicHeader({
               />
               <span
                 role="menu"
-                className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-card)] py-1 [box-shadow:var(--shadow-md)]"
+                className="knav-dropdown absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-card)] py-1 [box-shadow:var(--shadow-md)]"
               >
                 <NextLink
                   role="menuitem"
@@ -382,7 +398,7 @@ export default function PublicHeader({
                   />
                   <span
                     role="menu"
-                    className="absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-card)] py-1 [box-shadow:var(--shadow-md)]"
+                    className="knav-dropdown absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-card)] py-1 [box-shadow:var(--shadow-md)]"
                   >
                     {item.children.map((child) => (
                       <NextLink
@@ -433,32 +449,91 @@ export default function PublicHeader({
               <Smartphone size={14} strokeWidth={1.5} aria-hidden="true" />
               <span className="sos-label">{header.sosApp}</span>
             </NextLink>
-            <form
-              role="search"
-              method="get"
-              action={localize("/search")}
-              className="knav-search relative flex items-center py-1"
-            >
-              <Search
-                size={14}
-                strokeWidth={1.5}
-                aria-hidden="true"
-                className="pointer-events-none absolute left-[9px] top-1/2 -translate-y-1/2"
-                style={{ color: muted(55) }}
-              />
-              <input
-                className="input h-[30px] min-h-[30px] w-full min-w-0 pl-[28px] text-[13px]"
-                type="search"
-                name="q"
-                minLength={2}
-                required
-                placeholder={header.searchShort}
-                aria-label={header.searchPlaceholder}
-              />
-            </form>
+            {/* Поиск открывается модальным окном (разметка — ниже, вне
+                строки навигации). Раскрывающееся поле прямо здесь отнимало
+                ширину у пунктов меню, и навигация перестраивалась на каждом
+                фокусе. */}
+            <SearchButton
+              dialogId={SEARCH_DIALOG_ID}
+              href={localize("/search")}
+              label={header.searchShort}
+              openLabel={header.searchOpen}
+            />
           </div>
         </div>
       </nav>
+
+      {/* Модальное окно поиска. Нативный <dialog>: Escape, ::backdrop,
+          ловушка фокуса и возврат фокуса на кнопку — поведение браузера, а не
+          самописное. Форма — та же GET-форма, что и на странице поиска, так
+          что результат остаётся обычным адресом, которым можно поделиться.
+          HeaderOverlays закрывает окно при переходе на другую страницу. */}
+      <dialog
+        id={SEARCH_DIALOG_ID}
+        className="ksearch m-0 border-0 p-0"
+        aria-label={header.searchPlaceholder}
+      >
+        {/* Заголовок и закрытие — вне формы поиска: вложенные <form>
+            недопустимы, а `method="dialog"` закрывает окно средствами
+            браузера, без обработчика (тот же приём, что в мобильном меню). */}
+        <div className="flex items-center gap-2 px-5 pb-0 pt-5">
+          <label
+            htmlFor="ksearch-input"
+            className="kicker-heading flex-1"
+            style={{ color: muted(60) }}
+          >
+            {header.searchPlaceholder}
+          </label>
+          <form method="dialog">
+            <button
+              aria-label={header.searchClose}
+              className="icon-btn inline-flex h-11 w-11 flex-none cursor-pointer items-center justify-center border border-[var(--color-divider)] bg-transparent"
+              style={{ color: "var(--color-text)" }}
+            >
+              <X size={18} strokeWidth={1.5} aria-hidden="true" />
+            </button>
+          </form>
+        </div>
+        <form
+          role="search"
+          method="get"
+          action={localize("/search")}
+          className="flex flex-col gap-3 p-5"
+        >
+          <div className="relative flex items-center">
+            <Search
+              size={17}
+              strokeWidth={1.5}
+              aria-hidden="true"
+              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
+              style={{ color: muted(55) }}
+            />
+            <input
+              id="ksearch-input"
+              className="input min-h-11 w-full pl-10 text-[15px]"
+              type="search"
+              name="q"
+              minLength={2}
+              required
+              autoComplete="off"
+              placeholder={header.searchPlaceholder}
+              aria-describedby="ksearch-hint"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <span
+              id="ksearch-hint"
+              className="min-w-0 flex-1 text-[13px]"
+              style={{ color: muted(60) }}
+            >
+              {header.searchHint}
+            </span>
+            <button type="submit" className="btn btn-primary min-h-11 px-5">
+              {header.searchSubmit}
+            </button>
+          </div>
+        </form>
+      </dialog>
     </header>
   );
 }

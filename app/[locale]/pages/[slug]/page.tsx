@@ -2,8 +2,13 @@ import Link from "@/components/i18n/LocaleLink";
 import { notFound } from "next/navigation";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
+import TranslationNotice from "@/components/public/TranslationNotice";
 import { muted } from "@/components/public/ui";
-import { fetchPage, fetchSlugs } from "@/lib/api";
+import {
+  availableLocalesFor,
+  fetchPage,
+  fetchStaticParamSlugs,
+} from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { buildMetadata } from "@/lib/seo";
@@ -15,8 +20,7 @@ export async function generateStaticParams({
 }: {
   params: { locale: string };
 }) {
-  const slugs = await fetchSlugs("page", toLocale(locale));
-  return slugs.map((slug) => ({ slug }));
+  return fetchStaticParamSlugs("page", toLocale(locale));
 }
 
 export async function generateMetadata({
@@ -34,15 +38,24 @@ export async function generateMetadata({
   if (!page) {
     return { title: pages.meta.pageFallback, robots: { index: false } };
   }
-  return buildMetadata({
-    locale: loc,
-    title: page.seo?.title ?? page.title,
-    description: page.seo?.description,
-    path: `/pages/${slug}`,
-    type: "article",
-    modifiedTime: page.updated_at,
-    siteName: common.siteShort,
-  });
+  // hreflang и индексируемость — по реально опубликованным переводам, а не
+  // по трём локалям механически: CMS отдаёт русский fallback на любой
+  // запрошенный язык, и без этой проверки он выдавал бы себя за перевод.
+  const availableLocales = await availableLocalesFor("page", slug);
+  const untranslated = !availableLocales.includes(loc);
+  return {
+    ...buildMetadata({
+      locale: loc,
+      title: page.seo?.title ?? page.title,
+      description: page.seo?.description,
+      path: `/pages/${slug}`,
+      type: "article",
+      modifiedTime: page.updated_at,
+      siteName: common.siteShort,
+      availableLocales,
+    }),
+    ...(untranslated ? { robots: { index: false, follow: true } } : {}),
+  };
 }
 
 export default async function ContentPage({
@@ -83,6 +96,10 @@ export default async function ContentPage({
     .map((t) => t.trim())
     .filter(Boolean);
 
+  // Те же данные, что и в generateMetadata: наличие перевода на язык
+  // страницы. Кэш fetch общий, поэтому это не повторный поход в CMS.
+  const availableLocales = await availableLocalesFor("page", slug);
+
   return (
     <PageShell
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
@@ -94,6 +111,14 @@ export default async function ContentPage({
         {" · "}
         <span>{page.title}</span>
       </nav>
+
+      {/* Перевода на язык страницы нет — показываем это честно и ведём
+          к опубликованной версии (страница при этом noindex). */}
+      <TranslationNotice
+        locale={locale}
+        available={availableLocales}
+        path={`/pages/${slug}`}
+      />
 
       <article className="mt-5 max-w-[72ch]">
         <h1 className="m-0 text-[32px] leading-[1.14] max-[560px]:text-[26px]">

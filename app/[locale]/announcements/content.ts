@@ -41,6 +41,8 @@ export interface AnnouncementsContent {
   feedLabel: string;
   /** Пустая лента: ни одного объявления с сервера, либо фильтр не дал совпадений. */
   empty: string;
+  /** CMS не ответила — не «пусто», а недоступно (см. fetchAnnouncements). */
+  unavailable: string;
   info: InfoCard[];
 }
 
@@ -121,6 +123,8 @@ const ru: AnnouncementsContent = {
   ],
   feedLabel: "Список объявлений",
   empty: "Объявления не найдены.",
+  unavailable:
+    "Объявления временно недоступны. Проверьте подключение или обновите страницу позже.",
   info: [
     {
       title: "Как подать заявку",
@@ -166,6 +170,8 @@ const tj: AnnouncementsContent = {
   ],
   feedLabel: "Рӯйхати эълонҳо",
   empty: "Эълонҳо ёфт нашуданд.",
+  unavailable:
+    "Эълонҳо муваққатан дастрас нестанд. Пайвастшавиро тафтиш кунед ё саҳифаро баъдтар нав кунед.",
   info: [
     {
       title: "Чӣ гуна дархост додан",
@@ -211,6 +217,8 @@ const en: AnnouncementsContent = {
   ],
   feedLabel: "Announcements list",
   empty: "No announcements found.",
+  unavailable:
+    "Announcements are temporarily unavailable. Check your connection or refresh the page later.",
   info: [
     {
       title: "How to apply",

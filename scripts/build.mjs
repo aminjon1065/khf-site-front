@@ -18,8 +18,13 @@ import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 
 import { devEnv } from "./dev.mjs";
+import { assertSiteUrlForBuild } from "../lib/cms-readiness.mjs";
 
 function main() {
+  // Публичный адрес обязателен: canonical/og:url/sitemap резолвятся из
+  // NEXT_PUBLIC_SITE_URL, и localhost в них — сломанные сигналы для роботов.
+  assertSiteUrlForBuild(process.env);
+
   const env = devEnv(process.env);
 
   if (env.NODE_EXTRA_CA_CERTS && !process.env.NODE_EXTRA_CA_CERTS) {

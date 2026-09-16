@@ -15,6 +15,7 @@ import PageShell from "@/components/public/PageShell";
 import CmsImage from "@/components/public/CmsImage";
 import { SectionHeader, ImageSlot, muted } from "@/components/public/ui";
 import NewsSlider from "@/components/public/NewsSlider";
+import RefreshOnVisible from "@/components/public/RefreshOnVisible";
 import TjRiskMap from "@/components/public/TjRiskMap";
 import { EMPTY_HOME, fetchHome, type ApiAlert } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
@@ -186,9 +187,16 @@ function AlertBanner({
               <span className="text-xs opacity-85">{top.datetime}</span>
             )}
           </div>
-          <h1 className="m-0 text-[34px]" style={{ color: "#fff" }}>
+          {/* Не h1: у страницы уже есть единственный локализованный h1
+              (название портала, sr-only). Второй h1 ломал бы структуру
+              документа; визуальный приоритет предупреждения сохранён тем же
+              кеглем и гарнитурой заголовка. */}
+          <p
+            className="m-0 text-[34px] font-semibold leading-[1.12] [font-family:var(--font-heading)]"
+            style={{ color: "#fff" }}
+          >
             {top?.title ?? c.title}
-          </h1>
+          </p>
           <p className="m-0 max-w-[760px] text-base leading-[1.5]">
             {top?.summary ?? c.text}
           </p>
@@ -270,6 +278,9 @@ function AlertBanner({
       aria-label={copy.banner.calmAria}
       className="status-calm border-b border-[var(--color-divider)]"
     >
+      {/* Только статус: сводка по регионам и ссылка на карту — в блоке
+          «Оперативная сводка» ниже. Раньше обе полосы дублировали друг друга
+          и словами, и ссылкой. */}
       <div className="mx-auto flex w-full max-w-[1160px] flex-wrap items-center gap-2.5 px-6 py-2.5 text-sm max-[920px]:px-4">
         <span
           className="h-[9px] w-[9px] rounded-full"
@@ -280,13 +291,6 @@ function AlertBanner({
           <strong>{c.strong}</strong>
           {c.text}
         </span>
-        <Link
-          href={routes.map}
-          className="shrink-0"
-          style={{ color: "var(--color-accent-700)" }}
-        >
-          {c.mapLink}
-        </Link>
       </div>
     </section>
   );
@@ -333,6 +337,9 @@ export default async function HomePage({
     count: r.count,
     statusText: r.statusText,
   }));
+  // Охват для «Оперативной сводки»: считаем по данным CMS, а не по общему
+  // числу регионов страны — иначе цифра была бы нашей выдумкой.
+  const affectedRegions = regions.filter((r) => r.level !== "none").length;
 
   const slides = data.news.slice(0, 4).map((item) => ({
     kicker: [item.category, item.date].filter(Boolean).join(" · "),
@@ -396,11 +403,16 @@ export default async function HomePage({
           style={{ textDecoration: "none", color: "inherit" }}
         >
           <span className="block min-h-[240px] flex-1">
+            {/* Без preload: единственная приоритетная предзагрузка на первом
+                экране — фото первого слайда (см. NewsSlider). Фото президента
+                на широком экране выше вьюпорта не конкурирует — оно и так
+                загрузится сразу (в кадре), а на мобильном находится под
+                слайдером и не должно отнимать канал у LCP. Геометрия
+                зарезервирована, так что lazy не даёт скачка. */}
             <ImageSlot
               src={p.photo}
               alt={pages.home.presidentPhotoAlt}
               sizes="(max-width: 920px) calc(100vw - 32px), 360px"
-              preload
             />
           </span>
           <span className="flex flex-col gap-1 px-4 pb-4 pt-[14px]">
@@ -434,27 +446,66 @@ export default async function HomePage({
         <h2 className="kicker-heading m-0" style={{ color: muted(72) }}>
           {home.ops.title}
         </h2>
-        {/* Число показываем только когда оно несёт смысл. Голый «0» рядом со
-            строкой «предупреждений нет» читался как противоречие; пустое
-            состояние объясняется фразой, а не цифрой. */}
-        {data.alerts.count > 0 ? (
-          <span className="inline-flex items-baseline gap-2">
-            <span className="text-sm" style={{ color: muted(75) }}>
-              {home.ops.activeLabel}
+        {/* Четыре различимых состояния, и ни одно не выдаёт молчание бэкенда
+            за факт: недоступность данных, устаревание открытой вкладки,
+            действующие предупреждения и подтверждённое их отсутствие. Голый
+            «0» рядом со строкой «предупреждений нет» читался как противоречие,
+            поэтому число показывается только когда несёт смысл; охват по
+            регионам берётся из alerts.regions ответа CMS. */}
+        {unavailable ? (
+          <span
+            className="inline-flex items-center gap-2 text-sm"
+            style={{ color: muted(80) }}
+          >
+            <TriangleAlert
+              size={15}
+              strokeWidth={1.5}
+              aria-hidden="true"
+              style={{ color: "var(--hz-warning)", flex: "none" }}
+            />
+            {home.ops.unavailableText}
+          </span>
+        ) : data.alerts.count > 0 ? (
+          <span className="inline-flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <span className="inline-flex items-baseline gap-2">
+              <span className="text-sm" style={{ color: muted(75) }}>
+                {home.ops.activeLabel}
+              </span>
+              <span
+                className="text-2xl font-semibold [font-family:var(--font-heading)]"
+                style={{ color: "var(--hz-danger)" }}
+              >
+                {data.alerts.count}
+              </span>
             </span>
-            <span
-              className="text-2xl font-semibold [font-family:var(--font-heading)]"
-              style={{ color: "var(--hz-danger)" }}
-            >
-              {data.alerts.count}
-            </span>
+            {affectedRegions > 0 && (
+              <span
+                className="text-sm [font-variant-numeric:tabular-nums]"
+                style={{ color: muted(70) }}
+              >
+                {home.ops.affectedRegions}: {affectedRegions}
+              </span>
+            )}
           </span>
         ) : (
-          <span className="text-sm" style={{ color: muted(80) }}>
-            {home.ops.noneText}
+          <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm">
+            <span style={{ color: muted(80) }}>{home.ops.noneText}</span>
+            {regions.length > 0 && (
+              <span
+                className="[font-variant-numeric:tabular-nums]"
+                style={{ color: muted(70) }}
+              >
+                {home.ops.watchedRegions}: {regions.length}
+              </span>
+            )}
           </span>
         )}
         <span className="flex-1" />
+        {/* Открытая вкладка не получает ISR-обновления сама. При возвращении
+            на неё компонент тихо перезапрашивает маршрут и на это время
+            показывает здесь пометку «данные могли устареть» — четвёртое
+            состояние обстановки. Без JS пометки просто нет. */}
+        <RefreshOnVisible staleLabel={home.ops.staleText} />
         <Link
           href={routes.map}
           className="section-link shrink-0 text-[13px]"
@@ -467,8 +518,8 @@ export default async function HomePage({
       {/* Быстрые действия */}
       <section aria-label={pages.home.quickActions} className="mt-[52px]">
         <SectionHeader
+          as="h2"
           title={home.quickActions.title}
-          index={home.quickActions.index}
           link={{ label: home.quickActions.allLink, href: routes.guides }}
         />
         <div className="grid grid-cols-4 grid-rows-[auto_auto] gap-[14px] max-[920px]:grid-cols-2 max-[560px]:grid-cols-1">
@@ -542,14 +593,22 @@ export default async function HomePage({
       {isOn("regions_map") && (
         <section aria-label={pages.home.alertsMap} className="mt-[52px]">
           <SectionHeader
+            as="h2"
             title={home.regionSection.title}
-            index={home.regionSection.index}
           />
           <div className="grid grid-cols-[minmax(0,1.7fr)_minmax(280px,1fr)] items-start gap-7 max-[920px]:grid-cols-1">
             <div className="blueprint p-3">
-              <TjRiskMap regions={regions} height={440} />
+              {/* lazy: на главной карта ниже первого экрана — код d3-geo и
+                  вычисление геометрии не нужны до прокрутки (см. TjRiskMap).
+                  Геометрия блока зарезервирована обёрткой, SSR-список регионов
+                  рядом остаётся доступен и без графики. */}
+              <TjRiskMap regions={regions} height={440} lazy />
+              {/* role="group": aria-label на безролевом <div> вспомогательные
+                  технологии игнорируют, и легенда оставалась без имени.
+                  13px вместо 12: легенда расшифровывает статусы. */}
               <div
-                className="mt-2.5 flex flex-wrap gap-4 border-t border-[var(--color-divider)] px-2 pb-1 pt-2.5 text-xs"
+                role="group"
+                className="mt-2.5 flex flex-wrap gap-4 border-t border-[var(--color-divider)] px-2 pb-1 pt-2.5 text-[13px]"
                 aria-label={pages.home.mapLegend}
               >
                 {legendItems(locale).map((l) => (
@@ -582,7 +641,9 @@ export default async function HomePage({
                       <span className="block text-[15px] font-semibold [font-family:var(--font-heading)]">
                         {r.name}
                       </span>
-                      <span className="text-xs" style={{ color: muted(58) }}>
+                      {/* Состояние региона — значимый статус, а не подпись:
+                          13px вместо 12. */}
+                      <span className="text-[13px]" style={{ color: muted(58) }}>
                         {r.statusText}
                       </span>
                     </span>
@@ -607,8 +668,8 @@ export default async function HomePage({
       {isOn("active_alerts") && data.alerts.items.length > 0 && (
         <section aria-label={pages.home.latestAlerts} className="mt-[52px]">
           <SectionHeader
+            as="h2"
             title={home.warnings.title}
-            index={home.warnings.index}
             link={{ label: home.warnings.allLink, href: routes.alert }}
           />
           <div className="grid grid-cols-3 gap-[14px] max-[920px]:grid-cols-1">
@@ -666,8 +727,8 @@ export default async function HomePage({
       {isOn("latest_news") && featured && (
         <section aria-label={pages.home.news} className="mt-[52px]">
           <SectionHeader
+            as="h2"
             title={home.news.title}
-            index={home.news.index}
             link={{ label: home.news.allLink, href: routes.news }}
           />
           <div className="grid grid-cols-2 gap-7 max-[920px]:grid-cols-1">
@@ -794,21 +855,24 @@ export default async function HomePage({
           {isOn("documents") && data.documents.length > 0 && (
             <>
               <SectionHeader
+                as="h2"
                 title={home.documents.title}
-                index={home.documents.index}
                 link={{ label: home.documents.allLink, href: routes.documents }}
               />
               {data.documents.map((d) => (
                 <Link
                   key={d.id}
                   href={d.href ?? routes.documents}
-                  className="row-link flex items-center gap-3 border-b border-[var(--color-divider)] px-0.5 py-3"
+                  // flex-wrap + min-w-0: при увеличении текста до 200% на 360px
+                  // правый столбец (размер файла / срок) не помещался в строку и
+                  // вылезал за край экрана. С переносом строка становится в две.
+                  className="row-link flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-[var(--color-divider)] px-0.5 py-3"
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <span className="tag tag-neutral flex-none">{d.type}</span>
-                  <span className="flex-1 text-sm">{d.title}</span>
+                  <span className="min-w-0 flex-1 text-sm">{d.title}</span>
                   <span
-                    className="flex-none text-xs"
+                    className="flex-none text-[13px]"
                     style={{ color: muted(50) }}
                   >
                     {d.size ?? ""}
@@ -822,8 +886,8 @@ export default async function HomePage({
             <>
               <SectionHeader
                 id="announcements"
+                as="h2"
                 title={home.announcements.title}
-                index={home.announcements.index}
                 link={{
                   label: home.announcements.allLink,
                   href: routes.announcements,
@@ -835,7 +899,10 @@ export default async function HomePage({
                   // Каждое объявление ведёт на свою страницу: раньше все строки
                   // вели в общий список, и найти нужное приходилось заново.
                   href={routes.announcement(a.slug)}
-                  className="row-link flex items-center gap-3 border-b border-[var(--color-divider)] px-0.5 py-3"
+                  // flex-wrap + min-w-0: при увеличении текста до 200% на 360px
+                  // правый столбец (размер файла / срок) не помещался в строку и
+                  // вылезал за край экрана. С переносом строка становится в две.
+                  className="row-link flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-[var(--color-divider)] px-0.5 py-3"
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <span
@@ -845,7 +912,7 @@ export default async function HomePage({
                   </span>
                   <span className="flex-1 text-sm">{a.title}</span>
                   <span
-                    className="flex-none text-xs"
+                    className="flex-none text-[13px]"
                     style={{ color: muted(50) }}
                   >
                     {a.deadline}
@@ -859,6 +926,7 @@ export default async function HomePage({
         {isOn("projects") && data.projects.length > 0 && (
           <div className="min-w-0 self-start">
             <SectionHeader
+              as="h2"
               title={home.projects.title}
               link={{ label: home.projects.allLink, href: routes.projects }}
             />

@@ -51,9 +51,9 @@ export default async function MapPage({
   if (alerts === null || baseline === null) {
     return (
       <PageShell>
-        <div className="flex flex-wrap items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">
+        <div className="page-head">
           <h1 className="page-title page-title-caps">{map.title}</h1>
-          <span className="text-xs" style={{ color: muted(50) }}>
+          <span className="page-subtitle">
             {map.subtitle}
           </span>
         </div>
@@ -91,9 +91,9 @@ export default async function MapPage({
 
   return (
     <PageShell>
-      <div className="flex flex-wrap items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">
+      <div className="page-head">
         <h1 className="page-title page-title-caps">{map.title}</h1>
-        <span className="text-xs" style={{ color: muted(50) }}>
+        <span className="page-subtitle">
           {map.subtitle}
         </span>
       </div>

@@ -14,6 +14,46 @@ describe("buildAlternates", () => {
     });
   });
 
+  it("keeps an indexable facet (category/type) in canonical and all alternates", () => {
+    // Категория — полезная грань каталога: перевод той же грани не должен
+    // претендовать на каноничность базовой страницы.
+    const alternates = buildAlternates("/news", "ru", 2, { category: "sotrudnichestvo" });
+
+    expect(alternates.canonical).toBe(
+      "/ru/news?category=sotrudnichestvo&page=2",
+    );
+    expect(alternates.languages).toEqual({
+      ru: "/ru/news?category=sotrudnichestvo&page=2",
+      tg: "/tj/news?category=sotrudnichestvo&page=2",
+      en: "/en/news?category=sotrudnichestvo&page=2",
+      "x-default": "/ru/news?category=sotrudnichestvo&page=2",
+    });
+  });
+
+  it("drops empty query values instead of producing ?category=", () => {
+    expect(buildAlternates("/news", "ru", 1, { category: undefined }).canonical).toBe("/ru/news");
+    expect(buildAlternates("/news", "ru", 1, { type: "" }).canonical).toBe("/ru/news");
+  });
+
+  it("announces only locales where the translation is actually published", () => {
+    // /en-адрес русского fallback'а не должен получать hreflang "en",
+    // которого не существует: список локалей фильтруется по данным CMS.
+    const alternates = buildAlternates(
+      "/news/test-news",
+      "en",
+      1,
+      {},
+      ["ru", "tj"],
+    );
+
+    expect(Object.keys(alternates.languages!)).toEqual(["ru", "tg", "x-default"]);
+    expect(alternates.languages!.en).toBeUndefined();
+    // x-default остаётся на реально доступном языке.
+    expect(alternates.languages!["x-default"]).toBe("/ru/news/test-news");
+    // Canonical — сам адрес: страница существует и честно помечена noindex.
+    expect(alternates.canonical).toBe("/en/news/test-news");
+  });
+
   it("uses the tg hreflang key (not tj) for the Tajik branch", () => {
     const alternates = buildAlternates("/", "tj");
 
@@ -62,7 +102,19 @@ describe("buildMetadata", () => {
       url: "/ru/news/slug",
       locale: "ru_RU",
     });
-    expect(metadata.twitter).toMatchObject({ card: "summary", title: "Заголовок" });
+    // Без собственной обложки показывается общая OG-карточка портала —
+    // пустого og:image больше не бывает.
+    expect(metadata.openGraph?.images).toEqual([
+      expect.objectContaining({
+        url: "/og/og-ru.png",
+        width: 1200,
+        height: 630,
+      }),
+    ]);
+    expect(metadata.twitter).toMatchObject({
+      card: "summary_large_image",
+      title: "Заголовок",
+    });
   });
 
   it("uses a large-image Twitter card and includes images when provided", () => {
@@ -75,13 +127,14 @@ describe("buildMetadata", () => {
 
     expect(metadata.twitter).toMatchObject({ card: "summary_large_image" });
     expect((metadata.openGraph as Record<string, unknown>).images).toEqual([
-      "https://cms.khf.tj/storage/cover.jpg",
+      { url: "https://cms.khf.tj/storage/cover.jpg" },
     ]);
   });
 
-  it("uses a large Twitter card only when an image exists", () => {
-    // Обе ветки рядом: иначе легко «починить» одну и не заметить, что вторая
-    // теперь отдаёт тот же самый card.
+  it("keeps a real CMS cover ahead of the default portal card", () => {
+    // Реальная обложка приоритетна: дефолтная карточка — только для страниц
+    // без собственного изображения (обе ветки рядом, чтобы «починить» одну
+    // и не заметить вторую было нельзя).
     const withoutImage = buildMetadata({
       locale: "ru",
       title: "Новость",
@@ -94,8 +147,12 @@ describe("buildMetadata", () => {
       images: ["https://cms.example/image.webp"],
     });
 
-    expect(withoutImage.twitter).toMatchObject({ card: "summary" });
-    expect(withImage.twitter).toMatchObject({ card: "summary_large_image" });
+    expect(withoutImage.openGraph?.images).toEqual([
+      expect.objectContaining({ url: "/og/og-ru.png" }),
+    ]);
+    expect(withImage.openGraph?.images).toEqual([
+      { url: "https://cms.example/image.webp" },
+    ]);
   });
 
   it("adds publishedTime/modifiedTime only for article type", () => {

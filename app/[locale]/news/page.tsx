@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "@/components/i18n/LocaleLink";
 import PageShell from "@/components/public/PageShell";
 import Pagination from "@/components/public/Pagination";
-import { ImageSlot, muted } from "@/components/public/ui";
+import { muted } from "@/components/public/ui";
 import { fetchCategories, fetchNews } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
@@ -23,31 +23,44 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common } = getDictionary(locale);
-  const page = Math.max(1, Number((await searchParams).page) || 1);
+  const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const category = sp.category || undefined;
+  const q = sp.q?.trim() || undefined;
   const news = getNews(locale);
   const baseTitle = news.metaTitle;
-  return buildMetadata({
-    locale,
-    title: page > 1 ? `${baseTitle} — ${page}` : baseTitle,
-    description: news.metaDescription,
-    path: "/news",
-    siteName: common.siteShort,
-    page,
-  });
+
+  // Политика query-параметров:
+  //  – категория — полезная индексируемая грань каталога: остаётся в canonical
+  //    и во всех hreflang-альтернатах;
+  //  – свободный поиск (q) — внутренний поиск по сайту: noindex (следует
+  //    из политики Google для внутренних поискых выдач), canonical — сам URL.
+  //  – комбинированные фильтры (категория + q) — тоже поисковая выдача: noindex.
+  const isSearch = Boolean(q);
+  return {
+    ...buildMetadata({
+      locale,
+      title: page > 1 ? `${baseTitle} — ${page}` : baseTitle,
+      description: news.metaDescription,
+      path: "/news",
+      siteName: common.siteShort,
+      page,
+      query: { category },
+    }),
+    ...(isSearch ? { robots: { index: false, follow: true } } : {}),
+  };
 }
 
 // ISR: страница пересобирается не чаще раза в минуту, данные — из CMS.
 export const revalidate = 60;
 
-/** Правая колонка: фото пресс-службы (duotone) + блоки для СМI и подписки. */
+/** Правая колонка: контакты пресс-службы и сводка обстановки. Декоративная
+ *  заглушка «Фото пресс-службы» убрана: реального снимка нет, а крупная
+ *  пустая плита вместо информации — не содержательная компоновка. */
 function NewsAside({ news }: { news: ReturnType<typeof getNews> }) {
   const { media, alerts } = news.aside;
   return (
     <aside className="flex flex-col gap-5">
-      <div className="blueprint h-[170px]">
-        <ImageSlot label={news.aside.photoLabel} duotone />
-      </div>
-
       <div className="blueprint flex flex-col gap-2 p-[18px]">
         <h2 className="m-0 kicker-heading" style={{ color: muted(55) }}>
           {media.title}
@@ -58,13 +71,16 @@ function NewsAside({ news }: { news: ReturnType<typeof getNews> }) {
         >
           {media.text}
         </p>
-        <Link
+        {/* mailto по опубликованному адресу пресс-службы: подпись «почта»
+            обязана открывать почту, а не вести в другой раздел. */}
+        <a
           href={media.href}
-          className="text-[13px]"
+          aria-label={media.emailAria}
+          className="text-[13px] no-underline"
           style={{ color: "var(--color-accent-700)" }}
         >
           {media.email}
-        </Link>
+        </a>
       </div>
 
       <div className="blueprint flex flex-col gap-2 p-[18px]">
@@ -102,16 +118,17 @@ export default async function NewsPage({
   const page = Math.max(1, Number(resolvedSearchParams.page) || 1);
   const category = resolvedSearchParams.category || undefined;
   const q = resolvedSearchParams.q?.trim() || undefined;
-  const [{ data: posts, meta }, categories] = await Promise.all([
+  const [newsResult, categories] = await Promise.all([
     fetchNews({ perPage: PER_PAGE, page, category, q, locale }),
     fetchCategories({ type: "news", locale }),
   ]);
+  const { data: posts, meta } = newsResult;
 
   return (
     <PageShell mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-8 max-[920px]:px-4">
-      <div className="flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">
+      <div className="page-head">
         <h1 className="page-title page-title-caps">{news.header.title}</h1>
-        <span className="text-xs" style={{ color: muted(50) }}>
+        <span className="page-subtitle">
           {news.header.kicker}
         </span>
       </div>
@@ -124,6 +141,8 @@ export default async function NewsPage({
         query={q}
         content={news}
         locale={locale}
+        total={meta.total}
+        unavailable={newsResult.unavailable}
       />
       <Pagination
         locale={locale}

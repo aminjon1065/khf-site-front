@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { muted } from "@/components/public/ui";
 import { toApiLocale, type Locale } from "@/lib/i18n/config";
 import type { ReceptionContent } from "./content";
@@ -27,10 +27,60 @@ export default function ContactForm({
   // Пофайловые сообщения валидации от CMS: { email: "Некорректный адрес…" }.
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [tracking, setTracking] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const successRef = useRef<HTMLDivElement | null>(null);
+
+  // Порядок полей формы: по нему ищется ПЕРВАЯ ошибочная — курсор должен
+  // уходить к верхней проблеме, а не к той, что пришла первой в JSON CMS.
+  const FIELD_ORDER = ["name", "email", "topic", "message"] as const;
+  const INPUT_ID: Record<string, string> = {
+    name: "f-name",
+    email: "f-email",
+    topic: "f-topic",
+    message: "f-text",
+  };
+
+  /**
+   * Фокус на первой ошибке после ответа 422.
+   *
+   * Без этого человек, отправивший форму с клавиатуры или через скринридер,
+   * оставался на кнопке «Отправить»: сообщения CMS появлялись выше по форме
+   * и он о них не узнавал. role="alert" у сообщения объявит текст, а фокус
+   * приводит курсор туда, где нужно исправлять.
+   */
+  useEffect(() => {
+    const keys = Object.keys(fieldErrors);
+    if (keys.length === 0) {
+      return;
+    }
+    const first = FIELD_ORDER.find((f) => keys.includes(f)) ?? keys[0];
+    const el = formRef.current?.querySelector<HTMLElement>(
+      `#${INPUT_ID[first] ?? ""}`,
+    );
+    el?.focus();
+    // FIELD_ORDER/INPUT_ID — константы модуля по смыслу; эффект зависит
+    // только от нового набора ошибок.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fieldErrors]);
+
+  /**
+   * Успешная отправка заменяет форму карточкой с номером обращения. Фокус при
+   * этом оставался на удалённой кнопке, то есть уезжал в <body>, и результат
+   * не объявлялся. role="status" объявляет текст, tabIndex={-1} + focus()
+   * переводит курсор к номеру обращения — его как раз нужно записать.
+   */
+  useEffect(() => {
+    if (tracking) {
+      successRef.current?.focus();
+    }
+  }, [tracking]);
 
   if (tracking) {
     return (
       <div
+        ref={successRef}
+        role="status"
+        tabIndex={-1}
         className="p-[14px] text-[13.5px] leading-[1.5]"
         style={{
           background: "var(--hz-success-bg)",
@@ -122,12 +172,18 @@ export default function ContactForm({
     </span>
   );
 
-  /** Сообщение CMS под полем: связано с ним через aria-describedby. */
+  /**
+   * Сообщение CMS под полем: связано с ним через aria-describedby и объявлено
+   * как alert — иначе скринридер молчал бы о причине отказа, а текст под полем
+   * видит только зрячий пользователь. 12px → 13px: причина отказа относится к
+   * значимым сообщениям, а не к мелкому пояснению.
+   */
   const fieldError = (field: string) =>
     fieldErrors[field] ? (
       <span
         id={`err-${field}`}
-        className="mt-1 block text-[12px]"
+        role="alert"
+        className="mt-1 block text-[13px]"
         style={{ color: "var(--hz-critical)" }}
       >
         {fieldErrors[field]}
@@ -135,7 +191,7 @@ export default function ContactForm({
     ) : null;
 
   return (
-    <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+    <form ref={formRef} className="flex flex-col gap-3" onSubmit={handleSubmit}>
       <div className="field">
         <label htmlFor="f-name">
           {form.name.label} {required}
@@ -259,10 +315,14 @@ export default function ContactForm({
         </div>
       )}
 
+      {/* aria-busy: пока идёт отправка, кнопка не просто disabled — состояние
+          «занято» вспомогательные технологии объявляют отдельно (см. .btn
+          [aria-busy] в globals.css: тот же вид, что и у прочих loading-кнопок). */}
       <button
         type="submit"
         className="btn btn-primary btn-block blueprint p-2.5"
         disabled={busy}
+        aria-busy={busy || undefined}
       >
         {busy ? form.sending : form.submit}
       </button>

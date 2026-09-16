@@ -32,6 +32,9 @@ const cases = [
   },
 ] as const;
 
+// Селекторы кнопки отправки сужены до #reception: форма приёмной —
+// не единственная форма в документе, в шапке есть ещё модальное окно поиска
+// со своей кнопкой submit, и общий `form button[type="submit"]` находил обе.
 for (const c of cases) {
   test(`422 errors on ${c.path} arrive in the chosen site language`, async ({ page }) => {
     await page.goto(c.path);
@@ -41,7 +44,7 @@ for (const c of cases) {
     // Проходит клиентский minLength=10, но проваливает серверный порог (20).
     await page.locator("#f-text").fill("короткий текст");
     await page.locator('label:has(input[type="checkbox"])').click();
-    await page.locator('form button[type="submit"]').click();
+    await page.locator('#reception form button[type="submit"]').click();
 
     await expect(page.locator("#err-message")).toHaveText(c.fieldError);
   });
@@ -53,7 +56,7 @@ for (const c of cases) {
     await page.locator("#f-email").fill("valid@example.com");
     await page.locator("#f-text").fill("Текст обращения достаточной длины для прохождения валидации.");
     await page.locator('label:has(input[type="checkbox"])').click();
-    await page.locator('form button[type="submit"]').click();
+    await page.locator('#reception form button[type="submit"]').click();
 
     await expect(page.getByText(c.successStrong)).toBeVisible();
     // Номер приходит из ответа CMS, а не рисуется визуально.
@@ -70,7 +73,7 @@ test("consent is required before submission (ru)", async ({ page }) => {
   await page.locator("#f-name").fill("Тест Тестов");
   await page.locator("#f-email").fill("valid@example.com");
   await page.locator("#f-text").fill("Текст обращения достаточной длины для прохождения валидации.");
-  await page.locator('form button[type="submit"]').click();
+  await page.locator('#reception form button[type="submit"]').click();
 
   await expect(page.getByRole("alert").first()).toBeVisible();
 });

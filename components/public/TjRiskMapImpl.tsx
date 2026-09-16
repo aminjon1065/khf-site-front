@@ -160,6 +160,11 @@ export default function TjRiskMapImpl({
               style={{ cursor: "pointer", transition: "stroke .15s" }}
               onMouseEnter={() => setHover(s.key)}
               onMouseLeave={() => setHover(null)}
+              // На тач-экране наведения нет: без обработчика касания карта
+              // оставалась цветной картинкой без подписи состояния, а смысл
+              // кодировался только цветом. Повторное касание того же региона
+              // убирает панель, чтобы она не закрывала карту навсегда.
+              onClick={() => setHover((prev) => (prev === s.key ? null : s.key))}
             >
               <title>{data ? `${data.name}: ${data.statusText}` : s.key}</title>
             </path>
@@ -211,7 +216,8 @@ export default function TjRiskMapImpl({
             padding: "8px 12px",
             background: "var(--color-bg)",
             border: "1px solid var(--color-divider)",
-            fontSize: 12.5,
+            // Состояние региона — значимый статус: 13,5px вместо 12,5.
+            fontSize: 13.5,
             boxShadow: "var(--shadow-sm)",
             pointerEvents: "none",
             maxWidth: 280,

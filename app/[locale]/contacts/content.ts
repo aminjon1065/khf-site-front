@@ -31,6 +31,9 @@ export interface OfficeRow {
 export interface ReceptionContent {
   title: string;
   intro: string;
+  /** Пояснение у формы: приёмная — для несрочных обращений; экстренные
+      случаи — по 112. Разделяет обещания интерфейса (см. карточки главной). */
+  urgentNote: string;
   form: {
     name: { label: string };
     email: { label: string; hint: string };
@@ -142,6 +145,8 @@ const ru: ContactsContent = {
     title: "Электронная приёмная",
     intro:
       "Обращения рассматриваются в порядке, установленном Законом РТ «Об обращениях физических и юридических лиц». Срок ответа — до 15 рабочих дней.",
+    urgentNote:
+      "Приёмная — для несрочных обращений. При угрозе жизни и здоровья звоните 112.",
     form: {
       name: { label: "ФИО" },
       email: {
@@ -250,6 +255,8 @@ const tj: ContactsContent = {
     title: "Қабулгоҳи электронӣ",
     intro:
       "Муроҷиатҳо тибқи тартиби муқаррарнамудаи Қонуни ҶТ «Дар бораи муроҷиатҳои шахсони воқеӣ ва ҳуқуқӣ» баррасӣ мешаванд. Мӯҳлати ҷавоб — то 15 рӯзи корӣ.",
+    urgentNote:
+      "Қабулгоҳ барои муроҷиатҳои ғайрифаврӣ аст. Ҳангоми хатари ҷон ба 112 занг занед.",
     form: {
       name: { label: "Ному насаб" },
       email: {
@@ -358,6 +365,8 @@ const en: ContactsContent = {
     title: "Electronic reception",
     intro:
       "Appeals are considered in the manner established by the Law of the RT “On appeals of individuals and legal entities”. The response time is up to 15 working days.",
+    urgentNote:
+      "The reception is for non-urgent appeals. If life or health is at risk, call 112.",
     form: {
       name: { label: "Full name" },
       email: {

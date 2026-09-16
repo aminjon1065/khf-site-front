@@ -31,27 +31,32 @@ export function Container({
   );
 }
 
-/** Заголовок секции с нижней линией и нумерацией «01 / Инструкции». */
+/**
+ * Заголовок секции с нижней линией. Уровень задавайте явно (`as`): основные
+ * секции страницы — h2, вложенные — h3. Визуальный размер одинаковый —
+ * семантика не должна зависеть от кегля (WCAG: заголовки описывают структуру,
+ * а не оформление).
+ */
 export function SectionHeader({
   title,
-  index,
+  as = "h3",
   link,
   right,
   id,
 }: {
   title: string;
-  index?: string;
+  as?: "h2" | "h3";
   link?: { label: string; href: string };
   right?: ReactNode;
   id?: string;
 }) {
+  const Heading = as;
   return (
     <div
       id={id}
       className="section-head mb-5 flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[10px] max-[560px]:flex-wrap max-[560px]:gap-x-3 max-[560px]:gap-y-2"
     >
-      <h3 className="m-0 min-w-0 text-2xl tracking-[.01em]">{title}</h3>
-      {index && <span className="section-index text-xs">{index}</span>}
+      <Heading className="m-0 min-w-0 text-2xl tracking-[.01em]">{title}</Heading>
       <span className="flex-1 max-[560px]:hidden" />
       {link && (
         <Link

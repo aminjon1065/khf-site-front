@@ -111,7 +111,7 @@ export default async function AnnouncementsPage({
   const resolvedSearchParams = await searchParams;
   const page = Math.max(1, Number(resolvedSearchParams.page) || 1);
   const kind = announcementKind(resolvedSearchParams.kind);
-  const { data, meta } = await fetchAnnouncements({
+  const { data, meta, unavailable } = await fetchAnnouncements({
     locale,
     page,
     perPage: PER_PAGE,
@@ -122,9 +122,9 @@ export default async function AnnouncementsPage({
     <PageShell>
       <BreadcrumbJsonLd items={c.breadcrumbs} locale={locale} />
       <Breadcrumbs items={c.breadcrumbs} />
-      <div className="flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">
+      <div className="page-head">
         <h1 className="page-title page-title-caps">{c.title}</h1>
-        <span className="text-xs" style={{ color: muted(50) }}>
+        <span className="page-subtitle">
           {c.subtitle}
         </span>
       </div>
@@ -134,6 +134,7 @@ export default async function AnnouncementsPage({
         locale={locale}
         active={kind}
         total={meta.total}
+        unavailable={unavailable}
       >
         <Aside info={c.info} />
       </AnnouncementsFilter>

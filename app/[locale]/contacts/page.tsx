@@ -54,9 +54,9 @@ export default async function ContactsPage({
   return (
     <PageShell>
       {/* Заголовок страницы */}
-      <div className="flex items-baseline gap-[14px] border-b border-[var(--color-divider)] pb-[14px]">
+      <div className="page-head">
         <h1 className="page-title page-title-caps">{contacts.title}</h1>
-        <span className="text-xs" style={{ color: muted(50) }}>
+        <span className="page-subtitle">
           {contacts.subtitle}
         </span>
       </div>
@@ -147,18 +147,36 @@ export default async function ContactsPage({
                 >
                   {o.tel}
                 </a>
-                <span className="block" style={{ color: muted(58) }}>
-                  {o.email}
-                </span>
+                {o.email && (
+                  <span className="block" style={{ color: muted(58) }}>
+                    <a
+                      href={`mailto:${o.email}`}
+                      className="no-underline"
+                      style={{ color: muted(58) }}
+                    >
+                      {o.email}
+                    </a>
+                  </span>
+                )}
               </div>
             </div>
           ))}
         </section>
 
-        <aside className="blueprint flex flex-col gap-3 p-[22px]">
+        {/* Якорь приёмной: карточка «Написать обращение» на главной ведёт
+            прямо к форме, а не в начало страницы контактов. */}
+        <aside id="reception" className="blueprint flex scroll-mt-28 flex-col gap-3 p-[22px]">
           <h2 className="m-0 text-[21px] uppercase tracking-[.02em]">{reception.title}</h2>
           <p className="m-0 text-[13px] leading-[1.55]" style={{ color: muted(65) }}>
             {reception.intro}
+          </p>
+          {/* Форма — для несрочных обращений: обещание интерфейса не должно
+              выглядеть каналом экстренной помощи. */}
+          <p
+            className="m-0 flex items-start gap-2 border-b border-[var(--color-divider)] pb-3 text-[12.5px] leading-[1.5]"
+            style={{ color: muted(70) }}
+          >
+            {reception.urgentNote}
           </p>
           <ContactForm reception={reception} locale={locale} />
         </aside>

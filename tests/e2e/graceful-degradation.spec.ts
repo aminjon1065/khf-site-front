@@ -12,12 +12,16 @@ import { test, expect } from "@playwright/test";
 // and no page left with an empty <main> and no explanation.
 
 test.describe("list pages show a human empty state, not a blank page", () => {
+  // Тексты именно «временно недоступно», а не «ничего не найдено»: при
+  // молчащем бэкенде список пуст не потому, что материалов нет. Это разные
+  // сообщения и разные следующие действия для посетителя (см. FetchList.
+  // unavailable в lib/api.ts).
   const cases: Array<[url: string, text: string]> = [
-    ["/ru/news", "Ничего не найдено"],
-    ["/ru/documents", "Документы не найдены"],
-    ["/ru/guides", "Инструкции пока не опубликованы."],
-    ["/ru/projects", "Проекты пока не опубликованы."],
-    ["/ru/announcements", "Объявления не найдены."],
+    ["/ru/news", "Новости временно недоступны"],
+    ["/ru/documents", "Каталог временно недоступен"],
+    ["/ru/guides", "Список инструкций временно недоступен"],
+    ["/ru/projects", "Список проектов временно недоступен"],
+    ["/ru/announcements", "Объявления временно недоступны"],
     // Молчание бэкенда — не подтверждённое отсутствие угроз: страницы обстановки
     // обязаны сообщать о недоступности данных, а не изображать «штатную» тишину.
     ["/ru/alerts", "Данные об обстановке сейчас недоступны"],
@@ -61,6 +65,26 @@ test("home page does not claim calm conditions when the CMS is unreachable", asy
   ).toBeVisible();
 });
 
+test("operational summary does not report calm conditions during a CMS outage", async ({
+  page,
+}) => {
+  // Регрессия ровно на разобранный в аудите случай: верхний AlertBanner уже
+  // учитывал недоступность, а блок «Оперативная сводка» смотрел только на
+  // alerts.count и при нуле печатал «Активных предупреждений нет» — то есть
+  // на одной странице соседствовали «данные недоступны» и «предупреждений
+  // нет». Пустой ответ обязан объясняться состоянием данных.
+  await page.goto("/ru");
+
+  const summary = page.getByRole("region", { name: "Оперативная сводка" });
+  await expect(summary).toBeVisible();
+  await expect(summary).toContainText(
+    "Данные об обстановке временно недоступны",
+  );
+  await expect(summary).not.toContainText("Активных предупреждений нет");
+  await expect(summary).not.toContainText("Обстановка штатная");
+  // И ни одной выдуманной цифры охвата.
+  await expect(summary).not.toContainText("Регионов под наблюдением");
+});
 test("home page invents neither news nor instruction links when the CMS is unreachable", async ({ page }) => {
   // Слайдер и плитки «Что делать в ЧС» брали контент из словаря, когда CMS
   // отдавала мало данных: три выдуманные новости и шесть адресов инструкций,

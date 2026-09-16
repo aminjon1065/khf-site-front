@@ -10,6 +10,7 @@
 import { writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import os from "node:os";
 import * as chromeLauncher from "chrome-launcher";
 import lighthouse from "lighthouse";
 
@@ -27,7 +28,12 @@ const TARGETS = [
 async function resolveFirstNewsArticlePath(baseUrl) {
   const res = await fetch(`${baseUrl}/ru/news`);
   const html = await res.text();
-  const match = html.match(/href="(\/ru\/news\/[a-z0-9-]+)"/);
+  const hrefs = [...html.matchAll(/href="(\/ru\/news\/([a-z0-9-]+))"/g)];
+  // Материал со slug'ом длиннее контракта (MAX_CMS_SLUG_LENGTH в
+  // lib/cache-tags.ts) не пре-рендерится на сборке и отдаётся по запросу —
+  // это другой путь исполнения. Для сравнимого замера берём типичную
+  // статью, иначе в цифру попадает разовая аномалия контента.
+  const match = hrefs.find(([, , slug]) => slug.length <= 180) ?? hrefs[0];
   if (!match) {
     throw new Error("Could not find a news article link on /ru/news to audit.");
   }
@@ -112,6 +118,18 @@ async function main() {
     ),
     "",
     "Regenerate: `node scripts/lighthouse-budgets.mjs [baseUrl]` against a running server (`npm run build && npm run start`, matches production more closely than `npm run dev`).",
+    "",
+    "## Условия замера",
+    "",
+    `- Хост: ${os.cpus().length} логических ядер, свободно ${(os.freemem() / 1024 ** 3).toFixed(1)} ГБ из ${(os.totalmem() / 1024 ** 3).toFixed(1)} ГБ.`,
+    `- Цель: \`${baseUrl}\`, mobile, throttlingMethod=devtools.`,
+    "",
+    "Оценка Performance — лабораторная и чувствительна к загрузке машины:",
+    "на занятом хосте разброс между прогонами достигает ±5 пунктов, поэтому",
+    "одиночный прогон не доказывает ни улучшения, ни регрессии. Сравнивать",
+    "изменения надёжнее по устойчивым метрикам (CLS, объём загруженных",
+    "ресурсов) и по нескольким прогонам в одинаковых условиях. Полевые данные",
+    "(p75 по CrUX/RUM) эта таблица не заменяет.",
     "",
   ];
 

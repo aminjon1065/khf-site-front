@@ -20,11 +20,18 @@ import type {
   ApiSettings,
   SlugListResponse,
 } from "@/lib/api.generated";
-import { DEFAULT_LOCALE, toApiLocale, type Locale } from "@/lib/i18n/config";
+import {
+  DEFAULT_LOCALE,
+  LOCALES,
+  toApiLocale,
+  type Locale,
+} from "@/lib/i18n/config";
 import { reportCmsFailure } from "@/lib/cms-error-reporting.mjs";
 import {
   cmsCacheTags,
   cmsRequestTags,
+  isAddressableSlug,
+  MAX_CMS_SLUG_LENGTH,
   type CmsContentType,
 } from "@/lib/cache-tags";
 
@@ -118,6 +125,22 @@ export interface Paginated<T> {
   };
 }
 
+/**
+ * Результат списочного запроса. `unavailable: true` — CMS не ответила
+ * (сеть/5xx/таймаут). Пустой список без этого флага — подтверждённое
+ * «ничего не найдено»; с ним — «данные временно недоступны». Страницы
+ * обязаны различать эти состояния: для портала ЧС выдать молчание бэкенда
+ * за пустую выдачу так же недопустимо, как за «обстановку штатную».
+ */
+export interface FetchList<T> extends Paginated<T> {
+  unavailable?: boolean;
+}
+
+const emptyList = (): Paginated<never> => ({
+  data: [],
+  meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 },
+});
+
 interface NewsQuery {
   locale?: Locale;
   category?: string;
@@ -144,11 +167,13 @@ export function buildUrl(
 
 /**
  * Список опубликованных новостей. При недоступности API возвращает пустой
- * результат, чтобы страница деградировала мягко (пустое состояние), а не падала.
+ * результат с `unavailable: true`, чтобы страница деградировала мягко
+ * (состояние «временно недоступно»), а не падала и не выдавала пустоту за
+ * «ничего не найдено».
  */
 export async function fetchNews(
   query: NewsQuery = {},
-): Promise<Paginated<ApiNewsItem>> {
+): Promise<FetchList<ApiNewsItem>> {
   const url = buildUrl("/news", {
     locale: query.locale,
     category: query.category,
@@ -168,10 +193,7 @@ export async function fetchNews(
     return (await res.json()) as Paginated<ApiNewsItem>;
   } catch (error) {
     reportCmsFailure("fetchNews", error);
-    return {
-      data: [],
-      meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 },
-    };
+    return { ...emptyList(), unavailable: true } as FetchList<ApiNewsItem>;
   }
 }
 
@@ -253,11 +275,13 @@ interface SearchQuery {
 
 /**
  * Глобальный поиск по опубликованному контенту (`GET /search`, q ≥ 2). При
- * коротком запросе или недоступности API возвращает пустой результат.
+ * коротком запросе — пустой результат (ошибка ввода, не сбой). При
+ * недоступности API — `unavailable: true`: «поиск временно недоступен»
+ * отличается от «ничего не найдено».
  */
 export async function fetchSearch(
   query: SearchQuery,
-): Promise<Paginated<ApiSearchResult>> {
+): Promise<FetchList<ApiSearchResult>> {
   const q = query.q.trim();
   const empty: Paginated<ApiSearchResult> = {
     data: [],
@@ -286,7 +310,7 @@ export async function fetchSearch(
     return (await res.json()) as Paginated<ApiSearchResult>;
   } catch (error) {
     reportCmsFailure("fetchSearch", error);
-    return empty;
+    return { ...empty, unavailable: true };
   }
 }
 
@@ -308,7 +332,7 @@ interface InstructionQuery {
  */
 export async function fetchInstructions(
   query: InstructionQuery = {},
-): Promise<Paginated<ApiInstruction>> {
+): Promise<FetchList<ApiInstruction>> {
   const url = buildUrl("/instructions", {
     locale: query.locale,
     page: query.page,
@@ -326,10 +350,7 @@ export async function fetchInstructions(
     return (await res.json()) as Paginated<ApiInstruction>;
   } catch (error) {
     reportCmsFailure("fetchInstructions", error);
-    return {
-      data: [],
-      meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 },
-    };
+    return { ...emptyList(), unavailable: true } as FetchList<ApiInstruction>;
   }
 }
 
@@ -371,7 +392,7 @@ export async function fetchDocuments(
     page?: number;
     perPage?: number;
   } = {},
-): Promise<Paginated<ApiDocument>> {
+): Promise<FetchList<ApiDocument>> {
   const url = buildUrl("/documents", {
     locale: params.locale,
     type: params.type,
@@ -392,10 +413,7 @@ export async function fetchDocuments(
     return (await res.json()) as Paginated<ApiDocument>;
   } catch (error) {
     reportCmsFailure("fetchDocuments", error);
-    return {
-      data: [],
-      meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 },
-    };
+    return { ...emptyList(), unavailable: true } as FetchList<ApiDocument>;
   }
 }
 
@@ -407,10 +425,10 @@ interface ProjectQuery {
   perPage?: number;
 }
 
-/** Список опубликованных проектов, постранично. При недоступности API — пустой результат. */
+/** Список опубликованных проектов, постранично. При недоступности API — пустой результат с `unavailable`. */
 export async function fetchProjects(
   query: ProjectQuery = {},
-): Promise<Paginated<ApiProject>> {
+): Promise<FetchList<ApiProject>> {
   const url = buildUrl("/projects", {
     locale: query.locale,
     page: query.page,
@@ -428,10 +446,7 @@ export async function fetchProjects(
     return (await res.json()) as Paginated<ApiProject>;
   } catch (error) {
     reportCmsFailure("fetchProjects", error);
-    return {
-      data: [],
-      meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 },
-    };
+    return { ...emptyList(), unavailable: true } as FetchList<ApiProject>;
   }
 }
 
@@ -467,10 +482,10 @@ interface AnnouncementQuery {
   perPage?: number;
 }
 
-/** Список опубликованных объявлений (открытые первыми), постранично. Пустой результат при сбое. */
+/** Список опубликованных объявлений (открытые первыми), постранично. При сбое — пустой результат с `unavailable`. */
 export async function fetchAnnouncements(
   query: AnnouncementQuery = {},
-): Promise<Paginated<ApiAnnouncement>> {
+): Promise<FetchList<ApiAnnouncement>> {
   const url = buildUrl("/announcements", {
     locale: query.locale,
     kind: query.kind,
@@ -489,10 +504,7 @@ export async function fetchAnnouncements(
     return (await res.json()) as Paginated<ApiAnnouncement>;
   } catch (error) {
     reportCmsFailure("fetchAnnouncements", error);
-    return {
-      data: [],
-      meta: { total: 0, per_page: 0, current_page: 1, last_page: 1 },
-    };
+    return { ...emptyList(), unavailable: true } as FetchList<ApiAnnouncement>;
   }
 }
 
@@ -859,16 +871,84 @@ const SLUG_ENDPOINTS = {
 export type SlugContentType = keyof typeof SLUG_ENDPOINTS;
 
 /**
- * Slug'и всех материалов типа, доступных в этой локали — для
- * `generateStaticParams` и карты сайта. Отдаёт те же записи, что и обычный
- * список, но одно поле вместо полного DTO: список нужен ради адресов, а не
- * содержимого. Пустой массив при сбое — маршрут тогда просто отрендерится по
- * запросу, а карта сайта сохранит статические разделы.
+ * Опубликован ли перевод материала в этой локали.
+ *
+ * Сигнал — список slug'ов запрошенной локали (контракт `/slugs/{type}`:
+ * «slug'и, доступные в запрошенной локали»). При сбое списка считаем
+ * перевод доступным: объявлять опубликованный материал непереведённым на
+ * основании молчания бэкенда — та же недостоверность, только зеркальная.
  */
+export async function translationAvailable(
+  type: SlugContentType,
+  slug: string,
+  locale: Locale,
+): Promise<boolean> {
+  const slugs = await fetchSlugs(type, locale);
+  return slugs === null ? true : slugs.includes(slug);
+}
+
+/**
+ * Локали, в которых перевод материала ДЕЙСТВИТЕЛЬНО опубликован.
+ *
+ * Используется детальными маршрутами для hreflang, x-default и честной
+ * заметки о переводе. Без этого `buildAlternates` механически объявлял все
+ * три языка, и /en-адрес русского fallback'а выдавал себя за полноценную
+ * английскую публикацию. Три запроса к `/slugs/{type}` разделяют кэш Next
+ * (одни и те же URL с тегами), поэтому на странице это не три похода в CMS.
+ */
+export async function availableLocalesFor(
+  type: SlugContentType,
+  slug: string,
+): Promise<Locale[]> {
+  const present = await Promise.all(
+    LOCALES.map((locale) => translationAvailable(type, slug, locale)),
+  );
+  return LOCALES.filter((_, i) => present[i]);
+}
+
+/**
+ * Slug'и всех материалов типа, доступных в этой локали — для
+ * `generateStaticParams`, карты сайта и проверки наличия перевода.
+ *
+ * `null` — CMS не ответила. Это не «материалов нет»: карта сайта по пустому
+ * списку молча урезалась бы при временном сбое, поэтому null обрабатывается
+ * отдельно (см. app/sitemap.ts), а `generateStaticParams` деградирует в
+ * рендер по запросу.
+ */
+/**
+ * `generateStaticParams` для детального маршрута: slug'и, которые можно
+ * пре-рендерить.
+ *
+ * Два отсева, оба — про сборку, а не про содержимое:
+ *  - CMS не ответила (`null`) → пустой список, маршрут отрендерится по
+ *    запросу; урезанная прегенерация лучше упавшей сборки;
+ *  - slug длиннее контрактных 180 символов (`isAddressableSlug`) → он не
+ *    помещается в имя файла `.next/.../<slug>.segments`, а 255 байт на
+ *    компонент пути — предел файловой системы и на Windows, и на Linux.
+ *    Один такой материал из CMS ронял весь production-билд; теперь он
+ *    просто рендерится по запросу.
+ */
+export async function fetchStaticParamSlugs(
+  type: SlugContentType,
+  locale: Locale,
+): Promise<{ slug: string }[]> {
+  const slugs = await fetchSlugs(type, locale);
+  const prerenderable = (slugs ?? []).filter(isAddressableSlug);
+
+  const skipped = (slugs ?? []).length - prerenderable.length;
+  if (skipped > 0) {
+    console.warn(
+      `[static-params] ${type}/${locale}: ${skipped} slug(s) длиннее ${MAX_CMS_SLUG_LENGTH} символов не пре-рендерятся (см. lib/cache-tags.ts).`,
+    );
+  }
+
+  return prerenderable.map((slug) => ({ slug }));
+}
+
 export async function fetchSlugs(
   type: SlugContentType,
   locale: Locale = DEFAULT_LOCALE,
-): Promise<string[]> {
+): Promise<string[] | null> {
   const url = buildUrl(`/slugs/${SLUG_ENDPOINTS[type]}`, { locale });
 
   try {
@@ -880,6 +960,6 @@ export async function fetchSlugs(
     return body.data;
   } catch (error) {
     reportCmsFailure(`fetchSlugs(${type})`, error);
-    return [];
+    return null;
   }
 }

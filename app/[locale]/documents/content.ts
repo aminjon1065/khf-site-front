@@ -37,7 +37,7 @@ export interface DocumentsContent {
    * Ключи фиксируются тестом против перечня в lib/api-types.generated.ts.
    */
   types: Record<DocTypeValue, string>;
-  search: { placeholder: string; ariaLabel: string; submit: string };
+  search: { placeholder: string; ariaLabel: string; submit: string; resultsPrefix: string };
   columns: {
     type: string;
     title: string;
@@ -48,7 +48,11 @@ export interface DocumentsContent {
   };
   /** Доступная подпись ссылки скачивания. */
   downloadAria: string;
-  empty: { title: string; text: string; reset: string };
+  /** Подпись кнопки скачивания в мобильной карточке. */
+  download: string;
+  /** Честное состояние «файла нет» вместо одиночного тире. */
+  noFile: string;
+  empty: { title: string; text: string; reset: string; unavailableTitle: string; unavailableText: string };
   docs: DocItem[];
 }
 
@@ -72,6 +76,7 @@ const ru: DocumentsContent = {
     placeholder: "Название или номер документа",
     ariaLabel: "Поиск документов",
     submit: "Найти",
+    resultsPrefix: "Результатов",
   },
   columns: {
     type: "Тип",
@@ -82,10 +87,15 @@ const ru: DocumentsContent = {
     file: "Файл",
   },
   downloadAria: "Скачать документ",
+  download: "Скачать",
+  noFile: "Файл не опубликован",
   empty: {
     title: "Документы не найдены",
     text: "Уточните запрос или выберите другой тип документа.",
     reset: "Сбросить фильтры",
+    unavailableTitle: "Каталог временно недоступен",
+    unavailableText:
+      "Не удалось получить список документов. Проверьте подключение или обновите страницу позже.",
   },
   docs: [
     {
@@ -186,6 +196,7 @@ const tj: DocumentsContent = {
     placeholder: "Ном ё рақами ҳуҷҷат",
     ariaLabel: "Ҷустуҷӯи ҳуҷҷатҳо",
     submit: "Ҷустуҷӯ",
+    resultsPrefix: "Натиҷаҳо",
   },
   columns: {
     type: "Навъ",
@@ -196,10 +207,15 @@ const tj: DocumentsContent = {
     file: "Файл",
   },
   downloadAria: "Боргирии ҳуҷҷат",
+  download: "Боргирӣ кардан",
+  noFile: "Файл нашр нашудааст",
   empty: {
     title: "Ҳуҷҷатҳо ёфт нашуданд",
     text: "Дархостро аниқ кунед ё навъи дигари ҳуҷҷатро интихоб кунед.",
     reset: "Тоза кардани филтрҳо",
+    unavailableTitle: "Феҳраст муваққатан дастрас нест",
+    unavailableText:
+      "Рӯйхати ҳуҷҷатҳо гирифта нашуд. Пайвастшавиро тафтиш кунед ё саҳифаро баъдтар нав кунед.",
   },
   docs: [
     {
@@ -299,6 +315,7 @@ const en: DocumentsContent = {
     placeholder: "Document title or number",
     ariaLabel: "Search documents",
     submit: "Search",
+    resultsPrefix: "Results",
   },
   columns: {
     type: "Type",
@@ -309,10 +326,15 @@ const en: DocumentsContent = {
     file: "File",
   },
   downloadAria: "Download document",
+  download: "Download",
+  noFile: "File not published",
   empty: {
     title: "No documents found",
     text: "Refine your query or select another document type.",
     reset: "Reset filters",
+    unavailableTitle: "Catalogue is temporarily unavailable",
+    unavailableText:
+      "The document list could not be retrieved. Check your connection or refresh the page later.",
   },
   docs: [
     {

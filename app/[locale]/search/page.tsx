@@ -57,7 +57,8 @@ export default async function SearchPage({
       {/* GET-форма без JS: сабмит перезагружает /{locale}/search?q=… */}
       <form role="search" method="get" className="flex items-center gap-2">
         <input
-          className="input min-h-[42px] flex-1 text-[15px]"
+          className="input min-h-11 flex-1 text-[15px]"
+          key={q}
           type="search"
           name="q"
           defaultValue={q}
@@ -65,7 +66,7 @@ export default async function SearchPage({
           aria-label={common.header.searchPlaceholder}
           autoFocus
         />
-        <button type="submit" className="btn btn-primary min-h-[42px] px-5">
+        <button type="submit" className="btn btn-primary min-h-11 px-5">
           {s.submit}
         </button>
       </form>
@@ -74,10 +75,40 @@ export default async function SearchPage({
         <p className="mt-8 text-[14px]" style={{ color: muted(60) }}>
           {s.promptShort}
         </p>
+      ) : result.unavailable ? (
+        /* Сбой API — не «ничего не найдено»: запрос остаётся в поле выше,
+           следующее действие — повторить (ссылка на тот же адрес — обычный
+           переход, перезапускает серверный рендер и повторяет запрос). */
+        <div className="mt-8 border-b border-[var(--color-divider)] pb-8">
+          <p
+            className="m-0 mb-1.5 text-[19px] font-semibold [font-family:var(--font-heading)]"
+          >
+            {s.unavailableTitle}
+          </p>
+          <p className="m-0 mb-4 text-[14px]" style={{ color: muted(65) }}>
+            {s.unavailableText}
+          </p>
+          <Link
+            href={`/search?q=${encodeURIComponent(q)}`}
+            className="btn btn-secondary no-underline"
+          >
+            {s.retry}
+          </Link>
+        </div>
       ) : items.length === 0 ? (
-        <p className="mt-8 text-[14px]" style={{ color: muted(60) }}>
-          {s.emptyPrefix} «{q}».
-        </p>
+        <div className="mt-8 pb-8">
+          <p className="m-0 text-[14px]" style={{ color: muted(60) }}>
+            {s.emptyPrefix} «{q}».
+          </p>
+          {/* Следующий шаг вместо тупика: посмотреть раздел напрямую. */}
+          <Link
+            href="/sitemap"
+            className="mt-2 inline-block text-[13px]"
+            style={{ color: "var(--color-accent-700)" }}
+          >
+            {s.sitemapNav}
+          </Link>
+        </div>
       ) : (
         <>
           <p className="mb-2 mt-6 text-xs" style={{ color: muted(55) }}>

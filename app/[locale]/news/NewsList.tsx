@@ -12,6 +12,11 @@ import { getNews } from "./content";
  * кнопки — обычные `<Link>` на `?category=slug`, поиск — GET-форма с `q`.
  * Оба фильтра работают без JS, переживают reload/шаринг ссылкой и применяются
  * CMS до пагинации.
+ *
+ * На узком экране ряд кнопок-категорий заменяется нативным `<select>` в той же
+ * GET-форме: пять-шесть чипов в несколько строк до результата читаются плохо,
+ * а select занимает одну строку и виден без раскрытия (выбранное значение).
+ * Отправка — та же кнопка формы, состояние живёт в адресе.
  */
 export default function NewsList({
   aside,
@@ -21,6 +26,8 @@ export default function NewsList({
   query,
   content,
   locale,
+  total,
+  unavailable,
 }: {
   aside: ReactNode;
   posts: ApiNewsItem[];
@@ -29,17 +36,36 @@ export default function NewsList({
   query?: string;
   content: ReturnType<typeof getNews>;
   locale: Locale;
+  /** Общее число результатов фильтра (meta.total CMS). */
+  total: number;
+  /** CMS не ответила: пустой список — не «ничего не найдено». */
+  unavailable?: boolean;
 }) {
   const { filter, feed, empty } = content;
+  const hasFilters = Boolean(activeCategory || query);
+
+  // Текущий адрес с фильтрами — для ссылки «обновить» в состоянии недоступности
+  // (обычный <a>: нужен полный переход, а не мягкая навигация на тот же маршрут).
+  const currentHref = withLocale(
+    locale,
+    `/news?${[
+      activeCategory ? `category=${encodeURIComponent(activeCategory)}` : "",
+      query ? `q=${encodeURIComponent(query)}` : "",
+    ]
+      .filter(Boolean)
+      .join("&")}`,
+  );
 
   return (
     <>
-      {/* Панель фильтров: категории — ссылки, поиск — GET-форма; оба серверные */}
+      {/* Панель фильтров: категории — ссылки (desktop), поиск — GET-форма;
+          оба серверные. Число результатов показывается при активном фильтре:
+          подтверждает, что отбор применился, а не «пусто». */}
       <div className="flex flex-wrap items-center gap-[14px] border-b border-[var(--color-divider)] py-4">
         <div
           role="group"
           aria-label={filter.groupAria}
-          className="flex flex-wrap gap-1.5"
+          className="flex flex-wrap gap-1.5 max-[560px]:hidden"
         >
           <Link
             href={withLocale(
@@ -88,13 +114,45 @@ export default function NewsList({
             );
           })}
         </div>
-        <span className="flex-1" />
-        <form method="get" className="flex gap-2 max-[560px]:w-full">
-          {activeCategory && (
-            <input type="hidden" name="category" value={activeCategory} />
-          )}
+        <span className="flex-1 max-[560px]:hidden" />
+        {hasFilters && !unavailable && (
+          <span
+            className="text-xs [font-variant-numeric:tabular-nums] max-[560px]:hidden"
+            style={{ color: muted(55) }}
+          >
+            {filter.resultsPrefix}: {total}
+          </span>
+        )}
+        {/* На узком экране форма переносится: select категории занимает
+            отдельную строку во всю ширину, поиск и кнопка — следующую.
+            Втроём в одну строку они не помещались, и поле ввода сжималось
+            до 22px — печатать в нём было невозможно. */}
+        <form method="get" className="flex flex-1 gap-2 max-[560px]:w-full max-[560px]:flex-none max-[560px]:flex-wrap">
+          {/* Мобильный фильтр категории — select в этой же форме. Значение
+              отправляется вместе с q одной кнопкой; на desktop select скрыт
+              и играет роль прежнего скрытого поля category (скрытые поля
+              формы, в отличие от disabled, отправляются).
+              key: defaultValue у неуправляемого поля применяется только при
+              монтировании, а при клиентском переходе React переиспользует тот
+              же DOM-узел — select оставался со значением прошлого адреса и
+              отправка поиска сбрасывала выбранную категорию. */}
+          <select
+            key={activeCategory ?? "all"}
+            name="category"
+            defaultValue={activeCategory ?? ""}
+            aria-label={filter.categorySelect}
+            className="input min-h-11 text-[13px] hidden max-[560px]:block max-[560px]:w-full"
+          >
+            <option value="">{filter.allCategory}</option>
+            {categories.map((c) => (
+              <option key={c.slug} value={c.slug}>
+                {c.name}
+              </option>
+            ))}
+          </select>
           <input
-            className="input min-h-11 w-[240px] text-[13px] max-[560px]:min-w-0 max-[560px]:flex-1"
+            className="input min-h-11 w-[240px] text-[13px] max-[560px]:min-w-0 max-[560px]:w-auto max-[560px]:flex-1"
+            key={query ?? ""}
             type="search"
             name="q"
             defaultValue={query ?? ""}
@@ -106,8 +164,46 @@ export default function NewsList({
           </button>
         </form>
       </div>
+      {/* Мобильная строка состояния фильтра: активная категория и число
+          результатов видны без раскрытия select. */}
+      {hasFilters && !unavailable && (
+        <p
+          className="m-0 flex flex-wrap items-center gap-2 border-b border-[var(--color-divider)] py-2 text-xs hidden max-[560px]:flex"
+          style={{ color: muted(55) }}
+        >
+          {filter.resultsPrefix}: {total}
+          <Link
+            href={withLocale(locale, routes.news)}
+            className="text-xs"
+            style={{ color: "var(--color-accent-700)" }}
+          >
+            {empty.reset}
+          </Link>
+        </p>
+      )}
 
-      {posts.length > 0 ? (
+      {unavailable ? (
+        <div className="px-6 py-16 text-center">
+          <Search
+            size={34}
+            strokeWidth={1.5}
+            aria-hidden="true"
+            className="mx-auto mb-3"
+            style={{ color: muted(40) }}
+          />
+          <p className="m-0 mb-1.5 text-[19px] font-semibold [font-family:var(--font-heading)]">
+            {empty.unavailableTitle}
+          </p>
+          <p className="m-0 mb-4 text-[13.5px]" style={{ color: muted(60) }}>
+            {empty.unavailableText}
+          </p>
+          {/* Полный переход на тот же адрес: мягкая навигация на идентичный
+              маршрут не перезапросила бы серверные данные. */}
+          <a href={currentHref} className="btn btn-secondary no-underline">
+            {filter.reload}
+          </a>
+        </div>
+      ) : posts.length > 0 ? (
         <div className="mt-2 grid grid-cols-[minmax(0,2.2fr)_minmax(260px,1fr)] items-start gap-8 max-[920px]:grid-cols-1">
           <div role="feed" aria-label={feed.aria} className="min-w-0">
             {posts.map((p) => (
