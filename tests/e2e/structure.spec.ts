@@ -20,3 +20,28 @@ test("shows the stat plates and all six units from the CMS", async ({ page }) =>
   // Static chrome (not CMS data) survives the migration unchanged.
   await expect(unitsSection.getByRole("link", { name: "руководство →" })).toBeVisible();
 });
+
+test("shows subunits inside their parent unit, at every depth", async ({ page }) => {
+  await page.goto("/ru/structure");
+
+  const unitsSection = page.getByRole("region", { name: "Подразделения" });
+  const subunits = unitsSection.getByRole("list", { name: "Вложенные подразделения" });
+
+  // Only the rescue service has subunits: one list for its departments and
+  // one nested inside the airmobile unit for its dog-handling team.
+  await expect(subunits).toHaveCount(2);
+
+  const departments = subunits.first();
+  await expect(departments.getByRole("listitem")).toHaveCount(3);
+  await expect(departments.getByText("Горно-спасательная служба")).toBeVisible();
+
+  const airmobile = departments
+    .getByRole("listitem")
+    .filter({ hasText: "Аэромобильный поисково-спасательный отряд" });
+  await expect(
+    airmobile.getByRole("list", { name: "Вложенные подразделения" }).getByText("Кинологический расчёт"),
+  ).toBeVisible();
+
+  // A subunit is not repeated as a top-level card.
+  await expect(unitsSection.getByText("Горно-спасательная служба")).toHaveCount(1);
+});

@@ -31,6 +31,8 @@ export interface StructureContent {
     link: InlineLink;
   };
   unitsLabel: string;
+  /** Подпись списка вложенных подразделений внутри карточки подразделения. */
+  subunitsLabel: string;
   footnote: {
     /** Текст перед ссылкой — оканчивается тире. */
     text: string;
@@ -60,6 +62,7 @@ const ru: StructureContent = {
     link: { label: "руководство →", href: routes.leadership },
   },
   unitsLabel: "Подразделения",
+  subunitsLabel: "Вложенные подразделения",
   footnote: {
     text: "Региональные управления действуют в г. Душанбе, Согдийской и Хатлонской областях, ГБАО и районах республиканского подчинения — ",
     link: { label: "контакты управлений", href: routes.contacts },
@@ -94,6 +97,7 @@ const tj: StructureContent = {
     link: { label: "роҳбарият →", href: routes.leadership },
   },
   unitsLabel: "Воҳидҳо",
+  subunitsLabel: "Воҳидҳои тобеъ",
   footnote: {
     text: "Идораҳои минтақавӣ дар ш. Душанбе, вилоятҳои Суғд ва Хатлон, ВМКБ ва ноҳияҳои тобеи ҷумҳурӣ фаъолият мекунанд — ",
     link: { label: "тамос бо идораҳо", href: routes.contacts },
@@ -128,6 +132,7 @@ const en: StructureContent = {
     link: { label: "leadership →", href: routes.leadership },
   },
   unitsLabel: "Units",
+  subunitsLabel: "Subunits",
   footnote: {
     text: "Regional offices operate in Dushanbe, the Sughd and Khatlon regions, GBAO and the districts of republican subordination — ",
     link: { label: "office contacts", href: routes.contacts },

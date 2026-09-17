@@ -795,14 +795,19 @@ export async function fetchLeadership(
   }
 }
 
-/** Специализированное подразделение на странице «Структура». */
+/** Подразделение на странице «Структура»; вложенность — на любую глубину. */
 export interface ApiStructureUnit {
   num: string;
   name: string;
   desc: string;
+  /** Вложенные подразделения в заданном порядке; у «листа» — пустой массив. */
+  children: ApiStructureUnit[];
 }
 
-/** Подразделения структуры, в заданном порядке. Пустой массив при сбое. */
+/**
+ * Подразделения верхнего уровня (каждое — с вложенными), в заданном порядке.
+ * Пустой массив при сбое.
+ */
 export async function fetchStructureUnits(
   locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiStructureUnit[]> {

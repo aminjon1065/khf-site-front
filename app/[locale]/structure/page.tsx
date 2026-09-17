@@ -4,6 +4,7 @@ import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import type { Metadata } from "next";
 import { fetchSettings, fetchStructureUnits } from "@/lib/api";
+import type { ApiStructureUnit } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { buildMetadata, metaDescription } from "@/lib/seo";
@@ -128,6 +129,7 @@ export default async function StructurePage({
               >
                 {u.desc}
               </span>
+              <Subunits units={u.children} label={structure.subunitsLabel} />
             </div>
           ))}
         </div>
@@ -168,5 +170,63 @@ export default async function StructurePage({
         </div>
       </section>
     </PageShell>
+  );
+}
+
+/**
+ * Вложенные подразделения внутри карточки: главное управление → управления →
+ * отделы, на любую глубину. Первый уровень отделён от описания чертой, каждый
+ * следующий сдвинут вправо линией слева — иерархия читается без заголовков.
+ */
+function Subunits({
+  units,
+  label,
+  nested = false,
+}: {
+  units: ApiStructureUnit[];
+  label: string;
+  nested?: boolean;
+}) {
+  if (units.length === 0) {
+    return null;
+  }
+
+  return (
+    <ul
+      aria-label={label}
+      className={
+        nested
+          ? "m-0 mt-2 flex list-none flex-col gap-2 border-l border-[var(--color-divider)] p-0 pl-3"
+          : "m-0 mt-2 flex list-none flex-col gap-2.5 border-t border-[var(--color-divider)] p-0 pt-3"
+      }
+    >
+      {units.map((unit, index) => (
+        <li
+          key={`${unit.num}-${index}`}
+          className="flex min-w-0 flex-col gap-0.5"
+        >
+          <span className="flex items-baseline gap-2">
+            <span
+              className="text-[12px] font-semibold [font-family:var(--font-heading)]"
+              style={{ color: muted(40) }}
+            >
+              {unit.num}
+            </span>
+            <span className="text-[14px] font-semibold leading-[1.25] [font-family:var(--font-heading)]">
+              {unit.name}
+            </span>
+          </span>
+          {unit.desc && (
+            <span
+              className="text-[12px] leading-[1.45]"
+              style={{ color: muted(62) }}
+            >
+              {unit.desc}
+            </span>
+          )}
+          <Subunits units={unit.children} label={label} nested />
+        </li>
+      ))}
+    </ul>
   );
 }

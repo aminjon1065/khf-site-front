@@ -1,6 +1,6 @@
 /**
  * Generated from khf-site-cms/openapi/openapi.json.
- * Schema SHA-256: bc0f530bbc8d55e2
+ * Schema SHA-256: a898cca215916de5
  * Do not edit by hand; run `npm run api:types`.
  */
 
@@ -521,6 +521,7 @@ export interface ApiStructureUnit {
   num: string;
   name: string;
   desc: string;
+  children: Array<ApiStructureUnit>;
 }
 
 export interface LeaderListResponse {
