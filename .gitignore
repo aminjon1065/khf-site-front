@@ -54,3 +54,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Единый менеджер — npm (CI и deploy используют npm ci); pnpm-файлы не коммитим (audit F-1)
+pnpm-lock.yaml
+pnpm-workspace.yaml
