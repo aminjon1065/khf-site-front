@@ -79,6 +79,13 @@ jobs:
       - name: Check frontend bundle budgets
         run: npm run bundle:report
 
+      # Фикстура выше была нужна api:types:check и сборке с readiness-gate.
+      # Playwright в CI поднимает СВОЮ копию мока (reuseExistingServer:false
+      # в playwright.config.ts) — освобождаем порт до e2e.
+      - name: Stop standalone CMS fixture
+        shell: bash
+        run: pkill -f "tests/fixtures/cms-server.mjs" || true
+
       - name: Run browser and accessibility tests
         run: npm run test:e2e
 
