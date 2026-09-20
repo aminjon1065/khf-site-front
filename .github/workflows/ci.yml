@@ -89,6 +89,23 @@ jobs:
       - name: Run browser and accessibility tests
         run: npm run test:e2e
 
+      # Playwright останавливает свой webServer после прогона, а Lighthouse
+      # (npm run start) нуждается в живой CMS: ISR-ревалидация во время
+      # измерений иначе печёт деградировавший контент (диагностический
+      # баннер, fallback-тексты, noindex) и валит seo/a11y-ассерты.
+      - name: Restart CMS fixture for Lighthouse
+        shell: bash
+        run: |
+          node tests/fixtures/cms-server.mjs > "$RUNNER_TEMP/cms-fixture-lhci.log" 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error "$API_URL/ready" > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/cms-fixture-lhci.log"
+          exit 1
+
       - name: Run Lighthouse CI
         run: npm run lighthouse:ci
 
