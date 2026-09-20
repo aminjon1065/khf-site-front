@@ -32,7 +32,9 @@ it("не разрешает картинки по http вне разработк
   // origin; `https:` оставлен ради изображений в теле материала. Открытый
   // `http:` означал бы разрешение на смешанный контент — в разработке это
   // осознанная поблажка локальной CMS, в остальных сборках его быть не должно.
-  expect(csp).toContain("img-src 'self' data: blob: https:");
-  expect(csp).not.toContain(" http:");
+  // Проверяем именно директиву img-src: connect-src законно содержит origin
+  // CMS из API_URL (в CI мок-фикстура слушает http://127.0.0.1).
+  const imgSrc = csp?.match(/img-src [^;]+/)?.[0] ?? "";
+  expect(imgSrc).toBe("img-src 'self' data: blob: https:");
   expect(csp).toContain("upgrade-insecure-requests");
 });
