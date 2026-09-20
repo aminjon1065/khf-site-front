@@ -16,7 +16,13 @@
 // своим сайтом.
 const numberOfRuns = Number(process.env.LHCI_RUNS ?? 3);
 const strictBudgets = process.env.LHCI_STRICT === "1";
-const performanceBudget = strictBudgets ? 0.99 : 0.95;
+// Порог категории perf можно переопределить окружением (LHCI_PERF_MIN):
+// бюджет 0.95/0.99 откалиброван на реальной машине (perf>=99), а общие
+// CI-раннеры (2 ядра, честный devtools-throttling) стабильно дают ~0.74
+// на тех же страницах — там порог занижают до грубого предохранителя.
+const performanceBudget = Number(
+  process.env.LHCI_PERF_MIN ?? (strictBudgets ? 0.99 : 0.95),
+);
 const metricSeverity = strictBudgets ? "error" : "warn";
 const lighthousePort = Number(process.env.LHCI_PORT ?? 3000);
 const lighthouseUrl = `http://127.0.0.1:${lighthousePort}`;
