@@ -28,6 +28,9 @@ jobs:
       NEXT_PUBLIC_RUM_SAMPLE_RATE: "1"
       NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
       RUM_INGEST_SECRET: ci-rum-secret
+      # Артефакт CI не деплоится, localhost в canonical допустим; без
+      # этого guard assertSiteUrlForBuild роняет production-сборку.
+      SITE_URL_ALLOW_LOCAL: "1"
 
     steps:
       - name: Check out repository
