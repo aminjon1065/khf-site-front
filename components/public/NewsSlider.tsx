@@ -362,7 +362,6 @@ export default function NewsSlider({
               <ImageSlot
                 src={activeSlide.imageSrc}
                 alt=""
-                duotone
                 // В DOM находится только активный слайд, и его фото всегда
                 // находится на первом экране. Начальный кадр дополнительно
                 // preload-ится из HTML, последующие — загружаются eager только

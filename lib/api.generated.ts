@@ -1,6 +1,6 @@
 /**
  * Generated from khf-site-cms/openapi/openapi.json.
- * Schema SHA-256: a898cca215916de5
+ * Schema SHA-256: 3624b25c49128531
  * Do not edit by hand; run `npm run api:types`.
  */
 
@@ -75,6 +75,7 @@ export interface ApiNewsItem {
     size: string;
     size_bytes: number;
   }>;
+  gallery_data?: Array<CmsImageDto>;
 }
 
 export interface ApiInstruction {

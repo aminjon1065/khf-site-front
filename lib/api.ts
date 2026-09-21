@@ -256,7 +256,7 @@ export async function fetchCategories(
     const body = (await res.json()) as { data: ApiCategory[] };
     return body.data;
   } catch (error) {
-    console.error("fetchCategories failed:", error);
+    reportCmsFailure("fetchCategories", error);
     return [];
   }
 }
@@ -790,7 +790,7 @@ export async function fetchLeadership(
     const body = (await res.json()) as { data: ApiLeader[] };
     return body.data;
   } catch (error) {
-    console.error("fetchLeadership failed:", error);
+    reportCmsFailure("fetchLeadership", error);
     return [];
   }
 }
@@ -824,7 +824,7 @@ export async function fetchStructureUnits(
     const body = (await res.json()) as { data: ApiStructureUnit[] };
     return body.data;
   } catch (error) {
-    console.error("fetchStructureUnits failed:", error);
+    reportCmsFailure("fetchStructureUnits", error);
     return [];
   }
 }

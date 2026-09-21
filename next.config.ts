@@ -14,7 +14,17 @@ function usesLocalCmsEndpoint(): boolean {
   }
 
   try {
-    return ["127.0.0.1", "localhost"].includes(new URL(endpoint).hostname);
+    const { hostname } = new URL(endpoint);
+
+    // `.test` — зарезервированный TLD локальных vhost'ов (Laragon/Herd/lerd).
+    // Домен резолвится в 127.0.0.1, но строкой hostname остаётся
+    // `khf-site-cms.test`: без этого условия SSRF-защита Next 16
+    // (dangerouslyAllowLocalIP=false в production) отвергала медиатеку
+    // локальной CMS в `next start` с «"url" parameter is not allowed» —
+    // при том что remotePatterns этот хост разрешает явно.
+    return (
+      ["127.0.0.1", "localhost"].includes(hostname) || hostname.endsWith(".test")
+    );
   } catch {
     return false;
   }

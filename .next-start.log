@@ -1,0 +1,16 @@
+
+> khf-site-front@0.1.0 start
+> node scripts/start.mjs
+
+[start] локальный CA подключён: /Users/adminjon/Library/Application Support/mkcert/rootCA.pem
+▲ Next.js 16.2.10
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.211:3000
+✓ Ready in 698ms
+[cms-api:degraded] {
+  operation: 'fetchNewsItem',
+  code: undefined,
+  message: 'API 429',
+  previous_duplicates_suppressed: 0,
+  deduplication_window_ms: 60000
+}

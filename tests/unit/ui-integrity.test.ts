@@ -118,10 +118,12 @@ describe("электронная приёмная показывает прич�
 
 describe("оперативная сводка объясняет ноль словами", () => {
   it("на главной пустое состояние — фраза, а не цифра 0", () => {
-    const home = readFileSync("app/[locale]/page.tsx", "utf8");
+    // Секция «Оперативная сводка» выделена из app/[locale]/page.tsx в
+    // components/public/home/OpsSummary.tsx — проверка следует за кодом.
+    const ops = readFileSync("components/public/home/OpsSummary.tsx", "utf8");
 
-    expect(home).toMatch(/home\.ops\.noneText/);
-    expect(home).toMatch(/data\.alerts\.count > 0/);
+    expect(ops).toMatch(/home\.ops\.noneText/);
+    expect(ops).toMatch(/alertsCount > 0/);
   });
 });
 

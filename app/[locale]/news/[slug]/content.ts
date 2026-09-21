@@ -48,6 +48,7 @@ interface ArticleUi {
   shared: string;
   print: string;
   photoCaptionSource: string;
+  galleryAria: string;
 }
 
 const ru: ArticleUi = {
@@ -60,6 +61,7 @@ const ru: ArticleUi = {
   shared: "Скопировано",
   print: "Версия для печати",
   photoCaptionSource: "Фото: пресс-служба КЧС",
+  galleryAria: "Фотогалерея материала",
 };
 
 const tj: ArticleUi = {
@@ -72,6 +74,7 @@ const tj: ArticleUi = {
   shared: "Нусхабардорӣ шуд",
   print: "Нусхаи чопӣ",
   photoCaptionSource: "Акс: хадамоти матбуоти КҲФ",
+  galleryAria: "Фотогалереяи мавод",
 };
 
 const en: ArticleUi = {
@@ -84,6 +87,7 @@ const en: ArticleUi = {
   shared: "Copied",
   print: "Print version",
   photoCaptionSource: "Photo: CoES press office",
+  galleryAria: "Photo gallery",
 };
 
 /** Строки интерфейса статьи для активной локали. */

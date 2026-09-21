@@ -60,8 +60,8 @@ test("an unprefixed path prefers the locale cookie over the fallback", async ({
 // Переключатель локали — сегментированный контрол: сам radio визуально скрыт,
 // кликать нужно по подписи, как это делает пользователь.
 for (const { label, locale, lang } of [
-  { label: "ТҶ", locale: "tj", lang: "tg" },
-  { label: "EN", locale: "en", lang: "en" },
+  { label: "Тоҷикӣ", locale: "tj", lang: "tg" },
+  { label: "English", locale: "en", lang: "en" },
 ] as const) {
   test(`the language switcher keeps the current route (${label})`, async ({
     page,

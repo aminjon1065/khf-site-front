@@ -9,6 +9,7 @@ import {
 import PageShell from "@/components/public/PageShell";
 import TranslationNotice from "@/components/public/TranslationNotice";
 import CmsImage from "@/components/public/CmsImage";
+import GalleryCarousel from "@/components/public/GalleryCarousel";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
 import {
   fetchNews,
@@ -23,6 +24,10 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { routes } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
 import { cmsImageSource } from "@/lib/media";
+import {
+  hasGalleryMark,
+  splitBodyByGallery,
+} from "@/lib/gallery-mark";
 import ArticleActions from "./ArticleActions";
 import {
   getArticleUi,
@@ -197,6 +202,19 @@ export default async function ArticlePage({
     notFound();
   }
   const hasImage = cmsImageSource(item.image_data) !== null;
+  const gallery = item.gallery_data ?? [];
+  const galleryReady = gallery.length > 1;
+
+  // Тело с маркером галереи режется на «до/после»: карусель встаёт туда,
+  // куда редактор поставил маркер в CMS. Без маркера — прежнее место под
+  // обложкой; без кадров маркеры вырезаются, чтобы читатель не видел
+  // технический текст.
+  const bodyHtml = item.body ?? "";
+  const bodyIsHtml = /<[a-z][\s\S]*>/i.test(bodyHtml);
+  const markerInBody = bodyIsHtml && hasGalleryMark(bodyHtml);
+  const [bodyBefore, bodyAfter] = markerInBody
+    ? splitBodyByGallery(bodyHtml)
+    : ["", ""];
 
   // Оргданные для publisher/author в NewsArticle. Тот же запрос, что делает
   // layout ради шапки и подвала, — Next дедуплицирует его в рамках рендера
@@ -217,8 +235,7 @@ export default async function ArticlePage({
   // Тело из CMS: у новых материалов — санитайзенный HTML из WYSIWYG-редактора,
   // у старых — простой текст. HTML выводим как есть; текст разбиваем на абзацы
   // (fallback, см. toArticle). Санитайзинг выполнен на стороне CMS при записи.
-  const bodyHtml = item.body ?? "";
-  const bodyIsHtml = /<[a-z][\s\S]*>/i.test(bodyHtml);
+  // bodyHtml/bodyIsHtml/markerInBody объявлены выше, у figure обложки.
 
   // Есть ли настоящий перевод: CMS отдала контент (возможно, fallback'ом
   // на русский), а списки slug'ов говорят, в каких локали он опубликован.
@@ -313,11 +330,41 @@ export default async function ArticlePage({
             )}
           </figure>
 
-          {bodyIsHtml ? (
-            <div
-              className="article-prose"
-              dangerouslySetInnerHTML={{ __html: bodyHtml }}
+          {galleryReady && !markerInBody && (
+            <GalleryCarousel
+              images={gallery}
+              ariaLabel={articleUi.galleryAria}
             />
+          )}
+
+          {bodyIsHtml ? (
+            markerInBody ? (
+              <>
+                {bodyBefore && (
+                  <div
+                    className="article-prose"
+                    dangerouslySetInnerHTML={{ __html: bodyBefore }}
+                  />
+                )}
+                {galleryReady && (
+                  <GalleryCarousel
+                    images={gallery}
+                    ariaLabel={articleUi.galleryAria}
+                  />
+                )}
+                {bodyAfter && (
+                  <div
+                    className="article-prose"
+                    dangerouslySetInnerHTML={{ __html: bodyAfter }}
+                  />
+                )}
+              </>
+            ) : (
+              <div
+                className="article-prose"
+                dangerouslySetInnerHTML={{ __html: bodyHtml }}
+              />
+            )
           ) : (
             article.blocks.map((block, i) =>
               block.type === "quote" ? (
