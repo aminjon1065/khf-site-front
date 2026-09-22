@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import "../globals.css";
 import { LOCALES, isLocale, htmlLang } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { THEME_INIT } from "@/lib/theme-init";
+import ThemeScript from "@/components/public/ThemeScript";
 import { buildMetadata, siteUrl } from "@/lib/seo";
 import { cmsDiagnosticEnabled } from "@/lib/cms-readiness.mjs";
 import { WebVitalsReporter } from "@/components/public/WebVitalsReporter";
@@ -101,7 +101,7 @@ export default async function LocaleLayout({
       className={`${sans.variable} ${condensed.variable}`}
     >
       <body>
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
+        <ThemeScript />
         <WebVitalsReporter />
         {/* useSearchParams внутри требует Suspense-границы при статическом
             пре-рендере, иначе весь маршрут уходит в динамический рендер. */}

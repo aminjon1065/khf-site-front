@@ -145,14 +145,13 @@ export default function PublicHeader({
               style={{ width: "auto" }}
             />
             <span className="block min-w-0">
-              <span className="block text-[19px] font-semibold uppercase leading-[1.15] tracking-[.01em] [font-family:var(--font-heading)] max-[920px]:text-[14.5px]">
+              <span className="block text-[17.5px] font-bold leading-[1.2] tracking-[-0.01em] [font-family:var(--font-heading)] max-[920px]:text-[14px]">
                 {header.committeeTitle[0]}
                 <br />
                 {header.committeeTitle[1]}
               </span>
               <span
-                className="mt-[3px] block text-xs max-[920px]:hidden"
-                style={{ color: muted(60) }}
+                className="mt-1 block text-[11.5px] tracking-normal text-slate-500 dark:text-slate-400 max-[920px]:hidden"
               >
                 {header.committeeSub}
               </span>
@@ -167,9 +166,8 @@ export default function PublicHeader({
             <br />
             <a
               href={phoneHref}
-              className="text-[13px] font-medium"
+              className="text-[13px] font-semibold text-sky-900 dark:text-sky-300"
               style={{
-                color: "var(--color-accent-700)",
                 textDecoration: "none",
               }}
             >
@@ -178,14 +176,14 @@ export default function PublicHeader({
           </span>
           <a
             href="tel:112"
-            className="call-112 inline-flex min-h-11 items-center gap-2 border border-[var(--color-divider)] px-[18px] py-2.5 text-[16px] font-semibold uppercase tracking-[.03em] text-white [box-shadow:var(--shadow-sm)] [font-family:var(--font-heading)] max-[920px]:ml-auto max-[920px]:px-[13px] max-[920px]:py-[9px] max-[920px]:text-[15px]"
+            className="call-112 inline-flex min-h-11 items-center gap-2 rounded-xl px-4 py-2 text-[15px] font-bold tracking-wider text-white shadow-sm hover:shadow transition-all max-[920px]:ml-auto max-[920px]:px-3.5 max-[920px]:py-2 max-[920px]:text-[14px]"
             aria-label={header.emergencyAria}
             style={{
               background: "var(--hz-critical-solid)",
               textDecoration: "none",
             }}
           >
-            <Phone size={16} strokeWidth={1.5} aria-hidden="true" />
+            <Phone size={16} strokeWidth={2} aria-hidden="true" />
             112
           </a>
           <MobileMenuButton
@@ -358,26 +356,26 @@ export default function PublicHeader({
               />
               <span
                 role="menu"
-                className="knav-dropdown absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-card)] py-1 [box-shadow:var(--shadow-md)]"
+                className="knav-dropdown absolute left-0 top-full z-50 flex min-w-[210px] flex-col rounded-xl border border-[var(--color-divider)] bg-[var(--color-card)] p-1.5 shadow-lg"
               >
                 <NextLink
                   role="menuitem"
                   href={localize(routes.leadership)}
-                  className="!border-b-0 px-[14px] py-2"
+                  className="!border-b-0 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-slate-200 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   {navCopy.leadership}
                 </NextLink>
                 <NextLink
                   role="menuitem"
                   href={localize(routes.structure)}
-                  className="!border-b-0 px-[14px] py-2"
+                  className="!border-b-0 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-slate-200 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   {navCopy.structure}
                 </NextLink>
                 <NextLink
                   role="menuitem"
                   href={localize(routes.symbols)}
-                  className="!border-b-0 px-[14px] py-2"
+                  className="!border-b-0 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-slate-200 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   {header.stateSymbols}
                 </NextLink>
@@ -398,14 +396,14 @@ export default function PublicHeader({
                   />
                   <span
                     role="menu"
-                    className="knav-dropdown absolute left-0 top-full z-50 flex min-w-[200px] flex-col border border-[var(--color-divider)] bg-[var(--color-card)] py-1 [box-shadow:var(--shadow-md)]"
+                    className="knav-dropdown absolute left-0 top-full z-50 flex min-w-[210px] flex-col rounded-xl border border-[var(--color-divider)] bg-[var(--color-card)] p-1.5 shadow-lg"
                   >
                     {item.children.map((child) => (
                       <NextLink
                         key={child.href}
                         role="menuitem"
                         href={localize(child.href)}
-                        className="!border-b-0 px-[14px] py-2"
+                        className="!border-b-0 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-slate-200 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
                       >
                         {child.label}
                       </NextLink>

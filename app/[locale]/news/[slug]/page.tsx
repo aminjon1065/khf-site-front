@@ -10,7 +10,7 @@ import PageShell from "@/components/public/PageShell";
 import TranslationNotice from "@/components/public/TranslationNotice";
 import CmsImage from "@/components/public/CmsImage";
 import GalleryCarousel from "@/components/public/GalleryCarousel";
-import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
+import { Breadcrumbs, muted } from "@/components/public/ui";
 import {
   fetchNews,
   fetchNewsItem,
@@ -307,28 +307,25 @@ export default async function ArticlePage({
 
           {/* duotone только когда есть настоящее фото: тот же слой поверх
               логотипа-заглушки перекрашивал сам логотип. Подпись — внутри
-              <figure>, иначе она не связана с изображением. */}
-          <figure className="mb-5">
-            <span
-              className={`blueprint relative block h-[340px] ${
-                hasImage ? "duotone" : ""
-              }`}
-            >
-              {hasImage && item.image_data ? (
+          {/* Фоторепортаж: выводим обложку только когда она загружена.
+              Без снимка материал начинается сразу с текста, без пустого блока. */}
+          {hasImage && item.image_data ? (
+            <figure className="mb-6">
+              <span className="relative block h-[360px] overflow-hidden rounded-xl border border-[var(--color-divider)] shadow-sm max-[560px]:h-[220px]">
                 <CmsImage
                   image={item.image_data}
                   sizes="(max-width: 920px) 100vw, 760px"
                   fetchPriority="high"
                   loading="eager"
                 />
-              ) : (
-                <ImageSlot label={article.photoLabel} />
+              </span>
+              {article.caption && (
+                <figcaption className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                  {article.caption}
+                </figcaption>
               )}
-            </span>
-            {article.caption && (
-              <figcaption className="mt-2">{article.caption}</figcaption>
-            )}
-          </figure>
+            </figure>
+          ) : null}
 
           {galleryReady && !markerInBody && (
             <GalleryCarousel
@@ -370,12 +367,12 @@ export default async function ArticlePage({
               block.type === "quote" ? (
                 <blockquote
                   key={i}
-                  className="blueprint my-6 px-[22px] py-[18px] text-base not-italic leading-[1.55]"
+                  className="my-6 border-l-4 border-[var(--color-accent)] bg-[var(--color-surface)]/60 px-5 py-4 rounded-r-xl text-base font-medium leading-[1.6]"
                 >
                   {block.text}
                 </blockquote>
               ) : (
-                <p key={i} className="text-[15px] leading-[1.7]">
+                <p key={i} className="text-[15.5px] leading-[1.75]">
                   {block.text}
                 </p>
               ),

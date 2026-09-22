@@ -29,15 +29,34 @@ export default function OpsSummary({
   return (
     <section
       aria-label={home.ops.title}
-      className="blueprint command-strip mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-3 max-[560px]:flex-col max-[560px]:items-start"
+      className="blueprint command-strip mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-3.5 max-[560px]:flex-col max-[560px]:items-start"
     >
-      <h2 className="kicker-heading m-0" style={{ color: muted(72) }}>
-        {home.ops.title}
-      </h2>
+      <div className="flex items-center gap-2.5">
+        <span
+          className={`h-2.5 w-2.5 flex-none rounded-full ${
+            unavailable
+              ? "ring-4 ring-amber-500/20"
+              : alertsCount > 0
+                ? "ring-4 ring-red-500/20"
+                : "ring-4 ring-emerald-500/20"
+          }`}
+          style={{
+            background: unavailable
+              ? "var(--hz-warning)"
+              : alertsCount > 0
+                ? "var(--hz-danger)"
+                : "var(--hz-success)",
+          }}
+          aria-hidden="true"
+        />
+        <h2 className="kicker-heading m-0 text-xs font-bold uppercase tracking-wider" style={{ color: muted(72) }}>
+          {home.ops.title}
+        </h2>
+      </div>
+
       {unavailable ? (
         <span
-          className="inline-flex items-center gap-2 text-sm"
-          style={{ color: muted(80) }}
+          className="inline-flex items-center gap-2 text-sm text-amber-900 dark:text-amber-200"
         >
           <TriangleAlert
             size={15}
@@ -54,7 +73,7 @@ export default function OpsSummary({
               {home.ops.activeLabel}
             </span>
             <span
-              className="text-2xl font-semibold [font-family:var(--font-heading)]"
+              className="text-2xl font-bold [font-family:var(--font-heading)]"
               style={{ color: "var(--hz-danger)" }}
             >
               {alertsCount}
@@ -71,13 +90,12 @@ export default function OpsSummary({
         </span>
       ) : (
         <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm">
-          <span style={{ color: muted(80) }}>{home.ops.noneText}</span>
+          <span className="font-medium text-slate-800 dark:text-slate-200">{home.ops.noneText}</span>
           {watchedRegions > 0 && (
             <span
-              className="[font-variant-numeric:tabular-nums]"
-              style={{ color: muted(70) }}
+              className="text-xs text-slate-500 dark:text-slate-400 [font-variant-numeric:tabular-nums]"
             >
-              {home.ops.watchedRegions}: {watchedRegions}
+              ({home.ops.watchedRegions}: {watchedRegions})
             </span>
           )}
         </span>
@@ -90,10 +108,11 @@ export default function OpsSummary({
       <RefreshOnVisible staleLabel={home.ops.staleText} />
       <Link
         href={routes.map}
-        className="section-link shrink-0 text-[13px]"
+        className="section-link inline-flex shrink-0 items-center gap-1 text-[13px] font-medium transition-opacity hover:opacity-80"
         style={{ color: "var(--color-accent-700)" }}
       >
-        {home.ops.mapLink}
+        <span>{home.ops.mapLink}</span>
+        <span aria-hidden="true">→</span>
       </Link>
     </section>
   );

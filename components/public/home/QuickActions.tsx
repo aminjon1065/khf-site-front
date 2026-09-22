@@ -38,18 +38,32 @@ export default function QuickActions({
         {leadInstruction && (
           <Link
             href={routes.guide(leadInstruction.slug)}
-            className="blueprint accent-900-hover row-span-2 flex flex-col gap-2.5 p-5 max-[560px]:row-span-1"
-            style={{ textDecoration: "none", color: "inherit" }}
+            className="blueprint surface-hover row-span-2 flex flex-col gap-3 p-5 transition-all hover:-translate-y-0.5 max-[560px]:row-span-1"
+            style={{
+              textDecoration: "none",
+              color: "inherit",
+              borderTop: "3px solid var(--color-accent)",
+            }}
           >
-            <HazardIcon name={leadInstruction.hazard_icon} size={30} tone="#d6ebff" />
-            <span className="text-[22px] font-semibold leading-[1.15] text-white [font-family:var(--font-heading)]">
+            <div className="flex items-center justify-between">
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--color-surface)] text-[var(--color-accent)]">
+                <HazardIcon name={leadInstruction.hazard_icon} size={26} />
+              </span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-accent-700)]">
+                {home.quickActions.title}
+              </span>
+            </div>
+            <span className="text-[20px] font-bold leading-tight text-slate-900 dark:text-white [font-family:var(--font-heading)]">
               {leadInstruction.title}
             </span>
-            <span className="text-[13px] leading-[1.5] text-white/75">
+            <span className="text-[13px] leading-relaxed text-slate-600 dark:text-slate-300">
               {leadInstruction.summary}
             </span>
-            <span className="mt-auto text-[13px]" style={{ color: "#d6ebff" }}>
-              {home.quickActions.openInstruction}
+            <span
+              className="mt-auto inline-flex items-center gap-1.5 text-[13px] font-semibold text-[var(--color-accent-700)]"
+            >
+              <span>{home.quickActions.openInstruction}</span>
+              <span aria-hidden="true">→</span>
             </span>
           </Link>
         )}
@@ -57,7 +71,7 @@ export default function QuickActions({
           <Link
             key={item.slug}
             href={routes.guide(item.slug)}
-            className="blueprint surface-hover flex items-start gap-3 p-4"
+            className="blueprint surface-hover flex items-start gap-3 p-4 transition-all hover:-translate-y-0.5"
             style={{ textDecoration: "none", color: "inherit" }}
           >
             <span className="quick-ico">
@@ -77,7 +91,7 @@ export default function QuickActions({
           <Link
             key={s.title}
             href={s.href}
-            className="blueprint surface-hover flex items-start gap-3 p-4"
+            className="blueprint surface-hover flex items-start gap-3 p-4 transition-all hover:-translate-y-0.5"
             style={{ textDecoration: "none", color: "inherit" }}
           >
             <span className="quick-ico">

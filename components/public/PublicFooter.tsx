@@ -91,14 +91,14 @@ export default function PublicFooter({
             )}
           </p>
           {socialEntries.length > 0 && (
-            <div className="flex flex-wrap gap-3 text-[12.5px]">
+            <div className="flex flex-wrap gap-2 pt-1 text-xs">
               {socialEntries.map(([k, v]) => (
                 <a
                   key={k}
                   href={v}
                   target="_blank"
                   rel="noopener"
-                  className="capitalize"
+                  className="rounded-md bg-white/10 px-2.5 py-1 capitalize transition-colors hover:bg-white/20 hover:text-white"
                 >
                   {k}
                 </a>

@@ -14,167 +14,140 @@
 }
 
 :root {
-  /* Светлый общий фон поднят до почти белого: холодный #E7ECF1 читался
-     «пасмурно» и съедал контраст белых карточек. #F5F7FA — тот же холодный
-     оттенок, но поверхности отделяются тонкой границей, а не тональным
-     перепадом. Пары проверены по контрасту в обеих темах. */
-  --color-bg: #f5f7fa;
-  --color-surface: #edf1f5;
-  /* Бумага поверх холодного технического фона. */
+  /* Чистый, открытый фон государственного портала */
+  --color-bg: #f8fafc;
+  --color-surface: #f1f5f9;
+  /* Белоснежная бумага для карточек */
   --color-card: #ffffff;
-  --color-text: #161a1e;
-  --color-accent: #416180;
-  --color-accent-2: #728fab;
-  --color-divider: color-mix(in srgb, #161a1e 16%, transparent);
+  --color-text: #0f172a;
+  --color-accent: #0f2942;
+  --color-accent-2: #1e3a5f;
+  --color-divider: #e2e8f0;
   color-scheme: light;
 
-  /* Командный хром (служебная полоса, подвал): тёмный в обеих темах. */
-  --command-bg: #0e1a24;
-  --command-fg: #e8eef3;
-  --command-accent: #c5d6e6;
-  --command-line: color-mix(in srgb, #e8eef3 14%, transparent);
+  /* Командный хром (служебная полоса, подвал): глубокий благородный Navy */
+  --command-bg: #0b1928;
+  --command-fg: #f1f5f9;
+  --command-accent: #93c5fd;
+  --command-line: rgba(241, 245, 249, 0.12);
   --tj-red: #cc0000;
   --tj-green: #006600;
   --motion-duration: 160ms;
   --motion-ease: ease;
 
-  /* Тональные шкалы — единая шкала светлоты OKLCH. */
-  --color-neutral-100: #f5f5f8;
-  --color-neutral-200: #e7e7ea;
-  --color-neutral-300: #d4d4d7;
-  --color-neutral-400: #b7b7ba;
-  --color-neutral-500: #98989b;
-  --color-neutral-600: #7a7a7d;
-  --color-neutral-700: #5d5d60;
-  --color-neutral-800: #424244;
-  --color-neutral-900: #2b2b2d;
+  /* Тональные шкалы */
+  --color-neutral-100: #f8fafc;
+  --color-neutral-200: #f1f5f9;
+  --color-neutral-300: #e2e8f0;
+  --color-neutral-400: #cbd5e1;
+  --color-neutral-500: #94a3b8;
+  --color-neutral-600: #64748b;
+  --color-neutral-700: #475569;
+  --color-neutral-800: #334155;
+  --color-neutral-900: #0f172a;
 
-  --color-accent-100: #eef6ff;
-  --color-accent-200: #d6ebff;
-  --color-accent-300: #b5d9fd;
-  --color-accent-400: #94bce3;
-  --color-accent-500: #749dc4;
-  --color-accent-600: #597ea3;
-  --color-accent-700: #416180;
-  --color-accent-800: #2c455d;
-  --color-accent-900: #1d2d3d;
+  --color-accent-100: #eff6ff;
+  --color-accent-200: #dbeafe;
+  --color-accent-300: #bfdbfe;
+  --color-accent-400: #93c5fd;
+  --color-accent-500: #60a5fa;
+  --color-accent-600: #2563eb;
+  --color-accent-700: #102e4a;
+  --color-accent-800: #0a1f33;
+  --color-accent-900: #071524;
 
-  --color-accent-2-100: #eef6ff;
-  --color-accent-2-200: #d6ebff;
-  --color-accent-2-300: #bdd8f2;
-  --color-accent-2-400: #9ebbd8;
-  --color-accent-2-500: #7e9cb8;
-  --color-accent-2-600: #627d98;
-  --color-accent-2-700: #486077;
-  --color-accent-2-800: #314457;
-  --color-accent-2-900: #1f2d3a;
+  --color-accent-2-100: #f0f9ff;
+  --color-accent-2-200: #e0f2fe;
+  --color-accent-2-300: #bae6fd;
+  --color-accent-2-400: #7dd3fc;
+  --color-accent-2-500: #38bdf8;
+  --color-accent-2-600: #0284c7;
+  --color-accent-2-700: #1e3a5f;
+  --color-accent-2-800: #142842;
+  --color-accent-2-900: #0c1827;
 
   --font-heading: var(--font-condensed), "Fira Sans Condensed", system-ui, sans-serif;
   --font-heading-weight: 600;
   --font-body: var(--font-sans), "Fira Sans", system-ui, sans-serif;
 
-  --space-1: 3.4px;
-  --space-2: 6.8px;
-  --space-3: 10.2px;
-  --space-4: 13.6px;
-  /* Шаг 5 в шкале отсутствовал, хотя на него ссылались четыре правила
-     (.article-prose h3, обтекание картинок, <hr>). Из-за неизвестной
-     переменной вся декларация margin становилась недействительной и
-     обнулялась — заголовки в теле материала теряли верхний отступ. */
-  --space-5: 17px;
-  --space-6: 20.4px;
-  --space-8: 27.2px;
+  /* Гармоничная сетка отступов, кратная 4/8px */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
 
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 10px;
+  /* Современные радиусы скругления */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
 
-  --shadow-sm: 0 1px 2px color-mix(in srgb, #14181c 8%, transparent);
-  --shadow-md: 0 4px 14px color-mix(in srgb, #14181c 12%, transparent);
-  --shadow-lg: 0 16px 40px color-mix(in srgb, #14181c 18%, transparent);
+  /* Мягкие, естественные тени */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
 
-  /* Семантическая шкала опасности (светлая). success/warning/danger приведены
-     на пару оттенков темнее оригинала — на своих -bg подложках не проходили
-     WCAG AA 4.5:1 (напр. success 4.21:1); info/critical уже были в норме. */
-  --hz-success: #296c4e;
-  --hz-success-bg: #e0efe7;
-  --hz-info: #416180;
-  --hz-info-bg: #e3edf6;
-  --hz-warning: #81580d;
-  --hz-warning-bg: #f5e9d2;
-  --hz-danger: #99450e;
-  --hz-danger-bg: #f7e4d3;
-  --hz-critical: #a8231b;
-  --hz-critical-bg: #f8ddda;
-  --hz-critical-strong: #8c1d16;
+  /* Семантическая шкала безопасности (WCAG AA compliant) */
+  --hz-success: #15803d;
+  --hz-success-bg: #dcfce7;
+  --hz-info: #0369a1;
+  --hz-info-bg: #e0f2fe;
+  --hz-warning: #b45309;
+  --hz-warning-bg: #fef3c7;
+  --hz-danger: #c2410c;
+  --hz-danger-bg: #ffedd5;
+  --hz-critical: #dc2626;
+  --hz-critical-bg: #fee2e2;
+  --hz-critical-strong: #b91c1c;
 
-  /* Акцент как заливка под инвертированный текст (--color-bg поверх неё —
-     напр. .btn-primary, чекнутый .seg-opt): голый --color-accent недостаточно
-     тёмный в светлой теме для 4.5:1 (3.71:1), поэтому здесь используется
-     accent-700/800/900. В тёмной теме сама --color-accent уже проходит
-     (8.05:1), поэтому шкала не сдвигается. */
   --color-accent-solid: var(--color-accent-700);
   --color-accent-solid-hover: var(--color-accent-800);
   --color-accent-solid-active: var(--color-accent-900);
-
-  /* Наведение на акцентную плитку (--color-accent-900 под белым текстом).
-     Отдельный токен, а не accent-800 напрямую: в тёмной теме рампа инвертирована
-     и accent-800 становится светлым #c8dcee — белый текст на нём пропадал. */
   --color-accent-900-hover: var(--color-accent-800);
-
-  /* Критический как сплошная заливка под белым текстом (кнопка/баннер «112»):
-     светлый --hz-critical уже проходит 4.5:1 (7.19:1), поэтому здесь без
-     изменений. */
-  --hz-critical-solid: var(--hz-critical);
+  --hz-critical-solid: #dc2626;
 }
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --color-bg: #101418;
-  --color-surface: #171c21;
-  --color-card: #1b2228;
-  --color-text: #e4e7ea;
-  --color-divider: color-mix(in srgb, #e4e7ea 14%, transparent);
-  --command-bg: #080e14;
-  --command-fg: #e8eef3;
-  --command-accent: #c5d6e6;
-  --command-line: color-mix(in srgb, #e8eef3 12%, transparent);
-  --color-accent: #8fb2d4;
-  --color-accent-600: #a4c2de;
-  --color-accent-700: #bdd3e8;
-  --color-accent-100: #243546;
-  --color-accent-800: #c8dcee;
-  --color-neutral-100: #23272b;
-  --color-neutral-200: #2a2f34;
-  --color-neutral-800: #cfd4d9;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 3px 10px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
-  --hz-success: #6dbb96;
-  --hz-success-bg: #1c2f26;
-  --hz-info: #8fb2d4;
-  --hz-info-bg: #20303f;
-  --hz-warning: #d9a744;
-  --hz-warning-bg: #332a17;
-  --hz-danger: #e0824a;
-  --hz-danger-bg: #38251678;
-  --hz-critical: #e26a60;
-  --hz-critical-bg: #3a1d1a;
-  --hz-critical-strong: #ef8a82;
+  --color-bg: #090d12;
+  --color-surface: #111822;
+  --color-card: #151e2b;
+  --color-text: #f1f5f9;
+  --color-divider: rgba(241, 245, 249, 0.12);
+  --command-bg: #06090e;
+  --command-fg: #f1f5f9;
+  --command-accent: #93c5fd;
+  --command-line: rgba(241, 245, 249, 0.1);
+  --color-accent: #93c5fd;
+  --color-accent-600: #bfdbfe;
+  --color-accent-700: #bfdbfe;
+  --color-accent-100: #1e293b;
+  --color-accent-800: #dbeafe;
+  --color-neutral-100: #1e293b;
+  --color-neutral-200: #334155;
+  --color-neutral-800: #cbd5e1;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.55);
+  --hz-success: #4ade80;
+  --hz-success-bg: #052e16;
+  --hz-info: #38bdf8;
+  --hz-info-bg: #082f49;
+  --hz-warning: #fbbf24;
+  --hz-warning-bg: #451a03;
+  --hz-danger: #fb923c;
+  --hz-danger-bg: #431407;
+  --hz-critical: #f87171;
+  --hz-critical-bg: #450a0a;
+  --hz-critical-strong: #ef4444;
 
-  /* Тёмная тема: голый --color-accent уже проходит 4.5:1 под --color-bg
-     текстом, шкала 600/700 там и так светлее (инверсия) — прогрессия
-     rest→hover→active сохраняется без сдвига. */
-  --color-accent-solid: var(--color-accent);
-  --color-accent-solid-hover: var(--color-accent-600);
-  --color-accent-solid-active: var(--color-accent-700);
-
-  /* Тёмный --hz-critical (#e26a60) сам по себе слишком светлый для белого
-     текста поверх (3.25:1) — кнопка/баннер «112» используют отдельный, более
-     тёмный оттенок только для этого сплошного варианта. */
-  --hz-critical-solid: #cb3225;
-  /* Чуть светлее базового #1d2d3d, но всё ещё тёмный: белый текст читается. */
-  --color-accent-900-hover: #2a4056;
+  --color-accent-solid: #2563eb;
+  --color-accent-solid-hover: #3b82f6;
+  --color-accent-solid-active: #60a5fa;
+  --hz-critical-solid: #dc2626;
+  --color-accent-900-hover: #1e3a5f;
 }
 
 html {
@@ -248,28 +221,26 @@ html {
 @layer components {
   .text-muted { color: color-mix(in srgb, var(--color-text) 65%, transparent); }
 
-  /* — карточка-«blueprint»: спокойный режим без крестиков по углам,
-       тонкая рамка + минимальная тень (решение заказчика; рамка — главный
-       способ отделения, тень едва заметна). Фон — бумага
-       (--color-card), чтобы плитки отделялись от технического --color-bg. — */
+  /* — Государственная карточка GovTech: мягкие скругления, тонкая граница и деликатная тень — */
   .blueprint {
     position: relative;
     border: 1px solid var(--color-divider);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     background: var(--color-card);
     box-shadow: var(--shadow-sm);
+    transition: border-color var(--motion-duration) var(--motion-ease),
+      box-shadow var(--motion-duration) var(--motion-ease),
+      transform var(--motion-duration) var(--motion-ease);
   }
   .blueprint > .corner { display: none; }
-  /* Только тень: border-color на hover затёр бы цветную верхнюю кромку
-     предупреждений (inline border-top). */
   a.blueprint:hover,
   button.blueprint:hover {
     box-shadow: var(--shadow-md);
+    border-color: color-mix(in srgb, var(--color-accent) 30%, var(--color-divider));
   }
   .blueprint.command-strip {
-    box-shadow:
-      inset 3px 0 0 var(--color-accent),
-      var(--shadow-sm);
+    border-left: 4px solid var(--color-accent);
+    box-shadow: var(--shadow-sm);
   }
   .mast-card {
     border-top: 3px solid var(--color-accent);
@@ -280,24 +251,20 @@ html {
   [data-theme="dark"] a.blueprint:hover,
   [data-theme="dark"] button.blueprint:hover {
     box-shadow: var(--shadow-md);
+    border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-divider));
   }
   [data-theme="dark"] .blueprint.command-strip {
-    box-shadow:
-      inset 3px 0 0 var(--color-accent),
-      var(--shadow-sm);
+    border-left: 4px solid var(--color-accent);
+    box-shadow: var(--shadow-sm);
   }
 
-  .duotone { position: relative; overflow: hidden; }
+  /* Фотографии должны оставаться естественными, чистыми и высококачественными */
+  .duotone { position: relative; overflow: hidden; border-radius: inherit; }
   .duotone::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: var(--color-accent);
-    mix-blend-mode: color;
+    display: none;
   }
 
-  /* Пустой медиа-слот: стальная плита с печатью, а не «битая картинка». */
+  /* Медиа-слот без фото: чистый спокойный фон без агрессивных сеток */
   .media-plate {
     position: relative;
     overflow: hidden;
@@ -307,58 +274,33 @@ html {
     justify-content: center;
     gap: 10px;
     min-height: inherit;
-    padding: 20px 16px;
-    background: linear-gradient(165deg, #1a2836 0%, #2c455d 100%);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 8%, transparent);
-    color: color-mix(in srgb, #fff 72%, transparent);
-  }
-  .media-plate::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(color-mix(in srgb, #fff 10%, transparent) 1px, transparent 1px),
-      linear-gradient(90deg, color-mix(in srgb, #fff 10%, transparent) 1px, transparent 1px);
-    background-size: 32px 32px;
-    mask-image: radial-gradient(ellipse at center, #000 35%, transparent 78%);
-    pointer-events: none;
+    padding: 24px 16px;
+    background: linear-gradient(165deg, #112030 0%, #1e334a 100%);
+    color: rgba(255, 255, 255, 0.85);
+    border-radius: inherit;
   }
   .media-plate-seal {
     position: relative;
     z-index: 1;
-    width: 38% !important;
-    max-width: 88px;
+    width: 44px !important;
+    max-width: 44px;
     height: auto !important;
-    opacity: 0.42;
+    opacity: 0.55;
   }
   .media-plate-label {
     position: relative;
     z-index: 1;
-    font-size: 12.5px;
-    letter-spacing: 0.04em;
+    font-size: 13px;
+    letter-spacing: 0.02em;
     text-align: center;
-    color: color-mix(in srgb, #fff 70%, transparent);
+    color: rgba(255, 255, 255, 0.75);
   }
+  /* Водяной знак удалён, чтобы не загромождать визуальный ряд */
   .media-plate-index {
-    position: absolute;
-    right: 16px;
-    bottom: 8px;
-    z-index: 1;
-    font-family: var(--font-heading);
-    font-weight: var(--font-heading-weight);
-    font-size: clamp(64px, 12vw, 96px);
-    line-height: 0.85;
-    letter-spacing: -0.04em;
-    color: color-mix(in srgb, #fff 12%, transparent);
-    pointer-events: none;
+    display: none;
   }
 
-  /* — слайдер: бронь высоты по самому высокому слайду —
-     Оба слоя (габарит и активный слайд) занимают одну и ту же ячейку grid,
-     поэтому её высота равна максимуму из них и не меняется при переключении.
-     Без этого длинный заголовок одного слайда делал блок на ~300 px выше
-     остальных, и каждая автопрокрутка дёргала вверх карточку Президента и
-     все секции ниже. */
+  /* — слайдер: бронь высоты по самому высокому слайду — */
   .slider-stack {
     display: grid;
     grid-template-areas: "slide";
@@ -367,10 +309,6 @@ html {
     grid-area: slide;
     min-width: 0;
   }
-  /* Слой-габарит: все слайды друг поверх друга (нужен МАКСИМУМ их высот, а не
-     сумма), поэтому внутри — та же одноячеечная сетка.
-     visibility: hidden — место занимает, но из дерева доступности и порядка
-     табуляции слой выпадает (в отличие от opacity: 0). */
   .slider-gauge {
     display: grid;
     grid-template-areas: "slide";
@@ -382,15 +320,10 @@ html {
     min-width: 0;
   }
 
-  /* Слайд без фото: не оставляем пустую стальную плиту — место занимает
-     крупный заголовок, номер слайда остаётся как газетная пагинация. */
+  /* Слайд без фото: благородная редакционная подача */
   .slide-editorial {
-    background:
-      linear-gradient(
-        165deg,
-        color-mix(in srgb, var(--color-accent) 7%, var(--color-card)) 0%,
-        var(--color-card) 46%
-      );
+    background: var(--color-card);
+    border-radius: var(--radius-md);
   }
   .slide-editorial::before {
     content: "";
@@ -398,21 +331,13 @@ html {
     top: 0;
     left: 0;
     bottom: 0;
-    width: 3px;
+    width: 4px;
     background: var(--color-accent);
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
   }
+  /* Водяной знак 01 удалён: заголовок и суть материала на первом месте */
   .slide-editorial-index {
-    position: absolute;
-    right: 22px;
-    bottom: 10px;
-    z-index: 0;
-    font-family: var(--font-heading);
-    font-weight: var(--font-heading-weight);
-    font-size: clamp(72px, 10vw, 112px);
-    line-height: 0.8;
-    letter-spacing: -0.05em;
-    color: color-mix(in srgb, var(--color-accent) 16%, transparent);
-    pointer-events: none;
+    display: none;
   }
 
   .home-featured-card {
@@ -435,24 +360,27 @@ html {
   .section-head :is(h2, h3) {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
   }
   .section-head :is(h2, h3)::before {
     content: "";
     display: block;
-    width: 3px;
-    height: 0.78em;
+    width: 4px;
+    height: 0.85em;
     flex: none;
+    border-radius: 2px;
     background: var(--color-accent);
   }
 
   .quick-ico {
     display: grid;
     place-items: center;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     flex: none;
+    border-radius: var(--radius-sm);
     background: var(--color-accent-100);
+    color: var(--color-accent-700);
   }
 
   .kpi-value {
@@ -804,15 +732,18 @@ html {
   .tag-accent-2 { background: var(--color-accent-2-100); color: var(--color-accent-2-800); }
   .tag-neutral { background: var(--color-neutral-100); color: var(--color-neutral-800); }
   .tag-outline { border: 1px solid var(--color-accent-700); color: var(--color-accent-700); }
+  .tag-calm, .tag-success { background: var(--hz-success-bg); color: var(--hz-success); font-weight: 500; }
+  .tag-warning { background: var(--hz-warning-bg); color: var(--hz-warning); font-weight: 500; }
+  .tag-danger, .tag-critical { background: var(--hz-danger-bg); color: var(--hz-danger); font-weight: 500; }
 
   /* — таблицы — */
   .table { width: 100%; border-collapse: collapse; font-size: 14px; }
   .table th {
     text-align: left; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
     color: color-mix(in srgb, var(--color-text) 65%, transparent);
-    padding: var(--space-2); border-bottom: 1px solid var(--color-divider);
+    padding: 10px var(--space-2); border-bottom: 1px solid var(--color-divider);
   }
-  .table td { padding: var(--space-2); border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
+  .table td { padding: 12px var(--space-2); border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent); }
   .table tbody tr:hover { background: color-mix(in srgb, var(--color-text) 4%, transparent); }
 
   /* — диалог — */
@@ -1087,7 +1018,7 @@ html {
   .kfoot-legal {
     background: color-mix(in srgb, #000 22%, var(--command-bg));
   }
-  .kfoot-sos { color: var(--hz-critical); }
+  .kfoot-sos { color: var(--hz-critical); font-weight: 700; letter-spacing: 0.04em; }
 
   /* Заголовок внутренней страницы: кегль сжимается на узких экранах. */
   .page-title {

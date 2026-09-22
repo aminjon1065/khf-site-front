@@ -10,7 +10,7 @@ import {
   type Locale,
 } from "@/lib/i18n/config";
 import { getUiStrings } from "@/lib/i18n/ui-strings";
-import { THEME_INIT } from "@/lib/theme-init";
+import ThemeScript from "@/components/public/ThemeScript";
 
 // Глобальный 404 для путей, не совпавших ни с одним маршрутом вообще (в т.ч.
 // /{locale}/что-то-несуществующее). Next 16 обрабатывает этот файл на уровне
@@ -68,7 +68,7 @@ export default async function GlobalNotFound() {
       className={`${sans.variable} ${condensed.variable}`}
     >
       <body>
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
+        <ThemeScript />
         <div
           style={{
             minHeight: "100vh",

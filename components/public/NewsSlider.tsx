@@ -57,23 +57,17 @@ function SlideText({
     <div className="flex min-w-0 flex-col gap-3 px-7 py-[26px] max-[920px]:px-[18px] max-[920px]:py-[18px]">
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-3">
         {slide.kicker ? (
-          <div
-            className="text-[13px] tracking-[.04em]"
-            style={{ color: "var(--color-accent-700)" }}
-          >
-            {slide.kicker}
+          <div>
+            <span className="inline-flex items-center rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-900 dark:bg-sky-950/80 dark:text-sky-300">
+              {slide.kicker}
+            </span>
           </div>
         ) : null}
-        {/* line-clamp, а не обрезка строки в JS: в разметке остаётся полный
-            заголовок (его читает скринридер и он же — доступное имя ссылки),
-            а визуально лишнее заканчивается многоточием. Обрезка по СТРОКАМ, а
-            не по числу символов: одно и то же количество знаков на 360px и на
-            1440px даёт совершенно разную высоту, а держать надо именно высоту. */}
         <h2
-          className={`m-0 line-clamp-3 leading-[1.15] [overflow-wrap:anywhere] ${
+          className={`m-0 line-clamp-3 font-bold leading-[1.2] tracking-[-0.015em] text-slate-900 dark:text-slate-100 [overflow-wrap:anywhere] ${
             slide.imageSrc
-              ? "text-[clamp(22px,2.1vw+14px,32px)]"
-              : "max-w-[34rem] text-[clamp(26px,2.6vw+16px,38px)]"
+              ? "text-[clamp(20px,2vw+12px,30px)]"
+              : "max-w-[34rem] text-[clamp(24px,2.4vw+14px,36px)]"
           }`}
         >
           {interactive ? (
@@ -89,8 +83,7 @@ function SlideText({
         </h2>
         {slide.excerpt ? (
           <p
-            className="m-0 line-clamp-2 max-w-[36rem] text-base leading-[1.55]"
-            style={{ color: muted(78) }}
+            className="m-0 line-clamp-2 max-w-[36rem] text-[15px] leading-[1.55] text-slate-600 dark:text-slate-400"
           >
             {slide.excerpt}
           </p>
@@ -98,15 +91,15 @@ function SlideText({
         {interactive ? (
           <Link
             href={slide.href}
-            className="btn btn-secondary mt-1.5 self-start"
+            className="btn btn-primary mt-2 self-start rounded-xl px-4 py-2 text-sm font-semibold shadow-sm"
           >
             {readMore}
           </Link>
         ) : (
-          <span className="btn btn-secondary mt-1.5 self-start">{readMore}</span>
+          <span className="btn btn-primary mt-2 self-start rounded-xl px-4 py-2 text-sm font-semibold opacity-80">{readMore}</span>
         )}
       </div>
-      <div className="mt-1 flex flex-wrap items-center gap-2">{controls}</div>
+      <div className="mt-1 flex flex-wrap items-center gap-2.5">{controls}</div>
     </div>
   );
 }
@@ -375,11 +368,7 @@ export default function NewsSlider({
                 sizes="(max-width: 920px) 100vw, 320px"
               />
             </Link>
-          ) : (
-            <span className="slide-editorial-index" aria-hidden="true">
-              {String(slide + 1).padStart(2, "0")}
-            </span>
-          )}
+          ) : null}
         </article>
       </div>
     </div>

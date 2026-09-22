@@ -1,4 +1,4 @@
-import { ImageSlot, muted } from "@/components/public/ui";
+import { ImageSlot } from "@/components/public/ui";
 import NewsSlider from "@/components/public/NewsSlider";
 import { routes } from "@/lib/routes";
 import { cmsImageSource } from "@/lib/media";
@@ -51,40 +51,28 @@ export default function LeadSection({
         target="_blank"
         rel="noopener noreferrer"
         aria-label={p.aria}
-        className="blueprint mast-card surface-hover flex min-w-0 flex-col"
+        className="blueprint surface-hover flex min-w-0 flex-col overflow-hidden border-t-4 border-t-sky-900 dark:border-t-sky-600 transition-all hover:shadow-md"
         style={{ textDecoration: "none", color: "inherit" }}
       >
-        <span className="block min-h-[240px] flex-1">
-          {/* Без preload: единственная приоритетная предзагрузка на первом
-              экране — фото первого слайда (см. NewsSlider). Фото президента
-              на широком экране выше вьюпорта не конкурирует — оно и так
-              загрузится сразу (в кадре), а на мобильном находится под
-              слайдером и не должно отнимать канал у LCP. Геометрия
-              зарезервирована, так что lazy не даёт скачка. */}
+        <span className="block min-h-[220px] flex-1 overflow-hidden">
           <ImageSlot
             src={p.photo}
             alt={presidentPhotoAlt}
             sizes="(max-width: 920px) calc(100vw - 32px), 360px"
           />
         </span>
-        <span className="flex flex-col gap-1 px-4 pb-4 pt-[14px]">
-          <span
-            className="text-[13px] tracking-[.04em]"
-            style={{ color: "var(--color-accent-700)" }}
-          >
+        <span className="flex flex-col gap-1.5 p-5">
+          <span className="text-xs font-semibold uppercase tracking-wider text-sky-900 dark:text-sky-400">
             {p.kicker}
           </span>
-          <span className="text-[19px] font-semibold leading-[1.15] [font-family:var(--font-heading)]">
+          <span className="text-[18px] font-bold leading-tight text-slate-900 dark:text-slate-100 [font-family:var(--font-heading)]">
             {p.name}
           </span>
-          <span className="text-sm" style={{ color: muted(75) }}>
+          <span className="text-xs text-slate-600 dark:text-slate-400">
             {p.role}
           </span>
-          <span
-            className="mt-2 border-t border-[var(--color-divider)] pt-2 text-sm leading-[1.5]"
-            style={{ color: muted(78) }}
-          >
-            {p.quote}
+          <span className="mt-2 rounded-r-lg border-l-2 border-sky-800/40 bg-slate-50 dark:bg-slate-800/50 py-2 pl-3 text-xs italic leading-relaxed text-slate-700 dark:text-slate-300">
+            «{p.quote.replace(/^[«"]|[»"]$/g, "")}»
           </span>
         </span>
       </a>

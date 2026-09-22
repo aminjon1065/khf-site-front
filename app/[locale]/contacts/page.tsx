@@ -67,52 +67,71 @@ export default async function ContactsPage({
         className="mt-6 grid grid-cols-3 gap-[14px] max-[920px]:grid-cols-1"
       >
         {/* Угроза жизни — 112 */}
-        <div className="blueprint p-5" style={{ borderTop: "3px solid var(--hz-critical-solid)" }}>
-          <h2 className="kicker-heading m-0 mb-1.5" style={{ color: muted(55) }}>
-            {emergency.critical.kicker}
-          </h2>
+        <div
+          className="blueprint p-5 transition-all hover:shadow-md"
+          style={{
+            borderTop: "4px solid var(--hz-critical-solid)",
+            background: "color-mix(in srgb, var(--hz-critical-solid) 4%, var(--color-card))",
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <h2 className="kicker-heading m-0 mb-1.5 text-xs font-bold uppercase tracking-wider" style={{ color: "var(--hz-critical)" }}>
+              {emergency.critical.kicker}
+            </h2>
+            <span className="tag tag-danger text-[11px] font-bold uppercase">24/7</span>
+          </div>
           <a
             href={emergency.critical.phoneHref}
-            className="text-[34px] font-semibold no-underline [font-family:var(--font-heading)]"
+            className="my-1 block text-[38px] font-bold leading-none no-underline transition-opacity hover:opacity-85 [font-family:var(--font-heading)]"
             style={{ color: "var(--hz-critical)" }}
           >
             {emergency.critical.phone}
           </a>
-          <p className="mb-0 mt-1.5 text-[12.5px] leading-[1.5]" style={{ color: muted(62) }}>
+          <p className="mb-0 mt-2 text-[12.5px] leading-[1.5]" style={{ color: muted(62) }}>
             {emergency.critical.note}
           </p>
         </div>
 
         {/* Телефон доверия */}
-        <div className="blueprint p-5">
-          <h2 className="kicker-heading m-0 mb-1.5" style={{ color: muted(55) }}>
+        <div
+          className="blueprint p-5 transition-all hover:shadow-md"
+          style={{ borderTop: "4px solid var(--color-accent)" }}
+        >
+          <h2 className="kicker-heading m-0 mb-1.5 text-xs font-bold uppercase tracking-wider" style={{ color: muted(55) }}>
             {emergency.trust.kicker}
           </h2>
           <a
             href={emergency.trust.phoneHref}
-            className="text-[22px] font-semibold no-underline [font-family:var(--font-heading)]"
+            className="my-1 block text-[24px] font-bold leading-tight no-underline transition-opacity hover:opacity-85 [font-family:var(--font-heading)]"
             style={{ color: "var(--color-accent-700)" }}
           >
             {emergency.trust.phone}
           </a>
-          <p className="mb-0 mt-1.5 text-[12.5px] leading-[1.5]" style={{ color: muted(62) }}>
+          <p className="mb-0 mt-2 text-[12.5px] leading-[1.5]" style={{ color: muted(62) }}>
             {emergency.trust.note}
           </p>
         </div>
 
         {/* Центральный аппарат — адрес */}
-        <div className="blueprint p-5">
-          <h2 className="kicker-heading m-0 mb-1.5" style={{ color: muted(55) }}>
+        <div
+          className="blueprint p-5 transition-all hover:shadow-md"
+          style={{ borderTop: "4px solid var(--color-divider)" }}
+        >
+          <h2 className="kicker-heading m-0 mb-1.5 text-xs font-bold uppercase tracking-wider" style={{ color: muted(55) }}>
             {emergency.hq.kicker}
           </h2>
-          <p className="m-0 text-[13.5px] leading-[1.6]">
+          <p className="m-0 mt-2 text-[13.5px] leading-[1.6]">
             {emergency.hq.address}
             <br />
-            <a href={emergency.hq.emailHref} style={{ color: "var(--color-accent-700)" }}>
+            <a
+              href={emergency.hq.emailHref}
+              className="font-medium hover:underline"
+              style={{ color: "var(--color-accent-700)" }}
+            >
               {emergency.hq.email}
             </a>
             {" · "}
-            {emergency.hq.hours}
+            <span className="text-slate-500 dark:text-slate-400">{emergency.hq.hours}</span>
           </p>
         </div>
       </section>
@@ -165,19 +184,18 @@ export default async function ContactsPage({
 
         {/* Якорь приёмной: карточка «Написать обращение» на главной ведёт
             прямо к форме, а не в начало страницы контактов. */}
-        <aside id="reception" className="blueprint flex scroll-mt-28 flex-col gap-3 p-[22px]">
-          <h2 className="m-0 text-[21px] uppercase tracking-[.02em]">{reception.title}</h2>
+        <aside id="reception" className="blueprint flex scroll-mt-28 flex-col gap-3.5 p-6 shadow-sm">
+          <h2 className="m-0 text-[21px] font-bold uppercase tracking-[.02em] [font-family:var(--font-heading)]">{reception.title}</h2>
           <p className="m-0 text-[13px] leading-[1.55]" style={{ color: muted(65) }}>
             {reception.intro}
           </p>
           {/* Форма — для несрочных обращений: обещание интерфейса не должно
               выглядеть каналом экстренной помощи. */}
-          <p
-            className="m-0 flex items-start gap-2 border-b border-[var(--color-divider)] pb-3 text-[12.5px] leading-[1.5]"
-            style={{ color: muted(70) }}
+          <div
+            className="rounded-lg border border-amber-200/80 bg-amber-50/80 p-3 text-[12.5px] leading-[1.5] text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200"
           >
             {reception.urgentNote}
-          </p>
+          </div>
           <ContactForm reception={reception} locale={locale} />
         </aside>
       </div>

@@ -59,31 +59,46 @@ export default function RegionsSection({
         </div>
         <div className="flex flex-col">
           <div role="list" aria-label={listLabel}>
-            {regions.map((r) => (
-              <div
-                key={r.key}
-                role="listitem"
-                className="flex items-center gap-2.5 border-b border-[var(--color-divider)] px-0.5 py-3"
-              >
-                <span
-                  className="h-[9px] w-[9px] flex-none rounded-full"
-                  style={{ background: levelDotColor[r.level] }}
-                />
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[15px] font-semibold [font-family:var(--font-heading)]">
-                    {r.name}
+            {regions.map((r) => {
+              const badgeText = levelBadges(locale)[r.level];
+              const isDuplicate =
+                r.statusText.trim().toLowerCase() === badgeText?.trim().toLowerCase();
+              const tagClass =
+                r.level === "none"
+                  ? "tag-calm"
+                  : r.level === "warning"
+                    ? "tag-warning"
+                    : r.level === "danger" || r.level === "critical"
+                      ? "tag-danger"
+                      : "tag-neutral";
+
+              return (
+                <div
+                  key={r.key}
+                  role="listitem"
+                  className="flex items-center gap-3 border-b border-[var(--color-divider)] px-0.5 py-3 transition-colors hover:bg-[var(--color-surface)]/50"
+                >
+                  <span
+                    className="h-2.5 w-2.5 flex-none rounded-full"
+                    style={{ background: levelDotColor[r.level] }}
+                    aria-hidden="true"
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[15px] font-semibold [font-family:var(--font-heading)]">
+                      {r.name}
+                    </span>
+                    {!isDuplicate && (
+                      <span className="text-[13px]" style={{ color: muted(58) }}>
+                        {r.statusText}
+                      </span>
+                    )}
                   </span>
-                  {/* Состояние региона — значимый статус, а не подпись:
-                      13px вместо 12. */}
-                  <span className="text-[13px]" style={{ color: muted(58) }}>
-                    {r.statusText}
+                  <span className={`tag ${tagClass} flex-none text-xs font-semibold`}>
+                    {badgeText}
                   </span>
-                </span>
-                <span className="tag tag-neutral flex-none">
-                  {levelBadges(locale)[r.level]}
-                </span>
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
           <Link href={routes.map} className="btn btn-secondary mt-[14px] self-start">
             {home.regionSection.openFull}

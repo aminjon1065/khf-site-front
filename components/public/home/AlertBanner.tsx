@@ -1,7 +1,6 @@
 import { TriangleAlert } from "lucide-react";
 import Link from "@/components/i18n/LocaleLink";
 import { routes } from "@/lib/routes";
-import { muted } from "@/components/public/ui";
 import type { ApiAlert } from "@/lib/api";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
 
@@ -38,12 +37,16 @@ export default function AlertBanner({
             aria-hidden="true"
             style={{ color: "var(--hz-warning)", flex: "none" }}
           />
-          <span>
-            <strong>{u.strong}</strong>
+          <span className="text-amber-950 dark:text-amber-200">
+            <strong className="mr-1.5 font-semibold">{u.strong}</strong>
             {u.text}
           </span>
           <span className="flex-1" />
-          <a href="tel:112" style={{ color: "var(--color-accent-700)" }}>
+          <a
+            href="tel:112"
+            className="font-semibold transition-opacity hover:opacity-80"
+            style={{ color: "var(--color-accent-700)" }}
+          >
             {u.call112}
           </a>
         </div>
@@ -87,7 +90,7 @@ export default function AlertBanner({
           <div className="flex flex-wrap gap-3">
             <Link
               href={routes.guides}
-              className="btn px-5 py-2.5 text-[15px]"
+              className="btn px-5 py-2.5 text-[15px] font-semibold"
               style={{
                 background: "#fff",
                 color: "var(--hz-critical-solid)",
@@ -98,14 +101,14 @@ export default function AlertBanner({
             </Link>
             <Link
               href={href}
-              className="btn px-5 py-2.5 text-[15px]"
+              className="btn px-5 py-2.5 text-[15px] font-semibold"
               style={{ color: "#fff", borderColor: "rgba(255,255,255,.6)" }}
             >
               {copy.banner.detailsMap}
             </Link>
             <a
               href="tel:112"
-              className="btn px-5 py-2.5 text-[15px]"
+              className="btn px-5 py-2.5 text-[15px] font-semibold"
               style={{ color: "#fff", borderColor: "rgba(255,255,255,.6)" }}
             >
               {copy.banner.call112}
@@ -124,28 +127,22 @@ export default function AlertBanner({
         className="border-b border-[var(--color-divider)]"
         style={{ background: "var(--hz-warning-bg)" }}
       >
-        <div className="mx-auto flex w-full max-w-[1160px] flex-wrap items-center gap-[14px] px-6 py-[14px] max-[920px]:px-4">
+        <div className="mx-auto flex w-full max-w-[1160px] flex-wrap items-center gap-[14px] px-6 py-3 max-[920px]:px-4">
           <TriangleAlert
             size={20}
-            strokeWidth={1.5}
+            strokeWidth={1.75}
             aria-hidden="true"
             style={{ color: "var(--hz-warning)", flex: "none" }}
           />
-          <span
-            className="tag font-bold uppercase tracking-[.08em]"
-            style={{
-              background: "var(--hz-warning)",
-              color: "var(--color-bg)",
-            }}
-          >
+          <span className="tag tag-warning uppercase tracking-[.08em] font-bold">
             {top?.level_label ?? w.levelLabel}
           </span>
-          <span className="min-w-[260px] flex-1 text-sm">
+          <span className="min-w-[260px] flex-1 text-sm text-amber-950 dark:text-amber-100">
             <strong>{top?.title ?? w.strong}</strong>
-            {top ? "" : w.text}
+            {top ? "" : ` ${w.text}`}
           </span>
           {(top?.datetime ?? w.time) && (
-            <span className="text-xs" style={{ color: muted(55) }}>
+            <span className="text-xs text-amber-900/75 dark:text-amber-300/70">
               {top?.datetime ?? w.time}
             </span>
           )}
@@ -163,17 +160,16 @@ export default function AlertBanner({
       className="status-calm border-b border-[var(--color-divider)]"
     >
       {/* Только статус: сводка по регионам и ссылка на карту — в блоке
-          «Оперативная сводка» ниже. Раньше обе полосы дублировали друг друга
-          и словами, и ссылкой. */}
-      <div className="mx-auto flex w-full max-w-[1160px] flex-wrap items-center gap-2.5 px-6 py-2.5 text-sm max-[920px]:px-4">
+          «Оперативная сводка» ниже. */}
+      <div className="mx-auto flex w-full max-w-[1160px] flex-wrap items-center gap-3 px-6 py-2.5 text-[13px] sm:text-sm max-[920px]:px-4">
         <span
-          className="h-[9px] w-[9px] rounded-full"
+          className="h-2.5 w-2.5 flex-none rounded-full ring-4 ring-emerald-500/20"
           style={{ background: "var(--hz-success)" }}
           aria-hidden="true"
         />
         <span className="min-w-0 flex-1">
-          <strong>{c.strong}</strong>
-          {c.text}
+          <strong className="mr-1.5 font-semibold text-emerald-800 dark:text-emerald-400">{c.strong}</strong>
+          <span className="opacity-90">{c.text}</span>
         </span>
       </div>
     </section>

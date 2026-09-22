@@ -59,17 +59,13 @@ export default function OfficialInfoSection({
               <Link
                 key={d.id}
                 href={d.href ?? routes.documents}
-                // flex-wrap + min-w-0: при увеличении текста до 200% на 360px
-                // правый столбец (размер файла / срок) не помещался в строку и
-                // вылезал за край экрана. С переносом строка становится в две.
-                className="row-link flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-[var(--color-divider)] px-0.5 py-3"
+                className="row-link flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-[var(--color-divider)] px-1 py-3 transition-colors hover:bg-[var(--color-surface)]/50"
                 style={{ textDecoration: "none", color: "inherit" }}
               >
-                <span className="tag tag-neutral flex-none">{d.type}</span>
-                <span className="min-w-0 flex-1 text-sm">{d.title}</span>
+                <span className="tag tag-neutral flex-none text-xs font-medium">{d.type}</span>
+                <span className="min-w-0 flex-1 text-sm font-medium text-slate-800 dark:text-slate-100">{d.title}</span>
                 <span
-                  className="flex-none text-[13px]"
-                  style={{ color: muted(50) }}
+                  className="flex-none text-xs text-slate-500 dark:text-slate-400"
                 >
                   {d.size ?? ""}
                 </span>
@@ -92,24 +88,18 @@ export default function OfficialInfoSection({
             {announcements.map((a) => (
               <Link
                 key={a.slug}
-                // Каждое объявление ведёт на свою страницу: раньше все строки
-                // вели в общий список, и найти нужное приходилось заново.
                 href={routes.announcement(a.slug)}
-                // flex-wrap + min-w-0: при увеличении текста до 200% на 360px
-                // правый столбец (размер файла / срок) не помещался в строку и
-                // вылезал за край экрана. С переносом строка становится в две.
-                className="row-link flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-[var(--color-divider)] px-0.5 py-3"
+                className="row-link flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-[var(--color-divider)] px-1 py-3 transition-colors hover:bg-[var(--color-surface)]/50"
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <span
-                  className={`tag ${a.kind === "vacancy" ? "tag-accent" : "tag-outline"} flex-none`}
+                  className={`tag ${a.kind === "vacancy" ? "tag-accent" : "tag-outline"} flex-none text-xs font-semibold`}
                 >
                   {a.kind_label}
                 </span>
-                <span className="flex-1 text-sm">{a.title}</span>
+                <span className="min-w-0 flex-1 text-sm font-medium text-slate-800 dark:text-slate-100">{a.title}</span>
                 <span
-                  className="flex-none text-[13px]"
-                  style={{ color: muted(50) }}
+                  className="flex-none text-xs text-slate-500 dark:text-slate-400"
                 >
                   {a.deadline}
                 </span>
@@ -130,23 +120,23 @@ export default function OfficialInfoSection({
             <Link
               key={pr.slug}
               href={`/projects/${pr.slug}`}
-              className="blueprint surface-hover mt-[14px] flex flex-col gap-1.5 p-4"
+              className="blueprint surface-hover mt-[14px] flex flex-col gap-2 p-4 transition-all hover:-translate-y-0.5"
               style={{ textDecoration: "none", color: "inherit" }}
             >
-              <span className="flex items-center gap-2">
+              <div className="flex items-center justify-between gap-2">
                 <span
-                  className="tag text-[10px] font-semibold"
+                  className="tag text-[11px] font-semibold"
                   style={
                     projectTagTone[pr.status_tone] ?? projectTagTone.neutral
                   }
                 >
                   {pr.status}
                 </span>
-                <span className="text-[11.5px]" style={{ color: muted(52) }}>
+                <span className="text-[11.5px] font-medium" style={{ color: muted(52) }}>
                   {pr.years}
                 </span>
-              </span>
-              <span className="text-[16.5px] font-semibold leading-[1.25] [font-family:var(--font-heading)]">
+              </div>
+              <span className="text-[16px] font-semibold leading-snug [font-family:var(--font-heading)]">
                 {pr.title}
               </span>
               <span className="text-xs" style={{ color: muted(58) }}>
