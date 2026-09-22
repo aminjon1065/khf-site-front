@@ -557,6 +557,58 @@ html {
     font-family: var(--font-heading);
   }
 
+  /* — врезки КЧС: предупреждения, информация, цитаты — */
+  .article-prose aside.re-callout {
+    position: relative;
+    margin: var(--space-5) 0;
+    padding: var(--space-4) var(--space-5);
+    border-left: 4px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+  .article-prose aside.re-callout-warning {
+    border-left-color: var(--hz-warning);
+    background: var(--hz-warning-bg);
+    color: var(--color-text);
+  }
+  .article-prose aside.re-callout-info {
+    border-left-color: var(--hz-info);
+    background: var(--hz-info-bg);
+    color: var(--color-text);
+  }
+  .article-prose aside.re-callout-quote {
+    border-left-color: var(--color-accent-600);
+    background: var(--color-accent-100);
+    font-style: italic;
+    color: var(--color-text);
+  }
+  .article-prose aside.re-callout::before {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: var(--space-2);
+  }
+  .article-prose aside.re-callout-warning::before {
+    content: "⚠️ Предупреждение КЧС";
+    color: var(--hz-warning);
+  }
+  .article-prose aside.re-callout-info::before {
+    content: "ℹ️ Важная информация";
+    color: var(--hz-info);
+  }
+  .article-prose aside.re-callout-quote::before {
+    content: "💬 Официальное заявление";
+    color: var(--color-accent-700);
+  }
+  .article-prose aside.re-callout p {
+    margin: 0;
+  }
+
   /* — кнопки — */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
