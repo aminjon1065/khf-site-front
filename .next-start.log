@@ -14,3 +14,5 @@
   previous_duplicates_suppressed: 0,
   deduplication_window_ms: 60000
 }
+error: Can't read exit code from process.
+Maybe the process was killed using a signal?
