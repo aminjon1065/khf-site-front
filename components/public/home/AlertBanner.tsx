@@ -142,7 +142,9 @@ export default function AlertBanner({
             {top ? "" : ` ${w.text}`}
           </span>
           {(top?.datetime ?? w.time) && (
-            <span className="text-xs text-amber-900/75 dark:text-amber-300/70">
+            // 80 %, а не 75 %: на --hz-warning-bg 75 % давали 4,45:1 при
+            // требуемых WCAG AA 4,5:1 для 12px (axe на главной); 80 % — ≈5:1.
+            <span className="text-xs text-amber-900/80 dark:text-amber-300/70">
               {top?.datetime ?? w.time}
             </span>
           )}
