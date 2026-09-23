@@ -73,7 +73,7 @@ Herd отдаёт CMS по домену `<папка-проекта>.test` (об
 | `/[locale]/pages/[slug]`, `/sitemap` | `fetchPages`, `fetchPage` | `GET /pages`, `GET /pages/{slug}` |
 | `/[locale]/about` | `fetchPage` | `GET /pages/about` |
 | `/[locale]/leadership`, `/structure`, `/symbols` | `fetchTranslatedPage` (заголовок, вводный текст, SEO; без страницы или перевода — встроенный `content.ts`) + `fetchLeadership` / `fetchStructureUnits`, `fetchSettings` | `GET /pages/{leadership\|structure\|symbols}`, `GET /leadership`, `GET /structure`, `GET /settings` |
-| Шапка / подвал / меню (во всех layout) | `fetchSettings`, `fetchMenu` | `GET /settings`, `GET /menu` |
+| Шапка / подвал / меню, title и description по умолчанию (во всех layout) | `fetchSettings`, `fetchMenu` | `GET /settings`, `GET /menu` |
 | `/sos` | — (статика в `content.ts`) | — (см. C-1 в плане: решение — оставить в коде) |
 
 CMS-страницы `about`, `leadership`, `structure`, `symbols` живут в собственных разделах (`CMS_PAGE_ROUTES` в `lib/routes.ts`), а `/{locale}/pages/{slug}` для них — постоянный редирект 308 (`next.config.ts`). Остальные страницы CMS — по `/{locale}/pages/{slug}`.

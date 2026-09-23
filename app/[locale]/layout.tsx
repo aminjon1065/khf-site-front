@@ -6,7 +6,7 @@ import "../globals.css";
 import { LOCALES, isLocale, htmlLang } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import ThemeScript from "@/components/public/ThemeScript";
-import { buildMetadata, siteUrl } from "@/lib/seo";
+import { buildMetadata, siteMetaDefaults, siteUrl } from "@/lib/seo";
 import { cmsDiagnosticEnabled } from "@/lib/cms-readiness.mjs";
 import { WebVitalsReporter } from "@/components/public/WebVitalsReporter";
 import NavigationProgress from "@/components/public/NavigationProgress";
@@ -49,12 +49,20 @@ export async function generateMetadata({
     return {};
   }
   const { common } = getDictionary(locale);
+  // Title и description по умолчанию — из SEO-настроек CMS для этого языка;
+  // пустые поля или недоступная CMS — встроенные строки словаря. Запрос тот
+  // же, что у шапки ниже: fetchSettings мемоизирован на время запроса.
+  const settings = await fetchSettings(locale);
+  const { title, description } = siteMetaDefaults(settings?.seo, {
+    title: common.siteName,
+    description: common.siteDescription,
+  });
   // База метаданных + дефолты для главной ("/"): canonical/hreflang/OG/Twitter.
   // Дочерние страницы переопределяют их своим buildMetadata с нужным path.
   const meta = buildMetadata({
     locale,
-    title: common.siteName,
-    description: common.siteDescription,
+    title,
+    description,
     path: "/",
     siteName: common.siteShort,
     type: "website",
@@ -63,7 +71,7 @@ export async function generateMetadata({
     ...meta,
     metadataBase: new URL(siteUrl()),
     title: {
-      default: common.siteName,
+      default: title,
       template: `%s — ${common.siteShort}`,
     },
   };

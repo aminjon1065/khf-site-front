@@ -700,8 +700,13 @@ export async function fetchHome(
 
 // ------------------------------------------------ настройки сайта / меню
 
-/** Публичные настройки сайта (шапка/подвал). null при недоступности API. */
-export async function fetchSettings(
+/**
+ * Публичные настройки сайта: шапка, подвал, SEO по умолчанию, контакты.
+ * null при недоступности API. Мемоизированы на время запроса (`cache`):
+ * настройки читают и метаданные layout, и сам layout, и страницы, а `signal`
+ * отключает встроенную мемоизацию fetch (см. CMS_TIMEOUT_MS).
+ */
+export const fetchSettings = cache(async function fetchSettings(
   locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiSettings | null> {
   const url = buildUrl("/settings", { locale });
@@ -723,7 +728,7 @@ export async function fetchSettings(
     reportCmsFailure("fetchSettings", error);
     return null;
   }
-}
+});
 
 /** Навигационные меню (главное + подвал). Пустые массивы при сбое. */
 export async function fetchMenu(

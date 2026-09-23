@@ -113,6 +113,18 @@ test("/ru/contacts keeps its built-in contact cards when the CMS is unreachable"
   ).toHaveAttribute("href", "mailto:info@khf.tj");
 });
 
+test("site title and description fall back to the built-in ones without the CMS", async ({
+  page,
+}) => {
+  await page.goto("/ru");
+
+  await expect(page).toHaveTitle("КЧС и ГО Республики Таджикистан");
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    "Комитет по чрезвычайным ситуациям и гражданской обороне при Правительстве Республики Таджикистан",
+  );
+});
+
 test("a detail page shows a friendly message, not a crash, when its fetch fails", async ({ page }) => {
   const response = await page.goto("/ru/news/any-slug-at-all");
   expect(response?.status()).toBeGreaterThanOrEqual(200);

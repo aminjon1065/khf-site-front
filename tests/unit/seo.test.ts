@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { buildAlternates, buildMetadata, siteUrl } from "@/lib/seo";
+import {
+  buildAlternates,
+  buildMetadata,
+  siteMetaDefaults,
+  siteUrl,
+} from "@/lib/seo";
 
 describe("buildAlternates", () => {
   it("returns canonical + hreflang keys for ru/tg/en plus x-default", () => {
@@ -184,5 +189,57 @@ describe("siteUrl", () => {
     if (original !== undefined) {
       process.env.NEXT_PUBLIC_SITE_URL = original;
     }
+  });
+});
+
+describe("siteMetaDefaults", () => {
+  const fallback = {
+    title: "КЧС и ГО Республики Таджикистан",
+    description: "Встроенное описание сайта из словаря",
+  };
+
+  it("берёт title и description из SEO-настроек CMS", () => {
+    expect(
+      siteMetaDefaults(
+        {
+          meta_title: "  КЧС Таджикистана ",
+          meta_description: " Официальный сайт Комитета. ",
+        },
+        fallback,
+      ),
+    ).toEqual({
+      title: "КЧС Таджикистана",
+      description: "Официальный сайт Комитета.",
+    });
+  });
+
+  it("пустое поле — встроенная строка, каждое поле отдельно", () => {
+    expect(
+      siteMetaDefaults({ meta_title: "", meta_description: "Описание" }, fallback),
+    ).toEqual({ title: fallback.title, description: "Описание" });
+    expect(
+      siteMetaDefaults({ meta_title: "Заголовок", meta_description: "   " }, fallback),
+    ).toEqual({ title: "Заголовок", description: fallback.description });
+  });
+
+  it("без настроек (CMS не ответила) — встроенные строки", () => {
+    expect(siteMetaDefaults(null, fallback)).toEqual(fallback);
+    expect(siteMetaDefaults(undefined, fallback)).toEqual(fallback);
+    expect(
+      siteMetaDefaults(
+        { meta_title: null, meta_description: 42 as unknown as string },
+        fallback,
+      ),
+    ).toEqual(fallback);
+  });
+
+  it("обрезает длинное описание из CMS так же, как описания страниц", () => {
+    const { description } = siteMetaDefaults(
+      { meta_description: "слово ".repeat(60) },
+      fallback,
+    );
+
+    expect(description.length).toBeLessThanOrEqual(161);
+    expect(description.endsWith("…")).toBe(true);
   });
 });

@@ -164,6 +164,38 @@ export function metaDescription(text: string, limit = 160): string {
   return `${(lastSpace > limit * 0.6 ? cut.slice(0, lastSpace) : cut).replace(/[\s.,;:—-]+$/, "")}…`;
 }
 
+/** SEO-поля настроек CMS (`/settings` → `seo`) для языка страницы. */
+export interface SiteSeoSettings {
+  meta_title?: string | null;
+  meta_description?: string | null;
+}
+
+function filled(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+/**
+ * Title и description сайта по умолчанию — у главной и у страниц, которые не
+ * задают своих. Берутся из SEO-настроек CMS (`seo.meta_title`,
+ * `seo.meta_description`), если редактор их заполнил, иначе — встроенные
+ * строки словаря. Описание из CMS обрезается тем же `metaDescription`, что и
+ * описания страниц: длину поля в CMS никто не ограничивает.
+ */
+export function siteMetaDefaults(
+  seo: SiteSeoSettings | null | undefined,
+  fallback: { title: string; description: string },
+): { title: string; description: string } {
+  const title = filled(seo?.meta_title);
+  const description = filled(seo?.meta_description);
+
+  return {
+    title: title || fallback.title,
+    description: description
+      ? metaDescription(description)
+      : fallback.description,
+  };
+}
+
 /** Дефолтная OG-карточка портала для страниц без собственной обложки. */
 export function defaultOgImage(locale: Locale, alt = "khf.tj"): {
   url: string;
