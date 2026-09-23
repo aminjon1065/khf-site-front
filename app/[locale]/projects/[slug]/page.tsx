@@ -7,6 +7,7 @@ import TranslationNotice from "@/components/public/TranslationNotice";
 import CmsImage from "@/components/public/CmsImage";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
+import { redirectToCurrentSlug } from "@/lib/canonical-slug";
 import {
   availableLocalesFor,
   fetchProject,
@@ -109,6 +110,7 @@ export default async function ProjectDetailPage({
   if (!p) {
     notFound();
   }
+  redirectToCurrentSlug(slug, p.slug, locale, routes.project);
   const hasImage = cmsImageSource(p.image_data) !== null;
 
   const meta = [

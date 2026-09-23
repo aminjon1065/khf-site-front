@@ -1,6 +1,6 @@
 /**
  * Generated from khf-site-cms/openapi/openapi.json.
- * Schema SHA-256: 3624b25c49128531
+ * Schema SHA-256: 8bdbd1eb77061977
  * Do not edit by hand; run `npm run api:types`.
  */
 

@@ -5,6 +5,7 @@ import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
 import TranslationNotice from "@/components/public/TranslationNotice";
 import { muted } from "@/components/public/ui";
+import { redirectToCurrentSlug } from "@/lib/canonical-slug";
 import {
   availableLocalesFor,
   fetchPage,
@@ -12,7 +13,7 @@ import {
 } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { isCanonicalCmsPage } from "@/lib/routes";
+import { isCanonicalCmsPage, routes } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
 
 export const revalidate = 60;
@@ -95,6 +96,7 @@ export default async function ContentPage({
   if (!page) {
     notFound();
   }
+  redirectToCurrentSlug(slug, page.slug, locale, routes.page);
 
   const { common, pages } = getDictionary(locale);
 

@@ -11,6 +11,7 @@ import TranslationNotice from "@/components/public/TranslationNotice";
 import CmsImage from "@/components/public/CmsImage";
 import GalleryCarousel from "@/components/public/GalleryCarousel";
 import { Breadcrumbs, muted } from "@/components/public/ui";
+import { redirectToCurrentSlug } from "@/lib/canonical-slug";
 import {
   fetchNews,
   fetchNewsItem,
@@ -201,6 +202,7 @@ export default async function ArticlePage({
   if (!item) {
     notFound();
   }
+  redirectToCurrentSlug(slug, item.slug, locale, routes.article);
   const hasImage = cmsImageSource(item.image_data) !== null;
   const gallery = item.gallery_data ?? [];
   const galleryReady = gallery.length > 1;

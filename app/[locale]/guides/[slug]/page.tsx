@@ -8,6 +8,7 @@ import PageShell from "@/components/public/PageShell";
 import TranslationNotice from "@/components/public/TranslationNotice";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
+import { redirectToCurrentSlug } from "@/lib/canonical-slug";
 import {
   fetchInstruction,
   fetchInstructions,
@@ -190,6 +191,7 @@ export default async function GuidePage({ params }: GuideRouteProps) {
   if (!item) {
     notFound();
   }
+  redirectToCurrentSlug(slug, item.slug, locale, routes.guide);
 
   const { common, pages } = getDictionary(locale);
   const sections = buildSections(item, pages.guideDetail.blocks);

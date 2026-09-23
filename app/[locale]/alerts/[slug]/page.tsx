@@ -7,6 +7,7 @@ import TranslationNotice from "@/components/public/TranslationNotice";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import TjRiskMap from "@/components/public/TjRiskMap";
+import { redirectToCurrentSlug } from "@/lib/canonical-slug";
 import {
   availableLocalesFor,
   fetchAlert,
@@ -120,6 +121,12 @@ export default async function AlertDetailPage({
   if (!alert) {
     notFound();
   }
+  redirectToCurrentSlug(
+    slug,
+    alert.slug,
+    locale,
+    (current) => `${routes.alert}/${current}`,
+  );
 
   const level = alert.level as AlertLevel;
   const accent = levelDotColor[level];

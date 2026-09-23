@@ -7,6 +7,7 @@ import PageShell from "@/components/public/PageShell";
 import TranslationNotice from "@/components/public/TranslationNotice";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
+import { redirectToCurrentSlug } from "@/lib/canonical-slug";
 import {
   availableLocalesFor,
   fetchAnnouncement,
@@ -93,6 +94,7 @@ export default async function AnnouncementDetailPage({
   if (!announcement) {
     notFound();
   }
+  redirectToCurrentSlug(slug, announcement.slug, locale, routes.announcement);
 
   const kind = getKindMeta(locale)[announcement.kind];
   const status = announcement.open ? getStatusMeta(locale).open : getStatusMeta(locale).closed;

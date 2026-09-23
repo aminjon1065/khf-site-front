@@ -869,6 +869,17 @@ const server = createServer(async (request, response) => {
     return;
   }
 
+  // Прежний адрес переименованной новости: CMS отвечает 301 на текущий
+  // (App\Support\PublicSlug) — относительным Location с тем же запросом.
+  if (path === "/news/test-news-old-address") {
+    response.writeHead(301, {
+      "Cache-Control": "no-store",
+      Location: `/api/v1/news/${newsItem.slug}${requestUrl.search}`,
+    });
+    response.end();
+    return;
+  }
+
   const mockNewsItem = allNewsItems.find(
     (item) => path === `/news/${item.slug}`,
   );
