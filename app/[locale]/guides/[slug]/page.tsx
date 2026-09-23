@@ -12,7 +12,7 @@ import { redirectToCurrentSlug } from "@/lib/canonical-slug";
 import {
   fetchInstruction,
   fetchInstructions,
-  availableLocalesFor,
+  availableLocalesOf,
   fetchStaticParamSlugs,
   type ApiInstruction,
 } from "@/lib/api";
@@ -106,7 +106,7 @@ export async function generateMetadata({
   // hreflang и индексируемость — по реально опубликованным переводам, а не
   // по трём локалям механически: CMS отдаёт русский fallback на любой
   // запрошенный язык, и без этой проверки он выдавал бы себя за перевод.
-  const availableLocales = await availableLocalesFor("instruction", slug);
+  const availableLocales = await availableLocalesOf(item, "instruction", slug);
   const untranslated = !availableLocales.includes(loc);
   const image = cmsImageSource(item.image_data);
 
@@ -218,7 +218,7 @@ export default async function GuidePage({ params }: GuideRouteProps) {
 
   // Те же данные, что и в generateMetadata: наличие перевода на язык
   // страницы. Кэш fetch общий, поэтому это не повторный поход в CMS.
-  const availableLocales = await availableLocalesFor("instruction", slug);
+  const availableLocales = await availableLocalesOf(item, "instruction", slug);
 
   return (
     <PageShell

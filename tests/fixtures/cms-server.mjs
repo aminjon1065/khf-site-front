@@ -689,6 +689,11 @@ function cmsPageDetail(slug, locale) {
   }
   return {
     slug,
+    // Языки, где у страницы настоящий перевод (A-3) — тот же источник, что и
+    // /slugs/pages: русский fallback в список не входит.
+    available_locales: ["tg", "ru", "en"].filter(
+      (apiCode) => typeof byLocale[apiCode] === "object",
+    ),
     ...translation,
     updated_at: "2026-07-27T12:00:00+05:00",
   };

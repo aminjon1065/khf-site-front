@@ -7,7 +7,7 @@ import TranslationNotice from "@/components/public/TranslationNotice";
 import { muted } from "@/components/public/ui";
 import { redirectToCurrentSlug } from "@/lib/canonical-slug";
 import {
-  availableLocalesFor,
+  availableLocalesOf,
   fetchPage,
   fetchStaticParamSlugs,
 } from "@/lib/api";
@@ -54,7 +54,7 @@ export async function generateMetadata({
   // hreflang и индексируемость — по реально опубликованным переводам, а не
   // по трём локалям механически: CMS отдаёт русский fallback на любой
   // запрошенный язык, и без этой проверки он выдавал бы себя за перевод.
-  const availableLocales = await availableLocalesFor("page", slug);
+  const availableLocales = await availableLocalesOf(page, "page", slug);
   const untranslated = !availableLocales.includes(loc);
   return {
     ...buildMetadata({
@@ -102,7 +102,7 @@ export default async function ContentPage({
 
   // Те же данные, что и в generateMetadata: наличие перевода на язык
   // страницы. Кэш fetch общий, поэтому это не повторный поход в CMS.
-  const availableLocales = await availableLocalesFor("page", slug);
+  const availableLocales = await availableLocalesOf(page, "page", slug);
 
   return (
     <PageShell

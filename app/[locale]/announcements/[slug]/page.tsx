@@ -9,7 +9,7 @@ import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import { redirectToCurrentSlug } from "@/lib/canonical-slug";
 import {
-  availableLocalesFor,
+  availableLocalesOf,
   fetchAnnouncement,
   fetchAnnouncements,
   fetchStaticParamSlugs,
@@ -53,7 +53,7 @@ export async function generateMetadata({
   // hreflang и индексируемость — по реально опубликованным переводам, а не
   // по трём локалям механически: CMS отдаёт русский fallback на любой
   // запрошенный язык, и без этой проверки он выдавал бы себя за перевод.
-  const availableLocales = await availableLocalesFor("announcement", slug);
+  const availableLocales = await availableLocalesOf(a, "announcement", slug);
   const untranslated = !availableLocales.includes(loc);
   return {
     ...buildMetadata({
@@ -107,7 +107,7 @@ export default async function AnnouncementDetailPage({
 
   // Те же данные, что и в generateMetadata: наличие перевода на язык
   // страницы. Кэш fetch общий, поэтому это не повторный поход в CMS.
-  const availableLocales = await availableLocalesFor("announcement", slug);
+  const availableLocales = await availableLocalesOf(announcement, "announcement", slug);
 
   return (
     <PageShell>

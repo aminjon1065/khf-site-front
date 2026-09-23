@@ -1,6 +1,6 @@
 /**
  * Generated from khf-site-cms/openapi/openapi.json.
- * Schema SHA-256: 68c7852fe0ede2d5
+ * Schema SHA-256: 13d3a7119aebb0dc
  * Do not edit by hand; run `npm run api:types`.
  */
 
@@ -53,6 +53,7 @@ export interface CmsImageDto {
 
 export interface ApiNewsItem {
   slug: string;
+  available_locales?: Array<"tg" | "ru" | "en">;
   title: string;
   excerpt: string;
   category: string | null;
@@ -80,6 +81,7 @@ export interface ApiNewsItem {
 
 export interface ApiInstruction {
   slug: string;
+  available_locales?: Array<"tg" | "ru" | "en">;
   title: string;
   summary: string;
   key_point?: string | null;
@@ -138,6 +140,7 @@ export interface ApiProjectTimeline {
 
 export interface ApiProject {
   slug: string;
+  available_locales?: Array<"tg" | "ru" | "en">;
   title: string;
   status: string;
   status_code: string;
@@ -169,6 +172,7 @@ export interface ApiProject {
 
 export interface ApiAnnouncement {
   slug: string;
+  available_locales?: Array<"tg" | "ru" | "en">;
   kind: "vacancy" | "tender";
   kind_label: string;
   title: string;
@@ -197,6 +201,7 @@ export interface ApiAlertRegion {
 
 export interface ApiAlert {
   slug: string;
+  available_locales?: Array<"tg" | "ru" | "en">;
   level: "none" | "info" | "warning" | "danger" | "critical";
   level_label: string;
   severity: string;
@@ -338,6 +343,7 @@ export interface ApiPage {
 
 export interface ApiPageDetail {
   slug: string;
+  available_locales?: Array<"tg" | "ru" | "en">;
   title: string;
   body: string;
   updated: string | null;

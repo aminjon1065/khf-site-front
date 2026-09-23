@@ -17,7 +17,7 @@ import {
   fetchNewsItem,
   fetchSettings,
   fetchStaticParamSlugs,
-  availableLocalesFor,
+  availableLocalesOf,
   type ApiNewsItem,
 } from "@/lib/api";
 import { htmlLang, toLocale, type Locale } from "@/lib/i18n/config";
@@ -132,7 +132,7 @@ export async function generateMetadata({
     return { title: pages.meta.newsFallback, robots: { index: false } };
   }
   const image = cmsImageSource(item.image_data);
-  const availableLocales = await availableLocalesFor("news", slug);
+  const availableLocales = await availableLocalesOf(item, "news", slug);
   // Непереведённый fallback не индексируем как «английскую публикацию»:
   // страница честно показывает заметку о переводе, canonical остаётся своим.
   const untranslated = !availableLocales.includes(loc);
@@ -240,8 +240,9 @@ export default async function ArticlePage({
   // bodyHtml/bodyIsHtml/markerInBody объявлены выше, у figure обложки.
 
   // Есть ли настоящий перевод: CMS отдала контент (возможно, fallback'ом
-  // на русский), а списки slug'ов говорят, в каких локали он опубликован.
-  const availableLocales = await availableLocalesFor("news", slug);
+  // на русский), а available_locales из ответа CMS говорит, в каких локалях
+  // он опубликован.
+  const availableLocales = await availableLocalesOf(item, "news", slug);
 
   return (
     <PageShell

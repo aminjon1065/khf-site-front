@@ -970,6 +970,26 @@ export async function availableLocalesFor(
 }
 
 /**
+ * Локали, в которых материал опубликован: из `available_locales` его
+ * детального ответа CMS (A-3) — прямой ответ на вопрос, без трёх запросов к
+ * `/slugs`. Если CMS поля не прислала (старая версия), — по спискам slug'ов,
+ * как раньше.
+ */
+export async function availableLocalesOf(
+  item: { available_locales?: readonly string[] | null } | null | undefined,
+  type: SlugContentType,
+  slug: string,
+): Promise<Locale[]> {
+  const listed = item?.available_locales;
+
+  if (Array.isArray(listed)) {
+    return LOCALES.filter((locale) => listed.includes(toApiLocale(locale)));
+  }
+
+  return availableLocalesFor(type, slug);
+}
+
+/**
  * Slug'и всех материалов типа, доступных в этой локали — для
  * `generateStaticParams`, карты сайта и проверки наличия перевода.
  *

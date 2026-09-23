@@ -9,7 +9,7 @@ import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
 import { redirectToCurrentSlug } from "@/lib/canonical-slug";
 import {
-  availableLocalesFor,
+  availableLocalesOf,
   fetchProject,
   fetchProjects,
   fetchStaticParamSlugs,
@@ -66,7 +66,7 @@ export async function generateMetadata({
   // hreflang и индексируемость — по реально опубликованным переводам, а не
   // по трём локалям механически: CMS отдаёт русский fallback на любой
   // запрошенный язык, и без этой проверки он выдавал бы себя за перевод.
-  const availableLocales = await availableLocalesFor("project", slug);
+  const availableLocales = await availableLocalesOf(p, "project", slug);
   const untranslated = !availableLocales.includes(loc);
   const image = cmsImageSource(p.image_data);
 
@@ -133,7 +133,7 @@ export default async function ProjectDetailPage({
 
   // Те же данные, что и в generateMetadata: наличие перевода на язык
   // страницы. Кэш fetch общий, поэтому это не повторный поход в CMS.
-  const availableLocales = await availableLocalesFor("project", slug);
+  const availableLocales = await availableLocalesOf(p, "project", slug);
 
   return (
     <PageShell>

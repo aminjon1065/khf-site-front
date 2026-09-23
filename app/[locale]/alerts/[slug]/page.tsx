@@ -9,7 +9,7 @@ import { Breadcrumbs, muted } from "@/components/public/ui";
 import TjRiskMap from "@/components/public/TjRiskMap";
 import { redirectToCurrentSlug } from "@/lib/canonical-slug";
 import {
-  availableLocalesFor,
+  availableLocalesOf,
   fetchAlert,
   fetchAlerts,
   fetchStaticParamSlugs,
@@ -57,7 +57,7 @@ export async function generateMetadata({
   // hreflang и индексируемость — по реально опубликованным переводам, а не
   // по трём локалям механически: CMS отдаёт русский fallback на любой
   // запрошенный язык, и без этой проверки он выдавал бы себя за перевод.
-  const availableLocales = await availableLocalesFor("alert", slug);
+  const availableLocales = await availableLocalesOf(a, "alert", slug);
   const untranslated = !availableLocales.includes(loc);
   return {
     ...buildMetadata({
@@ -162,7 +162,7 @@ export default async function AlertDetailPage({
 
   // Те же данные, что и в generateMetadata: наличие перевода на язык
   // страницы. Кэш fetch общий, поэтому это не повторный поход в CMS.
-  const availableLocales = await availableLocalesFor("alert", slug);
+  const availableLocales = await availableLocalesOf(alert, "alert", slug);
 
   return (
     <PageShell

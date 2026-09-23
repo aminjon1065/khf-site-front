@@ -6,7 +6,7 @@ import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import PageShell from "@/components/public/PageShell";
 import TranslationNotice from "@/components/public/TranslationNotice";
 import { Breadcrumbs, muted } from "@/components/public/ui";
-import { availableLocalesFor, fetchPage } from "@/lib/api";
+import { availableLocalesOf, fetchPage } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { routes, type CanonicalCmsPageSlug } from "@/lib/routes";
@@ -35,7 +35,7 @@ export async function generateMetadata({
   }
   // hreflang и индексируемость — по реально опубликованным переводам: русский
   // fallback на /en или /tj не должен выдавать себя за перевод.
-  const availableLocales = await availableLocalesFor("page", SLUG);
+  const availableLocales = await availableLocalesOf(page, "page", SLUG);
   const untranslated = !availableLocales.includes(locale);
   return {
     ...buildMetadata({
@@ -79,7 +79,7 @@ export default async function AboutPage({
 
   const { common, pages } = getDictionary(locale);
   // Кэш fetch общий с generateMetadata — повторного похода в CMS нет.
-  const availableLocales = await availableLocalesFor("page", SLUG);
+  const availableLocales = await availableLocalesOf(page, "page", SLUG);
   const breadcrumbs = [
     { label: common.breadcrumbHome, href: routes.home },
     { label: common.header.aboutMenu },
