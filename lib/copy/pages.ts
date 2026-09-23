@@ -9,6 +9,7 @@ export const pages = {
     documents: "Документы",
     contacts: "Контакты",
     guides: "Безопасность населения",
+    about: "О Комитете",
     leadership: "Руководство",
     structure: "Структура",
     symbols: "Государственные символы",

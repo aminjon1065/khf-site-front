@@ -71,8 +71,12 @@ Herd отдаёт CMS по домену `<папка-проекта>.test` (об
 | `/[locale]/search` | `fetchSearch` | `GET /search` |
 | `/[locale]/contacts` | `fetchRegionsDirectory`, `fetchSettings` | `GET /regions/directory`, `GET /settings` |
 | `/[locale]/pages/[slug]`, `/sitemap` | `fetchPages`, `fetchPage` | `GET /pages`, `GET /pages/{slug}` |
+| `/[locale]/about` | `fetchPage` | `GET /pages/about` |
+| `/[locale]/leadership`, `/structure`, `/symbols` | `fetchTranslatedPage` (заголовок, вводный текст, SEO; без страницы или перевода — встроенный `content.ts`) + `fetchLeadership` / `fetchStructureUnits`, `fetchSettings` | `GET /pages/{leadership\|structure\|symbols}`, `GET /leadership`, `GET /structure`, `GET /settings` |
 | Шапка / подвал / меню (во всех layout) | `fetchSettings`, `fetchMenu` | `GET /settings`, `GET /menu` |
-| `/leadership`, `/structure`, `/symbols`, `/sos` | — (статика в `lib/copy/`) | — (см. C-1 в плане: решение — оставить в коде) |
+| `/sos` | — (статика в `content.ts`) | — (см. C-1 в плане: решение — оставить в коде) |
+
+CMS-страницы `about`, `leadership`, `structure`, `symbols` живут в собственных разделах (`CMS_PAGE_ROUTES` в `lib/routes.ts`), а `/{locale}/pages/{slug}` для них — постоянный редирект 308 (`next.config.ts`). Остальные страницы CMS — по `/{locale}/pages/{slug}`.
 
 Данные кэшируются через ISR (`revalidate = 60` c) с адресными тегами `cms:<ресурс>:<локаль>` / `cms:<ресурс>:<slug>:<локаль>` (контракт — `lib/cache-tags.ts`, CMS-сторона — `app/Support/FrontendRevalidation.php`) и инвалидируются вебхуком при публикации в CMS (см. ниже). Типы без адресных тегов (категории, руководство, структура) обновляются только ISR-таймером; правка `Setting`/`Menu` без работающего вебхука не появится на сайте до `next build` или до истечения 60 секунд.
 

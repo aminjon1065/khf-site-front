@@ -1,13 +1,19 @@
 import Link from "@/components/i18n/LocaleLink";
+import CmsProse from "@/components/public/CmsProse";
 import PageShell from "@/components/public/PageShell";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, ImageSlot, muted } from "@/components/public/ui";
 import type { Metadata } from "next";
-import { fetchLeadership } from "@/lib/api";
+import { fetchLeadership, fetchTranslatedPage } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { buildMetadata } from "@/lib/seo";
+import { routes, type CanonicalCmsPageSlug } from "@/lib/routes";
+import { buildMetadata, metaDescription } from "@/lib/seo";
 import { getLeadership } from "./content";
+
+// Заголовок, вводный текст и SEO — из CMS-страницы `leadership`; без неё (нет,
+// не переведена, CMS молчит) — встроенная рамка из content.ts.
+const SLUG = "leadership" satisfies CanonicalCmsPageSlug;
 
 // ISR: состав руководства перечитывается из CMS не чаще раза в минуту (C-1a).
 export const revalidate = 60;
@@ -19,7 +25,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common, pages } = getDictionary(locale);
-  return buildMetadata({ locale, title: pages.meta.leadership, path: "/leadership", siteName: common.siteShort });
+  const page = await fetchTranslatedPage(SLUG, locale);
+  const seoDescription = page?.seo?.description?.trim();
+  return buildMetadata({
+    locale,
+    title: page?.seo?.title?.trim() || pages.meta.leadership,
+    description: seoDescription ? metaDescription(seoDescription) : undefined,
+    path: routes.leadership,
+    siteName: common.siteShort,
+  });
 }
 
 export default async function LeadershipPage({
@@ -32,9 +46,13 @@ export default async function LeadershipPage({
   const { pages } = getDictionary(locale);
   const { chairmanActions, deputiesTitle, footerNote } = leadership;
 
-  const roster = await fetchLeadership(locale);
+  const [roster, page] = await Promise.all([
+    fetchLeadership(locale),
+    fetchTranslatedPage(SLUG, locale),
+  ]);
   const chairman = roster.find((l) => l.is_chairman) ?? null;
   const deputies = roster.filter((l) => !l.is_chairman);
+  const title = page?.title?.trim() || leadership.title;
 
   return (
     <PageShell
@@ -44,8 +62,18 @@ export default async function LeadershipPage({
       <Breadcrumbs items={leadership.breadcrumbs} />
 
       <div className="border-b border-[var(--color-divider)] pb-[14px]">
-        <h1 className="page-title page-title-caps">{leadership.title}</h1>
+        <h1 className="page-title page-title-caps">{title}</h1>
       </div>
+
+      {/* Вводный текст раздела есть только в CMS; пустое тело CmsProse не
+          рисует — тогда блока нет, как и раньше. */}
+      {page && (
+        <CmsProse
+          body={page.body}
+          variant="intro"
+          className="mt-5 max-w-[68ch]"
+        />
+      )}
 
       {/* Председатель — одна широкая карточка. Может отсутствовать, пока в CMS
           не отмечен ни один председатель — раздел тогда просто не выводится. */}

@@ -99,6 +99,7 @@ for (const route of [
   "/ru/alerts",
   "/ru/contacts",
   "/ru/sos",
+  "/ru/about",
   "/ru/leadership",
   "/ru/structure",
   "/ru/symbols",

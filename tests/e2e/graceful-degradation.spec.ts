@@ -117,3 +117,48 @@ test("fully static pages are unaffected by a CMS outage", async ({ page }) => {
     page.getByRole("heading", { name: "Государственные символы Республики Таджикистан" }),
   ).toBeVisible();
 });
+
+// Заголовок и вводный текст этих разделов — из CMS-страниц, но без CMS они
+// обязаны остаться целыми: встроенный текст content.ts, без ошибки и пустот.
+test.describe("«About us» sections fall back to their built-in text", () => {
+  const cases: Array<[url: string, heading: string, text?: string]> = [
+    ["/ru/leadership", "Руководство Комитета"],
+    [
+      "/ru/structure",
+      "Структура Комитета",
+      "образуют единую государственную систему",
+    ],
+    [
+      "/ru/symbols",
+      "Государственные символы Республики Таджикистан",
+      "символы суверенитета Республики Таджикистан",
+    ],
+    ["/en/structure", "Committee structure", "form the unified state system"],
+  ];
+
+  for (const [url, heading, text] of cases) {
+    test(`${url} keeps its own heading${text ? " and intro" : ""}`, async ({
+      page,
+    }) => {
+      const response = await page.goto(url);
+      expect(response?.status()).toBe(200);
+
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(heading);
+      if (text) {
+        await expect(page.getByText(text, { exact: false })).toBeVisible();
+      }
+      await expect(page.locator(".article-prose-intro")).toHaveCount(0);
+    });
+  }
+});
+
+test("/ru/about explains a CMS outage instead of showing an empty page", async ({
+  page,
+}) => {
+  // У «О Комитете» встроенного текста нет — как и /pages/{slug}, раздел
+  // показывает FetchErrorFallback, а не 404 и не пустоту.
+  const response = await page.goto("/ru/about");
+  expect(response?.status()).toBeLessThan(500);
+
+  await expect(page.getByRole("heading", { name: "Что-то пошло не так" })).toBeVisible();
+});

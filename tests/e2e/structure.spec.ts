@@ -7,7 +7,9 @@ import { test, expect } from "@playwright/test";
 test("shows the stat plates and all six units from the CMS", async ({ page }) => {
   await page.goto("/ru/structure");
 
-  await expect(page.getByRole("heading", { name: "Структура Комитета" })).toBeVisible();
+  // Заголовок теперь из CMS-страницы `structure` (фикстура нарочно отличается
+  // от встроенного «Структура Комитета»; запасной вариант — cms-pages.spec.ts).
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Структура КЧС и ГО");
 
   // Stat plates: values come from Settings, labels are static UI copy.
   await expect(page.getByText("1994", { exact: true })).toBeVisible();

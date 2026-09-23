@@ -19,6 +19,10 @@ const RESOURCE_BY_TYPE: Record<Exclude<CmsContentType, "shell">, string> = {
   document: "documents",
   instruction: "guides",
   news: "news",
+  // `cms:pages:*` покрывает не только /pages/{slug}, но и собственные разделы
+  // CMS-страниц (/about, /leadership, /structure, /symbols — CMS_PAGE_ROUTES):
+  // они читают страницу тем же fetchPage, а ревалидация здесь — по тегам, не
+  // по путям, так что отдельной карты «slug → путь» вебхуку не нужно.
   page: "pages",
   project: "projects",
 };

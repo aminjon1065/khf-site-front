@@ -1,5 +1,24 @@
 import { expect, it } from "vitest";
 import configureNext from "../../next.config";
+import { LOCALES } from "@/lib/i18n/config";
+import { CMS_PAGE_ROUTES } from "@/lib/routes";
+
+it("permanently redirects /{locale}/pages/{slug} of «About us» pages to their sections", async () => {
+  const config = await configureNext("phase-development-server");
+  const rules = (await config.redirects?.()) ?? [];
+
+  // Одна запись на каждую страницу из CMS_PAGE_ROUTES, во всех локалях,
+  // 308 (permanent) — иначе у материала два адреса и дубль в выдаче.
+  expect(rules).toEqual(
+    Object.entries(CMS_PAGE_ROUTES).map(([slug, path]) => ({
+      source: `/:locale(${LOCALES.join("|")})/pages/${slug}`,
+      destination: `/:locale${path}`,
+      permanent: true,
+    })),
+  );
+  // Прочие CMS-страницы редирект не трогает.
+  expect(rules.some((rule) => rule.source.includes("privacy"))).toBe(false);
+});
 
 it("enables compression and applies the security header contract globally", async () => {
   const config = await configureNext("phase-development-server");

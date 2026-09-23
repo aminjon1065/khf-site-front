@@ -46,6 +46,7 @@ export default function PublicHeader({
     [routes.contacts]: navCopy.contacts,
     [routes.projects]: navCopy.projects,
     [routes.announcements]: navCopy.announcements,
+    [routes.about]: navCopy.about,
     [routes.leadership]: navCopy.leadership,
     [routes.structure]: navCopy.structure,
   };
@@ -253,6 +254,9 @@ export default function PublicHeader({
           >
             {header.aboutMenu}
           </span>
+          <NextLink className="mnav-link mnav-sub" href={localize(routes.about)}>
+            {navCopy.about}
+          </NextLink>
           <NextLink
             className="mnav-link mnav-sub"
             href={localize(routes.leadership)}
@@ -352,12 +356,24 @@ export default function PublicHeader({
             <details className="group relative inline-block shrink-0">
               <NavSummary
                 label={header.aboutMenu}
-                matches={[routes.leadership, routes.structure, routes.symbols]}
+                matches={[
+                  routes.about,
+                  routes.leadership,
+                  routes.structure,
+                  routes.symbols,
+                ]}
               />
               <span
                 role="menu"
                 className="knav-dropdown absolute left-0 top-full z-50 flex min-w-[210px] flex-col rounded-xl border border-[var(--color-divider)] bg-[var(--color-card)] p-1.5 shadow-lg"
               >
+                <NextLink
+                  role="menuitem"
+                  href={localize(routes.about)}
+                  className="!border-b-0 rounded-lg px-3 py-2 text-sm text-slate-800 dark:text-slate-200 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+                >
+                  {navCopy.about}
+                </NextLink>
                 <NextLink
                   role="menuitem"
                   href={localize(routes.leadership)}

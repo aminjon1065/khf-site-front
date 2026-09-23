@@ -1,5 +1,6 @@
 import Link from "@/components/i18n/LocaleLink";
 import { notFound } from "next/navigation";
+import CmsProse from "@/components/public/CmsProse";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
 import TranslationNotice from "@/components/public/TranslationNotice";
@@ -11,6 +12,7 @@ import {
 } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { isCanonicalCmsPage } from "@/lib/routes";
 import { buildMetadata } from "@/lib/seo";
 
 export const revalidate = 60;
@@ -20,7 +22,17 @@ export async function generateStaticParams({
 }: {
   params: { locale: string };
 }) {
-  return fetchStaticParamSlugs("page", toLocale(locale));
+  const slugs = await fetchStaticParamSlugs("page", toLocale(locale));
+  // about/leadership/structure/symbols живут в собственных разделах, а
+  // /pages/{slug} для них — 308 из next.config.ts (он срабатывает раньше
+  // файловой системы): пре-рендерить их здесь незачем. Но пустым список
+  // оставлять нельзя: в Next 16 без PPR пустой ответ хотя бы для одной
+  // локали выключает пре-рендер ВСЕГО маршрута во всех локалях
+  // (next/dist/build/static-paths/app.js, hadAllParamsGenerated). Если в
+  // локали опубликованы только эти страницы, отдаём их как есть — такой HTML
+  // перекрыт редиректом и никому не отдаётся.
+  const own = slugs.filter(({ slug }) => !isCanonicalCmsPage(slug));
+  return own.length > 0 ? own : slugs;
 }
 
 export async function generateMetadata({
@@ -86,16 +98,6 @@ export default async function ContentPage({
 
   const { common, pages } = getDictionary(locale);
 
-  // Тело страницы — санитайзенный HTML из Tiptap-редактора CMS (профиль mews/
-  // purifier). Новые страницы = HTML → выводим как есть; у старых простой текст —
-  // разбиваем на абзацы (fallback). Санитайзинг выполнен на стороне CMS при записи.
-  const bodyHtml = page.body ?? "";
-  const bodyIsHtml = /<[a-z][\s\S]*>/i.test(bodyHtml);
-  const paragraphs = bodyHtml
-    .split(/\n{2,}|\r?\n/)
-    .map((t) => t.trim())
-    .filter(Boolean);
-
   // Те же данные, что и в generateMetadata: наличие перевода на язык
   // страницы. Кэш fetch общий, поэтому это не повторный поход в CMS.
   const availableLocales = await availableLocalesFor("page", slug);
@@ -133,22 +135,11 @@ export default async function ContentPage({
           </p>
         )}
 
-        {bodyIsHtml ? (
-          <div
-            className="article-prose"
-            dangerouslySetInnerHTML={{ __html: bodyHtml }}
-          />
-        ) : paragraphs.length > 0 ? (
-          paragraphs.map((text, i) => (
-            <p key={i} className="mb-4 text-[15px] leading-[1.7]">
-              {text}
-            </p>
-          ))
-        ) : (
-          <p className="text-[15px] leading-[1.7]" style={{ color: muted(60) }}>
-            {pages.contentPage.placeholder}
-          </p>
-        )}
+        {/* Санитайзенный в CMS HTML или простой текст старых записей. */}
+        <CmsProse
+          body={page.body}
+          placeholder={pages.contentPage.placeholder}
+        />
       </article>
     </PageShell>
   );

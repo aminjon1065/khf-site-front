@@ -537,6 +537,16 @@ html {
     margin: 0;
   }
 
+  /* — лид раздела из CMS (CmsProse variant="intro": /leadership, /structure,
+       /symbols): кегль и ритм вводного абзаца, а не тела статьи. Цвет
+       (приглушённый) задаёт компонент, ширину и точный кегль — страница. — */
+  .article-prose.article-prose-intro { font-size: 15px; line-height: 1.6; }
+  .article-prose-intro > * + * { margin-top: var(--space-2); }
+  .article-prose-intro :where(h2, h3, h4) { color: var(--color-text); }
+  .article-prose-intro h2 { font-size: 19px; margin: var(--space-4) 0 var(--space-1); }
+  .article-prose-intro h3 { font-size: 17px; margin: var(--space-3) 0 var(--space-1); }
+  .article-prose-intro h4 { font-size: 15px; margin: var(--space-3) 0 0; }
+
   /* — кнопки — */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;

@@ -856,6 +856,34 @@ export const fetchPage = cache(async function fetchPage(
   }
 });
 
+/**
+ * CMS-страница для раздела с собственным запасным контентом (/leadership,
+ * /structure, /symbols): страница, только если она опубликована И переведена
+ * на язык запроса — по той же проверке, что и availableLocalesFor у
+ * pages/[slug]. Иначе `null`, и раздел молча показывает свой content.ts:
+ *  - 404 — страницы нет или она не опубликована;
+ *  - перевода нет — CMS отдала fallback другой локали, выдавать его за
+ *    перевод нельзя;
+ *  - CMS не ответила (5xx/сеть/таймаут) — разделу нельзя ломаться; сбой уже
+ *    записан fetchPage.
+ * Данные идут через тот же fetchPage, поэтому раздел инвалидируется теми же
+ * тегами вебхука (`cms:pages:{slug}:{locale}`, `cms:pages:{locale}`).
+ */
+export async function fetchTranslatedPage(
+  slug: string,
+  locale: Locale,
+): Promise<ApiPageDetail | null> {
+  try {
+    const page = await fetchPage(slug, locale);
+    if (!page) {
+      return null;
+    }
+    return (await translationAvailable("page", slug, locale)) ? page : null;
+  } catch {
+    return null;
+  }
+}
+
 // ------------------------------------------------- slug'и для генерации URL
 
 /**

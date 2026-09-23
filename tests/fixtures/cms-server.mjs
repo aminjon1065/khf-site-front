@@ -362,6 +362,153 @@ const structureUnits = [
   },
 ];
 
+// CMS-страницы (`Page`) по локалям API (ru/tg/en). about, leadership,
+// structure и symbols — разделы «О нас» с собственными адресами сайта;
+// privacy — обычная страница, живёт по /pages/{slug}. Тексты — по PageSeeder,
+// а заголовки leadership/structure намеренно отличаются от встроенных в
+// content.ts: иначе тест не отличил бы CMS-заголовок от запасного.
+//
+// Переводы неполные нарочно — так e2e проходит все ветки «страница доступна»:
+//  - перевод есть → страница, slug есть в /slugs/pages этой локали;
+//  - RU_FALLBACK → CMS отдаёт русскую версию, а в /slugs/pages этой локали
+//    slug'а нет (контракт, от которого страхуется фронт: русский fallback не
+//    должен выдавать себя за перевод);
+//  - записи для локали нет → 404 (так отвечает PublicLocale::available в CMS).
+const RU_FALLBACK = Symbol("ru-fallback");
+const cmsPages = {
+  about: {
+    ru: {
+      title: "О Комитете",
+      body: "<p>Комитет по чрезвычайным ситуациям и гражданской обороне при Правительстве Республики Таджикистан — центральный орган государственного управления в области предупреждения и ликвидации чрезвычайных ситуаций, защиты населения и территорий.</p><p>Основные задачи — организация аварийно-спасательных работ, готовность сил и средств, информирование и обучение населения.</p>",
+      seo: {
+        title: "О Комитете",
+        description: "Официальная информация о Комитете и его задачах.",
+      },
+      updated: "27 июля 2026",
+    },
+    tg: {
+      title: "Дар бораи Кумита",
+      body: "<p>Кумитаи ҳолатҳои фавқулода ва мудофиаи граждании назди Ҳукумати Ҷумҳурии Тоҷикистон мақоми марказии идоракунии давлатӣ дар соҳаи пешгирӣ ва рафъи ҳолатҳои фавқулода ва ҳифзи аҳоливу ҳудудҳо мебошад.</p>",
+      seo: {
+        title: "Дар бораи Кумита",
+        description: "Маълумоти расмӣ дар бораи Кумита ва вазифаҳои он.",
+      },
+      updated: "27 июли 2026",
+    },
+    en: RU_FALLBACK,
+  },
+  leadership: {
+    ru: {
+      title: "Руководство КЧС и ГО",
+      body: "<p>На этой странице публикуются актуальный состав руководства Комитета, должности и направления ответственности.</p><h2>Приём граждан</h2><p>График приёма и способы связи доступны в разделе «Контакты».</p>",
+      seo: {
+        title: "Руководство Комитета",
+        description: "Состав руководства и направления ответственности.",
+      },
+      updated: "27 июля 2026",
+    },
+    tg: {
+      title: "Роҳбарияти Кумита",
+      body: "<p>Дар ин саҳифа ҳайати роҳбарияти Кумита, вазифаҳо ва самтҳои масъулияти онҳо нашр карда мешаванд.</p>",
+      seo: {
+        title: "Роҳбарияти Кумита",
+        description: "Ҳайати роҳбарият ва самтҳои масъулият.",
+      },
+      updated: "27 июли 2026",
+    },
+    en: {
+      title: "Leadership of the Committee",
+      body: "<p>This page contains the current Committee leadership, official positions and areas of responsibility.</p>",
+      seo: {
+        title: "Committee leadership",
+        description: "Leadership team and areas of responsibility.",
+      },
+      updated: "27 July 2026",
+    },
+  },
+  structure: {
+    ru: {
+      title: "Структура КЧС и ГО",
+      body: "<p>В структуру Комитета входят центральный аппарат, центр управления в кризисных ситуациях, спасательные подразделения, гражданская оборона, подразделения предупреждения ЧС, учебный центр и региональные управления.</p>",
+      seo: {
+        title: "Структура Комитета",
+        description: "Организационная структура и подразделения Комитета.",
+      },
+      updated: "27 июля 2026",
+    },
+    tg: RU_FALLBACK,
+    en: {
+      title: "Structure of the Committee",
+      body: "<p>The Committee includes its central administration, crisis management centre, rescue units, civil defence and emergency prevention departments, a training centre and regional offices.</p>",
+      seo: {
+        title: "Committee structure",
+        description: "Organisational structure and Committee units.",
+      },
+      updated: "27 July 2026",
+    },
+  },
+  symbols: {
+    ru: {
+      title: "Государственные символы Таджикистана",
+      body: '<p>Флаг, Герб и Гимн — символы суверенитета Республики Таджикистан. Тексты законов о государственных символах — в <a href="/ru/documents">каталоге документов</a>.</p>',
+      seo: {
+        title: "Государственные символы Таджикистана",
+        description: "Флаг, Герб и Гимн Республики Таджикистан.",
+      },
+      updated: "27 июля 2026",
+    },
+    tg: {
+      title: "Рамзҳои давлатии Тоҷикистон",
+      body: "<p>Парчам, Нишон ва Суруди миллӣ — рамзҳои соҳибихтиёрии Ҷумҳурии Тоҷикистон.</p>",
+      seo: {
+        title: "Рамзҳои давлатии Тоҷикистон",
+        description: "Парчам, Нишон ва Суруди миллии Ҷумҳурии Тоҷикистон.",
+      },
+      updated: "27 июли 2026",
+    },
+    // en нет вовсе → 404 → /en/symbols показывает встроенный текст.
+  },
+  privacy: {
+    ru: {
+      title: "Защита персональных данных",
+      body: "<p>Персональные данные из электронной приёмной используются только для рассмотрения обращения и подготовки ответа.</p>",
+      seo: {
+        title: "Защита персональных данных",
+        description: "Политика обработки и защиты персональных данных.",
+      },
+      updated: "27 июля 2026",
+    },
+  },
+};
+
+/** Локаль запроса, как её понимает CMS: всё, кроме tg/en, — русский. */
+function apiLocale(requestUrl) {
+  const locale = requestUrl.searchParams.get("locale");
+  return locale === "tg" || locale === "en" ? locale : "ru";
+}
+
+/** Slug'и страниц с настоящим переводом в локали — как /slugs/pages в CMS. */
+function translatedPageSlugs(locale) {
+  return Object.entries(cmsPages)
+    .filter(([, byLocale]) => typeof byLocale[locale] === "object")
+    .map(([slug]) => slug);
+}
+
+/** Детальный DTO страницы (PublicPageResource::withBody) или null → 404. */
+function cmsPageDetail(slug, locale) {
+  const byLocale = Object.hasOwn(cmsPages, slug) ? cmsPages[slug] : null;
+  const translation =
+    byLocale?.[locale] === RU_FALLBACK ? byLocale.ru : byLocale?.[locale];
+  if (!translation) {
+    return null;
+  }
+  return {
+    slug,
+    ...translation,
+    updated_at: "2026-07-27T12:00:00+05:00",
+  };
+}
+
 const emptyPagination = {
   total: 0,
   per_page: 20,
@@ -699,6 +846,25 @@ const server = createServer(async (request, response) => {
   if (projectSlug) {
     if (project) {
       json(response, { data: project });
+    } else {
+      json(response, { message: "Not found" }, 404);
+    }
+    return;
+  }
+
+  if (path === "/slugs/pages") {
+    const slugs = translatedPageSlugs(apiLocale(requestUrl));
+    json(response, { data: slugs, meta: { total: slugs.length } });
+    return;
+  }
+
+  // Slug'и фикстуры — ASCII, декодировать сегмент незачем (а битая
+  // %-последовательность уронила бы весь мок).
+  const pageSlug = path.match(/^\/pages\/([^/]+)$/)?.[1];
+  if (pageSlug) {
+    const page = cmsPageDetail(pageSlug, apiLocale(requestUrl));
+    if (page) {
+      json(response, { data: page });
     } else {
       json(response, { message: "Not found" }, 404);
     }

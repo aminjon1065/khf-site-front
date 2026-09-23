@@ -21,14 +21,18 @@ const INDEXABLE = [
   "/ru/structure",
   "/ru/symbols",
   "/ru/sitemap",
+  // Описание — SEO-поле CMS-страницы (about/leadership). У /leadership без
+  // страницы в CMS описания по-прежнему нет — встроенного текста для него нет.
+  "/ru/about",
+  "/ru/leadership",
 ];
 
 // Страницы без описания — с причиной, а не по умолчанию:
 //   /ru/search    — noindex (результаты поиска не индексируются);
-//   /ru/alerts, /ru/leadership — для них нет переведённого текста, из которого
-//   можно взять описание, а сочинять его на трёх языках должен редактор, а не
+//   /ru/alerts — для неё нет переведённого текста, из которого можно взять
+//   описание, а сочинять его на трёх языках должен редактор, а не
 //   разработчик. Записано долгом в PROGRESS.md.
-const KNOWN_WITHOUT = ["/ru/alerts", "/ru/leadership"];
+const KNOWN_WITHOUT = ["/ru/alerts"];
 
 for (const route of INDEXABLE) {
   test(`${route} отдаёт непустое описание для выдачи`, async ({ request }) => {

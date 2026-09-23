@@ -5,6 +5,8 @@ import {
   cmsBuildMode,
   type CmsReadinessError,
 } from "./lib/cms-readiness.mjs";
+import { LOCALES } from "./lib/i18n/config";
+import { CMS_PAGE_ROUTES } from "./lib/routes";
 
 function usesLocalCmsEndpoint(): boolean {
   const endpoint = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL;
@@ -122,6 +124,21 @@ const nextConfig: NextConfig = {
         headers: securityHeaders,
       },
     ];
+  },
+  // `/{locale}/pages/{about|leadership|structure|symbols}` → собственный
+  // раздел той же локали (CMS_PAGE_ROUTES), 308 — у материала один адрес.
+  // Именно здесь, а не permanentRedirect() в pages/[slug]: конфиг срабатывает
+  // до proxy и рендера, поэтому ответ — настоящий 308 при любом состоянии CMS,
+  // а пре-рендер pages/[slug] эти slug'и не трогает (их отсеивает
+  // generateStaticParams).
+  async redirects() {
+    const locales = LOCALES.join("|");
+
+    return Object.entries(CMS_PAGE_ROUTES).map(([slug, path]) => ({
+      source: `/:locale(${locales})/pages/${slug}`,
+      destination: `/:locale${path}`,
+      permanent: true,
+    }));
   },
   images: {
     // Next.js 16 blocks private upstreams by default. Local CMS/mock media is

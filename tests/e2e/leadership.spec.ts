@@ -8,7 +8,9 @@ import { test, expect } from "@playwright/test";
 test("shows the chairman as a hero card and deputies in a grid", async ({ page }) => {
   await page.goto("/ru/leadership");
 
-  await expect(page.getByRole("heading", { name: "Руководство Комитета" })).toBeVisible();
+  // Заголовок теперь из CMS-страницы `leadership` (фикстура нарочно отличается
+  // от встроенного «Руководство Комитета»; запасной вариант — cms-pages.spec.ts).
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Руководство КЧС и ГО");
 
   const chairmanSection = page.getByRole("region", { name: "Председатель" });
   await expect(chairmanSection.getByText("Председатель Комитета")).toBeVisible();

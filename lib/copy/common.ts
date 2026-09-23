@@ -57,6 +57,7 @@ export const common = {
     contacts: "Контакты",
     projects: "Проекты",
     announcements: "Объявления",
+    about: "О Комитете",
     leadership: "Руководство",
     structure: "Структура",
   },

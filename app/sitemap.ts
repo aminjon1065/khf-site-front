@@ -4,25 +4,33 @@ import { siteUrl } from "@/lib/seo";
 import { LOCALES, htmlLang, type Locale } from "@/lib/i18n/config";
 import { fetchSlugs, type SlugContentType } from "@/lib/api";
 import { cmsCacheTags } from "@/lib/cache-tags";
+import { routes } from "@/lib/routes";
 
 // Статические разделы портала — по одному URL на локаль. Поиск (`/search`) намеренно
 // исключён: он noindex и не должен попадать в карту сайта.
-const STATIC_PATHS = [
+//
+// /leadership, /structure и /symbols — здесь, хотя их текст редактируется в
+// CMS: без перевода страницы раздел показывает встроенный текст, то есть он
+// существует во всех локалях. /about — нет: у него нет встроенного текста,
+// и в карту он попадает из CMS (routes.page), только в опубликованных локалях.
+const STATIC_PATHS: readonly string[] = [
   "",
-  "/news",
-  "/guides",
-  "/map",
-  "/documents",
-  "/contacts",
-  "/projects",
-  "/announcements",
-  "/alerts",
-  "/leadership",
-  "/structure",
-  "/symbols",
-  "/sos",
-  "/sitemap",
-] as const;
+  routes.news,
+  routes.guides,
+  routes.map,
+  routes.documents,
+  routes.contacts,
+  routes.projects,
+  routes.announcements,
+  routes.alert,
+  routes.leadership,
+  routes.structure,
+  routes.symbols,
+  routes.sos,
+  routes.sitemap,
+];
+
+const STATIC_PATH_SET = new Set(STATIC_PATHS);
 
 // Тип контента в CMS → сегмент маршрута портала (инструкции живут под /guides).
 const SITEMAP_SECTIONS: { type: SlugContentType; segment: string }[] = [
@@ -86,6 +94,15 @@ const fetchDynamicRoutes = unstable_cache(
 );
 
 /**
+ * Путь материала без локали. У CMS-страниц он идёт через routes.page:
+ * about/leadership/structure/symbols живут в собственных разделах, а
+ * `/pages/{slug}` для них — лишь 308-редирект, которому в карте сайта не место.
+ */
+function detailPath(segment: string, slug: string): string {
+  return segment === "pages" ? routes.page(slug) : `/${segment}/${slug}`;
+}
+
+/**
  * hreflang-альтернаты для пути без локали: ключи — канонические коды языка
  * (таджикская ветка /tj публикуется как `tg`), значения — абсолютные URL.
  * Только для локалей, где материал действительно опубликован, — взаимность
@@ -138,7 +155,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       );
       for (const slug of slugSet) {
         if (!slug) continue;
-        const path = `/${segment}/${slug}`;
+        const path = detailPath(segment, slug);
+        // Раздел уже объявлен выше во всех локалях — второй записи не нужно.
+        if (STATIC_PATH_SET.has(path)) continue;
         const present = LOCALES.filter((locale) =>
           byLocale[locale].includes(slug),
         );

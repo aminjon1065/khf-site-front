@@ -53,6 +53,7 @@ const ru: SitemapContent = {
     {
       title: "О нас и информация",
       links: [
+        { label: "О Комитете", href: routes.about },
         { label: "Руководство", href: routes.leadership },
         { label: "Структура Комитета", href: routes.structure },
         { label: "Государственные символы", href: routes.symbols },
@@ -112,6 +113,7 @@ const tj: SitemapContent = {
     {
       title: "Дар бораи мо ва маълумот",
       links: [
+        { label: "Дар бораи Кумита", href: routes.about },
         { label: "Роҳбарият", href: routes.leadership },
         { label: "Сохтори Кумита", href: routes.structure },
         { label: "Рамзҳои давлатӣ", href: routes.symbols },
@@ -171,6 +173,7 @@ const en: SitemapContent = {
     {
       title: "About us and information",
       links: [
+        { label: "About the Committee", href: routes.about },
         { label: "Leadership", href: routes.leadership },
         { label: "Committee structure", href: routes.structure },
         { label: "State symbols", href: routes.symbols },

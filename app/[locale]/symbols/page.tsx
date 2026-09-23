@@ -1,15 +1,26 @@
 import Image from "next/image";
 import Link from "@/components/i18n/LocaleLink";
+import CmsProse, { hasCmsBody } from "@/components/public/CmsProse";
 import PageShell from "@/components/public/PageShell";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import emblemImage from "@/public/assets/emblem-tj.png";
 import flagImage from "@/public/assets/flag-tj.png";
 import type { Metadata } from "next";
+import { fetchTranslatedPage } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { routes, type CanonicalCmsPageSlug } from "@/lib/routes";
 import { buildMetadata, metaDescription } from "@/lib/seo";
 import { getSymbolsContent, type SymbolBlock } from "./content";
+
+// Из CMS-страницы `symbols` — только заголовок, лид и описание. Флаг, герб,
+// гимн и порядок использования — официальные тексты и изображения, они всегда
+// из content.ts. Без страницы (нет, не переведена, CMS молчит) — встроенный
+// заголовок и лид.
+const SLUG = "symbols" satisfies CanonicalCmsPageSlug;
+
+export const revalidate = 60;
 
 function SymbolImage({ image }: { image: SymbolBlock["image"] }) {
   const source = image.src === "/assets/flag-tj.png" ? flagImage : emblemImage;
@@ -37,11 +48,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common, pages } = getDictionary(locale);
+  const page = await fetchTranslatedPage(SLUG, locale);
   return buildMetadata({
     locale,
     title: pages.meta.symbols,
-    description: metaDescription(getSymbolsContent(locale).hero.lead),
-    path: "/symbols",
+    description: metaDescription(
+      page?.seo?.description?.trim() || getSymbolsContent(locale).hero.lead,
+    ),
+    path: routes.symbols,
     siteName: common.siteShort,
   });
 }
@@ -53,6 +67,9 @@ export default async function SymbolsPage({
 }) {
   const locale = toLocale((await params).locale);
   const { breadcrumbs, hero, symbols, anthem, usage } = getSymbolsContent(locale);
+  const page = await fetchTranslatedPage(SLUG, locale);
+  const title = page?.title?.trim() || hero.title;
+  const cmsLead = page && hasCmsBody(page.body) ? page.body : null;
   return (
     <PageShell>
       <BreadcrumbJsonLd items={breadcrumbs} locale={locale} />
@@ -60,15 +77,21 @@ export default async function SymbolsPage({
 
       {/* Заголовок раздела */}
       <div className="border-b border-[var(--color-divider)] pb-3.5">
-        <h1 className="page-title page-title-caps mb-2.5 mt-0">
-          {hero.title}
-        </h1>
-        <p
-          className="m-0 max-w-[70ch] text-[14.5px] leading-[1.6]"
-          style={{ color: muted(70) }}
-        >
-          {hero.lead}
-        </p>
+        <h1 className="page-title page-title-caps mb-2.5 mt-0">{title}</h1>
+        {cmsLead ? (
+          <CmsProse
+            body={cmsLead}
+            variant="intro"
+            className="max-w-[70ch] text-[14.5px] leading-[1.6]"
+          />
+        ) : (
+          <p
+            className="m-0 max-w-[70ch] text-[14.5px] leading-[1.6]"
+            style={{ color: muted(70) }}
+          >
+            {hero.lead}
+          </p>
+        )}
       </div>
 
       {/* Флаг и Герб */}

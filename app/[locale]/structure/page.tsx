@@ -1,14 +1,24 @@
 import Link from "@/components/i18n/LocaleLink";
+import CmsProse, { hasCmsBody } from "@/components/public/CmsProse";
 import PageShell from "@/components/public/PageShell";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import type { Metadata } from "next";
-import { fetchSettings, fetchStructureUnits } from "@/lib/api";
+import {
+  fetchSettings,
+  fetchStructureUnits,
+  fetchTranslatedPage,
+} from "@/lib/api";
 import type { ApiStructureUnit } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { routes, type CanonicalCmsPageSlug } from "@/lib/routes";
 import { buildMetadata, metaDescription } from "@/lib/seo";
 import { getStructure } from "./content";
+
+// Заголовок, вводный абзац и описание — из CMS-страницы `structure`; без неё
+// (нет, не переведена, CMS молчит) — встроенный текст content.ts.
+const SLUG = "structure" satisfies CanonicalCmsPageSlug;
 
 // ISR: подразделения и сводные цифры перечитываются из CMS не чаще раза в
 // минуту (C-1b).
@@ -21,11 +31,14 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common, pages } = getDictionary(locale);
+  const page = await fetchTranslatedPage(SLUG, locale);
   return buildMetadata({
     locale,
     title: pages.meta.structure,
-    description: metaDescription(getStructure(locale).intro),
-    path: "/structure",
+    description: metaDescription(
+      page?.seo?.description?.trim() || getStructure(locale).intro,
+    ),
+    path: routes.structure,
     siteName: common.siteShort,
   });
 }
@@ -39,10 +52,13 @@ export default async function StructurePage({
   const structure = getStructure(locale);
   const { central, footnote, directions, statLabels } = structure;
 
-  const [units, settings] = await Promise.all([
+  const [units, settings, page] = await Promise.all([
     fetchStructureUnits(locale),
     fetchSettings(locale),
+    fetchTranslatedPage(SLUG, locale),
   ]);
+  const title = page?.title?.trim() || structure.title;
+  const cmsIntro = page && hasCmsBody(page.body) ? page.body : null;
   const stats = settings
     ? [
         { value: settings.structure.founded_year, label: statLabels.foundedYear },
@@ -60,15 +76,21 @@ export default async function StructurePage({
       {/* Шапка: заголовок + вводный абзац + ключевые цифры */}
       <div className="grid grid-cols-[minmax(0,1.6fr)_minmax(280px,1fr)] items-end gap-8 border-b border-[var(--color-divider)] pb-5 max-[920px]:grid-cols-1">
         <div>
-          <h1 className="page-title page-title-caps mb-2.5">
-            {structure.title}
-          </h1>
-          <p
-            className="m-0 max-w-[64ch] text-[15px] leading-[1.6]"
-            style={{ color: muted(70) }}
-          >
-            {structure.intro}
-          </p>
+          <h1 className="page-title page-title-caps mb-2.5">{title}</h1>
+          {cmsIntro ? (
+            <CmsProse
+              body={cmsIntro}
+              variant="intro"
+              className="max-w-[64ch] text-[15px] leading-[1.6]"
+            />
+          ) : (
+            <p
+              className="m-0 max-w-[64ch] text-[15px] leading-[1.6]"
+              style={{ color: muted(70) }}
+            >
+              {structure.intro}
+            </p>
+          )}
         </div>
         <div className="blueprint grid grid-cols-2 gap-3 px-[18px] py-4 text-center">
           {stats.map((s, i) => (
