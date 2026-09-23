@@ -255,9 +255,34 @@ const settings = {
   copyright: "КЧС",
   seo: {
     meta_title: "КЧС Таджикистана",
-    meta_description: "Официальный сайт.",
+    meta_description:
+      "Официальный сайт Комитета по чрезвычайным ситуациям и гражданской обороне Республики Таджикистан.",
   },
 };
+// Адрес и SEO локализованы, как в SettingSeeder CMS (остальное общее). Значения
+// ru намеренно отличаются от словаря сайта — иначе тест не отличил бы
+// настройку CMS от запасной строки; на en SEO-поля пусты — сайт обязан взять
+// встроенные title/description (seo-defaults.spec.ts, contacts.spec.ts).
+const localizedSettings = {
+  ru: { address: settings.org.address, seo: settings.seo },
+  tg: {
+    address: "Душанбе, Тоҷикистон",
+    seo: {
+      meta_title: "КҲФ ва МГ Тоҷикистон",
+      meta_description:
+        "Сомонаи расмии Кумитаи ҳолатҳои фавқулодда ва мудофиаи гражданӣ.",
+    },
+  },
+  en: {
+    address: "Dushanbe, Tajikistan",
+    seo: { meta_title: "", meta_description: "" },
+  },
+};
+
+function settingsFor(locale) {
+  const { address, seo } = localizedSettings[locale];
+  return { ...settings, org: { ...settings.org, address }, seo };
+}
 // Меню CMS по локалям API. На ru подписи редактора местами отличаются от
 // словарных — так видно, что сайт показывает их, а не словарь; пустая подпись
 // изображает непереведённый пункт (CMS отдаёт "" без фолбэка): для встроенного
@@ -728,7 +753,7 @@ const server = createServer(async (request, response) => {
   }
 
   if (path === "/settings") {
-    json(response, { data: settings });
+    json(response, { data: settingsFor(apiLocale(requestUrl)) });
     return;
   }
 

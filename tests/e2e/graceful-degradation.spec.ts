@@ -95,6 +95,24 @@ test("home page invents neither news nor instruction links when the CMS is unrea
   await expect(page.locator('a[href*="/guides/"]')).toHaveCount(0);
 });
 
+test("/ru/contacts keeps its built-in contact cards when the CMS is unreachable", async ({
+  page,
+}) => {
+  // Телефон доверия, адрес и e-mail берутся из настроек CMS; без неё страница
+  // контактов обязана остаться с встроенными, а не с пустыми карточками.
+  const response = await page.goto("/ru/contacts");
+  expect(response?.status()).toBe(200);
+
+  const cards = page.getByRole("region", { name: "Экстренная помощь" });
+  await expect(
+    cards.getByRole("link", { name: "+992 (37) 221-59-00", exact: true }),
+  ).toHaveAttribute("href", "tel:+992372215900");
+  await expect(cards).toContainText("734018, г. Душанбе, ул. Лохути, 26");
+  await expect(
+    cards.getByRole("link", { name: "info@khf.tj", exact: true }),
+  ).toHaveAttribute("href", "mailto:info@khf.tj");
+});
+
 test("a detail page shows a friendly message, not a crash, when its fetch fails", async ({ page }) => {
   const response = await page.goto("/ru/news/any-slug-at-all");
   expect(response?.status()).toBeGreaterThanOrEqual(200);

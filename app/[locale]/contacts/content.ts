@@ -404,3 +404,41 @@ const en: ContactsContent = {
 export function getContacts(locale: Locale): ContactsContent {
   return { ru, tj, en }[locale];
 }
+
+/** Поля настроек CMS (`/settings` → `org`), которые показывают карточки. */
+export interface ContactSettings {
+  trust_phone?: string | null;
+  address?: string | null;
+  email?: string | null;
+}
+
+/**
+ * Верхние карточки с данными из настроек CMS: телефон доверия
+ * (`org.trust_phone`), адрес и e-mail центрального аппарата (`org.address`,
+ * `org.email`) — те же значения, что уже показывают шапка и подвал. Пустое
+ * или непригодное значение (телефон без цифр, e-mail без «@») даёт прежний
+ * встроенный текст: страница контактов не должна остаться без телефона и
+ * адреса из-за незаполненного поля или недоступной CMS. Часы приёма и
+ * остальное содержимое — по-прежнему из этого файла.
+ */
+export function withContactSettings(
+  emergency: ContactsContent["emergency"],
+  org: ContactSettings | null | undefined,
+): ContactsContent["emergency"] {
+  const phone = org?.trust_phone?.trim() ?? "";
+  const dialable = phone.replace(/[^+\d]/g, "");
+  const address = org?.address?.trim() ?? "";
+  const email = org?.email?.trim() ?? "";
+
+  return {
+    ...emergency,
+    trust: /\d/.test(dialable)
+      ? { ...emergency.trust, phone, phoneHref: `tel:${dialable}` }
+      : emergency.trust,
+    hq: {
+      ...emergency.hq,
+      ...(address ? { address } : {}),
+      ...(email.includes("@") ? { email, emailHref: `mailto:${email}` } : {}),
+    },
+  };
+}

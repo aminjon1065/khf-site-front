@@ -1,11 +1,11 @@
 import PageShell from "@/components/public/PageShell";
 import { muted } from "@/components/public/ui";
-import { fetchRegionsDirectory } from "@/lib/api";
+import { fetchRegionsDirectory, fetchSettings } from "@/lib/api";
 import type { Metadata } from "next";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { buildMetadata, metaDescription } from "@/lib/seo";
-import { getContacts } from "./content";
+import { getContacts, withContactSettings } from "./content";
 import ContactForm from "./ContactForm";
 
 export async function generateMetadata({
@@ -35,10 +35,16 @@ export default async function ContactsPage({
 }) {
   const locale = toLocale((await params).locale);
   const contacts = getContacts(locale);
-  const { emergency, offices, reception } = contacts;
+  const { offices, reception } = contacts;
 
   // Региональные управления приходят из CMS; при недоступности — статичный список.
-  const directory = await fetchRegionsDirectory(locale);
+  // Телефон доверия, адрес и e-mail центрального аппарата — из настроек CMS,
+  // без них — встроенный текст (withContactSettings).
+  const [directory, settings] = await Promise.all([
+    fetchRegionsDirectory(locale),
+    fetchSettings(locale),
+  ]);
+  const emergency = withContactSettings(contacts.emergency, settings?.org);
   const officeRows =
     directory.length > 0
       ? directory.map((o) => ({
