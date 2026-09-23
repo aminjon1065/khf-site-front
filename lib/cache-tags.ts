@@ -13,6 +13,43 @@ export const CMS_CONTENT_TYPES = [
 
 export type CmsContentType = (typeof CMS_CONTENT_TYPES)[number];
 
+/**
+ * Справочные данные CMS: настройки блоков главной, руководство, структура,
+ * регионы, категории. У них нет slug'а и собственных детальных страниц, поэтому
+ * правка обновляет ровно один тег на локаль — `cms:<ресурс>:<локаль>`, без
+ * каскада на главную и карту сайта. Контракт общий с CMS
+ * (`App\Support\FrontendRevalidation`); таблица — в README, «Ревалидация по
+ * вебхуку».
+ */
+export const CMS_REFERENCE_TYPES = [
+  "category",
+  "home",
+  "leadership",
+  "region",
+  "structure",
+] as const;
+
+export type CmsReferenceType = (typeof CMS_REFERENCE_TYPES)[number];
+
+/** Всё, что CMS может прислать в поле `type` вебхука. */
+export type CmsRevalidationType = CmsContentType | CmsReferenceType;
+
+const REFERENCE_RESOURCE_BY_TYPE: Record<CmsReferenceType, string> = {
+  category: "categories",
+  home: "home",
+  leadership: "leadership",
+  region: "regions",
+  structure: "structure",
+};
+
+export function isReferenceType(type: string): type is CmsReferenceType {
+  return (CMS_REFERENCE_TYPES as readonly string[]).includes(type);
+}
+
+function referenceTag(type: CmsReferenceType, locale: Locale): string {
+  return `cms:${REFERENCE_RESOURCE_BY_TYPE[type]}:${locale}`;
+}
+
 const RESOURCE_BY_TYPE: Record<Exclude<CmsContentType, "shell">, string> = {
   alert: "alerts",
   announcement: "announcements",
@@ -78,7 +115,7 @@ export function isAddressableSlug(slug: string): boolean {
 }
 
 export interface CmsRevalidationPayload {
-  type: CmsContentType;
+  type: CmsRevalidationType;
   id: number | null;
   slug: string | null;
   locales: Locale[];
@@ -88,7 +125,13 @@ export interface CmsRevalidationPayload {
 
 export const cmsCacheTags = {
   shell: (locale: Locale): string => `cms:shell:${locale}`,
-  home: (locale: Locale): string => `cms:home:${locale}`,
+  /**
+   * Главная: и настройки её блоков (вебхук `home`), и материалы, которые на
+   * ней показаны (каскад HOME_TYPES ниже).
+   */
+  home: (locale: Locale): string => referenceTag("home", locale),
+  /** Справочник: `cms:categories|home|leadership|regions|structure:<локаль>`. */
+  reference: referenceTag,
   list: (type: Exclude<CmsContentType, "shell">, locale: Locale): string =>
     `cms:${RESOURCE_BY_TYPE[type]}:${locale}`,
   detail: (
@@ -115,12 +158,15 @@ export function cmsRequestTags(
 }
 
 export function buildRevalidationTags(
-  type: CmsContentType,
+  type: CmsRevalidationType,
   slug: string | null,
   locales: Locale[],
 ): string[] {
   if (type === "shell") {
     return locales.map(cmsCacheTags.shell);
+  }
+  if (isReferenceType(type)) {
+    return locales.map((locale) => referenceTag(type, locale));
   }
 
   const tags: string[] = [];
@@ -169,7 +215,10 @@ export function parseRevalidationPayload(
 
   if (
     typeof type !== "string" ||
-    !(CMS_CONTENT_TYPES as readonly string[]).includes(type) ||
+    !(
+      (CMS_CONTENT_TYPES as readonly string[]).includes(type) ||
+      isReferenceType(type)
+    ) ||
     !isLocaleArray(payload.locales) ||
     typeof event !== "string" ||
     event.length < 1 ||
@@ -184,17 +233,26 @@ export function parseRevalidationPayload(
     return null;
   }
 
-  const contentType = type as CmsContentType;
-  if (
-    (contentType === "shell" && (id !== null || slug !== null)) ||
-    (contentType !== "shell" &&
-      (typeof id !== "number" || !Number.isInteger(id) || id < 1))
-  ) {
+  const revalidationType = type as CmsRevalidationType;
+  const positiveId =
+    typeof id === "number" && Number.isInteger(id) && id >= 1;
+  if (revalidationType === "shell") {
+    if (id !== null || slug !== null) {
+      return null;
+    }
+  } else if (isReferenceType(revalidationType)) {
+    // Справочник адресуется целиком: slug'а у него нет. `id` — запись,
+    // которую тронули, или null для правки набора целиком (блоки главной
+    // сохраняются одной формой); на теги он не влияет.
+    if (slug !== null || (id !== null && !positiveId)) {
+      return null;
+    }
+  } else if (!positiveId) {
     return null;
   }
 
   const locales = payload.locales;
-  const expectedTags = buildRevalidationTags(contentType, slug, locales);
+  const expectedTags = buildRevalidationTags(revalidationType, slug, locales);
   if (
     expectedTags.length !== tags.length ||
     expectedTags.some((tag, index) => tag !== tags[index])
@@ -203,8 +261,8 @@ export function parseRevalidationPayload(
   }
 
   return {
-    type: contentType,
-    id: contentType === "shell" ? null : (id as number),
+    type: revalidationType,
+    id: positiveId ? (id as number) : null,
     slug,
     locales,
     event,

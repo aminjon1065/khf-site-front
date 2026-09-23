@@ -235,6 +235,7 @@ export interface ApiCategory {
 /**
  * Справочник категорий заданного типа (по умолчанию `news`) — для серверного
  * фильтра списков (см. `?category=` в fetchNews). Пустой массив при сбое.
+ * Правку категории вебхук CMS доносит тегом `cms:categories:{locale}`.
  */
 export async function fetchCategories(
   params: { type?: string; locale?: Locale } = {},
@@ -247,7 +248,12 @@ export async function fetchCategories(
 
   try {
     const res = await fetch(url, {
-      next: { revalidate: REVALIDATE, tags: ["cms"] },
+      next: {
+        revalidate: REVALIDATE,
+        tags: [
+          cmsCacheTags.reference("category", params.locale ?? DEFAULT_LOCALE),
+        ],
+      },
       signal: timeoutSignal(),
     });
     if (!res.ok) {
@@ -611,6 +617,8 @@ export async function fetchAlertsActive(
 /**
  * Статусы регионов для карты рисков. `null` — CMS не ответила; карта в этом
  * состоянии не должна раскрашивать регионы «спокойным» цветом как проверенные.
+ * Статус зависит и от предупреждений (`cms:alerts:*`), и от самих регионов
+ * (`cms:regions:*` — вебхук `region`).
  */
 export async function fetchRegions(
   locale: Locale = DEFAULT_LOCALE,
@@ -621,7 +629,10 @@ export async function fetchRegions(
     const res = await fetch(url, {
       next: {
         revalidate: REVALIDATE,
-        tags: [...cmsRequestTags("alert", locale), `cms:regions:${locale}`],
+        tags: [
+          ...cmsRequestTags("alert", locale),
+          cmsCacheTags.reference("region", locale),
+        ],
       },
       signal: timeoutSignal(),
     });
@@ -660,6 +671,8 @@ export const EMPTY_HOME: ApiHome = {
  * Всё, что нужно главной странице, одним запросом.
  * `null` — CMS не ответила; отличать это от пустой выдачи обязательно, иначе
  * портал заявит об отсутствии угроз, когда на самом деле не знает обстановки.
+ * Тег `cms:home:{locale}` сбрасывают и правка блоков главной (вебхук `home`),
+ * и публикация показанных на ней материалов (каскад в cache-tags.ts).
  */
 export async function fetchHome(
   locale: Locale = DEFAULT_LOCALE,
@@ -747,7 +760,7 @@ export async function fetchRegionsDirectory(
     const res = await fetch(url, {
       next: {
         revalidate: REVALIDATE,
-        tags: [`cms:regions:${locale}`],
+        tags: [cmsCacheTags.reference("region", locale)],
       },
       signal: timeoutSignal(),
     });
@@ -773,7 +786,10 @@ export interface ApiLeader {
   photo_url: string | null;
 }
 
-/** Состав руководства, председатель первым. Пустой массив при сбое. */
+/**
+ * Состав руководства, председатель первым. Пустой массив при сбое.
+ * Правку состава вебхук CMS доносит тегом `cms:leadership:{locale}`.
+ */
 export async function fetchLeadership(
   locale: Locale = DEFAULT_LOCALE,
 ): Promise<ApiLeader[]> {
@@ -781,7 +797,10 @@ export async function fetchLeadership(
 
   try {
     const res = await fetch(url, {
-      next: { revalidate: REVALIDATE, tags: ["cms"] },
+      next: {
+        revalidate: REVALIDATE,
+        tags: [cmsCacheTags.reference("leadership", locale)],
+      },
       signal: timeoutSignal(),
     });
     if (!res.ok) {
@@ -806,7 +825,8 @@ export interface ApiStructureUnit {
 
 /**
  * Подразделения верхнего уровня (каждое — с вложенными), в заданном порядке.
- * Пустой массив при сбое.
+ * Пустой массив при сбое. Правку структуры вебхук CMS доносит тегом
+ * `cms:structure:{locale}`.
  */
 export async function fetchStructureUnits(
   locale: Locale = DEFAULT_LOCALE,
@@ -815,7 +835,10 @@ export async function fetchStructureUnits(
 
   try {
     const res = await fetch(url, {
-      next: { revalidate: REVALIDATE, tags: ["cms"] },
+      next: {
+        revalidate: REVALIDATE,
+        tags: [cmsCacheTags.reference("structure", locale)],
+      },
       signal: timeoutSignal(),
     });
     if (!res.ok) {

@@ -78,11 +78,25 @@ Herd отдаёт CMS по домену `<папка-проекта>.test` (об
 
 CMS-страницы `about`, `leadership`, `structure`, `symbols` живут в собственных разделах (`CMS_PAGE_ROUTES` в `lib/routes.ts`), а `/{locale}/pages/{slug}` для них — постоянный редирект 308 (`next.config.ts`). Остальные страницы CMS — по `/{locale}/pages/{slug}`.
 
-Данные кэшируются через ISR (`revalidate = 60` c) с адресными тегами `cms:<ресурс>:<локаль>` / `cms:<ресурс>:<slug>:<локаль>` (контракт — `lib/cache-tags.ts`, CMS-сторона — `app/Support/FrontendRevalidation.php`) и инвалидируются вебхуком при публикации в CMS (см. ниже). Типы без адресных тегов (категории, руководство, структура) обновляются только ISR-таймером; правка `Setting`/`Menu` без работающего вебхука не появится на сайте до `next build` или до истечения 60 секунд.
+Данные кэшируются через ISR (`revalidate = 60` c) с адресными тегами `cms:<ресурс>:<локаль>` / `cms:<ресурс>:<slug>:<локаль>` (контракт — `lib/cache-tags.ts`, CMS-сторона — `app/Support/FrontendRevalidation.php`) и инвалидируются вебхуком при публикации в CMS (см. ниже). Без работающего вебхука любая правка в CMS появится на сайте по ISR-таймеру — не позже чем через 60 секунд.
 
 ## Ревалидация по вебхуку
 
 При публикации/обновлении материала CMS шлёт `POST /api/revalidate` с `Authorization: Bearer <REVALIDATION_SECRET>`; обработчик (`app/api/revalidate`) вызывает `revalidateTag(tag, { expire: 0 })` для каждого тега из payload. Секрет должен совпадать в обоих `.env`. Без него вебхук просто не настроен — сайт по-прежнему работает через обычный ISR-таймер.
+
+Payload: `{type, id, slug, locales, event, tags}`, `locales` — локали сайта (`ru`, `tj`, `en`, не `tg`). Теги не принимаются на веру: `parseRevalidationPayload` выводит их из `type`/`slug`/`locales` и отвечает 422 на любое расхождение (порядок тегов — по локалям, как ниже).
+
+| `type` | `id` / `slug` | Теги на каждую локаль `{l}` | Кого обновляет |
+|---|---|---|---|
+| `news`, `alert`, `instruction`, `document`, `announcement`, `project`, `page` | id — число; slug — строка ≤ 180 или `null` | `cms:<ресурс>:{l}`, `cms:<ресурс>:<slug>:{l}` (если есть slug), `cms:home:{l}` (кроме `page`); один раз в конце — `cms:sitemap` (кроме `document`) | списки, детальные страницы, главная, карта сайта; ресурс: `news`, `alerts`, `guides`, `documents`, `announcements`, `projects`, `pages` |
+| `shell` | `null` / `null` | `cms:shell:{l}` | настройки и меню: шапка, подвал и всё, что читает `fetchSettings` / `fetchMenu` |
+| `home` | число или `null` / `null` | `cms:home:{l}` | настройки блоков главной (`fetchHome`) |
+| `leadership` | число или `null` / `null` | `cms:leadership:{l}` | `/leadership` (`fetchLeadership`) |
+| `structure` | число или `null` / `null` | `cms:structure:{l}` | `/structure` (`fetchStructureUnits`) |
+| `region` | число или `null` / `null` | `cms:regions:{l}` | `/map` (`fetchRegions`), `/contacts` (`fetchRegionsDirectory`) |
+| `category` | число или `null` / `null` | `cms:categories:{l}` | фильтр рубрик `/news` (`fetchCategories`) |
+
+Контракт закреплён тестами `tests/unit/cache-tags.test.ts` (теги справочников и то, что их несут фетчеры) и `tests/unit/revalidate-route.test.ts`.
 
 ## Мягкая деградация
 

@@ -111,6 +111,40 @@ describe("POST /api/revalidate", () => {
     expect(revalidateTagMock).not.toHaveBeenCalledWith("cms", { expire: 0 });
   });
 
+  it("revalidates reference data (home blocks, leadership, structure, regions, categories)", async () => {
+    // Справочники долго обновлялись только таймером ISR: вебхук не знал их
+    // типов и отвечал 422. Теперь CMS шлёт их с одним тегом на локаль.
+    vi.stubEnv("REVALIDATION_SECRET", "top-secret");
+    const cases = [
+      ["home", "cms:home"],
+      ["leadership", "cms:leadership"],
+      ["structure", "cms:structure"],
+      ["region", "cms:regions"],
+      ["category", "cms:categories"],
+    ] as const;
+
+    for (const [type, prefix] of cases) {
+      revalidateTagMock.mockClear();
+      const tags = [`${prefix}:ru`, `${prefix}:tj`, `${prefix}:en`];
+
+      const res = await POST(
+        request("Bearer top-secret", {
+          type,
+          id: type === "home" ? null : 3,
+          slug: null,
+          locales: ["ru", "tj", "en"],
+          event: "updated",
+          tags,
+        }),
+      );
+
+      expect(res.status, type).toBe(200);
+      expect(revalidateTagMock.mock.calls, type).toEqual(
+        tags.map((tag) => [tag, { expire: 0 }]),
+      );
+    }
+  });
+
   it("returns 422 and does not revalidate when tags contradict the payload metadata", async () => {
     // Иначе вебхук стал бы способом сбросить произвольный тег по чужому
     // списку: теги должны выводиться из type/slug/locales, а не приниматься
