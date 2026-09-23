@@ -2,8 +2,10 @@ import { TriangleAlert } from "lucide-react";
 import Link from "@/components/i18n/LocaleLink";
 import RefreshOnVisible from "@/components/public/RefreshOnVisible";
 import { muted } from "@/components/public/ui";
-import { routes } from "@/lib/routes";
+import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
+import { routes } from "@/lib/routes";
+import { situationTime } from "@/lib/situation-time";
 
 /**
  * «Оперативная сводка». Четыре различимых состояния, и ни одно не выдаёт
@@ -18,14 +20,23 @@ export default function OpsSummary({
   alertsCount,
   affectedRegions,
   watchedRegions,
+  asOf,
+  locale,
   home,
 }: {
   unavailable: boolean;
   alertsCount: number;
   affectedRegions: number;
   watchedRegions: number;
+  /** Когда CMS сверила состояние предупреждений (alerts.updated_at). */
+  asOf: string | null;
+  locale: Locale;
   home: Dictionary["home"];
 }) {
+  // «Предупреждений нет» и «предупреждений нет по состоянию на 09:42» —
+  // разные утверждения; без времени от CMS подпись просто не выводится.
+  const stateTime = unavailable ? null : situationTime(asOf, locale);
+
   return (
     <section
       aria-label={home.ops.title}
@@ -98,6 +109,15 @@ export default function OpsSummary({
               ({home.ops.watchedRegions}: {watchedRegions})
             </span>
           )}
+        </span>
+      )}
+      {stateTime && (
+        <span
+          className="text-xs [font-variant-numeric:tabular-nums]"
+          style={{ color: muted(70) }}
+        >
+          {home.ops.asOf}{" "}
+          <time dateTime={stateTime.dateTime}>{stateTime.text}</time>
         </span>
       )}
       <span className="flex-1" />

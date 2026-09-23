@@ -184,6 +184,7 @@ export const en: Dictionary = {
         "Situation data is temporarily unavailable. Please refresh the page later.",
       watchedRegions: "Regions monitored",
       affectedRegions: "Regions affected",
+      asOf: "Situation as of",
       staleText: "Data may be out of date — refreshing…",
       mapLink: "Risk map →",
     },

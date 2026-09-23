@@ -1,6 +1,6 @@
 /**
  * Generated from khf-site-cms/openapi/openapi.json.
- * Schema SHA-256: 8bdbd1eb77061977
+ * Schema SHA-256: 68c7852fe0ede2d5
  * Do not edit by hand; run `npm run api:types`.
  */
 
@@ -239,6 +239,7 @@ export interface ApiRegionStatus {
 export interface ApiAlertsActive {
   state: "calm" | "warning" | "critical";
   count: number;
+  updated_at: string;
   regions: Array<ApiRegionStatus>;
 }
 
@@ -253,6 +254,7 @@ export interface ApiHome {
   alerts: {
     state: "calm" | "warning" | "critical";
     count: number;
+    updated_at: string;
     regions: Array<ApiRegionStatus>;
     items: Array<ApiAlert>;
   };

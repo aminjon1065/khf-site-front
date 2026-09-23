@@ -141,3 +141,17 @@ test("/en: раскладка по умолчанию — как в сидере
     "Regional situation",
   ]);
 });
+
+test("/ru: сводка говорит, на какой момент известна обстановка", async ({
+  page,
+}) => {
+  await page.goto("/ru");
+
+  const summary = page.getByRole("region", { name: "Оперативная сводка" });
+  const time = summary.locator("time");
+
+  // Время сверки из CMS (alerts.updated_at), в поясе Душанбе; дата — потому
+  // что сведения не сегодняшние.
+  await expect(time).toHaveAttribute("datetime", "2026-07-27T11:58:00+05:00");
+  await expect(summary).toContainText("Обстановка на 27 июля, 11:58 (UTC+5)");
+});

@@ -658,7 +658,9 @@ export async function fetchRegions(
  */
 export const EMPTY_HOME: ApiHome = {
   blocks: [],
-  alerts: { state: "calm", count: 0, regions: [], items: [] },
+  // Время сверки неизвестно: CMS не ответила. Пустая строка — не время,
+  // сводка его не выводит.
+  alerts: { state: "calm", count: 0, updated_at: "", regions: [], items: [] },
   news: [],
   instructions: [],
   documents: [],

@@ -173,6 +173,8 @@ export default async function HomePage({
         alertsCount={data.alerts.count}
         affectedRegions={affectedRegions}
         watchedRegions={regions.length}
+        asOf={data.alerts.updated_at ?? null}
+        locale={locale}
         home={home}
       />
 

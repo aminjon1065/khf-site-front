@@ -644,6 +644,8 @@ function homeFor(locale) {
     alerts: {
       state: "warning",
       count: homeAlerts.length,
+      // Когда CMS сверила состояние предупреждений (A-1).
+      updated_at: "2026-07-27T11:58:00+05:00",
       regions: [region],
       items: homeAlerts,
     },
@@ -906,7 +908,12 @@ const server = createServer(async (request, response) => {
 
   if (path === "/alerts/active") {
     json(response, {
-      data: { state: "warning", count: 1, regions: [region] },
+      data: {
+        state: "warning",
+        count: 1,
+        updated_at: "2026-07-27T11:58:00+05:00",
+        regions: [region],
+      },
     });
     return;
   }
