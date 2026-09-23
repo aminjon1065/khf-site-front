@@ -27,6 +27,9 @@ test("public pages expose the security header contract", async ({
   );
   expect(response.headers()["permissions-policy"]).toContain("camera=()");
   expect(response.headers()["cross-origin-opener-policy"]).toBe("same-origin");
+  // J-7: `next start` по умолчанию шлёт `X-Powered-By: Next.js` — раскрытие
+  // стека государственного сайта (poweredByHeader: false в next.config.ts).
+  expect(response.headers()["x-powered-by"]).toBeUndefined();
 });
 
 // Заголовки задаются правилом `source: "/:path*"`, но правило — это намерение,
@@ -42,6 +45,7 @@ test("контракт распространяется на 404, служебн
     for (const header of SECURITY_HEADERS) {
       expect(headers[header], `${path} → ${header}`).toBeTruthy();
     }
+    expect(headers["x-powered-by"], `${path} → x-powered-by`).toBeUndefined();
   }
 });
 

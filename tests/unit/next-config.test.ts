@@ -28,6 +28,8 @@ it("enables compression and applies the security header contract globally", asyn
   );
 
   expect(config.compress).toBe(true);
+  // J-7: стек сайта не раскрывается заголовком X-Powered-By.
+  expect(config.poweredByHeader).toBe(false);
   expect(rules?.[0]?.source).toBe("/:path*");
   expect(headers["Content-Security-Policy"]).toContain("default-src 'self'");
   expect(headers["Content-Security-Policy"]).toContain("object-src 'none'");

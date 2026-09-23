@@ -117,6 +117,10 @@ const nextConfig: NextConfig = {
   // `next start` gzip is intentionally explicit; an edge proxy may replace it
   // with Brotli, but must not disable compression without an equivalent.
   compress: true,
+  // Аудит J-7: `X-Powered-By: Next.js` раскрывает стек государственного
+  // сайта и ничего не даёт посетителю. Отсутствие заголовка проверяют
+  // tests/unit/next-config.test.ts и tests/e2e/security-headers.spec.ts.
+  poweredByHeader: false,
   async headers() {
     return [
       {
