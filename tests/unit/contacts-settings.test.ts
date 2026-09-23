@@ -61,6 +61,16 @@ describe("withContactSettings", () => {
     expect(cards.hq.emailHref).toBe(ru.hq.emailHref);
   });
 
+  it("не падает на значении не-строке — считает его пустым", () => {
+    const cards = withContactSettings(ru, {
+      trust_phone: 992372215900 as unknown as string,
+      address: null,
+    });
+
+    expect(cards.trust).toEqual(ru.trust);
+    expect(cards.hq.address).toBe(ru.hq.address);
+  });
+
   it("запасной текст — на языке страницы", () => {
     const en = getContacts("en").emergency;
 

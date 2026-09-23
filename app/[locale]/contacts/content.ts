@@ -425,10 +425,13 @@ export function withContactSettings(
   emergency: ContactsContent["emergency"],
   org: ContactSettings | null | undefined,
 ): ContactsContent["emergency"] {
-  const phone = org?.trust_phone?.trim() ?? "";
+  // Не строка (например, телефон, сохранённый числом) — то же, что пусто.
+  const text = (value: unknown): string =>
+    typeof value === "string" ? value.trim() : "";
+  const phone = text(org?.trust_phone);
   const dialable = phone.replace(/[^+\d]/g, "");
-  const address = org?.address?.trim() ?? "";
-  const email = org?.email?.trim() ?? "";
+  const address = text(org?.address);
+  const email = text(org?.email);
 
   return {
     ...emergency,
