@@ -60,7 +60,7 @@ Herd отдаёт CMS по домену `<папка-проекта>.test` (об
 
 | Страница | Функция(и) | Эндпоинт CMS |
 |---|---|---|
-| `/[locale]` (главная) | `fetchHome` | `GET /home` |
+| `/[locale]` (главная; порядок, заголовки и включение секций ниже «Оперативной сводки» — блоки «Главной страницы» CMS, `lib/home-blocks.ts`) | `fetchHome` | `GET /home` |
 | `/[locale]/news`, `/news/[slug]` | `fetchNews`, `fetchNewsItem` | `GET /news`, `GET /news/{slug}` |
 | `/[locale]/guides`, `/guides/[slug]` | `fetchInstructions`, `fetchInstruction` | `GET /instructions`, `GET /instructions/{slug}` |
 | `/[locale]/documents` | `fetchDocuments` | `GET /documents` |

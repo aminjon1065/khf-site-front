@@ -16,6 +16,7 @@ import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
 export default function RegionsSection({
   regions,
   locale,
+  title,
   home,
   ariaLabel,
   legendLabel,
@@ -23,6 +24,8 @@ export default function RegionsSection({
 }: {
   regions: RegionStatus[];
   locale: Locale;
+  /** Заголовок блока из CMS или словарный. */
+  title: string;
   home: Dictionary["home"];
   ariaLabel: string;
   legendLabel: string;
@@ -30,7 +33,7 @@ export default function RegionsSection({
 }) {
   return (
     <section aria-label={ariaLabel} className="mt-[52px]">
-      <SectionHeader as="h2" title={home.regionSection.title} />
+      <SectionHeader as="h2" title={title} />
       <div className="grid grid-cols-[minmax(0,1.7fr)_minmax(280px,1fr)] items-start gap-7 max-[920px]:grid-cols-1">
         <div className="blueprint p-3">
           {/* lazy: на главной карта ниже первого экрана — код d3-geo и

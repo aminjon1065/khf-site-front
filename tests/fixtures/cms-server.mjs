@@ -549,6 +549,121 @@ const cmsPages = {
   },
 };
 
+// Главная (`GET /home`). Материалов больше, чем секции умеют показать:
+// CMS отдаёт столько, сколько указано в поле «Количество» блока, а сайт не
+// показывает больше, чем вмещает вёрстка (HOME_BLOCK_MAX_ITEMS). Первая
+// новость — `newsItem` с обложкой: на неё опираются smoke- и image-тесты.
+// Все адреса материалов открываются (обработчики деталей ниже).
+const homeNews = [
+  ...allNewsItems,
+  ...[...linkedNewsSlugs].slice(0, 5).map((slug, index) => ({
+    ...newsItem,
+    slug,
+    title: `Новость для главной № ${index + 3}`,
+    image: null,
+    image_srcset: null,
+    image_data: null,
+  })),
+];
+const homeAlerts = [
+  alertItem,
+  ...[2, 3, 4, 5].map((n) => ({
+    ...alertItem,
+    slug: `test-alert-${n}`,
+    title: `Предупреждение для главной № ${n}`,
+  })),
+];
+const homeInstructions = [
+  ...instructions,
+  ...["navodnenie", "sel", "lavina", "pozhar"].map((slug, index) => ({
+    ...instructions[0],
+    slug,
+    title: `Инструкция для главной № ${index + 2}`,
+    priority: false,
+  })),
+];
+const homeDocuments = Array.from({ length: 7 }, (_, index) => ({
+  ...documents[0],
+  id: 100 + index,
+  title: `Документ для главной № ${index + 1}`,
+  href: `/documents?type=law&home=${index + 1}`,
+}));
+const homeAnnouncements = Array.from({ length: 7 }, (_, index) => ({
+  ...announcements[index % 2],
+  slug: `home-announcement-${index + 1}`,
+  title: `Объявление для главной № ${index + 1}`,
+}));
+const homeProjects = Array.from({ length: 4 }, (_, index) => ({
+  ...projects[0],
+  slug: `home-project-${index + 1}`,
+  title: `Проект для главной № ${index + 1}`,
+}));
+
+// Блоки — только включённые, в порядке редактора, заголовок — на языке
+// запроса ("" — не задан). home.spec.ts проверяет по ним порядок секций,
+// заголовки, переключатели и вместимость:
+//  - ru: всё включено в нестандартном порядке; «Официальная информация»
+//    встаёт на место `documents`; `emergency_contacts` сайт пропускает;
+//    у карты заголовка нет — берётся словарный;
+//  - tg: инструкции, документы, объявления и показатели выключены;
+//    у новостей заголовка нет;
+//  - en: порядок и заголовки как у HomeBlockSeeder CMS.
+const homeBlocks = {
+  ru: [
+    { type: "active_alerts", title: "Действующие предупреждения", config: { limit: 5 } },
+    { type: "documents", title: "Нормативные документы", config: { limit: 7 } },
+    { type: "latest_news", title: "Новости Комитета", config: { limit: 7 } },
+    { type: "emergency_contacts", title: "Экстренные контакты", config: {} },
+    { type: "instructions", title: "Памятки населению", config: { limit: 5 } },
+    { type: "regions_map", title: "", config: {} },
+    { type: "projects", title: "Международные проекты", config: { limit: 4 } },
+    { type: "announcements", title: "Вакансии и тендеры", config: { limit: 7 } },
+    { type: "indicators", title: "Показатели Комитета", config: {} },
+  ],
+  tg: [
+    { type: "regions_map", title: "Вазъияти минтақаҳо", config: {} },
+    { type: "latest_news", title: "", config: { limit: 5 } },
+    { type: "projects", title: "Лоиҳаҳои байналмилалӣ", config: { limit: 2 } },
+    { type: "active_alerts", title: "Огоҳиҳои амалкунанда", config: { limit: 3 } },
+  ],
+  en: [
+    { type: "active_alerts", title: "Active warnings", config: { limit: 3 } },
+    { type: "latest_news", title: "Latest news", config: { limit: 5 } },
+    { type: "instructions", title: "Public safety guides", config: { limit: 3 } },
+    { type: "documents", title: "Official documents", config: { limit: 3 } },
+    { type: "announcements", title: "Announcements", config: { limit: 3 } },
+    { type: "projects", title: "Projects", config: { limit: 2 } },
+    { type: "regions_map", title: "Regional situation", config: {} },
+  ],
+};
+
+function homeFor(locale) {
+  const blocks = homeBlocks[locale];
+  return {
+    blocks,
+    alerts: {
+      state: "warning",
+      count: homeAlerts.length,
+      regions: [region],
+      items: homeAlerts,
+    },
+    news: homeNews,
+    instructions: homeInstructions,
+    documents: homeDocuments,
+    announcements: homeAnnouncements,
+    projects: homeProjects,
+    // Показатели CMS считает из настроек блока `indicators` — только если он
+    // включён.
+    indicators: blocks.some((block) => block.type === "indicators")
+      ? [
+          { value: "247", label: "спасательных операций за год" },
+          { value: "68", label: "городских и районных подразделений" },
+        ]
+      : [],
+    emergency_contacts: {},
+  };
+}
+
 /** Локаль запроса, как её понимает CMS: всё, кроме tg/en, — русский. */
 function apiLocale(requestUrl) {
   const locale = requestUrl.searchParams.get("locale");
@@ -724,31 +839,7 @@ const server = createServer(async (request, response) => {
   }
 
   if (path === "/home") {
-    json(response, {
-      data: {
-        blocks: [
-          { type: "latest_news", title: "Новости", config: { limit: 5 } },
-          { type: "regions_map", title: "Обстановка", config: {} },
-          { type: "active_alerts", title: "Предупреждения", config: {} },
-        ],
-        alerts: {
-          state: "warning",
-          count: 1,
-          regions: [region],
-          items: [alertItem],
-        },
-        // Обе новости, а не одна: карусель на главной строится только из
-        // материалов CMS, и с единственным материалом её проверять нечем.
-        // Раньше при одной новости страница подставляла демонстрационные
-        // слайды из словаря — тест «следующий слайд» проходил по ним.
-        news: allNewsItems,
-        instructions: [],
-        documents: [],
-        announcements: [],
-        projects: [],
-        emergency_contacts: {},
-      },
-    });
+    json(response, { data: homeFor(apiLocale(requestUrl)) });
     return;
   }
 
@@ -817,8 +908,9 @@ const server = createServer(async (request, response) => {
     return;
   }
 
-  if (path === `/alerts/${alertItem.slug}`) {
-    json(response, { data: alertItem });
+  const mockAlert = homeAlerts.find((item) => path === `/alerts/${item.slug}`);
+  if (mockAlert) {
+    json(response, { data: mockAlert });
     return;
   }
 
@@ -856,7 +948,7 @@ const server = createServer(async (request, response) => {
   }
 
   const announcementSlug = path.match(/^\/announcements\/([^/]+)$/)?.[1];
-  const announcement = announcements.find(
+  const announcement = [...announcements, ...homeAnnouncements].find(
     (item) => item.slug === announcementSlug,
   );
   if (announcement) {
@@ -891,7 +983,7 @@ const server = createServer(async (request, response) => {
   }
 
   const instructionSlug = path.match(/^\/instructions\/([^/]+)$/)?.[1];
-  const instruction = instructions.find((i) => i.slug === instructionSlug);
+  const instruction = homeInstructions.find((i) => i.slug === instructionSlug);
   if (instructionSlug) {
     if (instruction) {
       json(response, { data: instruction });
@@ -910,7 +1002,9 @@ const server = createServer(async (request, response) => {
   }
 
   const projectSlug = path.match(/^\/projects\/([^/]+)$/)?.[1];
-  const project = projects.find((pr) => pr.slug === projectSlug);
+  const project = [...projects, ...homeProjects].find(
+    (pr) => pr.slug === projectSlug,
+  );
   if (projectSlug) {
     if (project) {
       json(response, { data: project });

@@ -2,6 +2,7 @@ import Link from "@/components/i18n/LocaleLink";
 import { SectionHeader, muted } from "@/components/public/ui";
 import { routes } from "@/lib/routes";
 import { levelDotColor } from "@/lib/levels";
+import { HOME_BLOCK_MAX_ITEMS } from "@/lib/home-blocks";
 import type { ApiAlert } from "@/lib/api";
 import type { AlertLevel } from "@/lib/types";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
@@ -14,13 +15,20 @@ const tagBackground: Record<AlertLevel, string> = {
   critical: "var(--hz-critical-bg)",
 };
 
-/** Действующие предупреждения — карточки с цветной кромкой уровня. */
+/**
+ * Действующие предупреждения — карточки с цветной кромкой уровня. Не больше
+ * одного ряда сетки (HOME_BLOCK_MAX_ITEMS.active_alerts): полный список — по
+ * ссылке «Все предупреждения», число — в «Оперативной сводке».
+ */
 export default function AlertsSection({
   items,
+  title,
   home,
   ariaLabel,
 }: {
   items: ApiAlert[];
+  /** Заголовок блока из CMS или словарный. */
+  title: string;
   home: Dictionary["home"];
   ariaLabel: string;
 }) {
@@ -28,11 +36,11 @@ export default function AlertsSection({
     <section aria-label={ariaLabel} className="mt-[52px]">
       <SectionHeader
         as="h2"
-        title={home.warnings.title}
+        title={title}
         link={{ label: home.warnings.allLink, href: routes.alert }}
       />
       <div className="grid grid-cols-3 gap-[14px] max-[920px]:grid-cols-1">
-        {items.map((a) => {
+        {items.slice(0, HOME_BLOCK_MAX_ITEMS.active_alerts).map((a) => {
           const color = levelDotColor[a.level as AlertLevel];
           return (
             <Link

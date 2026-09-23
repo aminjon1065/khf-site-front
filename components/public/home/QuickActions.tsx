@@ -2,6 +2,7 @@ import Link from "@/components/i18n/LocaleLink";
 import { SectionHeader, muted } from "@/components/public/ui";
 import { HazardIcon, QuickIcon } from "@/components/public/home/icons";
 import { routes } from "@/lib/routes";
+import { HOME_BLOCK_MAX_ITEMS } from "@/lib/home-blocks";
 import type { ApiInstruction } from "@/lib/api";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
 
@@ -12,26 +13,33 @@ import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
  * каждая плитка вела в 404. Три навигационные плитки ведут в разделы сайта,
  * а не к материалам, и остаются статичными.
  *
- * Первая инструкция — крупной плиткой, следующие две — малыми. Порядок
- * задаёт CMS (приоритетные идут первыми, см. Instruction::scopeOrdered).
+ * Первая инструкция — крупной плиткой, следующие две — малыми
+ * (HOME_BLOCK_MAX_ITEMS.instructions). Порядок задаёт CMS (приоритетные идут
+ * первыми, см. Instruction::scopeOrdered).
  */
 export default function QuickActions({
   instructions,
+  title,
   home,
   ariaLabel,
 }: {
   instructions: ApiInstruction[];
+  /** Заголовок блока из CMS или словарный; подпись крупной плитки — своя. */
+  title: string;
   home: Dictionary["home"];
   ariaLabel: string;
 }) {
   const [leadInstruction, ...restInstructions] = instructions;
-  const sideInstructions = restInstructions.slice(0, 2);
+  const sideInstructions = restInstructions.slice(
+    0,
+    HOME_BLOCK_MAX_ITEMS.instructions - 1,
+  );
 
   return (
     <section aria-label={ariaLabel} className="mt-[52px]">
       <SectionHeader
         as="h2"
-        title={home.quickActions.title}
+        title={title}
         link={{ label: home.quickActions.allLink, href: routes.guides }}
       />
       <div className="grid grid-cols-4 grid-rows-[auto_auto] gap-[14px] max-[920px]:grid-cols-2 max-[560px]:grid-cols-1">

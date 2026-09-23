@@ -85,6 +85,34 @@ test("operational summary does not report calm conditions during a CMS outage", 
   // И ни одной выдуманной цифры охвата.
   await expect(summary).not.toContainText("Регионов под наблюдением");
 });
+test("home keeps its fallback layout when /home is unreachable", async ({
+  page,
+}) => {
+  // Без ответа CMS нет и блоков главной, но резервная раскладка прежняя: под
+  // сводкой — только навигационные плитки «Что делать» (карта, телефоны,
+  // приёмная). Секций с данными CMS нет — и пустых landmark-обёрток тоже.
+  await page.goto("/ru");
+
+  const quick = page.getByRole("region", {
+    name: "Быстрые действия",
+    exact: true,
+  });
+  await expect(quick).toBeVisible();
+  await expect(quick.locator('a[href="/ru/map"]')).toBeVisible();
+  await expect(quick.locator('a[href="/ru/contacts"]')).toBeVisible();
+
+  for (const name of [
+    "Официальная информация",
+    "Новости",
+    "Последние предупреждения",
+    "Карта предупреждений",
+  ]) {
+    await expect(page.getByRole("region", { name, exact: true })).toHaveCount(
+      0,
+    );
+  }
+});
+
 test("home page invents neither news nor instruction links when the CMS is unreachable", async ({ page }) => {
   // Слайдер и плитки «Что делать в ЧС» брали контент из словаря, когда CMS
   // отдавала мало данных: три выдуманные новости и шесть адресов инструкций,
