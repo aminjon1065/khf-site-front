@@ -146,6 +146,7 @@ export async function generateMetadata({
       images: image ? [image] : undefined,
       type: "article",
       publishedTime: item.datetime,
+      modifiedTime: item.updated_at,
       siteName: common.siteShort,
       availableLocales,
     }),

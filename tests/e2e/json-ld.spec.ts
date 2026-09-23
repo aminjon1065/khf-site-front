@@ -78,6 +78,9 @@ test("a news article has NewsArticle and BreadcrumbList blocks alongside Governm
   expectFilledString(article, "headline");
   expectAbsoluteUrl(article, "mainEntityOfPage");
   expect(article.inLanguage).toBe("ru");
+  // Дата правки — только из CMS (A-2), не из времени публикации или рендера.
+  expect(article.datePublished).toBe("2026-07-27T12:00:00+05:00");
+  expect(article.dateModified).toBe("2026-07-28T09:30:00+05:00");
   // Google сообщает об отсутствующем author предупреждением rich results.
   // Автор и издатель у официального портала — сам Комитет: персональные
   // данные редактора публичный DTO не отдаёт принципиально.

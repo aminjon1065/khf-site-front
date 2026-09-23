@@ -16,6 +16,8 @@ const newsItem = {
   category: "Новости",
   date: "27.07.2026",
   datetime: "2026-07-27T12:00:00+05:00",
+  // Текст правили после публикации (A-2): dateModified в NewsArticle.
+  updated_at: "2026-07-28T09:30:00+05:00",
   image: null,
   image_srcset: null,
   image_data: {

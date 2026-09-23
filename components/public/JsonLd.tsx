@@ -119,9 +119,10 @@ export function OrganizationJsonLd({
  * Both are omitted when settings failed to load — same graceful degradation
  * as the sitewide block.
  *
- * `dateModified` is deliberately omitted: `ApiNewsItem` has no such field (the
- * CMS publishes only `datetime`, the publish time), and deriving it from the
- * publish time would state something untrue about the article's freshness.
+ * `dateModified` comes only from `updated_at`: the CMS sets it when the text of
+ * the published article really changed (A-2) and leaves it null otherwise.
+ * Deriving it from the publish time or the render time would state something
+ * untrue about the article's freshness, so without it the field is omitted.
  */
 export function NewsArticleJsonLd({
   item,
@@ -147,6 +148,7 @@ export function NewsArticleJsonLd({
         inLanguage: htmlLang(locale),
         ...(item.image ? { image: [item.image] } : {}),
         ...(item.datetime ? { datePublished: item.datetime } : {}),
+        ...(item.updated_at ? { dateModified: item.updated_at } : {}),
         ...(organization
           ? { author: organization, publisher: organization }
           : {}),
