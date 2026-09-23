@@ -18,6 +18,12 @@ async function expectMapToRender(page: Page) {
 
 test("home page risk map renders region paths", async ({ page }) => {
   await page.goto("/ru");
+  // На главной карта ленивая (подключается на подходе к экрану) и стоит там,
+  // куда её поставил редактор блоков CMS, — к ней, как и посетитель, нужно
+  // прокрутить.
+  await page
+    .getByRole("region", { name: "Карта предупреждений", exact: true })
+    .scrollIntoViewIfNeeded();
   await expectMapToRender(page);
 });
 
