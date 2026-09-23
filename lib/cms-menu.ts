@@ -11,13 +11,27 @@ export interface PublicNavItem {
   children: PublicNavChild[];
 }
 
+/**
+ * Подпись пункта меню. Главная — та, что редактор ввёл в CMS для языка
+ * запроса: раньше для встроенных разделов её молча подменял словарь, и
+ * переименование пункта в CMS на сайт не попадало. Словарь (`labelByUrl`) —
+ * только запасной вариант для встроенного адреса, когда подпись пуста: пункт
+ * не переведён на этот язык. Пустая подпись у кастомного адреса остаётся
+ * пустой — такой пункт вызывающая сторона отбрасывает.
+ */
 function resolveLabel(
   url: string,
-  rawLabel: string,
+  rawLabel: string | null | undefined,
   labelByUrl: Record<string, string>,
 ): string {
-  const fromDictionary = url ? labelByUrl[url] : undefined;
-  return (fromDictionary ?? rawLabel).trim();
+  const fromCms = typeof rawLabel === "string" ? rawLabel.trim() : "";
+  if (fromCms) {
+    return fromCms;
+  }
+
+  return url && Object.prototype.hasOwnProperty.call(labelByUrl, url)
+    ? labelByUrl[url].trim()
+    : "";
 }
 
 /**

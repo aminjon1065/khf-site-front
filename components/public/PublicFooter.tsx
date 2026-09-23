@@ -32,17 +32,16 @@ export default function PublicFooter({
   // оформление (без подчёркивания до hover, как у остальных ссылок подвала).
   const emailHref = email.includes("@") ? `mailto:${email}` : null;
 
-  // CMS-меню подвала задаёт состав/порядок пунктов, но его подписи не
-  // локализованы (на /tj приходит русский фолбэк, на /en — пусто). Поэтому для
-  // известных URL берём локализованную подпись из словаря (footer.sections) —
-  // как и в шапке; для кастомных URL — подпись CMS; пустые пункты отбрасываем.
+  // CMS-меню подвала задаёт состав, порядок и подписи пунктов. Подпись из
+  // словаря (footer.sections) — только запасная: для известного URL, когда
+  // подпись CMS на языке страницы пуста (пункт не переведён), — как и в шапке.
+  // Пункт без подписи и с неизвестным URL отбрасывается. Пустое меню —
+  // статичный список разделов.
   const footerLabelByUrl: Record<string, string> = Object.fromEntries(
     footer.sections.map((s) => [s.href, s.label]),
   );
-  const sections =
-    footerMenu && footerMenu.length > 0
-      ? flattenFooterMenu(footerMenu, footerLabelByUrl)
-      : footer.sections;
+  const cmsSections = flattenFooterMenu(footerMenu, footerLabelByUrl);
+  const sections = cmsSections.length > 0 ? cmsSections : footer.sections;
 
   const emergency =
     settings?.emergency_services && settings.emergency_services.length > 0
@@ -112,8 +111,9 @@ export default function PublicFooter({
             {footer.sectionsTitle}
           </h2>
           <div className="flex flex-col gap-2">
-            {sections.map((s) => (
-              <Link key={s.href} href={s.href}>
+            {sections.map((s, index) => (
+              // Индекс в ключе: в меню CMS один адрес может стоять дважды.
+              <Link key={`${s.href}-${index}`} href={s.href}>
                 {s.label}
               </Link>
             ))}

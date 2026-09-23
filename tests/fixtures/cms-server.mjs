@@ -258,6 +258,49 @@ const settings = {
     meta_description: "Официальный сайт.",
   },
 };
+// Меню CMS по локалям API. На ru подписи редактора местами отличаются от
+// словарных — так видно, что сайт показывает их, а не словарь; пустая подпись
+// изображает непереведённый пункт (CMS отдаёт "" без фолбэка): для встроенного
+// адреса сайт берёт подпись из словаря, на tg так устроено всё меню. На en
+// меню пусто — сайт показывает статичную навигацию. header-menu.spec.ts.
+const menuItem = (label, url) => ({ label, url, children: [] });
+const MAIN_MENU_URLS = [
+  "/news",
+  "/guides",
+  "/map",
+  "/documents",
+  "/projects",
+  "/announcements",
+  "/contacts",
+];
+const menus = {
+  ru: {
+    main: [
+      menuItem("Новости и заявления", "/news"),
+      menuItem("", "/guides"),
+      menuItem("Карта рисков", "/map"),
+      menuItem("Документы", "/documents"),
+      menuItem("Проекты", "/projects"),
+      menuItem("Объявления", "/announcements"),
+      menuItem("Контакты", "/contacts"),
+    ],
+    footer: [
+      menuItem("Руководство", "/leadership"),
+      menuItem("Структура", "/structure"),
+      menuItem("Новости КЧС", "/news"),
+      menuItem("  ", "/guides"),
+      menuItem("Карта рисков", "/map"),
+      menuItem("Документы", "/documents"),
+      menuItem("Контакты и приёмная", "/contacts"),
+    ],
+  },
+  tg: {
+    main: MAIN_MENU_URLS.map((url) => menuItem("", url)),
+    footer: MAIN_MENU_URLS.map((url) => menuItem("", url)),
+  },
+  en: { main: [], footer: [] },
+};
+
 // Ростер повторяет LeaderSeeder (один председатель + три заместителя):
 // leadership.spec.ts проверяет разметку «герой + сетка», а она различается
 // только при наличии обеих групп. Фотографий нет намеренно — так же, как в
@@ -690,7 +733,7 @@ const server = createServer(async (request, response) => {
   }
 
   if (path === "/menu") {
-    json(response, { data: { main: [], footer: [] } });
+    json(response, { data: menus[apiLocale(requestUrl)] });
     return;
   }
 

@@ -38,6 +38,9 @@ export default function PublicHeader({
   mainMenu?: ApiMenuItem[];
 }) {
   const { header, nav: navCopy } = copy;
+  // Подписи встроенных разделов — запасные: пункт меню CMS показывается под
+  // тем именем, что ввёл редактор, а словарь подставляется, только если
+  // подпись на языке страницы пуста (см. cmsMenuToNavItems).
   const navLabelByUrl: Record<string, string> = {
     [routes.news]: navCopy.news,
     [routes.guides]: navCopy.guides,

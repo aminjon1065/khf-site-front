@@ -24,7 +24,7 @@ describe("cmsMenuToNavItems", () => {
       {
         label: "О комитете",
         href: "",
-        children: [{ label: "Руководство", href: "/leadership" }],
+        children: [{ label: "Председатель", href: "/leadership" }],
       },
     ]);
   });
@@ -35,13 +35,48 @@ describe("cmsMenuToNavItems", () => {
     ).toEqual([]);
   });
 
-  it("prefers the dictionary label for known public routes", () => {
+  it("shows the label the editor typed, even for a built-in route", () => {
+    // Раньше словарь молча подменял подпись встроенных разделов, и
+    // переименование пункта в CMS на сайт не попадало.
     const items = cmsMenuToNavItems(
-      [{ label: "News from CMS", url: "/news", children: [] }],
+      [{ label: "  Новости и заявления ", url: "/news", children: [] }],
       labels,
     );
 
-    expect(items[0]?.label).toBe("Новости");
+    expect(items[0]?.label).toBe("Новости и заявления");
+  });
+
+  it("falls back to the dictionary only when the CMS label is empty", () => {
+    const items = cmsMenuToNavItems(
+      [
+        { label: "", url: "/news", children: [] },
+        {
+          label: "   ",
+          url: null,
+          children: [{ label: "", url: "/leadership" }],
+        },
+      ],
+      labels,
+    );
+
+    // Непереведённый встроенный раздел получает подпись словаря; группа без
+    // подписи и без адреса подписи взять неоткуда, и она отбрасывается.
+    expect(items).toEqual([{ label: "Новости", href: "/news", children: [] }]);
+  });
+
+  it("drops an untranslated item with a custom URL — there is nothing to show", () => {
+    expect(
+      cmsMenuToNavItems(
+        [{ label: "", url: "/pages/privacy", children: [] }],
+        labels,
+      ),
+    ).toEqual([]);
+  });
+
+  it("does not read dictionary labels from the object prototype", () => {
+    expect(
+      cmsMenuToNavItems([{ label: "", url: "toString", children: [] }], labels),
+    ).toEqual([]);
   });
 });
 
@@ -66,6 +101,22 @@ describe("flattenFooterMenu", () => {
 
   it("skips a parent without a URL and still keeps its children", () => {
     expect(flattenFooterMenu([group], labels)).toEqual([
+      { label: "Председатель", href: "/leadership" },
+    ]);
+  });
+
+  it("uses the CMS label first and the dictionary only for an empty one", () => {
+    expect(
+      flattenFooterMenu(
+        [
+          { label: "Новости КЧС", url: "/news", children: [] },
+          { label: "", url: "/leadership", children: [] },
+          { label: "", url: "/pages/privacy", children: [] },
+        ],
+        labels,
+      ),
+    ).toEqual([
+      { label: "Новости КЧС", href: "/news" },
       { label: "Руководство", href: "/leadership" },
     ]);
   });
