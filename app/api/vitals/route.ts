@@ -1,7 +1,21 @@
 import { reportCmsFailure } from "@/lib/cms-error-reporting.mjs";
+import { clientKey, createRateLimiter } from "@/lib/rate-limit";
 import type { WebVitalPayload } from "@/lib/web-vitals";
 
 const MAX_PAYLOAD_BYTES = 2048;
+
+/**
+ * Аудит J-6: каждый принятый замер уходит в CMS, и без лимита публичный POST
+ * превращал сайт в усилитель нагрузки на неё. 60 запросов в минуту с адреса —
+ * с запасом больше, чем шлёт посетитель (до трёх метрик на просмотр), и
+ * слишком мало, чтобы через фронт завалить CMS. Проверка — до чтения тела:
+ * отказ не должен стоить ни разбора JSON, ни похода в CMS.
+ */
+const vitalsRateLimit = createRateLimiter({
+  limit: 60,
+  windowMs: 60_000,
+  maxKeys: 10_000,
+});
 const VALID_METRICS = new Set(["LCP", "INP", "CLS"]);
 const VALID_LOCALES = new Set(["ru", "tj", "en"]);
 const VALID_DEVICES = new Set(["mobile", "tablet", "desktop"]);
@@ -43,6 +57,17 @@ function cmsVitalsEndpoint(): string {
 }
 
 export async function POST(request: Request): Promise<Response> {
+  const decision = vitalsRateLimit.consume(clientKey(request.headers));
+  if (!decision.allowed) {
+    return Response.json(
+      { error: "Too many requests." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(decision.retryAfterSeconds) },
+      },
+    );
+  }
+
   const body = await request.text();
   if (new TextEncoder().encode(body).byteLength > MAX_PAYLOAD_BYTES) {
     return Response.json({ error: "Payload is too large." }, { status: 413 });
