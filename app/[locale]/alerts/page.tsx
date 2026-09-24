@@ -1,15 +1,20 @@
 import Link from "@/components/i18n/LocaleLink";
 import PageShell from "@/components/public/PageShell";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
+import SituationAsOf from "@/components/public/SituationAsOf";
 import { Breadcrumbs, muted } from "@/components/public/ui";
 import TjRiskMap from "@/components/public/TjRiskMap";
-import { fetchAlerts, fetchAlertsActive } from "@/lib/api";
+import { fetchAlerts, fetchAlertsActive, fetchSettings } from "@/lib/api";
 import { toLocale } from "@/lib/i18n/config";
 import type { Metadata } from "next";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { levelDotColor } from "@/lib/levels";
 import { buildMetadata } from "@/lib/seo";
 import { routes } from "@/lib/routes";
+import {
+  DEFAULT_STALE_AFTER_MINUTES,
+  situationTime,
+} from "@/lib/situation-time";
 import type { AlertLevel, RegionStatus } from "@/lib/types";
 
 export async function generateMetadata({
@@ -30,21 +35,24 @@ export default async function AlertsPage({
   params: Promise<{ locale: string }>;
 }) {
   const locale = toLocale((await params).locale);
-  const { pages } = getDictionary(locale);
+  const { common, pages } = getDictionary(locale);
   const stateChrome = {
     calm: { border: "var(--hz-success)", ...pages.alertsList.state.calm },
     warning: { border: "var(--hz-warning)", ...pages.alertsList.state.warning },
     critical: { border: "var(--hz-critical)", ...pages.alertsList.state.critical },
   };
-  const [alerts, active] = await Promise.all([
+  const [alerts, active, settings] = await Promise.all([
     fetchAlerts(locale),
     fetchAlertsActive(locale),
+    fetchSettings(locale),
   ]);
 
   // null = CMS не ответила. Молчание бэкенда — не подтверждённое спокойствие:
   // сводка и карта обязаны показать недоступность данных, а не «обстановку
   // штатная» с пустой картой регионов.
   const unavailable = active === null;
+  // На какой момент CMS сверила обстановку (A-2); без ответа CMS — не выводим.
+  const asOf = unavailable ? null : situationTime(active.updated_at, locale);
 
   const regions: RegionStatus[] = (active?.regions ?? []).map((r) => ({
     key: r.key as RegionStatus["key"],
@@ -103,6 +111,20 @@ export default async function AlertsPage({
           <strong style={{ color: "var(--color-text)" }}>{chrome.label}.</strong>{" "}
           {chrome.text}
         </p>
+        {asOf && (
+          <SituationAsOf
+            label={common.situation.asOf}
+            dateTime={asOf.dateTime}
+            text={asOf.text}
+            staleAfterMinutes={
+              settings?.situation?.stale_after_minutes ??
+              DEFAULT_STALE_AFTER_MINUTES
+            }
+            outdatedText={common.situation.outdated}
+            className="text-xs [font-variant-numeric:tabular-nums]"
+            style={{ color: muted(70) }}
+          />
+        )}
       </section>
 
       <div className="mt-7 grid grid-cols-[minmax(0,1.7fr)_minmax(280px,1fr)] items-start gap-7 max-[920px]:grid-cols-1">

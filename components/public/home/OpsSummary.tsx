@@ -1,6 +1,7 @@
 import { TriangleAlert } from "lucide-react";
 import Link from "@/components/i18n/LocaleLink";
 import RefreshOnVisible from "@/components/public/RefreshOnVisible";
+import SituationAsOf from "@/components/public/SituationAsOf";
 import { muted } from "@/components/public/ui";
 import type { Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries/ru";
@@ -21,8 +22,10 @@ export default function OpsSummary({
   affectedRegions,
   watchedRegions,
   asOf,
+  staleAfterMinutes,
   locale,
   home,
+  situation,
 }: {
   unavailable: boolean;
   alertsCount: number;
@@ -30,8 +33,11 @@ export default function OpsSummary({
   watchedRegions: number;
   /** Когда CMS сверила состояние предупреждений (alerts.updated_at). */
   asOf: string | null;
+  /** Старше скольких минут сведения помечаются устаревшими (settings.situation). */
+  staleAfterMinutes: number;
   locale: Locale;
   home: Dictionary["home"];
+  situation: Dictionary["common"]["situation"];
 }) {
   // «Предупреждений нет» и «предупреждений нет по состоянию на 09:42» —
   // разные утверждения; без времени от CMS подпись просто не выводится.
@@ -112,13 +118,15 @@ export default function OpsSummary({
         </span>
       )}
       {stateTime && (
-        <span
+        <SituationAsOf
+          label={situation.asOf}
+          dateTime={stateTime.dateTime}
+          text={stateTime.text}
+          staleAfterMinutes={staleAfterMinutes}
+          outdatedText={situation.outdated}
           className="text-xs [font-variant-numeric:tabular-nums]"
           style={{ color: muted(70) }}
-        >
-          {home.ops.asOf}{" "}
-          <time dateTime={stateTime.dateTime}>{stateTime.text}</time>
-        </span>
+        />
       )}
       <span className="flex-1" />
       {/* Открытая вкладка не получает ISR-обновления сама. При возвращении

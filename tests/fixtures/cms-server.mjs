@@ -255,6 +255,9 @@ const settings = {
   // Значения плашек на /structure берутся из настроек — совпадают с SettingSeeder.
   structure: { founded_year: "1994", units_count: "68" },
   copyright: "КЧС",
+  // Срок свежести обстановки (A-2): по умолчанию CMS — сутки. Сводки этого
+  // мока датированы 27 июля, поэтому сайт помечает их устаревшими.
+  situation: { stale_after_minutes: 1440 },
   seo: {
     meta_title: "КЧС Таджикистана",
     meta_description:

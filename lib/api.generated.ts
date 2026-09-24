@@ -1,6 +1,6 @@
 /**
  * Generated from khf-site-cms/openapi/openapi.json.
- * Schema SHA-256: d43913fa20346e76
+ * Schema SHA-256: 0e1f03164ec1595a
  * Do not edit by hand; run `npm run api:types`.
  */
 
@@ -303,6 +303,9 @@ export interface ApiSettings {
     units_count: string;
   };
   copyright: string;
+  situation: {
+    stale_after_minutes: 30 | 60 | 180 | 360 | 720 | 1440;
+  };
   seo: {
     meta_title: string;
     meta_description: string;

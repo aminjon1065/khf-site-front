@@ -8,7 +8,7 @@ import AlertsSection from "@/components/public/home/AlertsSection";
 import NewsSection from "@/components/public/home/NewsSection";
 import IndicatorsSection from "@/components/public/home/IndicatorsSection";
 import OfficialInfoSection from "@/components/public/home/OfficialInfoSection";
-import { EMPTY_HOME, fetchHome } from "@/lib/api";
+import { EMPTY_HOME, fetchHome, fetchSettings } from "@/lib/api";
 import {
   hasHomeBlock,
   homeBlockTitle,
@@ -19,6 +19,7 @@ import {
 } from "@/lib/home-blocks";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { DEFAULT_STALE_AFTER_MINUTES } from "@/lib/situation-time";
 import type { RegionStatus } from "@/lib/types";
 
 export const revalidate = 60;
@@ -32,7 +33,10 @@ export default async function HomePage({
   const { common, home, pages } = getDictionary(locale);
   // `null` — CMS не ответила. Пустую главную подставляем сами, но помним об
   // этом: ни один блок не вправе выдать отсутствие данных за факт.
-  const payload = await fetchHome(locale);
+  const [payload, settings] = await Promise.all([
+    fetchHome(locale),
+    fetchSettings(locale),
+  ]);
   const unavailable = payload === null;
   const data = payload ?? EMPTY_HOME;
   const top = data.alerts.items[0];
@@ -174,8 +178,12 @@ export default async function HomePage({
         affectedRegions={affectedRegions}
         watchedRegions={regions.length}
         asOf={data.alerts.updated_at ?? null}
+        staleAfterMinutes={
+          settings?.situation?.stale_after_minutes ?? DEFAULT_STALE_AFTER_MINUTES
+        }
         locale={locale}
         home={home}
+        situation={common.situation}
       />
 
       {sections.map(renderSection)}

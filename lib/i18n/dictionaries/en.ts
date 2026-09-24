@@ -121,6 +121,12 @@ export const en: Dictionary = {
 
     breadcrumbHome: "Home",
 
+    situation: {
+      asOf: "Situation as of",
+      outdated:
+        "This information has not been updated for a long time and may be out of date. In a life-threatening emergency call 112.",
+    },
+
     pagination: {
       aria: "Pagination",
       prev: "Previous",
@@ -184,7 +190,6 @@ export const en: Dictionary = {
         "Situation data is temporarily unavailable. Please refresh the page later.",
       watchedRegions: "Regions monitored",
       affectedRegions: "Regions affected",
-      asOf: "Situation as of",
       staleText: "Data may be out of date — refreshing…",
       mapLink: "Risk map →",
     },

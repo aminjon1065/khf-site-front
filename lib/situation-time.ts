@@ -8,6 +8,12 @@ import { htmlLang, type Locale } from "@/lib/i18n/config";
 
 const TIME_ZONE = "Asia/Dushanbe";
 
+/**
+ * Срок, после которого сведения считаются устаревшими, если настройки CMS
+ * не пришли: тот же, что по умолчанию в CMS (App\\Support\\SituationFreshness).
+ */
+export const DEFAULT_STALE_AFTER_MINUTES = 1440;
+
 export interface SituationTime {
   /** Значение для атрибута `datetime` элемента `<time>`. */
   dateTime: string;
@@ -66,4 +72,29 @@ export function situationTime(
     dateTime: iso,
     text: `${date ? `${date}, ` : ""}${time} (UTC+5)`,
   };
+}
+
+/**
+ * Старше ли сведения допустимого срока — на момент, когда страницу читают,
+ * а не когда её собрали: страница отдаётся из ISR-кэша, и «сейчас» знает
+ * только браузер. Срок задаёт администратор CMS (settings.situation,
+ * по умолчанию сутки). Нечитаемое время устаревшим не объявляем — подпись
+ * о нём и так не выводится (situationTime).
+ */
+export function isOutdated(
+  iso: string | null | undefined,
+  staleAfterMinutes: number,
+  nowMs: number,
+): boolean {
+  if (!iso) {
+    return false;
+  }
+
+  const at = new Date(iso).getTime();
+
+  if (Number.isNaN(at)) {
+    return false;
+  }
+
+  return nowMs - at > staleAfterMinutes * 60_000;
 }
