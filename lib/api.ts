@@ -18,6 +18,8 @@ import type {
   ApiRegionStatus,
   ApiSearchResult,
   ApiSettings,
+  SitemapEntry,
+  SitemapResponse,
   SlugListResponse,
 } from "@/lib/api.generated";
 import {
@@ -57,6 +59,7 @@ export type {
   ApiRegionStatus,
   ApiSearchResult,
   ApiSettings,
+  SitemapEntry,
 } from "@/lib/api.generated";
 
 /** База API: на сервере — API_URL, на клиенте — NEXT_PUBLIC_API_URL. */
@@ -910,6 +913,39 @@ export async function fetchTranslatedPage(
     }
     return (await translationAvailable("page", slug, locale)) ? page : null;
   } catch {
+    return null;
+  }
+}
+
+// ------------------------------------------------- карта сайта
+
+/**
+ * Все материалы sitemap.xml одним ответом CMS (`/sitemap`): тип, slug,
+ * языки, в которых материал опубликован, и дата последнего изменения —
+ * последней правки текста, а без правок — публикации (та же, что заявляет
+ * сама страница).
+ *
+ * `null` — CMS не ответила. Это не «материалов нет»: карта сайта при сбое
+ * держится за последний удачный вариант (см. app/sitemap.ts).
+ */
+export async function fetchSitemapEntries(): Promise<SitemapEntry[] | null> {
+  const url = buildUrl("/sitemap", {});
+
+  try {
+    const res = await fetch(url, {
+      next: {
+        revalidate: REVALIDATE,
+        tags: [cmsCacheTags.sitemap],
+      },
+      signal: timeoutSignal(),
+    });
+    if (!res.ok) {
+      throw cmsResponseError(res);
+    }
+    const body = (await res.json()) as SitemapResponse;
+    return body.data;
+  } catch (error) {
+    reportCmsFailure("fetchSitemapEntries", error);
     return null;
   }
 }

@@ -1,34 +1,45 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Locale } from "@/lib/i18n/config";
+import type { SitemapEntry } from "@/lib/api";
 
-// sitemap.xml и CMS-страницы с собственными разделами. /pages/{about|…} —
-// 308-редирект, ему не место в карте сайта; /about — CMS-раздел без
-// встроенного текста, поэтому объявляется только в опубликованных локалях;
-// /leadership, /structure, /symbols и так есть среди статических разделов.
+// sitemap.xml. Материалы приходят из CMS одним списком (`/sitemap`): языки,
+// где материал опубликован, и дата последнего изменения — её страница
+// заявляет сама. /pages/{about|…} — 308-редирект, ему не место в карте;
+// /about — CMS-раздел без встроенного текста, поэтому объявляется только в
+// опубликованных локалях; /leadership, /structure, /symbols и так есть среди
+// статических разделов.
 
-const slugs = vi.hoisted(() => ({
-  page: {} as Record<string, string[]>,
-}));
-
-vi.mock("next/cache", () => ({
-  // Вне рантайма Next кэша нет — функция просто вызывается.
-  unstable_cache: <T extends (...args: never[]) => unknown>(fn: T) => fn,
+const cms = vi.hoisted(() => ({
+  entries: [] as SitemapEntry[] | null,
 }));
 
 vi.mock("@/lib/api", () => ({
-  fetchSlugs: vi.fn(async (type: string, locale: Locale) =>
-    type === "page" ? (slugs.page[locale] ?? []) : [],
-  ),
+  fetchSitemapEntries: vi.fn(async () => cms.entries),
 }));
 
-describe("sitemap.xml and CMS pages", () => {
+const PAGE_DATE = "2026-09-20T10:00:00+05:00";
+const NEWS_DATE = "2026-09-24T09:30:00+05:00";
+
+function page(slug: string, locales: SitemapEntry["locales"]): SitemapEntry {
+  return { type: "pages", slug, locales, modified_at: PAGE_DATE };
+}
+
+describe("sitemap.xml", () => {
   beforeEach(() => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://khf.test");
-    slugs.page = {
-      ru: ["about", "leadership", "structure", "symbols", "privacy"],
-      tj: ["about", "leadership"],
-      en: ["leadership"],
-    };
+    cms.entries = [
+      page("about", ["tg", "ru"]),
+      page("leadership", ["tg", "ru", "en"]),
+      page("structure", ["ru"]),
+      page("symbols", ["ru"]),
+      page("privacy", ["ru"]),
+      {
+        type: "news",
+        slug: "ucheniya",
+        locales: ["tg", "ru"],
+        modified_at: NEWS_DATE,
+      },
+      { type: "instructions", slug: "sel", locales: ["ru"], modified_at: null },
+    ];
   });
 
   afterEach(() => {
@@ -75,5 +86,45 @@ describe("sitemap.xml and CMS pages", () => {
         ).toHaveLength(1);
       }
     }
+  });
+
+  it("dates each material with the moment it last changed, in every language it has", async () => {
+    const news = (await urls()).filter((entry) =>
+      entry.url.endsWith("/news/ucheniya"),
+    );
+
+    expect(news.map((entry) => [entry.url, entry.lastModified])).toEqual([
+      ["https://khf.test/ru/news/ucheniya", NEWS_DATE],
+      ["https://khf.test/tj/news/ucheniya", NEWS_DATE],
+    ]);
+    expect(news[0].alternates?.languages).toEqual({
+      ru: "https://khf.test/ru/news/ucheniya",
+      tg: "https://khf.test/tj/news/ucheniya",
+    });
+  });
+
+  it("leaves the date out where nobody knows it", async () => {
+    const entries = await urls();
+    const guide = entries.find((entry) =>
+      entry.url.endsWith("/ru/guides/sel"),
+    );
+    const newsSection = entries.find(
+      (entry) => entry.url === "https://khf.test/ru/news",
+    );
+
+    expect(guide).toBeDefined();
+    expect(guide).not.toHaveProperty("lastModified");
+    // A section page has no date of its own to state.
+    expect(newsSection).not.toHaveProperty("lastModified");
+  });
+
+  it("keeps the last good list while the CMS does not answer", async () => {
+    await urls();
+    cms.entries = null;
+
+    const all = (await urls()).map((entry) => entry.url);
+
+    expect(all).toContain("https://khf.test/ru/news/ucheniya");
+    expect(all).toContain("https://khf.test/ru/news");
   });
 });

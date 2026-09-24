@@ -1,6 +1,6 @@
 /**
  * Generated from khf-site-cms/openapi/openapi.json.
- * Schema SHA-256: 276582b2590d85e3
+ * Schema SHA-256: d43913fa20346e76
  * Do not edit by hand; run `npm run api:types`.
  */
 
@@ -553,4 +553,18 @@ export interface SlugListResponse {
   meta: {
     total: number;
   };
+}
+
+export interface SitemapResponse {
+  data: Array<SitemapEntry>;
+  meta: {
+    total: number;
+  };
+}
+
+export interface SitemapEntry {
+  type: "news" | "projects" | "announcements" | "instructions" | "pages" | "alerts";
+  slug: string;
+  locales: Array<"tg" | "ru" | "en">;
+  modified_at: string | null;
 }
