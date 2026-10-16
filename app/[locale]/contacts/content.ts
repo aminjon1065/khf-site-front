@@ -36,7 +36,11 @@ export interface ReceptionContent {
   urgentNote: string;
   form: {
     name: { label: string };
-    email: { label: string; hint: string };
+    /** Телефон или почта — хотя бы одно: в регионах чаще отвечают на звонок. */
+    contact: { legend: string; hint: string; error: string };
+    phone: { label: string };
+    email: { label: string };
+    region: { label: string; empty: string };
     topic: { label: string; options: string[] };
     text: { label: string };
     consent: string;
@@ -47,7 +51,6 @@ export interface ReceptionContent {
   };
   success: {
     strong: string;
-    text: string;
     trackingLabel: string;
     note: string;
   };
@@ -149,10 +152,14 @@ const ru: ContactsContent = {
       "Приёмная — для несрочных обращений. При угрозе жизни и здоровья звоните 112.",
     form: {
       name: { label: "ФИО" },
-      email: {
-        label: "Электронная почта",
-        hint: "На неё придёт номер обращения и ответ",
+      contact: {
+        legend: "Как с вами связаться",
+        hint: "Укажите телефон или электронную почту — хотя бы одно. По ним с вами свяжутся для ответа.",
+        error: "Укажите телефон или электронную почту.",
       },
+      phone: { label: "Телефон" },
+      email: { label: "Электронная почта" },
+      region: { label: "Регион", empty: "Не выбран" },
       topic: {
         label: "Тема",
         options: [
@@ -173,7 +180,6 @@ const ru: ContactsContent = {
     },
     success: {
       strong: "Обращение отправлено.",
-      text: " Номер для отслеживания: КЧС-2026-08412. Копия направлена на указанную почту.",
       trackingLabel: "Номер для отслеживания:",
       note: "Сохраните номер: по нему можно уточнить статус обращения.",
     },
@@ -259,10 +265,14 @@ const tj: ContactsContent = {
       "Қабулгоҳ барои муроҷиатҳои ғайрифаврӣ аст. Ҳангоми хатари ҷон ба 112 занг занед.",
     form: {
       name: { label: "Ному насаб" },
-      email: {
-        label: "Почтаи электронӣ",
-        hint: "Ба он рақами муроҷиат ва ҷавоб меояд",
+      contact: {
+        legend: "Чӣ тавр бо шумо тамос гирем",
+        hint: "Телефон ё почтаи электрониро нишон диҳед — ҳадди ақал якеро. Барои ҷавоб бо шумо тамос мегиранд.",
+        error: "Телефон ё почтаи электрониро нишон диҳед.",
       },
+      phone: { label: "Телефон" },
+      email: { label: "Почтаи электронӣ" },
+      region: { label: "Минтақа", empty: "Интихоб нашудааст" },
       topic: {
         label: "Мавзӯъ",
         options: [
@@ -283,7 +293,6 @@ const tj: ContactsContent = {
     },
     success: {
       strong: "Муроҷиат фиристода шуд.",
-      text: " Рақами пайгирӣ: КҲФ-2026-08412. Нусха ба почтаи зикршуда фиристода шуд.",
       trackingLabel: "Рақами пайгирӣ:",
       note: "Рақамро нигоҳ доред: бо он метавонед вазъияти муроҷиатро равшан кунед.",
     },
@@ -369,10 +378,14 @@ const en: ContactsContent = {
       "The reception is for non-urgent appeals. If life or health is at risk, call 112.",
     form: {
       name: { label: "Full name" },
-      email: {
-        label: "Email",
-        hint: "The appeal number and reply will be sent to it",
+      contact: {
+        legend: "How to reach you",
+        hint: "Give a phone number or an email address — at least one. We will use it to reply.",
+        error: "Enter a phone number or an email address.",
       },
+      phone: { label: "Phone" },
+      email: { label: "Email" },
+      region: { label: "Region", empty: "Not selected" },
       topic: {
         label: "Subject",
         options: [
@@ -393,7 +406,6 @@ const en: ContactsContent = {
     },
     success: {
       strong: "Appeal submitted.",
-      text: " Tracking number: CoES-2026-08412. A copy has been sent to the specified email.",
       trackingLabel: "Tracking number:",
       note: "Keep this number: it can be used to check the status of your appeal.",
     },

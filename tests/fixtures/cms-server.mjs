@@ -774,9 +774,10 @@ const server = createServer(async (request, response) => {
   }
 
   if (request.method === "POST" && path === "/submissions") {
-    // Минимальная имитация валидации SubmissionController: пустые name/email
-    // и короткое сообщение дают 422 с сообщениями на языке Accept-Language
-    // (tj → tg), валидное обращение — tracking number.
+    // Минимальная имитация валидации SubmissionController: пустое имя, ни
+    // телефона, ни почты, неверная почта или короткое сообщение дают 422 с
+    // сообщениями на языке Accept-Language (tj → tg), валидное обращение —
+    // tracking number.
     let body;
     try {
       body = JSON.parse(rawBody);
@@ -790,7 +791,10 @@ const server = createServer(async (request, response) => {
     }
     const errors = {};
     if (!body.name) errors.name = ["name required"];
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(body.email ?? ""))) {
+    const phone = String(body.phone ?? "").trim();
+    const email = String(body.email ?? "").trim();
+    if (phone === "" && email === "") errors.phone = ["contact required"];
+    if (email !== "" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
       errors.email = ["email invalid"];
     }
     if (String(body.message ?? "").length < 20) errors.message = ["message too short"];
@@ -799,16 +803,19 @@ const server = createServer(async (request, response) => {
       const messages = {
         tg: {
           "name required": "Ному насабро ворид кунед.",
+          "contact required": "Телефон ё почтаи электрониро нишон диҳед.",
           "email invalid": "Суроғаи почтаи электронӣ нодуруст аст.",
           "message too short": "Матни муроҷиат хеле кӯтоҳ аст.",
         },
         en: {
           "name required": "Enter your name.",
+          "contact required": "Enter a phone number or an email address.",
           "email invalid": "Enter a valid email address.",
           "message too short": "The message is too short.",
         },
         ru: {
           "name required": "Укажите ваше имя.",
+          "contact required": "Укажите телефон или электронную почту.",
           "email invalid": "Укажите корректную электронную почту.",
           "message too short": "Слишком короткий текст обращения.",
         },

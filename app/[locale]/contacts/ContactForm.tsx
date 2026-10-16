@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { muted } from "@/components/public/ui";
 import { toApiLocale, type Locale } from "@/lib/i18n/config";
+import { regionNames, regionOrder } from "@/lib/levels";
 import type { ReceptionContent } from "./content";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8848/api/v1";
@@ -11,6 +12,10 @@ const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8848/api/v1";
  * Форма электронной приёмной: отправляет обращение в CMS (POST /submissions),
  * показывает реальный номер для отслеживания. Скрытое поле-ловушка (honeypot)
  * отсекает ботов; обязательное согласие на обработку ПД.
+ *
+ * Для ответа нужен телефон или почта — хотя бы одно (решение владельца,
+ * 2026-10-16): в регионах чаще отвечают на звонок, чем на письмо. Регион —
+ * код из пяти постоянных; по нему обращение находит региональное управление.
  */
 export default function ContactForm({
   reception,
@@ -32,10 +37,19 @@ export default function ContactForm({
 
   // Порядок полей формы: по нему ищется ПЕРВАЯ ошибочная — курсор должен
   // уходить к верхней проблеме, а не к той, что пришла первой в JSON CMS.
-  const FIELD_ORDER = ["name", "email", "topic", "message"] as const;
+  const FIELD_ORDER = [
+    "name",
+    "phone",
+    "email",
+    "region",
+    "topic",
+    "message",
+  ] as const;
   const INPUT_ID: Record<string, string> = {
     name: "f-name",
+    phone: "f-phone",
     email: "f-email",
+    region: "f-region",
     topic: "f-topic",
     message: "f-text",
   };
@@ -104,9 +118,20 @@ export default function ContactForm({
     }
 
     const fd = new FormData(e.currentTarget);
+    const phone = String(fd.get("phone") ?? "").trim();
+    const email = String(fd.get("email") ?? "").trim();
+
+    // То же правило, что у CMS, — без лишнего запроса.
+    if (phone === "" && email === "") {
+      setFieldErrors({ phone: form.contact.error });
+      return;
+    }
+
     const payload = {
       name: String(fd.get("name") ?? ""),
-      email: String(fd.get("email") ?? ""),
+      phone,
+      email,
+      region: String(fd.get("region") ?? ""),
       topic: String(fd.get("topic") ?? ""),
       message: String(fd.get("text") ?? ""),
       consent: true,
@@ -166,6 +191,8 @@ export default function ContactForm({
     }
   }
 
+  const regions = regionNames(locale);
+
   const required = (
     <span aria-hidden="true" style={{ color: "var(--hz-critical)" }}>
       *
@@ -210,29 +237,74 @@ export default function ContactForm({
         {fieldError("name")}
       </div>
 
-      <div className="field">
-        <label htmlFor="f-email">
-          {form.email.label} {required}
-        </label>
-        <input
-          id="f-email"
-          name="email"
-          className="input"
-          type="email"
-          autoComplete="email"
-          required
-          maxLength={255}
-          aria-invalid={fieldErrors.email ? true : undefined}
-          aria-describedby={fieldErrors.email ? "err-email" : "hint-email"}
-        />
+      <fieldset className="m-0 flex min-w-0 flex-col gap-3 border-0 p-0">
+        <legend className="mb-1 p-0 text-[13px] font-semibold">
+          {form.contact.legend} {required}
+        </legend>
         <span
-          id="hint-email"
-          className="mt-1 block text-[11.5px]"
+          id="hint-contact"
+          className="-mt-1 block text-[11.5px]"
           style={{ color: muted(50) }}
         >
-          {form.email.hint}
+          {form.contact.hint}
         </span>
-        {fieldError("email")}
+
+        <div className="field">
+          <label htmlFor="f-phone">{form.phone.label}</label>
+          <input
+            id="f-phone"
+            name="phone"
+            className="input"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder="+992 __ ___ __ __"
+            maxLength={50}
+            aria-invalid={fieldErrors.phone ? true : undefined}
+            aria-describedby={
+              fieldErrors.phone ? "err-phone hint-contact" : "hint-contact"
+            }
+          />
+          {fieldError("phone")}
+        </div>
+
+        <div className="field">
+          <label htmlFor="f-email">{form.email.label}</label>
+          <input
+            id="f-email"
+            name="email"
+            className="input"
+            type="email"
+            autoComplete="email"
+            maxLength={255}
+            aria-invalid={fieldErrors.email ? true : undefined}
+            aria-describedby={
+              fieldErrors.email ? "err-email hint-contact" : "hint-contact"
+            }
+          />
+          {fieldError("email")}
+        </div>
+      </fieldset>
+
+      <div className="field">
+        <label htmlFor="f-region">{form.region.label}</label>
+        <select
+          id="f-region"
+          name="region"
+          className="input"
+          style={{ appearance: "auto" }}
+          defaultValue=""
+          aria-invalid={fieldErrors.region ? true : undefined}
+          aria-describedby={fieldErrors.region ? "err-region" : undefined}
+        >
+          <option value="">{form.region.empty}</option>
+          {regionOrder.map((code) => (
+            <option key={code} value={code}>
+              {regions[code]}
+            </option>
+          ))}
+        </select>
+        {fieldError("region")}
       </div>
 
       <div className="field">

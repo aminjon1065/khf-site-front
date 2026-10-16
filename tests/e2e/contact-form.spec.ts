@@ -77,3 +77,45 @@ test("consent is required before submission (ru)", async ({ page }) => {
 
   await expect(page.getByRole("alert").first()).toBeVisible();
 });
+
+test("a phone number is enough, and the region goes to the CMS by its code (ru)", async ({
+  page,
+}) => {
+  await page.goto("/ru/contacts");
+
+  await page.locator("#f-name").fill("Тест Тестов");
+  // По id: «Регион» и «Телефон» — ещё и подписи в таблице управлений.
+  await page.locator("#f-phone").fill("+992 93 123 45 67");
+  await page.locator("#f-region").selectOption({ label: "Хатлонская область" });
+  await page.locator("#f-text").fill("Текст обращения достаточной длины для прохождения валидации.");
+  await page.locator('label:has(input[type="checkbox"])').click();
+
+  const request = page.waitForRequest(
+    (r) => r.url().endsWith("/submissions") && r.method() === "POST",
+  );
+  await page.locator('#reception form button[type="submit"]').click();
+
+  expect((await request).postDataJSON()).toMatchObject({
+    phone: "+992 93 123 45 67",
+    email: "",
+    region: "khatlon",
+  });
+  await expect(page.getByText("Обращение отправлено.")).toBeVisible();
+});
+
+test("without a phone and an email the form asks for one of them (tj)", async ({
+  page,
+}) => {
+  await page.goto("/tj/contacts");
+
+  await page.locator("#f-name").fill("Тест Тестов");
+  await page.locator("#f-text").fill("Текст обращения достаточной длины для прохождения валидации.");
+  await page.locator('label:has(input[type="checkbox"])').click();
+  await page.locator('#reception form button[type="submit"]').click();
+
+  await expect(page.locator("#err-phone")).toHaveText(
+    "Телефон ё почтаи электрониро нишон диҳед.",
+  );
+  // Курсор — у первого поля, где нужно исправить.
+  await expect(page.locator("#f-phone")).toBeFocused();
+});
