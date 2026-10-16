@@ -1,6 +1,6 @@
 /**
  * Generated from khf-site-cms/openapi/openapi.json.
- * Schema SHA-256: 0e1f03164ec1595a
+ * Schema SHA-256: 74329b3355d204e1
  * Do not edit by hand; run `npm run api:types`.
  */
 
@@ -209,7 +209,7 @@ export interface ApiAlert {
   level_label: string;
   severity: string;
   status: string;
-  status_code: "active" | "completed";
+  status_code: "active" | "upcoming" | "completed";
   is_active: boolean;
   hazard: string;
   hazard_label: string;

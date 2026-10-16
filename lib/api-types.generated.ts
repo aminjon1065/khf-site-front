@@ -489,7 +489,7 @@ export interface components {
             severity: "info" | "attention" | "warning" | "danger" | "critical";
             status: string;
             /** @enum {string} */
-            status_code: "active" | "completed";
+            status_code: "active" | "upcoming" | "completed";
             is_active: boolean;
             /** @enum {string} */
             hazard: "mudflow" | "earthquake" | "flood" | "avalanche" | "fire" | "wind" | "heat" | "frost" | "landslide" | "storm";
