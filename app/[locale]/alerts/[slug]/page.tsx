@@ -129,7 +129,16 @@ export default async function AlertDetailPage({
   );
 
   const level = alert.level as AlertLevel;
-  const accent = levelDotColor[level];
+  // Старая ссылка из мессенджера ведёт и на завершённое предупреждение:
+  // страница остаётся для справки, но не должна выглядеть действующей угрозой.
+  const ended = alert.status_code === "completed";
+  const accent = ended ? muted(45) : levelDotColor[level];
+  const statusTone =
+    ended
+      ? { background: "var(--color-neutral-100)", color: "var(--color-neutral-800)" }
+      : alert.status_code === "upcoming"
+        ? { background: "var(--hz-info-bg)", color: "var(--hz-info)" }
+        : { background: "var(--hz-warning-bg)", color: "var(--hz-warning)" };
   const steps = alert.instructions ?? [];
   const paragraphs = (alert.body ?? "")
     .split(/\r?\n{2,}|\r?\n/)
@@ -192,6 +201,27 @@ export default async function AlertDetailPage({
         path={`/alerts/${slug}`}
       />
 
+      {ended && (
+        <p
+          role="status"
+          className="mb-0 mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 border-l-[3px] px-4 py-3 text-[14px] leading-[1.5]"
+          style={{
+            borderColor: "var(--color-neutral-500)",
+            background: "var(--color-neutral-100)",
+          }}
+        >
+          <strong>{pages.alertDetail.endedTitle}.</strong>
+          <span>{pages.alertDetail.endedText}</span>
+          <Link
+            href={routes.alert}
+            className="font-medium"
+            style={{ color: "var(--color-accent-700)" }}
+          >
+            {pages.alertDetail.endedLink}
+          </Link>
+        </p>
+      )}
+
       {/* Шапка предупреждения */}
       <section
         aria-label={pages.alertDetail.aria}
@@ -205,10 +235,7 @@ export default async function AlertDetailPage({
           >
             {alert.level_label}
           </span>
-          <span
-            className="tag font-semibold"
-            style={{ background: "var(--hz-warning-bg)", color: "var(--hz-warning)" }}
-          >
+          <span className="tag font-semibold" style={statusTone}>
             {alert.status}
           </span>
           <span className="tag tag-neutral">{alert.hazard_label}</span>

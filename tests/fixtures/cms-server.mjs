@@ -578,6 +578,18 @@ const homeAlerts = [
     title: `Предупреждение для главной № ${n}`,
   })),
 ];
+// Завершённое предупреждение: по старой ссылке страница открывается, но не
+// должна выглядеть действующей угрозой (alerts/[slug]).
+const endedAlert = {
+  ...alertItem,
+  slug: "ended-alert",
+  title: "Завершённое предупреждение",
+  status: "Завершено",
+  status_code: "completed",
+  is_active: false,
+  ends_at: "28.07.2026 12:00",
+  ends_at_iso: "2026-07-28T12:00:00+05:00",
+};
 const homeInstructions = [
   ...instructions,
   ...["navodnenie", "sel", "lavina", "pozhar"].map((slug, index) => ({
@@ -936,7 +948,9 @@ const server = createServer(async (request, response) => {
     return;
   }
 
-  const mockAlert = homeAlerts.find((item) => path === `/alerts/${item.slug}`);
+  const mockAlert = [...homeAlerts, endedAlert].find(
+    (item) => path === `/alerts/${item.slug}`,
+  );
   if (mockAlert) {
     json(response, { data: mockAlert });
     return;

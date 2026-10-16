@@ -315,6 +315,9 @@ export const tj: Dictionary = {
       related: "Огоҳиҳои алоқаманд",
       share: "Мубодила",
       shared: "Истинод нусхабардорӣ шуд",
+      endedTitle: "Ин огоҳӣ дигар амал намекунад",
+      endedText: "Саҳифа барои маълумот нигоҳ дошта шудааст.",
+      endedLink: "Огоҳиҳои фаъол",
     },
     projectDetail: {
       aria: "Дар бораи лоиҳа",

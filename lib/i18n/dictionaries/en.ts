@@ -362,6 +362,9 @@ export const en: Dictionary = {
       related: "Related alerts",
       share: "Share",
       shared: "Link copied",
+      endedTitle: "This alert is no longer in effect",
+      endedText: "The page is kept for reference.",
+      endedLink: "Active alerts",
     },
     projectDetail: {
       aria: "About the project",

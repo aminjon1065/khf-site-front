@@ -93,12 +93,14 @@ export default async function GuidesPage({
           </p>
         </div>
         <div className="blueprint mast-card flex items-center gap-3 px-4 py-[14px]">
-          <span
-            className="text-2xl font-semibold [font-family:var(--font-heading)]"
+          {/* Со смартфона номер набирается нажатием. */}
+          <a
+            href={`tel:${emergency.number}`}
+            className="text-2xl font-semibold no-underline [font-family:var(--font-heading)]"
             style={{ color: "var(--hz-critical)" }}
           >
             {emergency.number}
-          </span>
+          </a>
           <span
             className="text-[12.5px] leading-[1.45]"
             style={{ color: muted(65) }}
