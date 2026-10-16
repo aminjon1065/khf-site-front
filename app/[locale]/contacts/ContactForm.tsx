@@ -31,7 +31,12 @@ export default function ContactForm({
   const [serverError, setServerError] = useState<string | null>(null);
   // Пофайловые сообщения валидации от CMS: { email: "Некорректный адрес…" }.
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [tracking, setTracking] = useState<string | null>(null);
+  // Номер и код проверки из ответа CMS: код показывается только здесь и
+  // только один раз — в CMS хранится лишь его хэш.
+  const [tracking, setTracking] = useState<{
+    number: string;
+    code: string | null;
+  } | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
   const successRef = useRef<HTMLDivElement | null>(null);
 
@@ -102,7 +107,15 @@ export default function ContactForm({
         }}
       >
         <strong>{success.strong}</strong> {success.trackingLabel}{" "}
-        <strong>{tracking}</strong>. {success.note}
+        <strong>{tracking.number}</strong>.
+        {tracking.code && (
+          <>
+            {" "}
+            {success.codeLabel}{" "}
+            <strong className="tracking-[.06em]">{tracking.code}</strong>.
+          </>
+        )}{" "}
+        {success.note}
       </div>
     );
   }
@@ -181,8 +194,14 @@ export default function ContactForm({
         setServerError(body?.message || form.serverError);
         return;
       }
-      const data = (await res.json()) as { tracking_number: string };
-      setTracking(data.tracking_number);
+      const data = (await res.json()) as {
+        tracking_number: string;
+        access_code?: string;
+      };
+      setTracking({
+        number: data.tracking_number,
+        code: data.access_code ?? null,
+      });
     } catch (err) {
       console.error("submission failed:", err);
       setServerError(form.serverError);
@@ -218,7 +237,12 @@ export default function ContactForm({
     ) : null;
 
   return (
-    <form ref={formRef} className="flex flex-col gap-3" onSubmit={handleSubmit}>
+    <form
+      ref={formRef}
+      id="reception-form"
+      className="flex flex-col gap-3"
+      onSubmit={handleSubmit}
+    >
       <div className="field">
         <label htmlFor="f-name">
           {form.name.label} {required}

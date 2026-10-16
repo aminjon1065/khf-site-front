@@ -793,7 +793,7 @@ const server = createServer(async (request, response) => {
       return;
     }
     if (String(body.website ?? "") !== "") {
-      json(response, { tracking_number: "КЧС-2026-00001" }, 201);
+      json(response, { tracking_number: "КЧС-2026-00001", access_code: "ZZZZ-ZZZZ" }, 201);
       return;
     }
     const errors = {};
@@ -843,7 +843,42 @@ const server = createServer(async (request, response) => {
       );
       return;
     }
-    json(response, { tracking_number: "КЧС-2026-00042" }, 201);
+    json(response, { tracking_number: "КЧС-2026-00042", access_code: "ABCD-EFGH" }, 201);
+    return;
+  }
+
+  if (request.method === "POST" && path === "/submissions/status") {
+    // Имитация проверки статуса: обращение 2026-42 с кодом ABCD-EFGH (как
+    // набрано — регистр и дефис не важны) «на рассмотрении», всё прочее —
+    // одинаковый 404 на языке Accept-Language.
+    let body;
+    try {
+      body = JSON.parse(rawBody);
+    } catch {
+      json(response, { message: "Invalid JSON." }, 400);
+      return;
+    }
+    const digits = String(body.tracking_number ?? "").match(/\d+/g) ?? [];
+    const code = String(body.access_code ?? "").replace(/[^a-z0-9]/gi, "").toUpperCase();
+    const lang = String(request.headers["accept-language"] ?? "ru");
+    if (digits[0] === "2026" && Number(digits.at(-1)) === 42 && code === "ABCDEFGH") {
+      json(response, {
+        data: {
+          tracking_number: "КЧС-2026-00042",
+          status_code: "in_review",
+          status: { tg: "Дар баррасӣ", en: "Under review" }[lang] ?? "На рассмотрении",
+          received_at: "2026-10-01T10:00:00+05:00",
+          updated_at: "2026-10-03T15:30:00+05:00",
+        },
+      });
+      return;
+    }
+    json(response, {
+      message: {
+        tg: "Муроҷиат ёфт нашуд. Рақам ва рамзи санҷишро тафтиш кунед.",
+        en: "Appeal not found. Check the number and the check code.",
+      }[lang] ?? "Обращение не найдено. Проверьте номер и код проверки.",
+    }, 404);
     return;
   }
 

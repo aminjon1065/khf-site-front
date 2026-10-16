@@ -7,6 +7,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { buildMetadata, metaDescription } from "@/lib/seo";
 import { getContacts, withContactSettings } from "./content";
 import ContactForm from "./ContactForm";
+import StatusCheck from "./StatusCheck";
 
 export async function generateMetadata({
   params,
@@ -203,6 +204,7 @@ export default async function ContactsPage({
             {reception.urgentNote}
           </div>
           <ContactForm reception={reception} locale={locale} />
+          <StatusCheck content={reception.statusCheck} locale={locale} />
         </aside>
       </div>
     </PageShell>

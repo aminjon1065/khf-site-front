@@ -52,7 +52,23 @@ export interface ReceptionContent {
   success: {
     strong: string;
     trackingLabel: string;
+    codeLabel: string;
     note: string;
+  };
+  /** «Проверить статус обращения»: по номеру и коду, выданным при отправке. */
+  statusCheck: {
+    title: string;
+    intro: string;
+    numberLabel: string;
+    codeLabel: string;
+    submit: string;
+    checking: string;
+    lostCode: string;
+    serverError: string;
+    statusLabel: string;
+    receivedLabel: string;
+    updatedLabel: string;
+    stages: Record<"received" | "in_review" | "completed" | "rejected", string>;
   };
 }
 
@@ -181,7 +197,27 @@ const ru: ContactsContent = {
     success: {
       strong: "Обращение отправлено.",
       trackingLabel: "Номер для отслеживания:",
-      note: "Сохраните номер: по нему можно уточнить статус обращения.",
+      codeLabel: "Код проверки:",
+      note: "Сохраните номер и код: по ним можно проверить статус обращения на этой странице.",
+    },
+    statusCheck: {
+      title: "Проверить статус обращения",
+      intro: "Введите номер обращения и код проверки — их показывают сразу после отправки.",
+      numberLabel: "Номер обращения",
+      codeLabel: "Код проверки",
+      submit: "Проверить",
+      checking: "Проверяем…",
+      lostCode: "Нет кода — например, обращение отправлено раньше? Позвоните по телефону доверия.",
+      serverError: "Не удалось проверить статус. Попробуйте позже.",
+      statusLabel: "Статус",
+      receivedLabel: "Дата поступления",
+      updatedLabel: "Последнее изменение",
+      stages: {
+        received: "Обращение зарегистрировано и ждёт рассмотрения. Срок ответа — до 15 рабочих дней.",
+        in_review: "Обращение рассматривают. С вами свяжутся по указанному телефону или почте.",
+        completed: "Рассмотрение завершено. Если ответ до вас не дошёл, позвоните по телефону доверия.",
+        rejected: "Обращение оставлено без рассмотрения. Подробности — по телефону доверия.",
+      },
     },
   },
 };
@@ -294,7 +330,27 @@ const tj: ContactsContent = {
     success: {
       strong: "Муроҷиат фиристода шуд.",
       trackingLabel: "Рақами пайгирӣ:",
-      note: "Рақамро нигоҳ доред: бо он метавонед вазъияти муроҷиатро равшан кунед.",
+      codeLabel: "Рамзи санҷиш:",
+      note: "Рақам ва рамзро нигоҳ доред: бо онҳо вазъи муроҷиатро дар ҳамин саҳифа санҷидан мумкин аст.",
+    },
+    statusCheck: {
+      title: "Санҷиши вазъи муроҷиат",
+      intro: "Рақами муроҷиат ва рамзи санҷишро ворид кунед — онҳо фавран пас аз фиристодан нишон дода мешаванд.",
+      numberLabel: "Рақами муроҷиат",
+      codeLabel: "Рамзи санҷиш",
+      submit: "Санҷидан",
+      checking: "Санҷида истодаем…",
+      lostCode: "Рамз надоред — масалан, муроҷиат пештар фиристода шудааст? Ба телефони боварӣ занг занед.",
+      serverError: "Вазъро санҷидан нашуд. Дертар кӯшиш кунед.",
+      statusLabel: "Вазъ",
+      receivedLabel: "Санаи қабул",
+      updatedLabel: "Тағйироти охирин",
+      stages: {
+        received: "Муроҷиат ба қайд гирифта шуд ва интизори баррасӣ аст. Мӯҳлати ҷавоб — то 15 рӯзи корӣ.",
+        in_review: "Муроҷиат баррасӣ мешавад. Бо шумо тавассути телефон ё почтаи зикршуда тамос мегиранд.",
+        completed: "Баррасӣ анҷом ёфт. Агар ҷавоб ба шумо нарасида бошад, ба телефони боварӣ занг занед.",
+        rejected: "Муроҷиат бе баррасӣ гузошта шуд. Тафсилот — тавассути телефони боварӣ.",
+      },
     },
   },
 };
@@ -407,7 +463,27 @@ const en: ContactsContent = {
     success: {
       strong: "Appeal submitted.",
       trackingLabel: "Tracking number:",
-      note: "Keep this number: it can be used to check the status of your appeal.",
+      codeLabel: "Check code:",
+      note: "Keep the number and the code: you can check the status of your appeal on this page with them.",
+    },
+    statusCheck: {
+      title: "Check the status of an appeal",
+      intro: "Enter the appeal number and the check code — they are shown right after you send the appeal.",
+      numberLabel: "Appeal number",
+      codeLabel: "Check code",
+      submit: "Check",
+      checking: "Checking…",
+      lostCode: "No code — for example, the appeal was sent earlier? Call the trust line.",
+      serverError: "Could not check the status. Please try again later.",
+      statusLabel: "Status",
+      receivedLabel: "Received on",
+      updatedLabel: "Last update",
+      stages: {
+        received: "The appeal is registered and awaits review. The response time is up to 15 working days.",
+        in_review: "The appeal is being reviewed. You will be contacted by the phone or email you gave.",
+        completed: "The review is complete. If the reply has not reached you, call the trust line.",
+        rejected: "The appeal was left without review. Details are available on the trust line.",
+      },
     },
   },
 };
