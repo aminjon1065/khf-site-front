@@ -74,6 +74,7 @@ for (const [name, listRoute, linkSelector] of [
   ["guide", "/ru/guides", "main a[href*='/guides/']"],
   ["project", "/ru/projects", "main a[href*='/projects/']"],
   ["announcement", "/ru/announcements", "main a[href*='/announcements/']"],
+  ["alert", "/ru/alerts", "main a[href*='/alerts/']"],
 ] as const) {
   test(`a ${name} detail page has no axe violations at all`, async ({
     page,
@@ -85,6 +86,12 @@ for (const [name, listRoute, linkSelector] of [
     await scan(page, href!, "none");
   });
 }
+
+// Завершённое предупреждение выглядит иначе (нейтральные цвета, плашка
+// «больше не действует»), и в списке его нет — берём из фикстуры.
+test("an ended alert page has no axe violations at all", async ({ page }) => {
+  await scan(page, "/ru/alerts/ended-alert", "none");
+});
 
 // Остальные публичные страницы. Их не сканировал никто, и именно там
 // накопились нарушения: заголовки с пропущенным уровнем (<h6> ради размера

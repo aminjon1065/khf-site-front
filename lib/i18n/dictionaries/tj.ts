@@ -318,6 +318,8 @@ export const tj: Dictionary = {
       endedTitle: "Ин огоҳӣ дигар амал намекунад",
       endedText: "Саҳифа барои маълумот нигоҳ дошта шудааст.",
       endedLink: "Огоҳиҳои фаъол",
+      relatedGuides: "Муфассал: чӣ бояд кард",
+      districts: "Ноҳияҳо дар минтақаи амал",
     },
     projectDetail: {
       aria: "Дар бораи лоиҳа",

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   buildUrl,
+  fetchAlert,
   fetchAnnouncements,
   fetchHome,
   fetchDocuments,
@@ -77,6 +78,25 @@ describe("lib/api", () => {
       });
       expect(fetchMock.mock.calls[1]?.[1]).toMatchObject({
         next: { tags: ["cms:news:en", "cms:news:storm:en"] },
+      });
+    });
+
+    it("refreshes an alert page when its linked guides or districts change", async () => {
+      // Снятая с публикации инструкция не должна оставаться ссылкой на
+      // странице предупреждения до таймера ISR.
+      fetchMock.mockResolvedValueOnce(jsonResponse({ data: { slug: "sel" } }));
+
+      await fetchAlert("sel", "tj");
+
+      expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({
+        next: {
+          tags: [
+            "cms:alerts:tj",
+            "cms:alerts:sel:tj",
+            "cms:guides:tj",
+            "cms:regions:tj",
+          ],
+        },
       });
     });
   });

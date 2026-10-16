@@ -165,6 +165,22 @@ export default async function AlertDetailPage({
     };
   });
 
+  // Районы, которые оператор указал внутри регионов: на карте их не видно,
+  // поэтому под ней — список «регион: районы». Только когда районы есть,
+  // иначе он повторял бы строку «Регионы» в шапке.
+  const districts = alert.districts ?? [];
+  const zoneList =
+    alert.territory_type === "regions" && districts.length > 0
+      ? (alert.regions ?? []).map((r) => ({
+          code: r.code,
+          name: r.name,
+          districts: districts
+            .filter((d) => d.region_code === r.code)
+            .map((d) => d.name),
+        }))
+      : [];
+  const guides = alert.related_instructions ?? [];
+
   const related = ((await fetchAlerts(locale)) ?? [])
     .filter((a) => a.slug !== slug)
     .slice(0, 3);
@@ -293,6 +309,50 @@ export default async function AlertDetailPage({
             </section>
           )}
 
+          {/* Инструкции, которые оператор связал с предупреждением: что
+              именно прочитать, а не весь каталог. */}
+          {guides.length > 0 && (
+            <section aria-labelledby="alert-guides" className="mt-7">
+              <h2
+                id="alert-guides"
+                className="mt-0 mb-[14px] text-[22px] uppercase tracking-[.02em]"
+              >
+                {pages.alertDetail.relatedGuides}
+              </h2>
+              <ul className="m-0 grid list-none grid-cols-2 gap-[14px] p-0 max-[920px]:grid-cols-1">
+                {guides.map((g) => (
+                  <li key={g.slug} className="flex">
+                    <Link
+                      href={routes.guide(g.slug)}
+                      className="blueprint surface-hover flex w-full flex-col gap-2 p-4"
+                      style={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      {g.hazard_label && (
+                        <span
+                          className="text-[10.5px] uppercase tracking-[.1em]"
+                          style={{ color: muted(55) }}
+                        >
+                          {g.hazard_label}
+                        </span>
+                      )}
+                      <span className="text-[17px] font-semibold leading-[1.25] [font-family:var(--font-heading)]">
+                        {g.title}
+                      </span>
+                      {g.summary && (
+                        <span
+                          className="text-[13px] leading-[1.5]"
+                          style={{ color: muted(65) }}
+                        >
+                          {g.summary}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           {paragraphs.length > 0 && (
             <section aria-label={pages.alertDetail.officialDescription} className="mt-7 max-w-[70ch]">
               <h2 className="text-[22px] uppercase tracking-[.02em]">
@@ -347,6 +407,23 @@ export default async function AlertDetailPage({
               {pages.alertDetail.zone}
             </h2>
             <TjRiskMap regions={zoneRegions} height={300} showLabels={false} />
+            {zoneList.length > 0 && (
+              <ul
+                aria-label={pages.alertDetail.districts}
+                className="mx-1.5 mb-1 mt-2.5 flex list-none flex-col gap-1.5 p-0 text-[13px] leading-[1.45]"
+              >
+                {zoneList.map((r) => (
+                  <li key={r.code}>
+                    <strong className="font-semibold">{r.name}</strong>
+                    {r.districts.length > 0 && (
+                      <span style={{ color: muted(70) }}>
+                        : {r.districts.join(", ")}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
           <div className="blueprint flex flex-col gap-2 p-[18px]">

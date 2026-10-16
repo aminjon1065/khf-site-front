@@ -365,6 +365,8 @@ export const en: Dictionary = {
       endedTitle: "This alert is no longer in effect",
       endedText: "The page is kept for reference.",
       endedLink: "Active alerts",
+      relatedGuides: "In detail: what to do",
+      districts: "Districts in the coverage area",
     },
     projectDetail: {
       aria: "About the project",

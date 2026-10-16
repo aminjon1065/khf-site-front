@@ -233,6 +233,18 @@ const alertItem = {
   source: "КЧС",
   territory_type: "regions",
   regions: [{ code: "dushanbe", name: "Душанбе" }],
+  districts: [
+    { name: "Сино", region_code: "dushanbe" },
+    { name: "Шохмансур", region_code: "dushanbe" },
+  ],
+  related_instructions: [
+    {
+      slug: "zemletryasenie",
+      title: "Землетрясение",
+      summary: "Действия до, во время и после подземных толчков",
+      hazard_label: "Землетрясение",
+    },
+  ],
   meta: [{ label: "Период", value: "27 июля" }],
 };
 const settings = {

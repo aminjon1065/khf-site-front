@@ -96,7 +96,9 @@ Payload: `{type, id, slug, locales, event, tags}`, `locales` — локали с
 | `region` | число или `null` / `null` | `cms:regions:{l}` | `/map` (`fetchRegions`), `/contacts` (`fetchRegionsDirectory`) |
 | `category` | число или `null` / `null` | `cms:categories:{l}` | фильтр рубрик `/news` (`fetchCategories`) |
 
-Контракт закреплён тестами `tests/unit/cache-tags.test.ts` (теги справочников и то, что их несут фетчеры) и `tests/unit/revalidate-route.test.ts`.
+Детальная страница предупреждения (`fetchAlert`) несёт ещё `cms:guides:{l}` и `cms:regions:{l}`: на ней ссылки на связанные инструкции и названия районов, поэтому снятие или правка инструкции и правка района обновляют её сразу, а не по таймеру.
+
+Контракт закреплён тестами `tests/unit/cache-tags.test.ts` (теги справочников и то, что их несут фетчеры), `tests/unit/api.test.ts` и `tests/unit/revalidate-route.test.ts`.
 
 ## Мягкая деградация
 

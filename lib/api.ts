@@ -570,7 +570,10 @@ export async function fetchAlerts(
   }
 }
 
-/** Одно предупреждение по slug (с инструкциями и регионами). null при 404. */
+/**
+ * Одно предупреждение по slug (с шагами, регионами, районами и связанными
+ * инструкциями). null при 404.
+ */
 export const fetchAlert = cache(async function fetchAlert(
   slug: string,
   locale: Locale = DEFAULT_LOCALE,
@@ -578,7 +581,15 @@ export const fetchAlert = cache(async function fetchAlert(
   const url = buildUrl(`/alerts/${encodeURIComponent(slug)}`, { locale });
 
   try {
-    const res = await fetch(url, cmsFetchOptions("alert", locale, slug));
+    const options = cmsFetchOptions("alert", locale, slug);
+    // Страница показывает и связанные инструкции, и районы: их правка в CMS
+    // (снятие инструкции, новое название района) обновляет её сразу, а не
+    // по таймеру — иначе ссылка вела бы на снятую инструкцию.
+    options.next.tags.push(
+      cmsCacheTags.list("instruction", locale),
+      cmsCacheTags.reference("region", locale),
+    );
+    const res = await fetch(url, options);
     if (res.status === 404) {
       return null;
     }
