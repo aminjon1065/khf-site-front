@@ -1,6 +1,6 @@
 /**
  * Generated from khf-site-cms/openapi/openapi.json.
- * Schema SHA-256: 508c5886fa76a2fa
+ * Schema SHA-256: 9d3da40a8659eef9
  * Do not edit by hand; run `npm run api:types`.
  */
 
@@ -238,6 +238,7 @@ export interface ApiAlert {
     name: string;
     region_code: string;
   }>;
+  territory_note?: string | null;
   related_instructions?: Array<{
     slug: string;
     title: string;
@@ -404,10 +405,11 @@ export interface ReadinessResponse {
 
 export interface SubmissionRequest {
   name: string;
-  email: string;
   phone?: string | null;
+  email?: string | null;
   topic?: string | null;
   message: string;
+  region?: string | null;
   region_id?: number | null;
   consent: boolean;
 }

@@ -40,6 +40,8 @@ test("предупреждение называет районы и ведёт �
   await expect(
     page.getByRole("list", { name: "Районы в зоне действия" }),
   ).toContainText("Душанбе: Сино, Шохмансур");
+  // И слова оператора о зоне — там же, под картой.
+  await expect(page.getByText("Вдоль русла реки Душанбинка")).toBeVisible();
 
   const guides = page.getByRole("region", { name: "Подробно: как действовать" });
   await expect(guides.getByRole("link", { name: /Землетрясение/ })).toHaveAttribute(

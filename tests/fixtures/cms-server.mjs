@@ -237,6 +237,7 @@ const alertItem = {
     { name: "Сино", region_code: "dushanbe" },
     { name: "Шохмансур", region_code: "dushanbe" },
   ],
+  territory_note: "Вдоль русла реки Душанбинка",
   related_instructions: [
     {
       slug: "zemletryasenie",

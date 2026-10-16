@@ -424,6 +424,16 @@ export default async function AlertDetailPage({
                 ))}
               </ul>
             )}
+            {/* Слова оператора о зоне («трасса Душанбе — Чанак, 45–72 км») —
+                на языке страницы; на другом языке CMS отдаёт null. */}
+            {alert.territory_note && (
+              <p
+                className="mx-1.5 mb-1 mt-2.5 text-[13px] leading-[1.5]"
+                style={{ color: muted(70) }}
+              >
+                {alert.territory_note}
+              </p>
+            )}
           </div>
 
           <div className="blueprint flex flex-col gap-2 p-[18px]">
