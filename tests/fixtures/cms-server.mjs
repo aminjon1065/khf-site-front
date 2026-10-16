@@ -774,6 +774,12 @@ const server = createServer(async (request, response) => {
     return;
   }
 
+  // Пачки просмотров от сервера сайта (app/api/views): принять и забыть.
+  if (request.method === "POST" && path === "/views") {
+    json(response, { recorded: 0 }, 202);
+    return;
+  }
+
   if (request.method === "POST" && path === "/submissions") {
     // Минимальная имитация валидации SubmissionController: пустое имя, ни
     // телефона, ни почты, неверная почта или короткое сообщение дают 422 с

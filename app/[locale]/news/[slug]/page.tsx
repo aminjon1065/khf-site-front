@@ -7,6 +7,7 @@ import {
   NewsArticleJsonLd,
 } from "@/components/public/JsonLd";
 import PageShell from "@/components/public/PageShell";
+import ViewBeacon from "@/components/public/ViewBeacon";
 import TranslationNotice from "@/components/public/TranslationNotice";
 import CmsImage from "@/components/public/CmsImage";
 import GalleryCarousel from "@/components/public/GalleryCarousel";
@@ -249,6 +250,7 @@ export default async function ArticlePage({
     <PageShell
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
     >
+      <ViewBeacon type="news" slug={item.slug} locale={locale} />
       <NewsArticleJsonLd
         item={item}
         locale={locale}

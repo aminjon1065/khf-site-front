@@ -3,6 +3,7 @@ import Link from "@/components/i18n/LocaleLink";
 import { notFound } from "next/navigation";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
+import ViewBeacon from "@/components/public/ViewBeacon";
 import TranslationNotice from "@/components/public/TranslationNotice";
 import CmsImage from "@/components/public/CmsImage";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
@@ -137,6 +138,7 @@ export default async function ProjectDetailPage({
 
   return (
     <PageShell>
+      <ViewBeacon type="project" slug={p.slug} locale={locale} />
       <BreadcrumbJsonLd
         items={[
           { label: projectBreadcrumb.home, href: routes.home },

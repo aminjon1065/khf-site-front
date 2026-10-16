@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import CmsProse from "@/components/public/CmsProse";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
+import ViewBeacon from "@/components/public/ViewBeacon";
 import TranslationNotice from "@/components/public/TranslationNotice";
 import { muted } from "@/components/public/ui";
 import { redirectToCurrentSlug } from "@/lib/canonical-slug";
@@ -108,6 +109,7 @@ export default async function ContentPage({
     <PageShell
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
     >
+      <ViewBeacon type="page" slug={page.slug} locale={locale} />
       <nav className="text-[12.5px]" style={{ color: muted(55) }} aria-label={pages.contentPage.breadcrumbAria}>
         <Link href="/" style={{ color: "var(--color-accent-700)" }}>
           {common.breadcrumbHome}

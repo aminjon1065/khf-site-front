@@ -3,6 +3,7 @@ import Link from "@/components/i18n/LocaleLink";
 import { notFound } from "next/navigation";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
+import ViewBeacon from "@/components/public/ViewBeacon";
 import TranslationNotice from "@/components/public/TranslationNotice";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
@@ -193,6 +194,7 @@ export default async function AlertDetailPage({
     <PageShell
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
     >
+      <ViewBeacon type="alert" slug={alert.slug} locale={locale} />
       <BreadcrumbJsonLd
         items={[
           { label: pages.alertDetail.breadcrumbHome, href: routes.home },

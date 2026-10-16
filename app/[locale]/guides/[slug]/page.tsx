@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import FetchErrorFallback from "@/components/public/FetchErrorFallback";
 import PageShell from "@/components/public/PageShell";
+import ViewBeacon from "@/components/public/ViewBeacon";
 import TranslationNotice from "@/components/public/TranslationNotice";
 import { BreadcrumbJsonLd } from "@/components/public/JsonLd";
 import { Breadcrumbs, muted } from "@/components/public/ui";
@@ -224,6 +225,7 @@ export default async function GuidePage({ params }: GuideRouteProps) {
     <PageShell
       mainClassName="mx-auto w-full max-w-[1160px] px-6 pt-6 max-[920px]:px-4"
     >
+      <ViewBeacon type="instruction" slug={item.slug} locale={locale} />
       <BreadcrumbJsonLd
         items={[
           { label: common.breadcrumbHome, href: routes.home },
