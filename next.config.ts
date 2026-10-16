@@ -42,6 +42,33 @@ function cmsOrigin(): string | null {
   }
 }
 
+type RemotePattern = Exclude<
+  NonNullable<NonNullable<NextConfig["images"]>["remotePatterns"]>[number],
+  URL
+>;
+
+/**
+ * Домен медиатеки на боевом сервере. CMS отдаёт файлы со своего домена
+ * (`MEDIA_PUBLIC_URL` = домен CMS), а он задаётся только в `.env` стека и на
+ * первых порах временный — заранее вписать его в список ниже нельзя. Только
+ * https: открыть http значило бы пустить смешанный контент.
+ */
+function cmsImagePattern(): RemotePattern | null {
+  const origin = cmsOrigin();
+
+  if (!origin) {
+    return null;
+  }
+
+  const { protocol, hostname, port } = new URL(origin);
+
+  if (protocol !== "https:") {
+    return null;
+  }
+
+  return { protocol: "https", hostname, ...(port ? { port } : {}) };
+}
+
 /**
  * `script-src` осознанно остаётся с `'unsafe-inline'`, и это измеренное
  * решение, а не недосмотр. Строгий вариант в Next 16 — nonce, который
@@ -151,7 +178,8 @@ const nextConfig: NextConfig = {
     dangerouslyAllowLocalIP:
       process.env.NODE_ENV === "development" || usesLocalCmsEndpoint(),
     // Изображения (обложки новостей и т.п.) отдаёт медиатека CMS.
-    // Хост берётся из API_URL; localhost/127.0.0.1 разрешены для разработки.
+    // Хост берётся из NEXT_PUBLIC_API_URL; localhost/127.0.0.1 разрешены для
+    // разработки.
     remotePatterns: [
       { protocol: "http", hostname: "127.0.0.1" },
       { protocol: "http", hostname: "localhost" },
@@ -160,6 +188,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "khf-site-cms.test", port: "8443" },
       { protocol: "https", hostname: "**.khf.tj" },
       { protocol: "https", hostname: "khf.tj" },
+      ...[cmsImagePattern()].filter((pattern) => pattern !== null),
     ],
   },
 };

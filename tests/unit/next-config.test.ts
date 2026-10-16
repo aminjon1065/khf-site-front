@@ -1,4 +1,4 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import configureNext from "../../next.config";
 import { LOCALES } from "@/lib/i18n/config";
 import { CMS_PAGE_ROUTES } from "@/lib/routes";
@@ -58,4 +58,40 @@ it("не разрешает картинки по http вне разработк
   const imgSrc = csp?.match(/img-src [^;]+/)?.[0] ?? "";
   expect(imgSrc).toBe("img-src 'self' data: blob: https:");
   expect(csp).toContain("upgrade-insecure-requests");
+});
+
+it("пускает картинки медиатеки с домена CMS из NEXT_PUBLIC_API_URL", async () => {
+  // Боевой домен задаётся только в .env стека и поначалу временный: без
+  // этого правила /_next/image отвергал бы обложки с любого домена, кроме
+  // заранее вписанного khf.tj.
+  vi.resetModules();
+  vi.stubEnv("NEXT_PUBLIC_API_URL", "https://cms.example.org/api/v1");
+  try {
+    const { default: configure } = await import("../../next.config");
+    const config = await configure("phase-development-server");
+
+    expect(config.images?.remotePatterns).toContainEqual({
+      protocol: "https",
+      hostname: "cms.example.org",
+    });
+  } finally {
+    vi.unstubAllEnvs();
+  }
+});
+
+it("не добавляет http-домен CMS в разрешённые источники картинок", async () => {
+  vi.resetModules();
+  vi.stubEnv("NEXT_PUBLIC_API_URL", "http://cms.example.org/api/v1");
+  try {
+    const { default: configure } = await import("../../next.config");
+    const config = await configure("phase-development-server");
+
+    expect(
+      config.images?.remotePatterns?.some(
+        (pattern) => !(pattern instanceof URL) && pattern.hostname === "cms.example.org",
+      ),
+    ).toBe(false);
+  } finally {
+    vi.unstubAllEnvs();
+  }
 });
