@@ -1,6 +1,6 @@
 /**
  * Generated from khf-site-cms/openapi/openapi.json.
- * Schema SHA-256: 74329b3355d204e1
+ * Schema SHA-256: 508c5886fa76a2fa
  * Do not edit by hand; run `npm run api:types`.
  */
 
@@ -233,6 +233,16 @@ export interface ApiAlert {
   updates?: Array<{
     at: string;
     text: string;
+  }>;
+  districts?: Array<{
+    name: string;
+    region_code: string;
+  }>;
+  related_instructions?: Array<{
+    slug: string;
+    title: string;
+    summary: string;
+    hazard_label: string | null;
   }>;
 }
 
