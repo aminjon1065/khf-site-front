@@ -15,7 +15,7 @@
 // выдаёт себя за свежую. 404 копию удаляет: снятый с публикации материал не
 // должен вернуться на сайт при следующем сбое.
 
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { reportCmsFailure } from "@/lib/cms-error-reporting.mjs";
@@ -110,20 +110,27 @@ async function remember(url: string, body: string): Promise<void> {
     return;
   }
 
+  // Отметка — до записи: пререндер запрашивает один адрес из многих
+  // страниц сразу, и без неё они писали бы одну копию наперегонки.
+  lastWrittenAt.set(file, now);
   const entry: Entry = { url, savedAt: new Date(now).toISOString(), body };
   try {
     await mkdir(directory, { recursive: true });
     // Атомарно: читатель при параллельном сбое не увидит половину файла.
-    const temporary = `${file}.${process.pid}.${now}.tmp`;
+    const temporary = `${file}.${process.pid}.${randomUUID()}.tmp`;
     await writeFile(temporary, JSON.stringify(entry));
     await rename(temporary, file);
     if (previous === undefined && entryCount) {
       entryCount = entryCount.then((count) => count + 1);
     }
-    lastWrittenAt.set(file, now);
   } catch (error) {
     // Копия — страховка, а не условие работы: сбой записи не должен ронять
     // страницу, которая только что получила настоящий ответ CMS.
+    if (previous === undefined) {
+      lastWrittenAt.delete(file);
+    } else {
+      lastWrittenAt.set(file, previous);
+    }
     console.error("cms last-known-good: write failed", error);
   }
 }

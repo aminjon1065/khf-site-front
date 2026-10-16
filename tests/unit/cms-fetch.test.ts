@@ -157,3 +157,32 @@ describe("cmsFetch", () => {
     expect(stale?.staleSince).toBeDefined();
   });
 });
+
+describe("cmsFetch under concurrent prerendering", () => {
+  let directory: string;
+
+  beforeEach(() => {
+    directory = mkdtempSync(path.join(tmpdir(), "cms-lkg-"));
+    vi.stubEnv("CMS_LAST_KNOWN_GOOD_DIR", directory);
+    vi.stubGlobal("fetch", vi.fn(async () => json({ data: { title: "Паводок" } })));
+    resetLastKnownGoodState();
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+    rmSync(directory, { recursive: true, force: true });
+  });
+
+  it("writes one copy when many pages request the same address at once", async () => {
+    // `next build` пререндерит десятки страниц, и все они разом просят
+    // настройки и меню: параллельные записи одной копии падали на rename.
+    const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+    await Promise.all(Array.from({ length: 20 }, () => cmsFetch(NEWS)));
+
+    expect(errors).not.toHaveBeenCalled();
+    expect(readdirSync(directory).filter((file) => file.endsWith(".json"))).toHaveLength(1);
+    expect(readdirSync(directory).some((file) => file.endsWith(".tmp"))).toBe(false);
+  });
+});
