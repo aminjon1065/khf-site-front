@@ -170,7 +170,7 @@ const ru: ContactsContent = {
       name: { label: "ФИО" },
       contact: {
         legend: "Как с вами связаться",
-        hint: "Укажите телефон или электронную почту — хотя бы одно. По ним с вами свяжутся для ответа.",
+        hint: "Укажите телефон или электронную почту — хотя бы одно. По ним с вами свяжутся для ответа, а на почту придёт письмо, когда статус обращения изменится.",
         error: "Укажите телефон или электронную почту.",
       },
       phone: { label: "Телефон" },
@@ -303,7 +303,7 @@ const tj: ContactsContent = {
       name: { label: "Ному насаб" },
       contact: {
         legend: "Чӣ тавр бо шумо тамос гирем",
-        hint: "Телефон ё почтаи электрониро нишон диҳед — ҳадди ақал якеро. Барои ҷавоб бо шумо тамос мегиранд.",
+        hint: "Телефон ё почтаи электрониро нишон диҳед — ҳадди ақал якеро. Барои ҷавоб бо шумо тамос мегиранд, ва ҳангоми тағйир ёфтани вазъи муроҷиат ба почта мактуб меояд.",
         error: "Телефон ё почтаи электрониро нишон диҳед.",
       },
       phone: { label: "Телефон" },
@@ -436,7 +436,7 @@ const en: ContactsContent = {
       name: { label: "Full name" },
       contact: {
         legend: "How to reach you",
-        hint: "Give a phone number or an email address — at least one. We will use it to reply.",
+        hint: "Give a phone number or an email address — at least one. We will use it to reply, and email you when the status of your appeal changes.",
         error: "Enter a phone number or an email address.",
       },
       phone: { label: "Phone" },
