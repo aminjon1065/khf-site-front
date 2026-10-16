@@ -11,10 +11,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { levelDotColor } from "@/lib/levels";
 import { buildMetadata } from "@/lib/seo";
 import { routes } from "@/lib/routes";
-import {
-  DEFAULT_STALE_AFTER_MINUTES,
-  situationTime,
-} from "@/lib/situation-time";
+import { situationStaleAfter, situationTime } from "@/lib/situation-time";
 import type { AlertLevel, RegionStatus } from "@/lib/types";
 
 export async function generateMetadata({
@@ -116,10 +113,10 @@ export default async function AlertsPage({
             label={common.situation.asOf}
             dateTime={asOf.dateTime}
             text={asOf.text}
-            staleAfterMinutes={
-              settings?.situation?.stale_after_minutes ??
-              DEFAULT_STALE_AFTER_MINUTES
-            }
+            staleAfterMinutes={situationStaleAfter(
+              settings?.situation?.stale_after_minutes,
+              active?.staleSince,
+            )}
             outdatedText={common.situation.outdated}
             className="text-xs [font-variant-numeric:tabular-nums]"
             style={{ color: muted(70) }}

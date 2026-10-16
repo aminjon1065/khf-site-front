@@ -19,7 +19,7 @@ import {
 } from "@/lib/home-blocks";
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { DEFAULT_STALE_AFTER_MINUTES } from "@/lib/situation-time";
+import { situationStaleAfter } from "@/lib/situation-time";
 import type { RegionStatus } from "@/lib/types";
 
 export const revalidate = 60;
@@ -178,9 +178,10 @@ export default async function HomePage({
         affectedRegions={affectedRegions}
         watchedRegions={regions.length}
         asOf={data.alerts.updated_at ?? null}
-        staleAfterMinutes={
-          settings?.situation?.stale_after_minutes ?? DEFAULT_STALE_AFTER_MINUTES
-        }
+        staleAfterMinutes={situationStaleAfter(
+          settings?.situation?.stale_after_minutes,
+          payload?.staleSince,
+        )}
         locale={locale}
         home={home}
         situation={common.situation}

@@ -11,10 +11,7 @@ import {
 import { toLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { buildMetadata } from "@/lib/seo";
-import {
-  DEFAULT_STALE_AFTER_MINUTES,
-  situationTime,
-} from "@/lib/situation-time";
+import { situationStaleAfter, situationTime } from "@/lib/situation-time";
 import type { RegionKey } from "@/lib/types";
 import MapExplorer, { type LiveIncident } from "./MapExplorer";
 import { getMap } from "./content";
@@ -120,10 +117,10 @@ export default async function MapPage({
             label={common.situation.asOf}
             dateTime={asOf.dateTime}
             text={asOf.text}
-            staleAfterMinutes={
-              settings?.situation?.stale_after_minutes ??
-              DEFAULT_STALE_AFTER_MINUTES
-            }
+            staleAfterMinutes={situationStaleAfter(
+              settings?.situation?.stale_after_minutes,
+              active?.staleSince,
+            )}
             outdatedText={common.situation.outdated}
             className="text-xs [font-variant-numeric:tabular-nums]"
             style={{ color: muted(70) }}

@@ -98,3 +98,16 @@ export function isOutdated(
 
   return nowMs - at > staleAfterMinutes * 60_000;
 }
+
+/**
+ * Через сколько минут предупреждать «сведения могли устареть». Если сводка
+ * пришла из последней удачной копии (CMS сейчас не отвечает, ADR-001), —
+ * сразу: копия хранит прежнее время обстановки, но обновить её сейчас
+ * нечем, и читатель должен это видеть.
+ */
+export function situationStaleAfter(
+  configuredMinutes: number | null | undefined,
+  staleSince?: string | null,
+): number {
+  return staleSince ? 0 : (configuredMinutes ?? DEFAULT_STALE_AFTER_MINUTES);
+}

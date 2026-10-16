@@ -29,6 +29,7 @@ import {
   type Locale,
 } from "@/lib/i18n/config";
 import { reportCmsFailure } from "@/lib/cms-error-reporting.mjs";
+import { cmsFetch, lastKnownGoodSince } from "@/lib/cms-fetch";
 import {
   cmsCacheTags,
   cmsRequestTags,
@@ -118,6 +119,16 @@ function cmsResponseError(res: Response): Error {
   );
 }
 
+/**
+ * Ответ взят из последней удачной копии: CMS сейчас не отвечает (ADR-001,
+ * lib/cms-fetch.ts). Значение — когда копия сохранена. Страницы обстановки
+ * по этому признаку сразу предупреждают, что сведения могли устареть, —
+ * время обстановки при этом остаётся тем, что сообщила CMS.
+ */
+export interface LastKnownGood {
+  staleSince?: string;
+}
+
 export interface Paginated<T> {
   data: T[];
   meta: {
@@ -186,7 +197,7 @@ export async function fetchNews(
   });
 
   try {
-    const res = await fetch(
+    const res = await cmsFetch(
       url,
       cmsFetchOptions("news", query.locale ?? DEFAULT_LOCALE),
     );
@@ -211,7 +222,7 @@ export const fetchNewsItem = cache(async function fetchNewsItem(
   const url = buildUrl(`/news/${encodeURIComponent(slug)}`, { locale });
 
   try {
-    const res = await fetch(url, cmsFetchOptions("news", locale, slug));
+    const res = await cmsFetch(url, cmsFetchOptions("news", locale, slug));
     if (res.status === 404) {
       return null;
     }
@@ -250,7 +261,7 @@ export async function fetchCategories(
   });
 
   try {
-    const res = await fetch(url, {
+    const res = await cmsFetch(url, {
       next: {
         revalidate: REVALIDATE,
         tags: [
@@ -309,7 +320,7 @@ export async function fetchSearch(
 
   try {
     // Поиск не тегируем `cms` (запросы уникальны, инвалидировать не нужно).
-    const res = await fetch(url, {
+    const res = await cmsFetch(url, {
       next: { revalidate: REVALIDATE },
       signal: timeoutSignal(),
     });
@@ -349,7 +360,7 @@ export async function fetchInstructions(
   });
 
   try {
-    const res = await fetch(
+    const res = await cmsFetch(
       url,
       cmsFetchOptions("instruction", query.locale ?? DEFAULT_LOCALE),
     );
@@ -371,7 +382,7 @@ export const fetchInstruction = cache(async function fetchInstruction(
   const url = buildUrl(`/instructions/${encodeURIComponent(slug)}`, { locale });
 
   try {
-    const res = await fetch(url, cmsFetchOptions("instruction", locale, slug));
+    const res = await cmsFetch(url, cmsFetchOptions("instruction", locale, slug));
     if (res.status === 404) {
       return null;
     }
@@ -412,7 +423,7 @@ export async function fetchDocuments(
   });
 
   try {
-    const res = await fetch(
+    const res = await cmsFetch(
       url,
       cmsFetchOptions("document", params.locale ?? DEFAULT_LOCALE),
     );
@@ -445,7 +456,7 @@ export async function fetchProjects(
   });
 
   try {
-    const res = await fetch(
+    const res = await cmsFetch(
       url,
       cmsFetchOptions("project", query.locale ?? DEFAULT_LOCALE),
     );
@@ -467,7 +478,7 @@ export const fetchProject = cache(async function fetchProject(
   const url = buildUrl(`/projects/${encodeURIComponent(slug)}`, { locale });
 
   try {
-    const res = await fetch(url, cmsFetchOptions("project", locale, slug));
+    const res = await cmsFetch(url, cmsFetchOptions("project", locale, slug));
     if (res.status === 404) {
       return null;
     }
@@ -503,7 +514,7 @@ export async function fetchAnnouncements(
   });
 
   try {
-    const res = await fetch(
+    const res = await cmsFetch(
       url,
       cmsFetchOptions("announcement", query.locale ?? DEFAULT_LOCALE),
     );
@@ -527,7 +538,7 @@ export const fetchAnnouncement = cache(async function fetchAnnouncement(
   });
 
   try {
-    const res = await fetch(url, cmsFetchOptions("announcement", locale, slug));
+    const res = await cmsFetch(url, cmsFetchOptions("announcement", locale, slug));
     if (res.status === 404) {
       return null;
     }
@@ -558,7 +569,7 @@ export async function fetchAlerts(
   const url = buildUrl("/alerts", { locale });
 
   try {
-    const res = await fetch(url, cmsFetchOptions("alert", locale));
+    const res = await cmsFetch(url, cmsFetchOptions("alert", locale));
     if (!res.ok) {
       throw cmsResponseError(res);
     }
@@ -589,7 +600,7 @@ export const fetchAlert = cache(async function fetchAlert(
       cmsCacheTags.list("instruction", locale),
       cmsCacheTags.reference("region", locale),
     );
-    const res = await fetch(url, options);
+    const res = await cmsFetch(url, options);
     if (res.status === 404) {
       return null;
     }
@@ -612,16 +623,17 @@ export const fetchAlert = cache(async function fetchAlert(
  */
 export async function fetchAlertsActive(
   locale: Locale = DEFAULT_LOCALE,
-): Promise<ApiAlertsActive | null> {
+): Promise<(ApiAlertsActive & LastKnownGood) | null> {
   const url = buildUrl("/alerts/active", { locale });
 
   try {
-    const res = await fetch(url, cmsFetchOptions("alert", locale));
+    const res = await cmsFetch(url, cmsFetchOptions("alert", locale));
     if (!res.ok) {
       throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiAlertsActive };
-    return body.data;
+    const staleSince = lastKnownGoodSince(res);
+    return staleSince ? { ...body.data, staleSince } : body.data;
   } catch (error) {
     reportCmsFailure("fetchAlertsActive", error);
     return null;
@@ -640,7 +652,7 @@ export async function fetchRegions(
   const url = buildUrl("/regions", { locale });
 
   try {
-    const res = await fetch(url, {
+    const res = await cmsFetch(url, {
       next: {
         revalidate: REVALIDATE,
         tags: [
@@ -692,11 +704,11 @@ export const EMPTY_HOME: ApiHome = {
  */
 export async function fetchHome(
   locale: Locale = DEFAULT_LOCALE,
-): Promise<ApiHome | null> {
+): Promise<(ApiHome & LastKnownGood) | null> {
   const url = buildUrl("/home", { locale });
 
   try {
-    const res = await fetch(url, {
+    const res = await cmsFetch(url, {
       next: {
         revalidate: REVALIDATE,
         tags: [cmsCacheTags.home(locale)],
@@ -707,7 +719,8 @@ export async function fetchHome(
       throw cmsResponseError(res);
     }
     const body = (await res.json()) as { data: ApiHome };
-    return body.data;
+    const staleSince = lastKnownGoodSince(res);
+    return staleSince ? { ...body.data, staleSince } : body.data;
   } catch (error) {
     reportCmsFailure("fetchHome", error);
     return null;
@@ -728,7 +741,7 @@ export const fetchSettings = cache(async function fetchSettings(
   const url = buildUrl("/settings", { locale });
 
   try {
-    const res = await fetch(url, {
+    const res = await cmsFetch(url, {
       next: {
         revalidate: REVALIDATE,
         tags: [cmsCacheTags.shell(locale)],
@@ -753,7 +766,7 @@ export async function fetchMenu(
   const url = buildUrl("/menu", { locale });
 
   try {
-    const res = await fetch(url, {
+    const res = await cmsFetch(url, {
       next: {
         revalidate: REVALIDATE,
         tags: [cmsCacheTags.shell(locale)],
@@ -778,7 +791,7 @@ export async function fetchRegionsDirectory(
   const url = buildUrl("/regions/directory", { locale });
 
   try {
-    const res = await fetch(url, {
+    const res = await cmsFetch(url, {
       next: {
         revalidate: REVALIDATE,
         tags: [cmsCacheTags.reference("region", locale)],
@@ -817,7 +830,7 @@ export async function fetchLeadership(
   const url = buildUrl("/leadership", { locale, per_page: 50 });
 
   try {
-    const res = await fetch(url, {
+    const res = await cmsFetch(url, {
       next: {
         revalidate: REVALIDATE,
         tags: [cmsCacheTags.reference("leadership", locale)],
@@ -855,7 +868,7 @@ export async function fetchStructureUnits(
   const url = buildUrl("/structure", { locale, per_page: 50 });
 
   try {
-    const res = await fetch(url, {
+    const res = await cmsFetch(url, {
       next: {
         revalidate: REVALIDATE,
         tags: [cmsCacheTags.reference("structure", locale)],
@@ -885,7 +898,7 @@ export const fetchPage = cache(async function fetchPage(
   const url = buildUrl(`/pages/${encodeURIComponent(slug)}`, { locale });
 
   try {
-    const res = await fetch(url, cmsFetchOptions("page", locale, slug));
+    const res = await cmsFetch(url, cmsFetchOptions("page", locale, slug));
     if (res.status === 404) {
       return null;
     }
@@ -943,7 +956,7 @@ export async function fetchSitemapEntries(): Promise<SitemapEntry[] | null> {
   const url = buildUrl("/sitemap", {});
 
   try {
-    const res = await fetch(url, {
+    const res = await cmsFetch(url, {
       next: {
         revalidate: REVALIDATE,
         tags: [cmsCacheTags.sitemap],
@@ -1082,7 +1095,7 @@ export async function fetchSlugs(
   const url = buildUrl(`/slugs/${SLUG_ENDPOINTS[type]}`, { locale });
 
   try {
-    const res = await fetch(url, cmsFetchOptions(type, locale));
+    const res = await cmsFetch(url, cmsFetchOptions(type, locale));
     if (!res.ok) {
       throw cmsResponseError(res);
     }
