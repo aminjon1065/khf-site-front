@@ -207,6 +207,10 @@ const region = {
   count: 1,
   statusText: "Предупреждение",
 };
+// Каналы, в которые оператор отправил предупреждение. В ответ API они не
+// входят — CMS фильтрует по ним список (?channel=).
+const alertChannels = { "test-alert": ["site", "sos_app", "rss"] };
+
 const alertItem = {
   slug: "test-alert",
   level: "warning",
@@ -1002,9 +1006,15 @@ const server = createServer(async (request, response) => {
   }
 
   if (path === "/alerts") {
+    // Как в CMS: ?channel= оставляет предупреждения, которые оператор
+    // отправил в этот канал (RSS-лента сайта просит channel=rss).
+    const channel = requestUrl.searchParams.get("channel");
+    const listed = [alertItem].filter(
+      (item) => !channel || (alertChannels[item.slug] ?? []).includes(channel),
+    );
     json(response, {
-      data: [alertItem],
-      meta: { ...emptyPagination, total: 1, last_page: 1 },
+      data: listed,
+      meta: { ...emptyPagination, total: listed.length, last_page: 1 },
     });
     return;
   }

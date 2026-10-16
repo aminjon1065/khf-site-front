@@ -326,6 +326,8 @@ export const en: Dictionary = {
       openMap: "Open risk map",
       emergencyHelp: "Emergency help",
       emergencyNote: "Single emergency number, 24/7",
+      rssFeed: "Alerts RSS feed",
+      rssDescription: "Active alerts of the Committee of Emergency Situations of the Republic of Tajikistan",
       unavailable: {
         label: "Data unavailable",
         badge: "no reliable data",

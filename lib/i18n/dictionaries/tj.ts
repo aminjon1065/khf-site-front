@@ -279,6 +279,8 @@ export const tj: Dictionary = {
       openMap: "Кушодани харитаи хатарҳо",
       emergencyHelp: "Кӯмаки фаврӣ",
       emergencyNote: "Рақами ягонаи хидматҳои фавқулодда, шабонарӯзӣ",
+      rssFeed: "Лентаи RSS-и огоҳиҳо",
+      rssDescription: "Огоҳиҳои амалкунандаи КҲФ Ҷумҳурии Тоҷикистон",
       unavailable: {
         label: "Иттилоот дастрас нест",
         badge: "иттилооти муътамад нест",

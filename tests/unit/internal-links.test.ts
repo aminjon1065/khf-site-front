@@ -36,6 +36,12 @@ function anchorTags(source: string): string[] {
 
 /** Ссылка ведёт внутрь портала? */
 function isInternal(tag: string): boolean {
+  // RSS-лента — XML, а не страница: клиентский переход Next на неё
+  // невозможен, такая ссылка обязана быть обычной <a>.
+  if (/type="application\/rss\+xml"/.test(tag)) {
+    return false;
+  }
+
   const href = tag.match(/href=(?:"([^"]*)"|\{([\s\S]*?)\})/);
 
   if (!href) {

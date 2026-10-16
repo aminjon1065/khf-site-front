@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   buildUrl,
   fetchAlert,
+  fetchAlerts,
   fetchAnnouncements,
   fetchHome,
   fetchDocuments,
@@ -347,6 +348,19 @@ describe("lib/api", () => {
       fetchMock.mockRejectedValue(new Error("network down"));
 
       await expect(fetchHome("ru")).resolves.toBeNull();
+    });
+  });
+
+  describe("fetchAlerts", () => {
+    it("asks the CMS for one channel's alerts when the feed needs them", async () => {
+      fetchMock.mockResolvedValueOnce(jsonResponse({ data: [] }));
+
+      await fetchAlerts("tj", { channel: "rss" });
+
+      const url = new URL(fetchMock.mock.calls[0][0] as string);
+      expect(url.pathname).toMatch(/\/alerts$/);
+      expect(url.searchParams.get("channel")).toBe("rss");
+      expect(url.searchParams.get("locale")).toBe("tg");
     });
   });
 });

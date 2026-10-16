@@ -565,8 +565,11 @@ export type PublicAlertLevel =
  */
 export async function fetchAlerts(
   locale: Locale = DEFAULT_LOCALE,
+  // Только предупреждения, отправленные оператором в этот канал (RSS-лента
+  // сайта берёт `rss`). Без него — все действующие, как показывает сайт.
+  options: { channel?: "site" | "sos_app" | "rss" } = {},
 ): Promise<ApiAlert[] | null> {
-  const url = buildUrl("/alerts", { locale });
+  const url = buildUrl("/alerts", { locale, channel: options.channel });
 
   try {
     const res = await cmsFetch(url, cmsFetchOptions("alert", locale));

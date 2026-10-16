@@ -21,7 +21,15 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const locale = toLocale((await params).locale);
   const { common, pages } = getDictionary(locale);
-  return buildMetadata({ locale, title: pages.meta.alerts, path: "/alerts", siteName: common.siteShort });
+  const metadata = buildMetadata({ locale, title: pages.meta.alerts, path: "/alerts", siteName: common.siteShort });
+  // Читатели RSS и браузеры находят ленту по <link rel="alternate">.
+  return {
+    ...metadata,
+    alternates: {
+      ...metadata.alternates,
+      types: { "application/rss+xml": `/${locale}/alerts/rss.xml` },
+    },
+  };
 }
 
 export const revalidate = 60;
@@ -122,6 +130,15 @@ export default async function AlertsPage({
             style={{ color: muted(70) }}
           />
         )}
+        {/* Обычная ссылка, не LocaleLink: лента — XML, а не страница сайта. */}
+        <a
+          href={`/${locale}/alerts/rss.xml`}
+          type="application/rss+xml"
+          className="self-start text-xs"
+          style={{ color: muted(70) }}
+        >
+          {pages.alertsList.rssFeed}
+        </a>
       </section>
 
       <div className="mt-7 grid grid-cols-[minmax(0,1.7fr)_minmax(280px,1fr)] items-start gap-7 max-[920px]:grid-cols-1">
