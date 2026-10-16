@@ -1,6 +1,6 @@
 /**
  * Generated from khf-site-cms/openapi/openapi.json.
- * Schema SHA-256: 8622aa9302b6345d
+ * Schema SHA-256: 86e7705b957f186e
  * Do not edit by hand; run `npm run api:types`.
  */
 
@@ -416,6 +416,22 @@ export interface SubmissionRequest {
 
 export interface SubmissionResponse {
   tracking_number: string;
+  access_code: string;
+}
+
+export interface SubmissionStatusRequest {
+  tracking_number: string;
+  access_code: string;
+}
+
+export interface SubmissionStatusResponse {
+  data: {
+    tracking_number: string;
+    status_code: "received" | "in_review" | "completed" | "rejected";
+    status: string;
+    received_at: string | null;
+    updated_at: string | null;
+  };
 }
 
 export interface WebVitalRequest {
