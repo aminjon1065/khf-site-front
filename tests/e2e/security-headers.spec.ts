@@ -49,23 +49,39 @@ test("контракт распространяется на 404, служебн
   }
 });
 
-async function firstStaticAsset(
+/**
+ * Next не сжимает ответы меньше 1 КБ (порог `compression`), поэтому берём
+ * первый файл крупнее: первым в разметке может оказаться крошечный чанк —
+ * после перехода на Next 16.4 им стал JS на 350 байт, и тест падал на
+ * правильном поведении сервера.
+ */
+async function compressibleStaticAsset(
   request: APIRequestContext,
   extension: "js" | "css",
 ): Promise<string> {
   const html = await (await request.get("/ru")).text();
-  const match = html.match(
-    new RegExp(`/_next/static/[\\w/.-]+\\.${extension}`),
-  );
-  expect(match, `в разметке нет ссылки на .${extension}`).toBeTruthy();
-  return match![0];
+  const paths = [
+    ...new Set(
+      html.match(new RegExp(`/_next/static/[\\w/.-]+\\.${extension}`, "g")),
+    ),
+  ];
+  expect(paths.length, `в разметке нет ссылки на .${extension}`).toBeGreaterThan(0);
+  for (const path of paths) {
+    const body = await (
+      await request.get(path, { headers: { "accept-encoding": "identity" } })
+    ).body();
+    if (body.length > 2048) {
+      return path;
+    }
+  }
+  throw new Error(`все .${extension} в разметке меньше порога сжатия`);
 }
 
 test("хешированная статика отдаётся сжатой и с immutable-кэшем", async ({
   request,
 }) => {
   for (const extension of ["js", "css"] as const) {
-    const path = await firstStaticAsset(request, extension);
+    const path = await compressibleStaticAsset(request, extension);
     const response = await request.get(path, {
       headers: { "accept-encoding": "gzip" },
     });
