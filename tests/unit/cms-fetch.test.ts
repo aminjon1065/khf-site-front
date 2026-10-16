@@ -55,6 +55,24 @@ describe("cmsFetch", () => {
     expect(copy.headers.get(LAST_KNOWN_GOOD_HEADER)).toMatch(/^\d{4}-\d{2}-\d{2}T/);
   });
 
+  it("finds a copy the build made through the public CMS address", async () => {
+    // `next build` ходит в CMS по публичному адресу, а сайт в Docker — по
+    // внутреннему http://cms-web: копия пререндера должна найтись и так.
+    fetchMock.mockResolvedValueOnce(json({ data: { state: "warning" } }));
+    await cmsFetch("https://cms.example.org/api/v1/alerts/active?locale=ru");
+
+    fetchMock.mockRejectedValueOnce(new TypeError("fetch failed"));
+    const copy = await cmsFetch("http://cms-web/api/v1/alerts/active?locale=ru");
+
+    expect(await copy.json()).toEqual({ data: { state: "warning" } });
+
+    // Другой язык — другая копия.
+    fetchMock.mockRejectedValueOnce(new TypeError("fetch failed"));
+    await expect(
+      cmsFetch("http://cms-web/api/v1/alerts/active?locale=tg"),
+    ).rejects.toThrow("fetch failed");
+  });
+
   it.each([500, 502, 503, 429])(
     "serves the copy when the CMS answers %i",
     async (status) => {

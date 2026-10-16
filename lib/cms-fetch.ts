@@ -77,10 +77,26 @@ function rememberable(url: string): boolean {
   }
 }
 
+/**
+ * Ключ копии — путь после `/api/v1` с параметрами (`/alerts/active?locale=ru`),
+ * а не полный адрес. Сборка ходит в CMS по её публичному адресу, а работающий
+ * сайт — по внутреннему (в Docker — `http://cms-web`): с полным адресом
+ * копии, сделанные пререндером, не находились бы при первом же сбое.
+ */
+function keyOf(url: string): string {
+  try {
+    const { pathname, search } = new URL(url);
+    const api = pathname.indexOf("/api/v1/");
+    return `${api >= 0 ? pathname.slice(api + "/api/v1".length) : pathname}${search}`;
+  } catch {
+    return url;
+  }
+}
+
 function fileFor(directory: string, url: string): string {
   return path.join(
     directory,
-    `${createHash("sha256").update(url).digest("hex")}.json`,
+    `${createHash("sha256").update(keyOf(url)).digest("hex")}.json`,
   );
 }
 
@@ -113,7 +129,7 @@ async function remember(url: string, body: string): Promise<void> {
   // Отметка — до записи: пререндер запрашивает один адрес из многих
   // страниц сразу, и без неё они писали бы одну копию наперегонки.
   lastWrittenAt.set(file, now);
-  const entry: Entry = { url, savedAt: new Date(now).toISOString(), body };
+  const entry: Entry = { url: keyOf(url), savedAt: new Date(now).toISOString(), body };
   try {
     await mkdir(directory, { recursive: true });
     // Атомарно: читатель при параллельном сбое не увидит половину файла.
@@ -154,7 +170,7 @@ async function recall(url: string): Promise<Response | null> {
     const entry = JSON.parse(
       await readFile(fileFor(directory, url), "utf8"),
     ) as Entry;
-    if (entry.url !== url) {
+    if (entry.url !== keyOf(url)) {
       return null;
     }
     return new Response(entry.body, {
