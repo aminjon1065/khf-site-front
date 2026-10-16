@@ -1,6 +1,6 @@
 /**
  * Generated from khf-site-cms/openapi/openapi.json.
- * Schema SHA-256: 9d3da40a8659eef9
+ * Schema SHA-256: 8622aa9302b6345d
  * Do not edit by hand; run `npm run api:types`.
  */
 
@@ -430,6 +430,19 @@ export interface WebVitalRequest {
 
 export interface WebVitalResponse {
   accepted: boolean;
+}
+
+export interface ContentViewsRequest {
+  views: Array<{
+    type: "news" | "alert" | "instruction" | "project" | "announcement" | "page";
+    slug: string;
+    locale: "ru" | "tj" | "en";
+    count: number;
+  }>;
+}
+
+export interface ContentViewsResponse {
+  recorded: number;
 }
 
 export interface ValidationError {
