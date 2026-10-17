@@ -74,7 +74,7 @@ for (const [name, listRoute, linkSelector] of [
   ["guide", "/ru/guides", "main a[href*='/guides/']"],
   ["project", "/ru/projects", "main a[href*='/projects/']"],
   ["announcement", "/ru/announcements", "main a[href*='/announcements/']"],
-  ["alert", "/ru/alerts", "main a[href*='/alerts/']"],
+  ["alert", "/ru/alerts", "main a[href*='/alerts/']:not([type='application/rss+xml'])"],
 ] as const) {
   test(`a ${name} detail page has no axe violations at all`, async ({
     page,

@@ -39,7 +39,10 @@ test("alerts list risk map renders region paths", async ({ page }) => {
 
 test("alert detail risk map renders region paths", async ({ page }) => {
   await page.goto("/ru/alerts");
-  const firstAlertLink = page.locator("main a[href*='/alerts/']").first();
+  // Ссылка на предупреждение, а не на RSS-ленту рядом со сводкой.
+  const firstAlertLink = page
+    .locator("main a[href*='/alerts/']:not([type='application/rss+xml'])")
+    .first();
   await firstAlertLink.click();
   await expectMapToRender(page);
 });
