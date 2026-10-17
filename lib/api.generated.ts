@@ -1,6 +1,6 @@
 /**
  * Generated from khf-site-cms/openapi/openapi.json.
- * Schema SHA-256: 86e7705b957f186e
+ * Schema SHA-256: d59723d005ae9352
  * Do not edit by hand; run `npm run api:types`.
  */
 
@@ -611,4 +611,10 @@ export interface SitemapEntry {
   slug: string;
   locales: Array<"tg" | "ru" | "en">;
   modified_at: string | null;
+}
+
+export interface LegacyRedirectResponse {
+  data: {
+    path: string;
+  };
 }
