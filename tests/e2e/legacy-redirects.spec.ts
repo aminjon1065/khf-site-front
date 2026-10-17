@@ -10,7 +10,8 @@ test("старый адрес khf.tj ведёт к таджикской верс
   const response = await request.get("/node/6112", { maxRedirects: 0 });
 
   expect(response.status()).toBe(301);
-  expect(new URL(response.headers()["location"]).pathname).toBe(
+  // Next отдаёт Location относительным путём.
+  expect(new URL(response.headers()["location"], "http://site").pathname).toBe(
     "/tj/news/test-news",
   );
 });
@@ -21,7 +22,8 @@ test("старый адрес kchs.tj, пришедший под /ru, ведёт
   const response = await request.get("/ru/node/4163", { maxRedirects: 0 });
 
   expect(response.status()).toBe(301);
-  expect(new URL(response.headers()["location"]).pathname).toBe(
+  // Next отдаёт Location относительным путём.
+  expect(new URL(response.headers()["location"], "http://site").pathname).toBe(
     "/ru/news/test-news",
   );
 });
