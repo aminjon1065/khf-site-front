@@ -1005,6 +1005,21 @@ const server = createServer(async (request, response) => {
     return;
   }
 
+  // Старые адреса прежних сайтов: khf.tj/node/6112 — таджикская версия
+  // учебной новости, kchs.tj/node/4163 — русская.
+  if (path === "/redirects/legacy") {
+    const legacy = {
+      "khf.tj/node/6112": "/tj/news/test-news",
+      "kchs.tj/node/4163": "/ru/news/test-news",
+    }[requestUrl.searchParams.get("source") ?? ""];
+    if (legacy) {
+      json(response, { data: { path: legacy } });
+    } else {
+      json(response, { message: "No current page for this address." }, 404);
+    }
+    return;
+  }
+
   if (path === "/alerts") {
     // Как в CMS: ?channel= оставляет предупреждения, которые оператор
     // отправил в этот канал (RSS-лента сайта просит channel=rss).

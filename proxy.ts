@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { legacySource, resolveLegacyPath } from "@/lib/legacy-redirect";
 import {
   DEFAULT_LOCALE,
   LOCALES,
@@ -72,8 +73,19 @@ const COOKIE_OPTIONS = {
   sameSite: "lax",
 } as const;
 
-export function proxy(request: NextRequest): NextResponse {
+export async function proxy(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
+
+  // Старый адрес прежних сайтов (/node/6112, /ru/node/… с kchs.tj): ссылки
+  // на них живут в документах и поиске — ведём к материалу постоянной
+  // переадресацией. Неизвестный адрес идёт дальше обычным путём (404).
+  const source = legacySource(pathname);
+  if (source) {
+    const target = await resolveLegacyPath(source);
+    if (target) {
+      return NextResponse.redirect(new URL(target, request.url), 301);
+    }
+  }
 
   // Путь уже с префиксом локали: пропускаем, но запоминаем текущий язык в cookie,
   // чтобы следующий заход на `/` открыл его же. Так переключатель языка в шапке
